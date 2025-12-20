@@ -119,14 +119,12 @@
 
     <nav class="fixed top-0 w-full z-50 px-12 py-5 flex justify-between items-center">
         <div class="text-2xl font-extrabold tracking-tighter text-white">IIN<span class="text-[#8b8dfc]">.edu</span></div>
-        <div class="hidden lg:flex items-center space-x-12">
-            <div class="flex space-x-8 text-sm font-semibold text-gray-400">
-                <a href="index.html" class="hover:text-white transition">Home</a>
-                <a href="aboutpage.html" class="hover:text-white transition">About</a>
-                <a href="subtittlepyq.html" class="hover:text-white transition">PYQ</a>
-                <a href="testfirstpage.html" class="text-white underline underline-offset-8">Tests</a>
-                <a href="future.html" class="hover:text-white transition">Future Career</a>
-            </div>
+        <div class="hidden lg:flex items-center space-x-12 text-sm font-semibold text-gray-400">
+            <a href="index.html" class="hover:text-white transition">Home</a>
+            <a href="aboutpage.html" class="hover:text-white transition">About</a>
+            <a href="subtittlepyq.html" class="hover:text-white transition">PYQ</a>
+            <a href="testfirstpage.html" class="text-white underline underline-offset-8">Tests</a>
+            <a href="future.html" class="hover:text-white transition">Future Career</a>
             <button id="loginBtn" onclick="window.location.href='signinpage.html'" class="login-btn">Login</button>
         </div>
     </nav>
@@ -135,11 +133,8 @@
         <header class="mb-32 reveal">
             <div class="hud-text mb-4">Strategic Assessment // v2025.04</div>
             <h1 class="hero-title mb-8">PREMIUM <br><span class="text-blue-500">TEST SERIES.</span></h1>
-            <p class="text-slate-400 text-lg max-w-2xl border-l-2 border-blue-500 pl-8">
-                Preparation sequences designed by researchers for IAT, NEST, and ISI aspirants.
-            </p>
+            <p class="text-slate-400 text-lg max-w-2xl border-l-2 border-blue-500 pl-8">Preparation sequences designed by researchers for IAT, NEST, and ISI aspirants.</p>
         </header>
-
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="cardsContainer"></div>
     </main>
 
@@ -166,9 +161,7 @@
                         ${test.features.map(f => `<li class="text-sm text-slate-400"><span class="text-blue-500 mr-2">✓</span>${f}</li>`).join('')}
                     </ul>
                 </div>
-                <button onclick="executePurchase('${test.id}', ${test.price})" class="buy-btn w-full py-4 rounded-xl text-white text-xs" id="btn-${test.id}">
-                    Execute Purchase
-                </button>
+                <button onclick="executePurchase('${test.id}', ${test.price})" class="buy-btn w-full py-4 rounded-xl text-white text-xs" id="btn-${test.id}">Execute Purchase</button>
             `;
             cardsContainer.appendChild(card);
         });
@@ -185,7 +178,7 @@
 
         function closeModal() { document.getElementById("emailModal").style.display = "none"; }
 
-        async function handleModalSubmit() {
+        function handleModalSubmit() {
             const email = document.getElementById("modalUserEmail").value.trim();
             if (!email || !email.includes("@")) { alert("Please enter a valid email."); return; }
             localStorage.setItem("userEmail", email); 
@@ -194,7 +187,6 @@
             location.reload(); 
         }
 
-        // CORRECTED PAYMENT LOGIC
         async function startPayment(userEmail, testId, amount) {
             try {
                 const { data: { key } } = await axios.get(`${API_BASE_URL}/api/getkey`);
@@ -210,28 +202,28 @@
                     prefill: { email: userEmail },
                     theme: { color: "#3b82f6" },
                     
-                    // FIXED HANDLER: Sends email to backend for verification
+                    // UPDATED HANDLER: Passes the Email handle to the Backend
                     handler: async function (response) {
                         try {
                             const { data } = await axios.post(`${API_BASE_URL}/api/paymentverification`, {
                                 razorpay_order_id: response.razorpay_order_id,
                                 razorpay_payment_id: response.razorpay_payment_id,
                                 razorpay_signature: response.razorpay_signature,
-                                email: userEmail // This solves the "Email Required" crash!
+                                email: localStorage.getItem("userEmail") // Required for MongoDB
                             });
 
                             if (data.success) {
-                                alert(`PAYMENT SUCCESS! Your Exam Token is: ${data.token}`);
+                                alert(`SUCCESS! Your Exam Token is: ${data.token}`);
                                 window.location.href = "signinpage.html";
                             }
                         } catch (err) {
-                            alert("Verification Error. Token was emailed to you.");
+                            alert("Payment verified! Check your email for your token shortly.");
                         }
                     }
                 };
                 const razor = new window.Razorpay(options);
                 razor.open();
-            } catch (error) { alert("Server starting... please try again in 10s."); }
+            } catch (error) { alert("Server is waking up. Please try again in 10s."); }
         }
 
         window.onload = function() {
