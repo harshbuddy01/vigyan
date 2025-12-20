@@ -1,23 +1,10 @@
-// backend/models/payment.js
-import mongoose from "mongoose";
+import express from "express";
+// Both names here must match the 'export const' names in the controller
+import { checkout, paymentVerification } from "../controllers/paymentController.js";
 
-const paymentSchema = new mongoose.Schema({
-  razorpay_order_id: { type: String, required: true },
-  razorpay_payment_id: { type: String, required: true },
-  razorpay_signature: { type: String, required: true },
-  // Adding the field for your new automatic 8-digit token
-  examToken: { 
-    type: String, 
-    index: true 
-  }, 
-  email: { 
-    type: String, 
-    index: true 
-  },      
-  isUsed: { type: Boolean, default: false },
-  testId: { type: String },
-  createdAt: { type: Date, default: Date.now }
-});
+const router = express.Router();
 
-// CHANGE THIS: Remove 'default' and use a named export
-export const Payment = mongoose.model("Payment", paymentSchema);
+router.route("/checkout").post(checkout);
+router.route("/paymentverification").post(paymentVerification);
+
+export default router;
