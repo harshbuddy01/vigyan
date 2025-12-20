@@ -2,6 +2,9 @@ import crypto from "crypto";
 import nodemailer from "nodemailer";
 import { Payment } from "../models/payment.js";
 import { instance } from "../server.js";
+// backend/controllers/paymentController.js
+
+
 
 export const paymentVerification = async (req, res) => {
   const { razorpay_order_id, razorpay_payment_id, razorpay_signature, email } = req.body;
