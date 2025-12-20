@@ -74,7 +74,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="cardsContainer"></div>
     </main>
 
-    <script>
+   <script>
         const testSeries = [
             { id: 'iat', name: 'IAT SERIES', price: 199 },
             { id: 'nest', name: 'NEST SERIES', price: 199 },
@@ -97,13 +97,11 @@
             cardsContainer.appendChild(card);
         });
 
-        // Check Local Storage on Load to turn buttons GREEN
+        // Check Local Storage
         window.onload = function() {
             const purchased = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
             testSeries.forEach(test => {
-                if (purchased.includes(test.id)) {
-                    markAsPurchased(test.id);
-                }
+                if (purchased.includes(test.id)) markAsPurchased(test.id);
             });
         };
 
@@ -111,18 +109,17 @@
             const btn = document.getElementById(`btn-${testId}`);
             if (btn) {
                 btn.innerHTML = "★ START SEQUENCE";
-                btn.style.background = "#10b981"; // Green color
+                btn.style.background = "#10b981";
                 btn.onclick = () => window.location.href = `instructions.html?testId=${testId}`;
             }
         }
 
         function executePurchase(testId, amount) {
-            // FIX: Trim and lowercase ensures clean email matching
             let userEmail = localStorage.getItem("userEmail");
-            if (userEmail) {
+            // Strict check: if email is missing or empty, force modal
+            if (userEmail && userEmail.includes("@")) {
                 startPayment(userEmail, testId, amount);
             } else {
-                // Store testId temporarily to resume after email entry
                 localStorage.setItem("tempTestId", testId);
                 localStorage.setItem("tempAmount", amount);
                 document.getElementById("emailModal").style.display = "flex";
@@ -130,16 +127,14 @@
         }
 
         function handleModalSubmit() {
-            // FIX: Sanitizing input to prevent "Invalid Token" errors later
             const emailInput = document.getElementById("modalUserEmail").value;
             const cleanEmail = emailInput.trim().toLowerCase(); 
 
-            if (!cleanEmail || !cleanEmail.includes("@")) return alert("Valid email required.");
+            if (!cleanEmail || !cleanEmail.includes("@")) return alert("Please enter a valid email address.");
             
             localStorage.setItem("userEmail", cleanEmail);
             document.getElementById("emailModal").style.display = "none";
             
-            // Resume purchase if pending
             const testId = localStorage.getItem("tempTestId");
             const amount = localStorage.getItem("tempAmount");
             if (testId && amount) startPayment(cleanEmail, testId, amount);
@@ -147,6 +142,9 @@
 
         async function startPayment(userEmail, testId, amount) {
             try {
+                // Double check email before sending
+                if(!userEmail) { alert("Email error. Please refresh."); return; }
+
                 const { data: { key } } = await axios.get(`${API_BASE_URL}/api/getkey`);
                 const { data: { order } } = await axios.post(`${API_BASE_URL}/api/checkout`, { amount, testId });
                 
@@ -162,34 +160,44 @@
                     
                     handler: async function (response) {
                         try {
-                            const { data } = await axios.post(`${API_BASE_URL}/api/paymentverification`, {
+                            // Call verification
+                            const verifyRes = await axios.post(`${API_BASE_URL}/api/paymentverification`, {
                                 razorpay_order_id: response.razorpay_order_id,
                                 razorpay_payment_id: response.razorpay_payment_id,
                                 razorpay_signature: response.razorpay_signature,
                                 email: userEmail 
                             });
 
-                            if (data.success) {
-                                // 1. Save Purchase to LocalStorage so Button turns GREEN
+                            if (verifyRes.data.success) {
+                                // Save purchase locally
                                 const purchased = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
                                 if (!purchased.includes(testId)) {
                                     purchased.push(testId);
                                     localStorage.setItem("purchasedTests", JSON.stringify(purchased));
                                 }
-                                markAsPurchased(testId); // Update UI immediately
+                                markAsPurchased(testId);
 
-                                // 2. Show the New Success Modal (No more alert)
-                                document.getElementById("finalTokenDisplay").innerText = data.token;
+                                // Show Token Modal
+                                document.getElementById("finalTokenDisplay").innerText = verifyRes.data.token;
                                 document.getElementById("successModal").style.display = "flex";
+                            } else {
+                                alert("Verification Failed: " + verifyRes.data.message);
                             }
                         } catch (err) {
-                            alert("Payment Verified. Check your email for the token.");
+                            console.error(err);
+                            // Fallback if server doesn't respond quickly
+                            alert("Payment recorded! Please check your email ("+userEmail+") for the token.");
                         }
                     }
                 };
-                new Razorpay(options).open();
+                const rzp = new Razorpay(options);
+                rzp.on('payment.failed', function (response){
+                    alert("Payment Failed: " + response.error.description);
+                });
+                rzp.open();
             } catch (error) {
-                alert("Connecting to server... please try again in 10s.");
+                console.error(error);
+                alert("Server connection issue. Please try again in 10 seconds.");
             }
         }
     </script>
