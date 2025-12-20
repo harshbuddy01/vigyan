@@ -1,4 +1,4 @@
-import Payment from "../models/payment.js";
+import { Payment } from "../models/payment.js";
 import Question from "../models/question.js";
 import ExamResult from "../models/results.js";
 
