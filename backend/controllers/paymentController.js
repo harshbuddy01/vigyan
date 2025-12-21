@@ -1,5 +1,4 @@
 import crypto from "crypto";
-import nodemailer from "nodemailer";
 import { instance } from "../server.js";
 import { Payment } from "../models/payment.js";
 
@@ -22,105 +21,192 @@ export const checkout = async (req, res) => {
   }
 };
 
-// 3. PAYMENT VERIFICATION
+// 3. PAYMENT VERIFICATION (FIXED - One Roll Number Per Email)
 export const paymentVerification = async (req, res) => {
-  console.log("🔹 Verification Started..."); 
+  console.log("🔹 Verification Started...");
+  
   try {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, email, testId, amount } = req.body;
+    
+    // Validate required fields
+    if (!email) {
+      return res.status(400).json({ success: false, message: "Email is required" });
+    }
 
+    if (!testId) {
+      return res.status(400).json({ success: false, message: "TestId is required" });
+    }
+
+    // Verify Razorpay signature
     const body = razorpay_order_id + "|" + razorpay_payment_id;
     const expectedSignature = crypto
       .createHmac("sha256", process.env.RAZORPAY_API_SECRET)
       .update(body.toString())
       .digest("hex");
 
-    if (expectedSignature === razorpay_signature) {
-      
-      // 1. Check if student exists
-      const normalizedEmail = email.toLowerCase().trim();
-      let student = await Payment.findOne({ email: normalizedEmail });
-      
-      let rollNumber;
-      let isNewStudent = false;
-
-      if (student) {
-        // EXISTING: Reuse Roll Number
-        rollNumber = student.rollNumber;
-        
-        // Add new test if not already present
-        if (!student.purchasedTests.includes(testId)) {
-             student.purchasedTests.push(testId);
-        }
-
-        // Add payment record
-        student.payments.push({
-            razorpay_order_id,
-            razorpay_payment_id,
-            razorpay_signature,
-            testId: testId || "unknown",
-            amount: amount || 0,
-            status: "paid"
-        });
-        await student.save();
-        console.log(`✅ Updated User: ${normalizedEmail} (Roll: ${rollNumber})`);
-
-      } else {
-        // NEW: Generate Roll Number
-        rollNumber = Math.floor(10000000 + Math.random() * 90000000).toString();
-        isNewStudent = true;
-        
-        // Create Record
-        await Payment.create({
-          email: normalizedEmail,
-          rollNumber: rollNumber,
-          purchasedTests: [testId],
-          payments: [{
-            razorpay_order_id,
-            razorpay_payment_id,
-            razorpay_signature,
-            testId: testId || "unknown",
-            amount: amount || 0,
-            status: "paid"
-          }]
-        });
-        console.log(`✅ Created User: ${normalizedEmail} (Roll: ${rollNumber})`);
-      }
-
-      // 2. Send Email (Using Port 587 - Standard Fix)
-      try {
-        const transporter = nodemailer.createTransport({
-          host: "smtp.gmail.com",
-          port: 587,
-          secure: false,
-          auth: {
-            user: process.env.GMAIL_USER,
-            pass: process.env.GMAIL_PASS
-          },
-          tls: {
-            rejectUnauthorized: false
-          }
-        });
-
-        await transporter.sendMail({
-          from: `"IIN Exams" <${process.env.GMAIL_USER}>`,
-          to: email,
-          subject: isNewStudent ? 'Your IIN Roll Number' : 'Payment Confirmation',
-          text: `Success! Your Roll Number is: ${rollNumber}. \n\nLogin at iin-theta.vercel.app`
-        });
-        
-        console.log(`✅ Email sent to ${email}`);
-      } catch (emailError) {
-        console.error("❌ Email FAILED:", emailError.message);
-      }
-
-      // 3. Return Success
-      res.status(200).json({ success: true, token: rollNumber });
-
-    } else {
-      res.status(400).json({ success: false, message: "Invalid Signature" });
+    if (expectedSignature !== razorpay_signature) {
+      return res.status(400).json({ success: false, message: "Invalid Payment Signature" });
     }
+
+    // Payment verified! Now handle roll number logic
+    const normalizedEmail = email.toLowerCase().trim();
+    
+    // Check if student already exists
+    let student = await Payment.findOne({ email: normalizedEmail });
+    
+    let rollNumber;
+    let isNewStudent = false;
+
+    if (student) {
+      // EXISTING STUDENT - Use their existing roll number
+      rollNumber = student.rollNumber;
+      
+      // Check if they already purchased this test
+      if (student.purchasedTests.includes(testId)) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "You have already purchased this test" 
+        });
+      }
+      
+      // Add new test to their purchased tests
+      student.purchasedTests.push(testId);
+      
+      // Add payment to history
+      student.payments.push({
+        razorpay_order_id,
+        razorpay_payment_id,
+        razorpay_signature,
+        testId,
+        amount: amount || 199,
+        status: "paid"
+      });
+      
+      await student.save();
+      console.log(`✅ Updated existing student: ${normalizedEmail}, Roll: ${rollNumber}`);
+      
+    } else {
+      // NEW STUDENT - Generate new roll number
+      rollNumber = Math.floor(10000000 + Math.random() * 90000000).toString();
+      isNewStudent = true;
+      
+      console.log(`🔹 New Student. Generated Token: ${rollNumber}`); // This matches your log
+      
+      // Create new student record - FIXED: Include rollNumber
+      student = await Payment.create({
+        email: normalizedEmail,
+        rollNumber: rollNumber, // FIXED: This was missing!
+        purchasedTests: [testId],
+        payments: [{
+          razorpay_order_id,
+          razorpay_payment_id,
+          razorpay_signature,
+          testId,
+          amount: amount || 199,
+          status: "paid"
+        }]
+      });
+      
+      console.log(`✅ Created new student: ${normalizedEmail}, Roll: ${rollNumber}`);
+    }
+
+    // Send email using Resend API (FIXED - No more Nodemailer)
+    try {
+      const emailHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f5f5f5;">
+          <div style="background-color: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px;">
+                <h1 style="margin: 0; font-size: 28px;">✅ Payment Successful!</h1>
+              </div>
+            </div>
+            
+            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+              <p style="font-size: 16px; color: #333; margin: 0 0 10px 0;">
+                ${isNewStudent ? 'Your Roll Number has been generated:' : 'Your existing Roll Number:'}
+              </p>
+              <div style="background-color: white; padding: 15px; border-radius: 5px; text-align: center; border: 2px dashed #667eea;">
+                <p style="margin: 0; font-size: 14px; color: #666;">Roll Number</p>
+                <h2 style="margin: 10px 0 0 0; font-size: 36px; color: #667eea; letter-spacing: 3px; font-family: 'Courier New', monospace;">${rollNumber}</h2>
+              </div>
+            </div>
+
+            <div style="background-color: #e8f5e9; padding: 15px; border-radius: 8px; border-left: 4px solid #4caf50; margin-bottom: 20px;">
+              <p style="margin: 0; font-size: 14px; color: #2e7d32;">
+                <strong>✅ Test Purchased:</strong> ${testId.toUpperCase()} Test Series
+              </p>
+            </div>
+
+            ${!isNewStudent ? `
+            <div style="background-color: #fff3e0; padding: 15px; border-radius: 8px; border-left: 4px solid #ff9800; margin-bottom: 20px;">
+              <p style="margin: 0; font-size: 14px; color: #e65100;">
+                <strong>📝 Note:</strong> You're using your existing Roll Number. All your purchased tests are linked to this Roll Number.
+              </p>
+            </div>
+            ` : ''}
+
+            <div style="background-color: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107; margin-bottom: 20px;">
+              <p style="margin: 0; font-size: 14px; color: #856404;">
+                <strong>⚠️ Important:</strong> Save this Roll Number securely. You'll need it to access all your purchased tests.
+              </p>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+              <a href="https://iin-theta.vercel.app" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 25px; font-weight: bold; font-size: 16px;">
+                Access Your Tests 🚀
+              </a>
+            </div>
+
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center;">
+              <p style="margin: 0; font-size: 12px; color: #999;">
+                If you have any questions, reply to this email.<br>
+                © ${new Date().getFullYear()} IIN Exams. All rights reserved.
+              </p>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // FIXED: Using Resend API instead of Nodemailer
+      const resendResponse = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          from: 'IIN Exams <onboarding@resend.dev>',
+          to: normalizedEmail,
+          subject: `🎓 ${isNewStudent ? 'Your Roll Number' : 'Payment Confirmed'} - ${testId.toUpperCase()} Test Series`,
+          html: emailHtml
+        })
+      });
+
+      const resendData = await resendResponse.json();
+
+      if (resendResponse.ok) {
+        console.log(`✅ Email sent successfully to ${normalizedEmail}`);
+      } else {
+        console.error("❌ Email send failed:", resendData);
+      }
+      
+    } catch (emailError) {
+      console.error("❌ Email Error:", emailError.message);
+    }
+
+    // Return success with roll number and purchased tests
+    res.status(200).json({ 
+      success: true, 
+      rollNumber,
+      isNewStudent,
+      purchasedTests: student.purchasedTests,
+      message: isNewStudent 
+        ? "Payment successful! Your Roll Number has been generated." 
+        : "Payment successful! Test added to your account."
+    });
+    
   } catch (error) {
-    console.error("❌ Server Error:", error);
+    console.error("❌ Payment Verification Error:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };

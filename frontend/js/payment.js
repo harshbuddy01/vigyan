@@ -1,109 +1,139 @@
-window.PAYMENT = {
-    currentTestId: null,
-    currentPrice: null,
+// js/payment.js - Full Integration for Elite Exam Protocols
 
-    // Triggered when user clicks "Execute Purchase"
-    executePurchase: function(testId, price) {
-        this.currentTestId = testId;
-        this.currentPrice = price;
+// Execute purchase (Main entry point)
+async function executePurchase(testId, amount) {
+    console.log("🔹 Purchase initiated for:", testId);
+    
+    // Store test info for modal context
+    localStorage.setItem("tempTestId", testId);
+    localStorage.setItem("tempAmount", amount);
+    
+    const userEmail = localStorage.getItem("userEmail");
 
-        // SMART CHECK: Is user already logged in?
-        const isLoggedIn = localStorage.getItem("isLoggedIn");
-        const storedEmail = localStorage.getItem("userEmail");
-
-        if (isLoggedIn === "true" && storedEmail) {
-            // YES: Skip modal, go straight to payment with stored email
-            this.startRazorpay(storedEmail);
-        } else {
-            // NO: Show the Email Modal
-            document.getElementById('emailModal').style.display = 'flex';
+    // Show modal to verify status even if email exists
+    const emailModal = document.getElementById("emailModal");
+    if (emailModal) {
+        if (userEmail) {
+            document.getElementById("modalUserEmail").value = userEmail;
         }
-    },
+        emailModal.style.display = "flex";
+    } else {
+        alert("Please refresh the page.");
+    }
+}
 
-    // Triggered when user enters email in Modal
-    handleModalSubmit: function() {
-        const email = document.getElementById('modalUserEmail').value;
-        if (!email) {
-            alert("Please enter a valid email.");
+// Handle email modal submission (INTEGRATED VERIFICATION)
+async function handleModalSubmit() {
+    const emailInput = document.getElementById("modalUserEmail");
+    const rollInput = document.getElementById("modalRollNumber"); 
+    
+    const cleanEmail = emailInput.value.trim().toLowerCase();
+    const rollNo = rollInput ? rollInput.value.trim() : null;
+
+    if (!cleanEmail || !cleanEmail.includes("@")) {
+        alert("Please enter a valid email address.");
+        return;
+    }
+
+    try {
+        // STEP 1: Deep Verification (Scenario 1, 2, and 3)
+        const verifyRes = await axios.post(`${window.API_BASE_URL}/api/verify-user-full`, { 
+            email: cleanEmail,
+            rollNumber: rollNo 
+        });
+
+        const status = verifyRes.data.status;
+
+        // Scenario 3: Email exists, but Roll Number is missing
+        if (status === "EXISTING_USER_NEED_ROLL") {
+            const rollGroup = document.getElementById("rollFieldGroup");
+            if (rollGroup) {
+                rollGroup.classList.remove("hidden");
+                emailInput.disabled = true; 
+                document.getElementById("modalActionBtn").innerText = "Verify & Pay";
+                alert("Existing account found! Please enter your Roll Number to link this purchase.");
+            }
             return;
         }
-        // Save this email for future use (Auto-Login logic)
-        localStorage.setItem("userEmail", email);
-        
-        // Hide modal and start payment
-        document.getElementById('emailModal').style.display = 'none';
-        this.startRazorpay(email);
-    },
 
-    startRazorpay: function(email) {
+        // Scenario 3 Safety: Wrong Roll Number
+        if (status === "WRONG_ROLL") {
+            alert("Incorrect Roll Number! Please use the roll number sent to your email.");
+            return;
+        }
+
+        // Scenario 1 & 2: New User or Verified Returning User
+        if (status === "NEW_USER" || status === "VERIFIED") {
+            localStorage.setItem("userEmail", cleanEmail);
+            document.getElementById("emailModal").style.display = "none";
+
+            const testId = localStorage.getItem("tempTestId");
+            const amount = localStorage.getItem("tempAmount");
+
+            startPayment(cleanEmail, testId, amount);
+        }
+
+    } catch (err) {
+        alert("Verification failed. Please check your connection.");
+        startPayment(cleanEmail, localStorage.getItem("tempTestId"), localStorage.getItem("tempAmount"));
+    }
+}
+
+// Start Razorpay payment
+async function startPayment(userEmail, testId, amount) {
+    try {
+        const { data: { key } } = await axios.get(`${window.API_BASE_URL}/api/getkey`);
+        const { data: { order } } = await axios.post(`${window.API_BASE_URL}/api/checkout`, { amount, testId });
+        
         const options = {
-            "key": "YOUR_RAZORPAY_KEY_ID", // Replace with actual Key ID
-            "amount": this.currentPrice * 100,
-            "currency": "INR",
-            "name": "IIN Test Series",
-            "description": `Access to ${this.currentTestId}`,
-            "handler": async function (response) {
-                // Payment Success!
-                await window.PAYMENT.verifyPayment(response, email);
-            },
-            "prefill": {
-                "email": email
-            },
-            "theme": {
-                "color": "#3b82f6"
+            key,
+            amount: order.amount,
+            currency: "INR",
+            name: "IIN Education",
+            description: `Unlock ${testId.toUpperCase()} Series`,
+            order_id: order.id,
+            prefill: { email: userEmail },
+            theme: { color: "#3b82f6" },
+            handler: async function (response) {
+                const verifyRes = await axios.post(`${window.API_BASE_URL}/api/paymentverification`, {
+                    ...response,
+                    email: userEmail
+                });
+
+                if (verifyRes.data.success) {
+                    markAsPurchased(testId);
+                    
+                    // Refresh Dashboard UI
+                    if (window.refreshUserDashboard) {
+                        window.refreshUserDashboard();
+                    }
+                    
+                    const successModal = document.getElementById("successModal");
+                    if (successModal) successModal.style.display = "flex";
+                }
             }
         };
-        const rzp1 = new Razorpay(options);
-        rzp1.open();
-    },
-
-    verifyPayment: async function(response, email) {
-        try {
-            const result = await axios.post('https://iin-production.up.railway.app/api/paymentverification', {
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                email: email
-            });
-
-            if (result.data.success) {
-                // 1. Store Session Data (Auto-Login the user)
-                localStorage.setItem("isLoggedIn", "true");
-                localStorage.setItem("userEmail", email);
-                localStorage.setItem("userToken", result.data.token);
-                
-                // 2. Mark test as purchased locally
-                this.markAsPurchased(this.currentTestId);
-
-                // 3. Show Success Modal
-                document.getElementById('finalTokenDisplay').innerText = result.data.token;
-                document.getElementById('successModal').style.display = 'flex';
-                
-                // 4. Update Navbar immediately without reload
-                if(window.checkUserSession) window.checkUserSession();
-            }
-        } catch (error) {
-            alert("Verification Failed. Please contact support.");
-            console.error(error);
-        }
-    },
-
-    markAsPurchased: function(testId) {
-        const btn = document.getElementById(`btn-${testId}`);
-        if (btn) {
-            btn.innerText = "Authorized ✓";
-            btn.disabled = true;
-            btn.classList.add('purchased');
-            btn.style.background = "rgba(16, 185, 129, 0.2)";
-            btn.style.color = "#10b981";
-            btn.style.border = "1px solid #10b981";
-        }
-        
-        // Save to local history
-        let purchased = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
-        if (!purchased.includes(testId)) {
-            purchased.push(testId);
-            localStorage.setItem("purchasedTests", JSON.stringify(purchased));
-        }
+        new Razorpay(options).open();
+    } catch (e) {
+        alert("Payment initialization error.");
     }
-};
+}
+
+// Mark test as purchased (update UI)
+function markAsPurchased(testId) {
+    const btn = document.getElementById(`btn-${testId}`);
+    if (btn) {
+        btn.innerHTML = "★ ACCESS GRANTED";
+        btn.style.background = "#10b981";
+        btn.onclick = () => window.location.href = `signinpage.html`;
+    }
+
+    const purchased = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
+    if (!purchased.includes(testId)) {
+        purchased.push(testId);
+        localStorage.setItem("purchasedTests", JSON.stringify(purchased));
+    }
+}
+
+// Export for global access
+window.PAYMENT = { executePurchase, startPayment, handleModalSubmit, markAsPurchased };
