@@ -3,16 +3,12 @@ import nodemailer from "nodemailer";
 import { instance } from "../server.js";
 import { Payment } from "../models/payment.js";
 
-// ---------------------------------------------------------
-// 1. GET API KEY (Required for Frontend)
-// ---------------------------------------------------------
+// 1. GET API KEY
 export const getApiKey = (req, res) => {
   res.status(200).json({ key: process.env.RAZORPAY_API_KEY });
 };
 
-// ---------------------------------------------------------
-// 2. CHECKOUT (Creates Order)
-// ---------------------------------------------------------
+// 2. CHECKOUT
 export const checkout = async (req, res) => {
   try {
     const options = {
@@ -26,9 +22,7 @@ export const checkout = async (req, res) => {
   }
 };
 
-// ---------------------------------------------------------
-// 3. PAYMENT VERIFICATION (Saves to DB + Sends Email)
-// ---------------------------------------------------------
+// 3. PAYMENT VERIFICATION (Port 587 Fix)
 export const paymentVerification = async (req, res) => {
   console.log("🔹 Verification Started..."); 
   try {
@@ -41,10 +35,8 @@ export const paymentVerification = async (req, res) => {
       .digest("hex");
 
     if (expectedSignature === razorpay_signature) {
-      // A. Generate Token
       const examToken = Math.floor(10000000 + Math.random() * 90000000).toString();
 
-      // B. Save to DB first
       try {
         await Payment.create({
           razorpay_order_id,
@@ -59,12 +51,11 @@ export const paymentVerification = async (req, res) => {
         console.error("⚠️ DB Save Error:", dbError.message);
       }
 
-      // C. Send Email using PORT 587 (Fixes Timeout)
       try {
         const transporter = nodemailer.createTransport({
           host: "smtp.gmail.com",
-          port: 587,            // Standard Port for Cloud Servers
-          secure: false,        // Must be false for 587
+          port: 587,
+          secure: false,
           auth: {
             user: process.env.GMAIL_USER,
             pass: process.env.GMAIL_PASS
@@ -86,7 +77,6 @@ export const paymentVerification = async (req, res) => {
         console.error("❌ Email FAILED:", emailError);
       }
 
-      // D. Return Success
       res.status(200).json({ success: true, token: examToken });
 
     } else {
