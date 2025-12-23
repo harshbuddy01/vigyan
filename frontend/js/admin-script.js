@@ -61,6 +61,7 @@ function switchTab(tabName) {
     if(tabName === 'students') loadStudents();
     if(tabName === 'results') loadResults();
     if(tabName === 'feedbacks') loadFeedbacks();
+    if(tabName === 'overview') updateStats();
 }
 
 // ===== IMAGE PREVIEW =====
@@ -79,29 +80,42 @@ function previewImage() {
 
 // ===== UPLOAD QUESTION =====
 async function uploadQuestion() {
+    const questionText = document.getElementById("questionText").value;
+    const correctAnswer = document.getElementById("correctAnswer").value;
+    const opt1 = document.getElementById("opt1").value;
+    const opt2 = document.getElementById("opt2").value;
+    const opt3 = document.getElementById("opt3").value;
+    const opt4 = document.getElementById("opt4").value;
+    
+    if (!questionText || !correctAnswer || !opt1 || !opt2 || !opt3 || !opt4) {
+        alert("⚠️ Please fill all required fields!");
+        return;
+    }
+    
     const data = {
         testId: document.getElementById("testId").value,
         subject: document.getElementById("subject").value,
-        questionText: document.getElementById("questionText").value,
+        questionText: questionText,
         image: base64Image,
-        options: [
-            document.getElementById("opt1").value,
-            document.getElementById("opt2").value,
-            document.getElementById("opt3").value,
-            document.getElementById("opt4").value
-        ],
-        correctAnswer: document.getElementById("correctAnswer").value
+        options: [opt1, opt2, opt3, opt4],
+        correctAnswer: correctAnswer
     };
 
     try {
+        console.log('Uploading question...', data);
         const res = await axios.post(`${API_BASE_URL}/api/upload-question`, data);
+        console.log('Upload response:', res.data);
+        
         if(res.data.success) {
             alert("✅ Question successfully deployed to database!");
             resetForm();
-            loadAllQuestions();
-            updateStats();
+            
+            // Refresh stats and questions immediately
+            await updateStats();
+            await loadAllQuestions();
         }
     } catch (e) {
+        console.error('Upload error:', e);
         alert("❌ Upload failed: " + (e.response?.data?.message || e.message));
     }
 }
@@ -118,18 +132,24 @@ function resetForm() {
 // ===== LOAD QUESTIONS =====
 async function loadAllQuestions() {
     const tbody = document.getElementById("questionsTable");
-    if (!tbody) return;
+    if (!tbody) {
+        console.error('Questions table not found');
+        return;
+    }
     
     tbody.innerHTML = "<tr><td colspan='5' class='loading'><div class='spinner'></div>Loading...</td></tr>";
     
     try {
+        console.log('Loading questions from:', `${API_BASE_URL}/api/admin/all-questions`);
         const res = await axios.get(`${API_BASE_URL}/api/admin/all-questions`);
+        console.log('Questions response:', res.data);
+        
         if(res.data.success) {
             const questions = res.data.questions;
             tbody.innerHTML = "";
             
             if(questions.length === 0) {
-                tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:40px;'>No questions found</td></tr>";
+                tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:40px; color: var(--text-secondary);'>No questions found. Upload your first question!</td></tr>";
                 return;
             }
             
@@ -153,11 +173,16 @@ async function loadAllQuestions() {
                 `;
             });
             
-            updateStats();
+            // Update stats after loading questions
+            await updateStats();
+            
             if(window.MathJax) MathJax.typeset();
+        } else {
+            tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:40px; color: var(--danger);'>" + (res.data.message || 'Failed to load questions') + "</td></tr>";
         }
     } catch(e) {
-        tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; color: var(--danger);'>Failed to load questions</td></tr>";
+        console.error('Error loading questions:', e);
+        tbody.innerHTML = `<tr><td colspan='5' style='text-align:center; color: var(--danger); padding:40px;'>Failed to load questions<br><small>${e.message}</small></td></tr>`;
     }
 }
 
@@ -167,8 +192,10 @@ async function deleteQuestion(id) {
     try {
         await axios.delete(`${API_BASE_URL}/api/admin/delete-question/${id}`);
         alert("✅ Question deleted successfully");
-        loadAllQuestions();
+        await loadAllQuestions();
+        await updateStats();
     } catch(e) {
+        console.error('Delete error:', e);
         alert("❌ Failed to delete question");
     }
 }
@@ -225,6 +252,7 @@ async function loadStudents() {
             if (statEl) statEl.innerText = students.length;
         }
     } catch(e) {
+        console.error('Error loading students:', e);
         tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; color: var(--danger);'>Failed to load students</td></tr>";
     }
 }
@@ -283,6 +311,7 @@ async function loadResults() {
             if (statEl) statEl.innerText = results.length;
         }
     } catch(e) {
+        console.error('Error loading results:', e);
         tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; color: var(--danger);'>Failed to load results</td></tr>";
     }
 }
@@ -403,12 +432,14 @@ async function loadFeedbacks() {
             if (statEl) statEl.innerText = feedbacks.length;
         }
     } catch(e) {
+        console.error('Error loading feedbacks:', e);
         tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; color: var(--danger);'>Failed to load feedbacks</td></tr>";
     }
 }
 
 // ===== UPDATE STATS =====
 async function updateStats() {
+    console.log('Updating statistics...');
     try {
         const [qRes, sRes, rRes, fRes] = await Promise.all([
             axios.get(`${API_BASE_URL}/api/admin/all-questions`),
@@ -417,11 +448,23 @@ async function updateStats() {
             axios.get(`${API_BASE_URL}/api/admin/feedbacks`)
         ]);
         
-        if(qRes.data.success) {
+        console.log('Stats data received:', {
+            questions: qRes.data.questions?.length || 0,
+            students: sRes.data.students?.length || 0,
+            results: rRes.data.results?.length || 0,
+            feedbacks: fRes.data.feedbacks?.length || 0
+        });
+        
+        if(qRes.data.success && qRes.data.questions) {
             const questions = qRes.data.questions;
             const setStatSafe = (id, value) => {
                 const el = document.getElementById(id);
-                if (el) el.innerText = value;
+                if (el) {
+                    el.innerText = value;
+                    console.log(`Updated ${id} to ${value}`);
+                } else {
+                    console.warn(`Element ${id} not found`);
+                }
             };
             
             setStatSafe('statTotal', questions.length);
@@ -431,20 +474,22 @@ async function updateStats() {
             setStatSafe('statBio', questions.filter(q => q.subject === 'Biology').length);
         }
         
-        if(sRes.data.success) {
+        if(sRes.data.success && sRes.data.students) {
             const el = document.getElementById('statStudents');
             if (el) el.innerText = sRes.data.students.length;
         }
         
-        if(rRes.data.success) {
+        if(rRes.data.success && rRes.data.results) {
             const el = document.getElementById('statResults');
             if (el) el.innerText = rRes.data.results.length;
         }
         
-        if(fRes.data.success) {
+        if(fRes.data.success && fRes.data.feedbacks) {
             const el = document.getElementById('statFeedbacks');
             if (el) el.innerText = fRes.data.feedbacks.length;
         }
+        
+        console.log('Statistics updated successfully');
     } catch(e) {
         console.error('Failed to update stats:', e);
     }
@@ -460,8 +505,13 @@ function closeModal() {
 function initializeAdmin() {
     console.log('Initializing admin panel...');
     checkAuth();
-    updateStats();
-    loadAllQuestions();
+    
+    // Wait a bit for DOM to be fully ready
+    setTimeout(async () => {
+        await updateStats();
+        console.log('Initial stats loaded');
+    }, 500);
+    
     setInterval(updateTime, 1000);
     updateTime();
 }
