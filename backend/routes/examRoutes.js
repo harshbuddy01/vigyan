@@ -17,7 +17,8 @@ router.post("/start-test", startTest);
 // Submit exam
 router.post("/submit-exam", submitExam);
 
-// Get questions
+// Get questions - support both endpoints
 router.get("/questions", getQuestions);
+router.get("/get-questions", getQuestions); // Alias for compatibility
 
 export default router;
