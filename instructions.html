@@ -1,158 +1,563 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- CSS Files -->
-<link rel="stylesheet" href="css/global.css">
-<link rel="stylesheet" href="css/navbar.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Instructions - IIN.edu</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <title>IIN - Exam Instructions</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- ACCESS CONTROL: Check if user has purchased tests -->
+    <script>
+        (function checkAccess() {
+            const userEmail = localStorage.getItem("userEmail");
+            const purchasedTests = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
+            
+            if (!userEmail || purchasedTests.length === 0) {
+                alert("⚠️ Access Denied! Please purchase a test series first.");
+                window.location.href = "testfirstpage.html";
+                return;
+            }
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const requestedTest = urlParams.get("test") || "iat";
+            
+            if (!purchasedTests.includes(requestedTest)) {
+                alert(`⚠️ You need to purchase ${requestedTest.toUpperCase()} series to access this test.`);
+                window.location.href = "testfirstpage.html";
+                return;
+            }
+        })();
+    </script>
+    
     <style>
-        :root { --blue: #3b82f6; --navy-dark: #020617; --navy-panel: #0f172a; }
-        
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            margin: 0; padding: 0; 
-            background-color: var(--navy-dark); 
-            color: #f8fafc;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
-        /* HEADER */
-        .header { 
-            background: rgba(2, 6, 23, 0.95);
-            backdrop-filter: blur(12px);
-            color: white; padding: 20px 5%; 
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        .header-title { font-size: 1.2rem; font-weight: 800; }
-        .logo span { color: #8b8dfc; }
 
-        /* Styles for the Logout Button (Injected by auth.js) */
-        .user-auth-panel { display: flex; align-items: center; gap: 1rem; }
-        .user-greeting-text { color: #94a3b8; font-size: 0.875rem; font-weight: 700; }
-        .logout-btn-universal {
-            background: rgba(59, 130, 246, 0.1);
-            color: var(--blue);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            padding: 0.5rem 1.2rem;
-            border-radius: 50px;
-            font-size: 0.75rem;
-            font-weight: 800;
+        body {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: #fff;
+            width: 100%;
+            max-width: 1200px;
+            border-radius: 12px;
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            padding: 20px 30px;
+            color: white;
+            border-bottom: 4px solid #3498db;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 0.9rem;
+            color: #bdc3c7;
+        }
+
+        .candidate-info {
+            background: #ecf0f1;
+            padding: 20px 30px;
+            border-bottom: 1px solid #bdc3c7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .info-value {
+            color: #3498db;
+            font-weight: 700;
+        }
+
+        .content {
+            padding: 30px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .section-title {
+            color: #2c3e50;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .instruction-box {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .instruction-box h3 {
+            color: #2c3e50;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .instruction-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .instruction-list li {
+            padding: 8px 0;
+            color: #555;
+            line-height: 1.6;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .instruction-list li:before {
+            content: '✓';
+            color: #27ae60;
+            font-weight: bold;
+            font-size: 1.2rem;
+            min-width: 20px;
+        }
+
+        .important-note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .important-note strong {
+            color: #856404;
+        }
+
+        .warning-box {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .warning-box strong {
+            color: #721c24;
+        }
+
+        .test-structure {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .subject-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        .subject-card:hover {
+            border-color: #3498db;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+        }
+
+        .subject-card h4 {
+            color: #3498db;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .subject-card .questions {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin: 10px 0;
+        }
+
+        .subject-card .marks {
+            color: #27ae60;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .marking-scheme {
+            background: #e8f5e9;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .marking-scheme h4 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+        }
+
+        .marking-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #c8e6c9;
+        }
+
+        .marking-item:last-child {
+            border-bottom: none;
+        }
+
+        .declaration {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .declaration label {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            cursor: pointer;
+            color: #1565c0;
+            font-weight: 500;
+        }
+
+        .declaration input[type="checkbox"] {
+            margin-top: 4px;
+            width: 20px;
+            height: 20px;
             cursor: pointer;
         }
 
-        /* CONTAINER */
-        .container { display: flex; height: calc(100vh - 80px); }
-        .left-panel { flex: 1; background: var(--navy-panel); padding: 40px; overflow-y: auto; }
-        .right-panel { width: 350px; background: var(--navy-dark); padding: 30px; text-align: center; }
+        .footer {
+            background: #ecf0f1;
+            padding: 25px 30px;
+            border-top: 1px solid #bdc3c7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
 
-        h2 { color: white; border-bottom: 2px solid var(--blue); padding-bottom: 10px; margin-bottom: 20px; }
-        .instruction-list { line-height: 1.8; color: #94a3b8; text-align: left; }
+        .timer-display {
+            background: #000;
+            color: #0f0;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-size: 1.5rem;
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
 
-        .login-box { background: rgba(255,255,255,0.03); padding: 25px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); width: 100%; margin-top: 20px; }
-        .input-group { margin-bottom: 20px; text-align: left; }
-        label { display: block; font-size: 0.75rem; font-weight: 800; color: #64748b; margin-bottom: 8px; }
-        input { width: 100%; padding: 12px; background: #1e293b; border: 1px solid #334155; border-radius: 8px; color: white; }
-        
-        .confirmation { margin-top: 30px; padding: 20px; background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 12px; }
-        .btn-start { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-weight: 800; cursor: pointer; }
-        .btn-start:disabled { opacity: 0.3; cursor: not-allowed; }
-        .error-msg { color: #f87171; font-size: 0.85rem; margin-top: 15px; display: none; }
+        .btn {
+            padding: 12px 40px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #229954 0%, #1e8449 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        .btn-primary:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.4rem;
+            }
+
+            .candidate-info {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .footer {
+                flex-direction: column;
+            }
+
+            .test-structure {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
-
-    <div class="header">
-        <div class="header-title">IIN<span>.edu</span> // Examination Portal</div>
-        <div class="login-btn"></div> 
-    </div>
-
     <div class="container">
-        <div class="left-panel">
-            <h2>Examination Instructions</h2>
-            <ol class="instruction-list">
-                <li>Total duration of examination is <strong>180 minutes</strong>.</li>
-                <li>The server clock will manage the countdown timer.</li>
-                <li><strong>Marking Scheme:</strong> Correct (+4) | Incorrect (-1).</li>
-                <li>Stable internet is required. The test will auto-submit if time expires.</li>
-            </ol>
+        <div class="header">
+            <h1><i class="fas fa-graduation-cap"></i> IIN Aptitude Test Series 2025</h1>
+            <p>Instructions - Read Carefully Before Starting</p>
+        </div>
 
-            <div class="confirmation">
-                <input type="checkbox" id="agreeCheck" onchange="toggleButton()">
-                <label for="agreeCheck" style="display:inline; font-weight:600; margin-left: 10px; cursor:pointer;">
-                    I have read and understood the conceptual-first test standards.
+        <div class="candidate-info">
+            <div class="info-item">
+                <span class="info-label"><i class="fas fa-user"></i> Candidate Name:</span>
+                <span class="info-value" id="candidateName">Loading...</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label"><i class="fas fa-id-card"></i> Roll Number:</span>
+                <span class="info-value" id="candidateRoll">Loading...</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label"><i class="fas fa-file-alt"></i> Test Series:</span>
+                <span class="info-value" id="testSeries">Loading...</span>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="section-title">
+                <i class="fas fa-clipboard-list"></i>
+                General Instructions
+            </div>
+
+            <div class="instruction-box">
+                <h3>Exam Duration & Navigation</h3>
+                <ul class="instruction-list">
+                    <li>Total duration of examination is <strong>180 minutes (3 hours)</strong></li>
+                    <li>The clock will be set at the server and countdown timer in the top right corner will display remaining time</li>
+                    <li>When timer reaches zero, exam will automatically submit</li>
+                    <li>You can navigate between questions using the question palette on the right side</li>
+                    <li>Use subject tabs (Physics, Chemistry, Mathematics, Biology) to switch between sections</li>
+                </ul>
+            </div>
+
+            <div class="test-structure">
+                <div class="subject-card">
+                    <h4><i class="fas fa-atom"></i> Physics</h4>
+                    <div class="questions">30</div>
+                    <div class="marks">Questions</div>
+                </div>
+                <div class="subject-card">
+                    <h4><i class="fas fa-flask"></i> Chemistry</h4>
+                    <div class="questions">30</div>
+                    <div class="marks">Questions</div>
+                </div>
+                <div class="subject-card">
+                    <h4><i class="fas fa-calculator"></i> Mathematics</h4>
+                    <div class="questions">30</div>
+                    <div class="marks">Questions</div>
+                </div>
+                <div class="subject-card">
+                    <h4><i class="fas fa-dna"></i> Biology</h4>
+                    <div class="questions">30</div>
+                    <div class="marks">Questions</div>
+                </div>
+            </div>
+
+            <div class="marking-scheme">
+                <h4><i class="fas fa-check-circle"></i> Marking Scheme</h4>
+                <div class="marking-item">
+                    <span>Correct Answer</span>
+                    <span style="color: #27ae60; font-weight: 700;">+4 Marks</span>
+                </div>
+                <div class="marking-item">
+                    <span>Wrong Answer</span>
+                    <span style="color: #e74c3c; font-weight: 700;">-1 Mark</span>
+                </div>
+                <div class="marking-item">
+                    <span>Unanswered/Skipped</span>
+                    <span style="color: #95a5a6; font-weight: 700;">0 Marks</span>
+                </div>
+            </div>
+
+            <div class="instruction-box">
+                <h3>Question Palette Legend</h3>
+                <ul class="instruction-list">
+                    <li><strong style="color: #27ae60;">Green (Hexagon):</strong> You have answered the question</li>
+                    <li><strong style="color: #e74c3c;">Red (Hexagon):</strong> You have not answered the question</li>
+                    <li><strong style="color: #8e44ad;">Purple (Circle):</strong> You have marked the question for review</li>
+                    <li><strong>White (Square):</strong> You have not visited the question yet</li>
+                    <li><strong style="color: #0000ff;">Blue Border:</strong> Currently viewing this question</li>
+                </ul>
+            </div>
+
+            <div class="instruction-box">
+                <h3>How to Attempt Questions</h3>
+                <ul class="instruction-list">
+                    <li>Click on any option (A, B, C, or D) to select your answer</li>
+                    <li>Click <strong>"Save & Next"</strong> to save answer and move to next question</li>
+                    <li>Click <strong>"Clear Response"</strong> to deselect your answer</li>
+                    <li>Click <strong>"Mark for Review & Next"</strong> to mark question for later review</li>
+                    <li>You can change your answer anytime before final submission</li>
+                </ul>
+            </div>
+
+            <div class="important-note">
+                <strong><i class="fas fa-exclamation-triangle"></i> IMPORTANT:</strong>
+                Make sure to click "Save & Next" after selecting an answer. Simply clicking on an option without saving will NOT record your response.
+            </div>
+
+            <div class="warning-box">
+                <strong><i class="fas fa-ban"></i> PROHIBITED ACTIVITIES:</strong>
+                <ul class="instruction-list" style="margin-top: 10px;">
+                    <li>Do not refresh or close the browser during examination</li>
+                    <li>Do not press Back button or F5 key</li>
+                    <li>Do not use multiple tabs or windows</li>
+                    <li>Ensure stable internet connection throughout the exam</li>
+                    <li>Use of unfair means will result in disqualification</li>
+                </ul>
+            </div>
+
+            <div class="instruction-box">
+                <h3>Technical Requirements</h3>
+                <ul class="instruction-list">
+                    <li>Use updated version of Chrome, Firefox, Safari, or Edge browser</li>
+                    <li>Enable JavaScript in browser settings</li>
+                    <li>Minimum screen resolution: 1024x768</li>
+                    <li>Stable internet connection (minimum 1 Mbps)</li>
+                    <li>Keep your system fully charged or connected to power</li>
+                </ul>
+            </div>
+
+            <div class="declaration">
+                <label>
+                    <input type="checkbox" id="agreeCheck">
+                    <span>
+                        I have read and understood all the instructions. I agree to abide by the rules and regulations of this examination. 
+                        I declare that all information provided is correct and I am ready to begin the test.
+                    </span>
                 </label>
             </div>
         </div>
 
-        <div class="right-panel">
-            <div class="login-box">
-                <div id="studentNameDisplay" style="font-weight:800; color:var(--blue); margin-bottom:20px;">CANDIDATE LOGIN</div>
-                <div class="input-group">
-                    <label>Full Name</label>
-                    <input type="text" id="candidateName" placeholder="Enter Full Name">
-                </div>
-                <div class="input-group">
-                    <label>Exam Token (Roll No)</label>
-                    <input type="text" id="rollNumber" placeholder="8-Digit Token">
-                </div>
-            </div>
-            <div id="errorMsg" class="error-msg"></div>
-            <button id="startBtn" class="btn-start" onclick="verifyAndStart()" disabled>Ready to Begin</button>
+        <div class="footer">
+            <button class="btn btn-secondary" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i> Back
+            </button>
+            <div class="timer-display" id="waitTimer">00:00</div>
+            <button class="btn btn-primary" id="proceedBtn" onclick="proceedToExam()" disabled>
+                <i class="fas fa-play-circle"></i> I am ready to begin
+            </button>
         </div>
     </div>
 
     <script>
-        const API_BASE_URL = "https://iin-production.up.railway.app";
-
+        // Load candidate information
         window.onload = function() {
             const email = localStorage.getItem("userEmail");
-            // If user isn't logged in, redirect to login page
-            if(!email) { window.location.href = "signinpage.html"; }
+            const rollNumber = localStorage.getItem("userRollNumber");
+            const urlParams = new URLSearchParams(window.location.search);
+            const testId = urlParams.get("test") || "iat";
+
+            document.getElementById("candidateName").innerText = email ? email.split('@')[0].toUpperCase() : "N/A";
+            document.getElementById("candidateRoll").innerText = rollNumber || "N/A";
+            document.getElementById("testSeries").innerText = testId.toUpperCase() + " TEST SERIES";
+
+            // Enable proceed button when checkbox is checked
+            document.getElementById("agreeCheck").addEventListener("change", function() {
+                document.getElementById("proceedBtn").disabled = !this.checked;
+            });
+
+            // Start timer
+            startReadTimer();
         };
 
-        function toggleButton() {
-            document.getElementById("startBtn").disabled = !document.getElementById("agreeCheck").checked;
+        let readTime = 0;
+        function startReadTimer() {
+            setInterval(() => {
+                readTime++;
+                const mins = Math.floor(readTime / 60).toString().padStart(2, '0');
+                const secs = (readTime % 60).toString().padStart(2, '0');
+                document.getElementById("waitTimer").innerText = `${mins}:${secs}`;
+            }, 1000);
         }
 
-        async function verifyAndStart() {
-            const roll = document.getElementById("rollNumber").value;
-            const email = localStorage.getItem("userEmail");
-            const btn = document.getElementById("startBtn");
-            const errorMsg = document.getElementById("errorMsg");
-
-            if(!roll) { errorMsg.innerText = "Token required."; errorMsg.style.display = "block"; return; }
-
-            btn.innerText = "AUTHORIZING...";
-            btn.disabled = true;
-
-            try {
-                // Pointing to your LIVE Render backend
-                const res = await axios.post(`${API_BASE_URL}/api/start-test`, {
-                    rollNumber: roll,
-                    email: email
-                });
-
-                if (res.data.success) {
-                    const params = new URLSearchParams(window.location.search);
-                    window.location.href = `exam.html?test=${params.get("testId") || "iat"}`;
-                }
-            } catch (error) {
-                btn.innerText = "READY TO BEGIN";
-                btn.disabled = false;
-                errorMsg.style.display = "block";
-                // Show specific error from backend if available
-                errorMsg.innerText = error.response?.data?.message || "Auth Failed. Is server active?";
-            }
+        function proceedToExam() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const testId = urlParams.get("test") || "iat";
+            window.location.href = `exam.html?test=${testId}`;
         }
+
+        function goBack() {
+            window.location.href = "testfirstpage.html";
+        }
+
+        // Prevent accidental page close
+        window.addEventListener('beforeunload', (e) => {
+            e.preventDefault();
+            e.returnValue = '';
+        });
     </script>
-   
-    <!-- JavaScript Files -->
-<script src="js/config.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/user-panel.js"></script>
 </body>
 </html>
