@@ -1,6 +1,21 @@
 import crypto from "crypto";
 import { instance } from "../server.js";
 import { Payment } from "../models/payment.js";
+import nodemailer from "nodemailer";
+
+// Gmail SMTP Transporter
+const transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+  port: process.env.EMAIL_PORT || 587,
+  secure: false, // true for 465, false for other ports
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  },
+  tls: {
+    rejectUnauthorized: false
+  }
+});
 
 // 1. GET API KEY
 export const getApiKey = (req, res) => {
@@ -21,7 +36,7 @@ export const checkout = async (req, res) => {
   }
 };
 
-// 3. PAYMENT VERIFICATION (FIXED - One Roll Number Per Email)
+// 3. PAYMENT VERIFICATION (USING GMAIL SMTP)
 export const paymentVerification = async (req, res) => {
   console.log("🔹 Verification Started...");
   
@@ -90,12 +105,12 @@ export const paymentVerification = async (req, res) => {
       rollNumber = Math.floor(10000000 + Math.random() * 90000000).toString();
       isNewStudent = true;
       
-      console.log(`🔹 New Student. Generated Token: ${rollNumber}`); // This matches your log
+      console.log(`🔹 New Student. Generated Token: ${rollNumber}`);
       
-      // Create new student record - FIXED: Include rollNumber
+      // Create new student record
       student = await Payment.create({
         email: normalizedEmail,
-        rollNumber: rollNumber, // FIXED: This was missing!
+        rollNumber: rollNumber,
         purchasedTests: [testId],
         payments: [{
           razorpay_order_id,
@@ -110,7 +125,7 @@ export const paymentVerification = async (req, res) => {
       console.log(`✅ Created new student: ${normalizedEmail}, Roll: ${rollNumber}`);
     }
 
-    // Send email using Resend API (FIXED - No more Nodemailer)
+    // Send email using Gmail SMTP
     try {
       const emailHtml = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f5f5f5;">
@@ -167,31 +182,20 @@ export const paymentVerification = async (req, res) => {
         </div>
       `;
 
-      // FIXED: Using Resend API instead of Nodemailer
-      const resendResponse = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          from: 'IIN Exams <onboarding@resend.dev>',
-          to: normalizedEmail,
-          subject: `🎓 ${isNewStudent ? 'Your Roll Number' : 'Payment Confirmed'} - ${testId.toUpperCase()} Test Series`,
-          html: emailHtml
-        })
-      });
+      // Send email via Gmail SMTP
+      const mailOptions = {
+        from: process.env.EMAIL_USER || 'IIN Exams <noreply@iin.edu>',
+        to: normalizedEmail,
+        subject: `🎓 ${isNewStudent ? 'Your Roll Number' : 'Payment Confirmed'} - ${testId.toUpperCase()} Test Series`,
+        html: emailHtml
+      };
 
-      const resendData = await resendResponse.json();
-
-      if (resendResponse.ok) {
-        console.log(`✅ Email sent successfully to ${normalizedEmail}`);
-      } else {
-        console.error("❌ Email send failed:", resendData);
-      }
+      await transporter.sendMail(mailOptions);
+      console.log(`✅ Email sent successfully to ${normalizedEmail} via Gmail`);
       
     } catch (emailError) {
       console.error("❌ Email Error:", emailError.message);
+      // Don't fail the payment if email fails
     }
 
     // Return success with roll number and purchased tests
@@ -201,7 +205,7 @@ export const paymentVerification = async (req, res) => {
       isNewStudent,
       purchasedTests: student.purchasedTests,
       message: isNewStudent 
-        ? "Payment successful! Your Roll Number has been generated." 
+        ? "Payment successful! Your Roll Number has been sent to your email." 
         : "Payment successful! Test added to your account."
     });
     
