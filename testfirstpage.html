@@ -62,11 +62,22 @@
 
     <div id="successModal" class="modal-overlay">
         <div class="modal-content">
-            <div class="text-green-500 text-5xl mb-4">★</div>
-            <h2 class="text-white font-black text-2xl uppercase">Access Granted</h2>
-            <p class="text-gray-400 text-sm mt-2">Payment Verified. Here is your Exam Token:</p>
-            <div id="finalTokenDisplay" class="token-display">--------</div>
-            <button onclick="window.location.href='signinpage.html'" class="buy-btn" style="background:#10b981; margin-top:0">ENTER EXAM HALL</button>
+            <div class="text-green-500 text-5xl mb-4">✅</div>
+            <h2 class="text-white font-black text-2xl uppercase">Payment Successful!</h2>
+            <p class="text-gray-400 text-sm mt-2">Your Roll Number has been generated</p>
+            
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 25px; border-radius: 10px; margin: 20px 0;">
+                <p style="color: white; font-size: 14px; margin-bottom: 10px; opacity: 0.9;">Your Roll Number</p>
+                <h1 id="finalTokenDisplay" class="token-display" style="color: white; margin: 0;">--------</h1>
+            </div>
+            
+            <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left;">
+                <p style="margin: 0; font-size: 14px; color: #92400e;">
+                    <strong>⚠️ Important:</strong> Save this Roll Number! It has been sent to your email.
+                </p>
+            </div>
+            
+            <button onclick="window.location.href='signinpage.html'" class="buy-btn" style="background:#10b981; margin-top:0">Access Your Tests 🚀</button>
         </div>
     </div>
 
@@ -218,15 +229,22 @@
                     prefill: { email: userEmail },
                     theme: { color: "#3b82f6" },
                     handler: async function (response) {
+                        // FIXED: Now sending testId and amount to backend
                         const verifyRes = await axios.post(`${API_BASE_URL}/api/paymentverification`, {
                             razorpay_order_id: response.razorpay_order_id,
                             razorpay_payment_id: response.razorpay_payment_id,
                             razorpay_signature: response.razorpay_signature,
-                            email: userEmail
+                            email: userEmail,
+                            testId: testId,      // ✅ FIXED: Added testId
+                            amount: amount       // ✅ FIXED: Added amount
                         });
 
                         if (verifyRes.data.success) {
+                            const rollNumber = verifyRes.data.rollNumber;  // ✅ Get roll number from backend
+                            
                             localStorage.setItem("userEmail", userEmail);
+                            localStorage.setItem("userRollNumber", rollNumber);  // ✅ Save roll number
+                            
                             const purchased = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
                             if (!purchased.includes(testId)) purchased.push(testId);
                             localStorage.setItem("purchasedTests", JSON.stringify(purchased));
@@ -235,7 +253,8 @@
                             if(window.refreshUserDashboard) window.refreshUserDashboard();
                             closeEntryModal();
 
-                            document.getElementById("finalTokenDisplay").innerText = verifyRes.data.token;
+                            // ✅ FIXED: Display Roll Number on screen
+                            document.getElementById("finalTokenDisplay").innerText = rollNumber;
                             document.getElementById("successModal").style.display = "flex";
                         }
                     }
