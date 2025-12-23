@@ -1,41 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="scroll-behavior: smooth;">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus Pipeline | IIN.edu</title>
+    <title>Strategic Vanguard | IIN.edu</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    
-    <!-- AOS Library for Scroll Animations -->
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     
     <script>
         const API_BASE_URL = "https://iin-production.up.railway.app";
         window.API_BASE_URL = API_BASE_URL;
     </script>
     
-    <script>
-        window.MathJax = {
-            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$']], processEscapes: true }
-        };
-    </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <link rel="stylesheet" href="frontend/css/global.css">
     <link rel="stylesheet" href="frontend/css/user-panel.css">
     
     <style>
-        :root { --accent: #3b82f6; --purple: #8b5cf6; }
-        * { scroll-behavior: smooth !important; }
-        html, body { scroll-behavior: smooth !important; overflow-x: hidden; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #020617; color: #f8fafc; }
+        :root { --accent: #3b82f6; --purple: #8b5cf6; --pink: #ec4899; }
         
-        /* Navbar - Fully Visible */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            scroll-behavior: smooth !important;
+            overflow-x: hidden;
+        }
+        
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #020617; 
+            color: #f8fafc; 
+            overflow-x: hidden;
+            scroll-behavior: smooth !important;
+        }
+        
+        /* Navbar */
         .navbar {
             position: fixed !important;
             top: 0;
@@ -61,54 +66,183 @@
         
         .btn-login { background: linear-gradient(135deg, #3b82f6, #8b5cf6) !important; color: white !important; padding: 0.5rem 1.5rem; border-radius: 9999px; font-weight: 700; }
         
-        .grid-bg { position: fixed; inset: 0; background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.03) 1px, transparent 0); background-size: 30px 30px; z-index: -1; }
+        .grid-bg { 
+            position: fixed; 
+            inset: 0; 
+            background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.03) 1px, transparent 0); 
+            background-size: 30px 30px; 
+            z-index: -1; 
+            pointer-events: none;
+        }
         
-        .scroll-progress { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899); z-index: 10000; width: 0; }
+        .scroll-progress { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899); z-index: 10000; width: 0; transition: width 0.1s linear; }
         
-        .gradient-text { background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: gradient-shift 3s ease infinite; }
+        .gradient-text { 
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6); 
+            background-size: 200% 100%; 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            animation: gradient-shift 3s ease infinite; 
+        }
         
-        @keyframes gradient-shift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+        @keyframes gradient-shift { 
+            0%, 100% { background-position: 0% 50%; } 
+            50% { background-position: 100% 50%; } 
+        }
         
-        .scale-in { animation: scale-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
-        @keyframes scale-in { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .glass { 
+            background: rgba(15, 23, 42, 0.8); 
+            backdrop-filter: blur(16px); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+        }
         
-        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .hud-text { 
+            font-family: monospace; 
+            font-size: 10px; 
+            color: #475569; 
+            letter-spacing: 2px; 
+        }
         
-        .hud-text { font-family: monospace; font-size: 10px; color: #475569; letter-spacing: 2px; }
+        /* Timeline */
+        .timeline-container { 
+            display: grid; 
+            grid-template-columns: 1fr; 
+            gap: 60px; 
+            position: relative; 
+        }
         
-        .glow-node { box-shadow: 0 0 20px var(--accent); }
+        .timeline-line { 
+            position: absolute; 
+            left: 80px; 
+            top: 0; 
+            bottom: 0; 
+            width: 3px; 
+            background: linear-gradient(to bottom, transparent, #3b82f6, #8b5cf6, #ec4899, transparent); 
+            z-index: 0; 
+        }
         
-        /* Timeline Path */
-        .timeline-container { display: grid; grid-template-columns: 1fr; gap: 60px; position: relative; }
-        .timeline-line { position: absolute; left: 80px; top: 0; bottom: 0; width: 3px; background: linear-gradient(to bottom, transparent, #3b82f6, #8b5cf6, #ec4899, transparent); z-index: 0; }
-        .timeline-item { display: grid; grid-template-columns: 160px 1fr; gap: 40px; align-items: start; position: relative; z-index: 1; }
-        .timeline-dot { width: 16px; height: 16px; background: var(--accent); border-radius: 50%; position: absolute; left: 73px; top: 30px; box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.2), 0 0 20px rgba(59, 130, 246, 0.4); animation: pulse 2s ease infinite; }
+        .timeline-item { 
+            display: grid; 
+            grid-template-columns: 160px 1fr; 
+            gap: 40px; 
+            align-items: start; 
+            position: relative; 
+            z-index: 1;
+            opacity: 0;
+            transform: translateX(-30px);
+            animation: slideInLeft 0.8s ease forwards;
+        }
         
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(59, 130, 246, 0.1), 0 0 30px rgba(59, 130, 246, 0.6); } }
+        .timeline-item:nth-child(1) { animation-delay: 0.2s; }
+        .timeline-item:nth-child(2) { animation-delay: 0.4s; }
+        .timeline-item:nth-child(3) { animation-delay: 0.6s; }
+        
+        @keyframes slideInLeft {
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .timeline-dot { 
+            width: 16px; 
+            height: 16px; 
+            background: var(--accent); 
+            border-radius: 50%; 
+            position: absolute; 
+            left: 73px; 
+            top: 30px; 
+            box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.2), 0 0 20px rgba(59, 130, 246, 0.4); 
+            animation: pulse 2s ease infinite; 
+        }
+        
+        @keyframes pulse { 
+            0%, 100% { transform: scale(1); } 
+            50% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(59, 130, 246, 0.1), 0 0 30px rgba(59, 130, 246, 0.6); } 
+        }
         
         .timeline-phase { text-align: right; padding-right: 20px; }
         .phase-badge { display: inline-block; padding: 4px 12px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 20px; color: var(--accent); font-size: 10px; font-weight: 700; text-transform: uppercase; }
         .phase-title { font-size: 1.2rem; font-weight: 900; color: white; text-transform: uppercase; }
         
-        .timeline-content { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 32px; transition: all 0.3s ease; }
-        .timeline-content:hover { border-color: rgba(59, 130, 246, 0.4); box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2); transform: translateY(-5px); }
+        .timeline-content { 
+            background: rgba(15, 23, 42, 0.6); 
+            backdrop-filter: blur(20px); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 24px; 
+            padding: 32px; 
+            transition: all 0.3s ease; 
+        }
+        
+        .timeline-content:hover { 
+            border-color: rgba(59, 130, 246, 0.4); 
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2); 
+            transform: translateY(-5px); 
+        }
         
         .degree-badge { display: inline-block; padding: 6px 16px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 8px; color: var(--purple); font-size: 11px; font-weight: 700; text-transform: uppercase; }
-        .tag-pill { display: inline-block; padding: 4px 12px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 20px; color: var(--accent); font-size: 10px; font-weight: 700; text-transform: uppercase; }
+        .tag-pill { display: inline-block; padding: 4px 12px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 20px; color: var(--accent); font-size: 10px; font-weight: 700; text-transform: uppercase; margin: 4px; }
         
+        /* Sector Cards */
+        .sector-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 32px;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+        
+        .sector-card:nth-child(1) { animation-delay: 0.2s; }
+        .sector-card:nth-child(2) { animation-delay: 0.4s; }
+        .sector-card:nth-child(3) { animation-delay: 0.6s; }
+        
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .sector-card:hover {
+            border-color: rgba(59, 130, 246, 0.4);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2);
+            transform: translateY(-10px);
+        }
+        
+        .sector-label { font-size: 10px; color: #64748b; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; margin-bottom: 12px; }
+        .sector-title { font-size: 2rem; font-weight: 900; color: white; margin-bottom: 16px; letter-spacing: -1px; }
+        
+        /* Rating Stars */
         .rating-stars { display: flex; gap: 8px; margin: 16px 0; }
         .star { font-size: 2rem; color: #334155; cursor: pointer; transition: all 0.2s ease; }
         .star:hover, .star.active { color: #fbbf24; transform: scale(1.2); }
         
-        .input-field { width: 100%; padding: 16px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: white; font-size: 14px; font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.3s ease; }
-        .input-field:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+        /* Form Inputs */
+        .input-field { 
+            width: 100%; 
+            padding: 16px; 
+            background: rgba(15, 23, 42, 0.6); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 12px; 
+            color: white; 
+            font-size: 14px; 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            transition: all 0.3s ease; 
+        }
+        
+        .input-field:focus { 
+            outline: none; 
+            border-color: var(--accent); 
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); 
+        }
+        
         textarea.input-field { min-height: 120px; resize: vertical; }
         
+        /* Responsive */
         @media (max-width: 768px) {
             .timeline-line { left: 20px; }
             .timeline-dot { left: 13px; }
             .timeline-item { grid-template-columns: 1fr; gap: 20px; }
             .timeline-phase { text-align: left; padding: 0; margin-bottom: 16px; }
+            .navbar { padding: 1rem 1.5rem; }
         }
     </style>
 </head>
@@ -131,82 +265,47 @@
         </div>
     </nav>
 
-    <main class="max-w-7xl mx-auto px-6 pt-40 pb-20">
+    <main class="max-w-7xl mx-auto px-6 pt-40 pb-20" style="position: relative; z-index: 1;">
         
-        <!-- Hero Header -->
-        <header class="mb-32" data-aos="fade-up" data-aos-duration="1000">
-            <div class="hud-text mb-4 uppercase" data-aos="fade-down" data-aos-delay="100">Directorial Directive // v2025</div>
-            <h1 class="text-7xl lg:text-9xl font-black tracking-tighter mb-8 leading-[0.85] scale-in">
+        <!-- Hero Section -->
+        <section class="mb-32">
+            <div class="hud-text mb-4 uppercase">Pipeline Directive // v2025.1</div>
+            <h1 class="text-7xl lg:text-9xl font-black tracking-tighter mb-8 leading-[0.85]">
                 STRATEGIC <br><span class="gradient-text">VANGUARD.</span>
             </h1>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-12" data-aos="fade-up" data-aos-delay="500">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
                 <p class="text-slate-400 text-sm leading-relaxed border-l-2 border-blue-500 pl-6">
-                    You are engaging with the high-performance architecture of Indian science. This pipeline maps the precise trajectory from secondary education to international lab leadership.
+                    This is the architecture of Indian science. We map the precise trajectory from IAT/NEST qualification to international lab leadership.
                 </p>
                 <div class="lg:col-span-2 flex space-x-12 items-center">
-                    <div data-aos="zoom-in" data-aos-delay="700">
-                        <div class="text-3xl font-bold italic">2026-30</div>
-                        <div class="hud-text uppercase">Projection Era</div>
+                    <div>
+                        <div class="text-3xl font-bold">₹4.2B</div>
+                        <div class="hud-text uppercase">Research Grant</div>
                     </div>
                     <div class="h-10 w-px bg-white/10"></div>
-                    <div data-aos="zoom-in" data-aos-delay="900">
-                        <div class="text-3xl font-bold italic">₹4.2B</div>
-                        <div class="hud-text uppercase">Sector Allotment</div>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <!-- Original Cards Section -->
-        <section class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-40">
-            <div class="md:col-span-2 md:row-span-2 glass p-8 rounded-3xl border-blue-500/20" data-aos="fade-up" data-aos-duration="1000">
-                <div class="flex justify-between items-start mb-16">
-                    <h3 class="text-3xl font-bold leading-tight uppercase glitch-text">Quantum <br>Intelligence</h3>
-                    <span class="bg-blue-500/10 text-blue-400 text-[10px] px-2 py-1 rounded border border-blue-500/20 uppercase font-bold">Priority Tier</span>
-                </div>
-                <div class="space-y-6 mb-8">
-                    <p class="text-slate-400 text-sm italic">"Focus on weak nuclear force simulations and CKM Matrix flavor-change optimizations."</p>
-                </div>
-                <div class="flex justify-between items-end border-t border-white/5 pt-6">
                     <div>
-                        <div class="hud-text mb-1 uppercase">Primary Node</div>
-                        <div class="text-lg font-bold">TIFR, Mumbai</div>
+                        <div class="text-3xl font-bold">2026</div>
+                        <div class="hud-text uppercase">Projection Era</div>
                     </div>
-                    <button class="text-blue-500 font-bold text-xs uppercase tracking-widest hover:underline">Full Analysis →</button>
-                </div>
-            </div>
-
-            <div class="glass p-6 rounded-3xl" data-aos="fade-up" data-aos-delay="200">
-                <div class="hud-text mb-4 uppercase">Stipend (JRF)</div>
-                <div class="text-4xl font-bold tracking-tighter">₹37k<span class="text-sm text-slate-500">/mo</span></div>
-                <div class="text-[10px] text-green-500 mt-2 font-bold">+HRA & Contingency</div>
-            </div>
-
-            <div class="glass p-6 rounded-3xl" data-aos="fade-up" data-aos-delay="300">
-                <div class="hud-text mb-4 uppercase">Core Stack</div>
-                <div class="flex flex-wrap gap-2">
-                    <span class="bg-slate-900 border border-white/5 text-[9px] px-2 py-1 rounded font-bold uppercase tracking-widest">FORTRAN</span>
-                    <span class="bg-slate-900 border border-white/5 text-[9px] px-2 py-1 rounded font-bold uppercase tracking-widest">LaTeX</span>
-                    <span class="bg-slate-900 border border-white/5 text-[9px] px-2 py-1 rounded font-bold uppercase tracking-widest">WOLFRAM</span>
                 </div>
             </div>
         </section>
 
         <!-- Timeline Section -->
         <section class="mb-40">
-            <h2 class="text-5xl font-black mb-20 uppercase tracking-tighter" data-aos="fade-up">The Path Forward</h2>
+            <h2 class="text-5xl font-black mb-20 uppercase tracking-tighter">The Trajectory</h2>
             
             <div class="timeline-container" style="max-width: 1000px;">
                 <div class="timeline-line"></div>
                 
                 <!-- Phase 1 -->
-                <div class="timeline-item" data-aos="fade-right" data-aos-duration="1000">
+                <div class="timeline-item">
                     <div class="timeline-dot"></div>
                     <div class="timeline-phase">
                         <div class="phase-badge">Phase I</div>
                         <div class="phase-title">Years 1-5</div>
                     </div>
-                    <div class="timeline-content" data-aos="zoom-in" data-aos-delay="200">
+                    <div class="timeline-content">
                         <div class="flex justify-between items-start mb-6">
                             <h3 class="text-2xl font-bold text-white">Foundation at IISER/NISER</h3>
                             <span class="degree-badge">BS-MS Dual Degree</span>
@@ -222,13 +321,13 @@
                 </div>
                 
                 <!-- Phase 2 -->
-                <div class="timeline-item" data-aos="fade-right" data-aos-duration="1000" data-aos-delay="200">
+                <div class="timeline-item">
                     <div class="timeline-dot" style="background: var(--purple);"></div>
                     <div class="timeline-phase">
                         <div class="phase-badge" style="background: rgba(139, 92, 246, 0.1); border-color: rgba(139, 92, 246, 0.3); color: var(--purple);">Phase II</div>
                         <div class="phase-title">Years 6-10</div>
                     </div>
-                    <div class="timeline-content" data-aos="zoom-in" data-aos-delay="400">
+                    <div class="timeline-content">
                         <div class="flex justify-between items-start mb-6">
                             <h3 class="text-2xl font-bold text-white">JRF & SRF Certification</h3>
                             <span class="degree-badge" style="background: rgba(139, 92, 246, 0.1); border-color: rgba(139, 92, 246, 0.3); color: var(--purple);">Doctoral Research</span>
@@ -244,19 +343,19 @@
                 </div>
                 
                 <!-- Phase 3 -->
-                <div class="timeline-item" data-aos="fade-right" data-aos-duration="1000" data-aos-delay="400">
+                <div class="timeline-item">
                     <div class="timeline-dot" style="background: #ec4899;"></div>
                     <div class="timeline-phase">
                         <div class="phase-badge" style="background: rgba(236, 72, 153, 0.1); border-color: rgba(236, 72, 153, 0.3); color: #ec4899;">Phase III</div>
                         <div class="phase-title">Leadership</div>
                     </div>
-                    <div class="timeline-content" data-aos="zoom-in" data-aos-delay="600">
+                    <div class="timeline-content">
                         <div class="flex justify-between items-start mb-6">
                             <h3 class="text-2xl font-bold text-white">Global Integration</h3>
                             <span class="degree-badge" style="background: rgba(236, 72, 153, 0.1); border-color: rgba(236, 72, 153, 0.3); color: #ec4899;">Post-Doctoral Fellow</span>
                         </div>
                         <p class="text-slate-400 text-sm mb-6 leading-relaxed">
-                            International collaborations. NIH/NSF funded projects. Lab director positions at TIFR, IISc.
+                            Positions at CERN, Max Planck, or Fermilab. Transition into faculty roles at TIFR or IITs.
                         </p>
                         <div class="flex gap-2 flex-wrap">
                             <span class="tag-pill" style="background: rgba(236, 72, 153, 0.1); border-color: rgba(236, 72, 153, 0.2); color: #ec4899;">Fulbright</span>
@@ -267,14 +366,45 @@
             </div>
         </section>
 
-        <!-- Feedback Form -->
-        <section class="glass rounded-[3rem] py-24 px-12 border-blue-500/30" data-aos="zoom-in-up" data-aos-duration="1000">
-            <div class="text-center mb-12" data-aos="fade-down" data-aos-delay="200">
+        <!-- Sector Intel Section -->
+        <section class="mb-40">
+            <h2 class="text-5xl font-black mb-20 uppercase tracking-tighter">Sector Intel</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="sector-card">
+                    <div class="sector-label">Sector A</div>
+                    <h3 class="sector-title">Quantum Info</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Focus on weak nuclear force simulations and CKM Matrix flavor-change optimizations at TIFR Mumbai.
+                    </p>
+                </div>
+                
+                <div class="sector-card">
+                    <div class="sector-label">Sector B</div>
+                    <h3 class="sector-title">Astrophysics</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Gravitational wave analysis (LIGO-India) and dark matter detection protocols at IIA Bangalore.
+                    </p>
+                </div>
+                
+                <div class="sector-card">
+                    <div class="sector-label">Sector C</div>
+                    <h3 class="sector-title">Genomics</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        CRISPR-Cas9 applications in tropical disease vectors. Structural biology at NCBS.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Feedback Section -->
+        <section class="glass rounded-[3rem] py-24 px-12 border-blue-500/30" style="opacity: 0; animation: fadeInUp 0.8s ease 0.8s forwards;">
+            <div class="text-center mb-12">
                 <h2 class="text-5xl md:text-6xl font-black mb-4 uppercase tracking-tighter">Share Your <span class="gradient-text">Feedback</span></h2>
-                <p class="text-slate-400 text-sm">Help us improve your experience. Your feedback is valuable.</p>
+                <p class="text-slate-400 text-sm">Help us improve your experience. Your insights shape the future.</p>
             </div>
             
-            <form id="feedbackForm" class="space-y-6" data-aos="fade-up" data-aos-delay="400">
+            <form id="feedbackForm" class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-bold text-slate-300 mb-2">Email Address</label>
@@ -360,24 +490,13 @@
     <script src="frontend/js/user-panel.js"></script>
     
     <script>
-        // Initialize AOS with proper settings for smooth scrolling
-        AOS.init({
-            duration: 800,
-            easing: 'ease-out-cubic',
-            once: true,
-            mirror: false,
-            offset: 50,
-            anchorPlacement: 'top-bottom',
-            disable: false
-        });
-        
         // Scroll progress bar
         window.addEventListener('scroll', () => {
-            const winScroll = document.documentElement.scrollTop;
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
             const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
             const scrolled = (winScroll / height) * 100;
             document.getElementById('scrollProgress').style.width = scrolled + '%';
-        });
+        }, { passive: true });
         
         // Rating stars
         const ratings = { login: 0, interface: 0, quality: 0, server: 0 };
@@ -432,7 +551,7 @@
                 const response = await axios.post(`${API_BASE_URL}/api/feedback`, feedbackData);
                 
                 if (response.data.success) {
-                    alert('✅ Thank you for your feedback!');
+                    alert('✅ Thank you for your feedback! It has been sent to the admin panel.');
                     document.getElementById('feedbackForm').reset();
                     document.querySelectorAll('.star').forEach(star => {
                         star.classList.remove('active');
@@ -443,11 +562,11 @@
                     ratings.quality = 0;
                     ratings.server = 0;
                 } else {
-                    alert('❌ Failed to submit feedback.');
+                    alert('❌ Failed to submit feedback. Please try again.');
                 }
             } catch (error) {
                 console.error('Feedback error:', error);
-                alert('❌ Error submitting feedback.');
+                alert('❌ Error submitting feedback. Please try again.');
             }
         });
         
