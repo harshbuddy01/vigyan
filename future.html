@@ -3,9 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus Pipeline | IIN.edu</title>
+    <title>Future Career Pipeline | IIN.edu</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    
+    <!-- AOS Library for Scroll Animations -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     
     <script>
         const API_BASE_URL = "https://iin-production.up.railway.app";
@@ -19,7 +23,7 @@
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <link rel="stylesheet" href="frontend/css/global.css">
@@ -27,26 +31,263 @@
     <link rel="stylesheet" href="frontend/css/user-panel.css">
     
     <style>
-        :root { --accent: #3b82f6; --purple: #8b5cf6; }
+        :root { --accent: #3b82f6; --purple: #8b5cf6; --pink: #ec4899; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #020617; color: #f8fafc; overflow-x: hidden; }
-        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1); }
-        .reveal.active { opacity: 1; transform: translateY(0); }
-        .glitch-text:hover { animation: glitch 0.3s ease-in-out; }
-        .pulse-text { animation: pulse-glow 2s ease-in-out infinite; }
-        .gradient-text { background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6); background-size: 200% 100%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: gradient-shift 3s ease infinite; }
-        @keyframes gradient-shift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
-        .scale-in { animation: scale-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
-        @keyframes scale-in { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .pipeline-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; background: linear-gradient(to bottom, transparent, var(--accent), var(--purple), #ec4899, transparent); z-index: 0; }
-        .grid-bg { background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.03) 1px, transparent 0); background-size: 30px 30px; }
-        .hud-text { font-family: monospace; font-size: 10px; color: #475569; letter-spacing: 2px; }
-        .glow-node { box-shadow: 0 0 20px var(--accent); }
+        
+        .grid-bg { 
+            position: fixed;
+            inset: 0;
+            background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.03) 1px, transparent 0); 
+            background-size: 30px 30px; 
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        .scroll-progress { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            height: 3px; 
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899); 
+            z-index: 9999; 
+            width: 0; 
+            transition: width 0.1s ease;
+        }
+        
+        .gradient-text { 
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6); 
+            background-size: 200% 100%; 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            background-clip: text; 
+            animation: gradient-shift 3s ease infinite; 
+        }
+        
+        @keyframes gradient-shift { 
+            0%, 100% { background-position: 0% 50%; } 
+            50% { background-position: 100% 50%; } 
+        }
+        
+        .glass { 
+            background: rgba(15, 23, 42, 0.8); 
+            backdrop-filter: blur(16px); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+        }
+        
+        .hud-text { 
+            font-family: monospace; 
+            font-size: 10px; 
+            color: #475569; 
+            letter-spacing: 2px; 
+        }
+        
+        /* Vertical Timeline */
+        .timeline-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 60px;
+            position: relative;
+        }
+        
+        .timeline-line {
+            position: absolute;
+            left: 80px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, transparent, var(--accent), var(--purple), var(--pink), transparent);
+            z-index: 0;
+        }
+        
+        .timeline-item {
+            display: grid;
+            grid-template-columns: 160px 1fr;
+            gap: 40px;
+            align-items: start;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .timeline-dot {
+            width: 16px;
+            height: 16px;
+            background: var(--accent);
+            border-radius: 50%;
+            position: absolute;
+            left: 73px;
+            top: 30px;
+            box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.2), 0 0 20px rgba(59, 130, 246, 0.4);
+            animation: pulse 2s ease infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 6px rgba(59, 130, 246, 0.2), 0 0 20px rgba(59, 130, 246, 0.4); }
+            50% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(59, 130, 246, 0.1), 0 0 30px rgba(59, 130, 246, 0.6); }
+        }
+        
+        .timeline-phase {
+            text-align: right;
+            padding-right: 20px;
+        }
+        
+        .phase-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 20px;
+            color: var(--accent);
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        
+        .phase-title {
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: -0.5px;
+        }
+        
+        .timeline-content {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 32px;
+            transition: all 0.3s ease;
+        }
+        
+        .timeline-content:hover {
+            border-color: rgba(59, 130, 246, 0.4);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2);
+            transform: translateY(-5px);
+        }
+        
+        .degree-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 8px;
+            color: var(--purple);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .tag-pill {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 20px;
+            color: var(--accent);
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Sector Cards */
+        .sector-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 32px;
+            transition: all 0.3s ease;
+        }
+        
+        .sector-card:hover {
+            border-color: rgba(59, 130, 246, 0.4);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.2);
+            transform: translateY(-5px);
+        }
+        
+        .sector-label {
+            font-size: 10px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        
+        .sector-title {
+            font-size: 2rem;
+            font-weight: 900;
+            color: white;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+        
+        /* Feedback Form */
+        .feedback-container {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            border-radius: 32px;
+            padding: 48px;
+        }
+        
+        .rating-stars {
+            display: flex;
+            gap: 8px;
+            margin: 16px 0;
+        }
+        
+        .star {
+            font-size: 2rem;
+            color: #334155;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .star:hover, .star.active {
+            color: #fbbf24;
+            transform: scale(1.2);
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 16px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: white;
+            font-size: 14px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        
+        textarea.input-field {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        @media (max-width: 768px) {
+            .timeline-line { left: 20px; }
+            .timeline-dot { left: 13px; }
+            .timeline-item { grid-template-columns: 1fr; gap: 20px; }
+            .timeline-phase { text-align: left; padding: 0; margin-bottom: 16px; }
+        }
     </style>
 </head>
 <body class="grid-bg">
+    <div class="scroll-progress" id="scrollProgress"></div>
 
-    <nav class="navbar fixed top-0 w-full z-50 px-12 py-5 flex justify-between items-center bg-[#020617]/90 backdrop-blur-md border-b border-white/5" id="navbar">
+    <nav class="navbar fixed top-0 w-full z-50 px-12 py-5 flex justify-between items-center bg-[#020617]/90 backdrop-filter blur-md border-b border-white/5" id="navbar">
         <div class="logo text-2xl font-black text-white">IIN<span class="text-blue-500">.edu</span></div>
         
         <div class="nav-links hidden lg:flex items-center space-x-8 text-sm font-bold text-gray-400">
@@ -66,61 +307,208 @@
 
     <main class="max-w-7xl mx-auto px-6 pt-40 pb-20">
         
-        <header class="mb-32 reveal">
-            <div class="hud-text mb-4 uppercase">Directorial Directive // v2025</div>
-            <h1 class="text-7xl lg:text-9xl font-black tracking-tighter mb-8 leading-[0.85] scale-in">
+        <!-- Header -->
+        <header class="mb-32" data-aos="fade-up" data-aos-duration="1000">
+            <div class="hud-text mb-4 uppercase" data-aos="fade-down" data-aos-delay="100">Directorial Directive // v2025</div>
+            <h1 class="text-7xl lg:text-9xl font-black tracking-tighter mb-8 leading-[0.85]" data-aos="fade-right" data-aos-delay="300" data-aos-duration="1200">
                 STRATEGIC <br><span class="gradient-text">VANGUARD.</span>
             </h1>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                <p class="text-slate-400 text-sm leading-relaxed border-l-2 border-blue-500 pl-6">
-                    You are engaging with the high-performance architecture of Indian science. This pipeline maps the precise trajectory from secondary education to international lab leadership.
-                </p>
-                <div class="lg:col-span-2 flex space-x-12 items-center">
-                    <div>
-                        <div class="text-3xl font-bold italic">2026-30</div>
-                        <div class="hud-text uppercase">Projection Era</div>
-                    </div>
-                    <div class="h-10 w-px bg-white/10"></div>
-                    <div>
-                        <div class="text-3xl font-bold italic">₹4.2B</div>
-                        <div class="hud-text uppercase">Sector Allotment</div>
-                    </div>
-                </div>
-            </div>
+            <p class="text-slate-400 text-sm leading-relaxed border-l-2 border-blue-500 pl-6 max-w-2xl" data-aos="fade-up" data-aos-delay="500">
+                You are engaging with the high-performance architecture of Indian science. This pipeline maps the precise trajectory from secondary education to international lab leadership.
+            </p>
         </header>
 
-        <section class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-40">
-            <div class="md:col-span-2 md:row-span-2 glass p-8 rounded-3xl reveal border-blue-500/20">
-                <div class="flex justify-between items-start mb-16">
-                    <h3 class="text-3xl font-bold leading-tight uppercase glitch-text">Quantum <br>Intelligence</h3>
-                    <span class="bg-blue-500/10 text-blue-400 text-[10px] px-2 py-1 rounded border border-blue-500/20 uppercase font-bold pulse-text">Priority Tier</span>
-                </div>
-                <div class="space-y-6 mb-8">
-                    <p class="text-slate-400 text-sm italic">"Focus on weak nuclear force simulations and CKM Matrix flavor-change optimizations."</p>
-                </div>
-                <div class="flex justify-between items-end border-t border-white/5 pt-6">
-                    <div>
-                        <div class="hud-text mb-1 uppercase">Primary Node</div>
-                        <div class="text-lg font-bold">TIFR, Mumbai</div>
+        <!-- Career Timeline Path -->
+        <section class="mb-40">
+            <h2 class="text-5xl font-black mb-20 uppercase tracking-tighter" data-aos="fade-up">The Path Forward</h2>
+            
+            <div class="timeline-container" style="max-width: 1000px;">
+                <div class="timeline-line"></div>
+                
+                <!-- Phase 1 -->
+                <div class="timeline-item" data-aos="fade-right" data-aos-duration="1000">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-phase">
+                        <div class="phase-badge">Phase I</div>
+                        <div class="phase-title">Years 1-5</div>
                     </div>
-                    <button class="text-blue-500 font-bold text-xs uppercase tracking-widest hover:underline">Full Analysis →</button>
+                    <div class="timeline-content" data-aos="zoom-in" data-aos-delay="200">
+                        <div class="flex justify-between items-start mb-6">
+                            <h3 class="text-2xl font-bold text-white">Foundation at IISER/NISER</h3>
+                            <span class="degree-badge">BS-MS Dual Degree</span>
+                        </div>
+                        <p class="text-slate-400 text-sm mb-6 leading-relaxed">
+                            Rigorous training in interdisciplinary sciences. Access to high-energy physics labs and genomic sequencing units.
+                        </p>
+                        <div class="flex gap-2 flex-wrap">
+                            <span class="tag-pill">INSPIRE Scholarship</span>
+                            <span class="tag-pill">KVPY</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Phase 2 -->
+                <div class="timeline-item" data-aos="fade-right" data-aos-duration="1000" data-aos-delay="200">
+                    <div class="timeline-dot" style="background: var(--purple);"></div>
+                    <div class="timeline-phase">
+                        <div class="phase-badge" style="background: rgba(139, 92, 246, 0.1); border-color: rgba(139, 92, 246, 0.3); color: var(--purple);">Phase II</div>
+                        <div class="phase-title">Years 6-10</div>
+                    </div>
+                    <div class="timeline-content" data-aos="zoom-in" data-aos-delay="400">
+                        <div class="flex justify-between items-start mb-6">
+                            <h3 class="text-2xl font-bold text-white">JRF & SRF Certification</h3>
+                            <span class="degree-badge" style="background: rgba(139, 92, 246, 0.1); border-color: rgba(139, 92, 246, 0.3); color: var(--purple);">Doctoral Research</span>
+                        </div>
+                        <p class="text-slate-400 text-sm mb-6 leading-relaxed">
+                            Leading specialized projects. Monthly stipends range from ₹37,000 to ₹45,000 + HRA.
+                        </p>
+                        <div class="flex gap-2 flex-wrap">
+                            <span class="tag-pill" style="background: rgba(139, 92, 246, 0.1); border-color: rgba(139, 92, 246, 0.2); color: var(--purple);">CSIR-NET</span>
+                            <span class="tag-pill" style="background: rgba(139, 92, 246, 0.1); border-color: rgba(139, 92, 246, 0.2); color: var(--purple);">GATE Qualified</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Phase 3 -->
+                <div class="timeline-item" data-aos="fade-right" data-aos-duration="1000" data-aos-delay="400">
+                    <div class="timeline-dot" style="background: var(--pink);"></div>
+                    <div class="timeline-phase">
+                        <div class="phase-badge" style="background: rgba(236, 72, 153, 0.1); border-color: rgba(236, 72, 153, 0.3); color: var(--pink);">Phase III</div>
+                        <div class="phase-title">Leadership</div>
+                    </div>
+                    <div class="timeline-content" data-aos="zoom-in" data-aos-delay="600">
+                        <div class="flex justify-between items-start mb-6">
+                            <h3 class="text-2xl font-bold text-white">Global Integration</h3>
+                            <span class="degree-badge" style="background: rgba(236, 72, 153, 0.1); border-color: rgba(236, 72, 153, 0.3); color: var(--pink);">Post-Doctoral Fellow</span>
+                        </div>
+                        <p class="text-slate-400 text-sm mb-6 leading-relaxed">
+                            International collaborations. NIH/NSF funded projects. Lab director positions at TIFR, IISc.
+                        </p>
+                        <div class="flex gap-2 flex-wrap">
+                            <span class="tag-pill" style="background: rgba(236, 72, 153, 0.1); border-color: rgba(236, 72, 153, 0.2); color: var(--pink);">Fulbright</span>
+                            <span class="tag-pill" style="background: rgba(236, 72, 153, 0.1); border-color: rgba(236, 72, 153, 0.2); color: var(--pink);">EMBO</span>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </section>
 
-            <div class="glass p-6 rounded-3xl reveal">
-                <div class="hud-text mb-4 uppercase">Stipend (JRF)</div>
-                <div class="text-4xl font-bold tracking-tighter">₹37k<span class="text-sm text-slate-500">/mo</span></div>
-                <div class="text-[10px] text-green-500 mt-2 font-bold">+HRA & Contingency</div>
-            </div>
-
-            <div class="glass p-6 rounded-3xl reveal">
-                <div class="hud-text mb-4 uppercase">Core Stack</div>
-                <div class="flex flex-wrap gap-2">
-                    <span class="bg-slate-900 border border-white/5 text-[9px] px-2 py-1 rounded font-bold uppercase tracking-widest">FORTRAN</span>
-                    <span class="bg-slate-900 border border-white/5 text-[9px] px-2 py-1 rounded font-bold uppercase tracking-widest">LaTeX</span>
-                    <span class="bg-slate-900 border border-white/5 text-[9px] px-2 py-1 rounded font-bold uppercase tracking-widest">WOLFRAM</span>
+        <!-- Research Sectors -->
+        <section class="mb-40">
+            <h2 class="text-5xl font-black mb-20 uppercase tracking-tighter" data-aos="fade-up">Priority Sectors</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="sector-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="sector-label">Sector A</div>
+                    <h3 class="sector-title">Quantum Info</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Focus on weak nuclear force simulations and CKM Matrix flavor-change optimizations at TIFR Mumbai.
+                    </p>
+                </div>
+                
+                <div class="sector-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="sector-label">Sector B</div>
+                    <h3 class="sector-title">Astrophysics</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Gravitational wave analysis (LIGO-India) and dark matter detection protocols at IIA Bangalore.
+                    </p>
+                </div>
+                
+                <div class="sector-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="sector-label">Sector C</div>
+                    <h3 class="sector-title">Genomics</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        CRISPR-Cas9 applications in tropical disease vectors. Structural biology at NCBS.
+                    </p>
                 </div>
             </div>
+        </section>
+
+        <!-- Feedback Form -->
+        <section class="feedback-container" data-aos="zoom-in-up" data-aos-duration="1000">
+            <div class="text-center mb-12" data-aos="fade-down" data-aos-delay="200">
+                <h2 class="text-5xl md:text-6xl font-black mb-4 uppercase tracking-tighter">Share Your <span class="gradient-text">Feedback</span></h2>
+                <p class="text-slate-400 text-sm">Help us improve your experience. Your feedback is valuable.</p>
+            </div>
+            
+            <form id="feedbackForm" class="space-y-6" data-aos="fade-up" data-aos-delay="400">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-300 mb-2">Email Address</label>
+                        <input type="email" id="feedbackEmail" class="input-field" placeholder="your@email.com" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-300 mb-2">Roll Number</label>
+                        <input type="text" id="feedbackRoll" class="input-field" placeholder="Your Roll Number" required>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-bold text-slate-300 mb-2">Test Series</label>
+                    <select id="feedbackTest" class="input-field" required>
+                        <option value="">Select Test Series</option>
+                        <option value="iat">IAT Series</option>
+                        <option value="nest">NEST Series</option>
+                        <option value="isi">ISI Series</option>
+                    </select>
+                </div>
+                
+                <!-- Rating Categories -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-300 mb-2">Login Experience</label>
+                        <div class="rating-stars" data-category="login">
+                            <i class="fas fa-star star" data-value="1"></i>
+                            <i class="fas fa-star star" data-value="2"></i>
+                            <i class="fas fa-star star" data-value="3"></i>
+                            <i class="fas fa-star star" data-value="4"></i>
+                            <i class="fas fa-star star" data-value="5"></i>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-bold text-slate-300 mb-2">Interface Design</label>
+                        <div class="rating-stars" data-category="interface">
+                            <i class="fas fa-star star" data-value="1"></i>
+                            <i class="fas fa-star star" data-value="2"></i>
+                            <i class="fas fa-star star" data-value="3"></i>
+                            <i class="fas fa-star star" data-value="4"></i>
+                            <i class="fas fa-star star" data-value="5"></i>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-bold text-slate-300 mb-2">Question Quality</label>
+                        <div class="rating-stars" data-category="quality">
+                            <i class="fas fa-star star" data-value="1"></i>
+                            <i class="fas fa-star star" data-value="2"></i>
+                            <i class="fas fa-star star" data-value="3"></i>
+                            <i class="fas fa-star star" data-value="4"></i>
+                            <i class="fas fa-star star" data-value="5"></i>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-bold text-slate-300 mb-2">Server Performance</label>
+                        <div class="rating-stars" data-category="server">
+                            <i class="fas fa-star star" data-value="1"></i>
+                            <i class="fas fa-star star" data-value="2"></i>
+                            <i class="fas fa-star star" data-value="3"></i>
+                            <i class="fas fa-star star" data-value="4"></i>
+                            <i class="fas fa-star star" data-value="5"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-bold text-slate-300 mb-2">Additional Comments</label>
+                    <textarea id="feedbackComment" class="input-field" placeholder="Share your thoughts, suggestions, or issues..." required></textarea>
+                </div>
+                
+                <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-black uppercase tracking-[0.2em] px-14 py-5 rounded-xl transition-all transform hover:scale-105 shadow-2xl">
+                    <i class="fas fa-paper-plane mr-2"></i> Submit Feedback
+                </button>
+            </form>
         </section>
 
     </main>
@@ -128,18 +516,123 @@
     <script src="frontend/js/config.js"></script>
     <script src="frontend/js/auth.js"></script>
     <script src="frontend/js/user-panel.js"></script>
+    
     <script>
-        // Initialize user panel on page load
+        // Initialize AOS
+        AOS.init({
+            duration: 1000,
+            easing: 'ease-out-cubic',
+            once: false,
+            mirror: true,
+            offset: 100
+        });
+        
+        // Scroll progress bar
+        window.addEventListener('scroll', () => {
+            const winScroll = document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('scrollProgress').style.width = scrolled + '%';
+        });
+        
+        // Rating stars functionality
+        const ratings = {
+            login: 0,
+            interface: 0,
+            quality: 0,
+            server: 0
+        };
+        
+        document.querySelectorAll('.rating-stars').forEach(container => {
+            const category = container.getAttribute('data-category');
+            const stars = container.querySelectorAll('.star');
+            
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const value = parseInt(this.getAttribute('data-value'));
+                    ratings[category] = value;
+                    
+                    // Update visual
+                    stars.forEach((s, index) => {
+                        if (index < value) {
+                            s.classList.add('active');
+                        } else {
+                            s.classList.remove('active');
+                        }
+                    });
+                });
+                
+                star.addEventListener('mouseenter', function() {
+                    const value = parseInt(this.getAttribute('data-value'));
+                    stars.forEach((s, index) => {
+                        if (index < value) {
+                            s.style.color = '#fbbf24';
+                        } else {
+                            s.style.color = '#334155';
+                        }
+                    });
+                });
+            });
+            
+            container.addEventListener('mouseleave', function() {
+                stars.forEach((s, index) => {
+                    if (index < ratings[category]) {
+                        s.style.color = '#fbbf24';
+                    } else {
+                        s.style.color = '#334155';
+                    }
+                });
+            });
+        });
+        
+        // Feedback form submission
+        document.getElementById('feedbackForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const feedbackData = {
+                email: document.getElementById('feedbackEmail').value.trim().toLowerCase(),
+                rollNumber: document.getElementById('feedbackRoll').value.trim(),
+                testId: document.getElementById('feedbackTest').value,
+                ratings: ratings,
+                comment: document.getElementById('feedbackComment').value.trim()
+            };
+            
+            // Validate ratings
+            if (!ratings.login || !ratings.interface || !ratings.quality || !ratings.server) {
+                alert('Please rate all categories!');
+                return;
+            }
+            
+            try {
+                const response = await axios.post(`${API_BASE_URL}/api/feedback`, feedbackData);
+                
+                if (response.data.success) {
+                    alert('✅ Thank you for your feedback!');
+                    document.getElementById('feedbackForm').reset();
+                    
+                    // Reset stars
+                    document.querySelectorAll('.star').forEach(star => {
+                        star.classList.remove('active');
+                        star.style.color = '#334155';
+                    });
+                    
+                    ratings.login = 0;
+                    ratings.interface = 0;
+                    ratings.quality = 0;
+                    ratings.server = 0;
+                } else {
+                    alert('❌ Failed to submit feedback. Please try again.');
+                }
+            } catch (error) {
+                console.error('Feedback submission error:', error);
+                alert('❌ Error submitting feedback. Please try again.');
+            }
+        });
+        
+        // Initialize user panel
         window.onload = function() {
             if (window.refreshUserDashboard) window.refreshUserDashboard();
         };
-        
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) { entry.target.classList.add('active'); }
-            });
-        }, { threshold: 0.15 });
-        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     </script>
 </body>
 </html>
