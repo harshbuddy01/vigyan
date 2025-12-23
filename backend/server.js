@@ -4,7 +4,6 @@ import Razorpay from "razorpay";
 import cors from "cors";
 import mongoose from "mongoose";
 import connectDB from "./config/db.js";
-import Feedback from "./models/Feedback.js";
 
 // Route & Middleware Imports
 import paymentRoutes from "./routes/paymentRoutes.js";
@@ -25,6 +24,16 @@ export const instance = new Razorpay({
   key_id: process.env.RAZORPAY_API_KEY || "dummy_id",
   key_secret: process.env.RAZORPAY_API_SECRET || "dummy_secret",
 });
+
+// Import Feedback model (check if already exists to prevent overwrite error)
+let Feedback;
+try {
+  Feedback = mongoose.model('Feedback');
+} catch (error) {
+  // Model doesn't exist, import it
+  const FeedbackModule = await import('./models/Feedback.js');
+  Feedback = FeedbackModule.default;
+}
 
 // --- VERIFICATION & STATUS ROUTES ---
 
