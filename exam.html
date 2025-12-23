@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- CSS Files (only global for consistency) -->
-<link rel="stylesheet" href="css/global.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IIN Assessment Portal - Full Screen Mode</title>
@@ -13,14 +11,12 @@
             const userEmail = localStorage.getItem("userEmail");
             const purchasedTests = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
             
-            // Check if user is logged in and has purchased at least one test
             if (!userEmail || purchasedTests.length === 0) {
                 alert("⚠️ Access Denied! Please purchase a test series first.");
                 window.location.href = "testfirstpage.html";
                 return;
             }
             
-            // Optional: Check if user has access to the specific test they're trying to take
             const urlParams = new URLSearchParams(window.location.search);
             const requestedTest = urlParams.get("test") || "iat";
             
@@ -41,15 +37,12 @@
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
     <style>
-        /* --- FULL SCREEN RATIO RESET --- */
         * { box-sizing: border-box; user-select: none; font-family: Arial, Helvetica, sans-serif; }
         body, html { margin: 0; padding: 0; height: 100vh; width: 100vw; background-color: #fff; overflow: hidden; display: flex; flex-direction: column; }
 
-        /* --- HEADER (TCS STYLE) --- */
         .exam-header { height: 40px; background: #2c3e50; color: white; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; font-weight: bold; }
         .sub-header { height: 45px; background: #0088cc; color: white; display: flex; justify-content: space-between; align-items: center; padding: 0 10px; border-bottom: 1px solid #ddd; }
         
-        /* --- SECTION TABS --- */
         .sections-tabs { display: flex; height: 100%; align-items: flex-end; }
         .section-tab { 
             background: #006699; color: #fff; border: none; padding: 8px 20px; cursor: pointer; 
@@ -59,14 +52,11 @@
 
         .timer-box { background: #000; color: #fff; padding: 4px 15px; font-size: 1.2rem; font-family: monospace; border-radius: 3px; font-weight: bold; }
 
-        /* --- MAIN CONTENT AREA (75% LEFT, 25% RIGHT) --- */
         .main-container { display: flex; flex: 1; overflow: hidden; }
 
-        /* LEFT SIDE: QUESTION AREA */
         .question-column { flex: 4; display: flex; flex-direction: column; border-right: 1px solid #ccc; position: relative; }
         .q-header-bar { background: #f8f9fa; padding: 10px 20px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; font-weight: bold; font-size: 1rem; }
         
-        /* SCROLLABLE CONTENT */
         .q-content-scroll { flex: 1; padding: 40px; overflow-y: auto; font-size: 1.3rem; line-height: 1.5; color: #333; }
         .q-number-box { color: #0088cc; font-size: 1.5rem; font-weight: bold; margin-bottom: 15px; border-bottom: 2px solid #0088cc; display: inline-block; padding-bottom: 5px; }
         
@@ -75,17 +65,14 @@
         .option-card.selected { background: #e3f2fd; border: 2px solid #2196f3; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .option-radio { transform: scale(1.5); }
 
-        /* RIGHT SIDE: SIDEBAR */
         .sidebar { width: 350px; background: #eef2f5; display: flex; flex-direction: column; border-left: 1px solid #ccc; }
         .student-profile { padding: 15px; background: #fff; border-bottom: 1px solid #ddd; display: flex; align-items: center; gap: 10px; }
         .avatar-img { width: 60px; height: 60px; background: #ddd; border-radius: 4px; }
         
-        /* STATUS LEGEND (Large Marks) */
         .legend-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; background: #fff; border-bottom: 1px solid #ddd; font-size: 0.85rem; }
         .l-item { display: flex; align-items: center; gap: 8px; }
         .status-shape { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.8rem; }
         
-        /* TCS ICON SHAPES */
         .sh-answered { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="0,25 50,0 100,25 100,75 50,100 0,75" fill="%2326a65b"/></svg>'); background-size: cover; }
         .sh-not-answered { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="0,25 50,0 100,25 100,75 50,100 0,75" fill="%23c0392b"/></svg>'); background-size: cover; }
         .sh-not-visited { background: #fff; color: #333; border: 1px solid #ccc; border-radius: 2px; }
@@ -95,13 +82,11 @@
         .palette-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
         .p-btn { width: 50px; height: 45px; background: #fff; border: 1px solid #ccc; cursor: pointer; font-weight: bold; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; }
         
-        /* Dynamic Palette Classes */
         .p-answered { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="0,25 50,0 100,25 100,75 50,100 0,75" fill="%2326a65b"/></svg>'); color: #fff; border:none; background-size: cover; }
         .p-not-answered { background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="0,25 50,0 100,25 100,75 50,100 0,75" fill="%23c0392b"/></svg>'); color: #fff; border:none; background-size: cover; }
         .p-marked { background: #8e44ad; color: #fff; border-radius: 50%; border:none; }
         .p-current { border: 3px solid #0000ff !important; box-shadow: 0 0 10px rgba(0,0,255,0.3); }
 
-        /* --- FOOTER ACTION BAR --- */
         .exam-footer { height: 60px; background: #fff; border-top: 1px solid #ccc; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
         .btn-left { display: flex; gap: 10px; }
         .footer-btn { padding: 10px 25px; font-weight: bold; cursor: pointer; border-radius: 3px; font-size: 1rem; border: 1px solid #ccc; }
@@ -142,9 +127,7 @@
                 <div class="q-number-box" id="qNumDisplay">Question No. 1</div>
                 <div id="questionText" style="margin-bottom:30px;">Loading question...</div>
                 <div id="questionImageContainer"></div>
-                
-                <div id="optionsContainer">
-                    </div>
+                <div id="optionsContainer"></div>
             </div>
 
             <div class="exam-footer">
@@ -161,15 +144,15 @@
                 <div class="avatar-img"></div>
                 <div>
                     <div id="userName" style="font-weight: bold; font-size: 1rem; color:#0088cc;">Candidate Name</div>
-                    <div style="font-size: 0.8rem; color:#666;">IISER-IAT-2025</div>
+                    <div id="rollDisplay" style="font-size: 0.8rem; color:#666;">Roll: Loading...</div>
                 </div>
             </div>
 
             <div class="legend-grid">
-                <div class="l-item"><div class="status-shape sh-answered">0</div> Answered</div>
-                <div class="l-item"><div class="status-shape sh-not-answered">0</div> Not Answered</div>
-                <div class="l-item"><div class="status-shape sh-not-visited">0</div> Not Visited</div>
-                <div class="l-item"><div class="status-shape sh-marked">0</div> Marked for Review</div>
+                <div class="l-item"><div class="status-shape sh-answered" id="countAnswered">0</div> Answered</div>
+                <div class="l-item"><div class="status-shape sh-not-answered" id="countNotAnswered">0</div> Not Answered</div>
+                <div class="l-item"><div class="status-shape sh-not-visited" id="countNotVisited">0</div> Not Visited</div>
+                <div class="l-item"><div class="status-shape sh-marked" id="countMarked">0</div> Marked</div>
             </div>
 
             <div style="background:#0088cc; color:white; padding:10px; font-weight:bold; text-align:center;">
@@ -177,8 +160,7 @@
             </div>
 
             <div class="palette-container">
-                <div class="palette-grid" id="questionPalette">
-                    </div>
+                <div class="palette-grid" id="questionPalette"></div>
             </div>
 
             <div style="padding: 10px;">
@@ -191,29 +173,31 @@
         <div style="background:#fff; width:500px; border-radius:5px; padding:30px; text-align:center;">
             <h2>Test Submission Summary</h2>
             <div id="summaryTable" style="text-align:left; margin:20px 0;"></div>
-            <button onclick="finalSubmit()" style="background:#26a65b; color:white; border:none; padding:12px 30px; font-weight:bold; cursor:pointer;">CONFIRM FINAL SUBMIT</button>
-            <button onclick="document.getElementById('submitModal').style.display='none'" style="background:#ccc; margin-left:10px; padding:12px 30px; border:none; cursor:pointer;">CANCEL</button>
+            <button onclick="finalSubmit()" style="background:#26a65b; color:white; border:none; padding:12px 30px; font-weight:bold; cursor:pointer; border-radius:5px;">CONFIRM FINAL SUBMIT</button>
+            <button onclick="document.getElementById('submitModal').style.display='none'" style="background:#ccc; margin-left:10px; padding:12px 30px; border:none; cursor:pointer; border-radius:5px;">CANCEL</button>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
-        // Use your live Render URL
         const API_BASE_URL = "https://iin-production.up.railway.app";
         
         let questionsBySubject = { "Physics": [], "Chemistry": [], "Mathematics": [], "Biology": [] };
         let currentSubject = "Physics", currentQIndex = 0, userResponses = {}, questionStatus = {};
+        let timerInterval;
 
         window.onload = function() {
-            // Retrieve actual user email from local memory
             const email = localStorage.getItem("userEmail");
+            const rollNumber = localStorage.getItem("userRollNumber");
+            
             if (!email) {
                 window.location.href = "signinpage.html";
                 return;
             }
-            document.getElementById("userName").innerText = email.split('@')[0].toUpperCase();
             
-            // Fetch questions from the production server
+            document.getElementById("userName").innerText = email.split('@')[0].toUpperCase();
+            document.getElementById("rollDisplay").innerText = "Roll: " + (rollNumber || "N/A");
+            
             fetchQuestions(new URLSearchParams(window.location.search).get("test") || "iat");
             startTimer();
         };
@@ -228,34 +212,188 @@
                     switchSubject("Physics");
                 }
             } catch(e) { 
-                document.getElementById("questionText").innerText = "Connection Error: Server is initializing. Please wait 30s."; 
+                document.getElementById("questionText").innerText = "Connection Error: Please check your internet connection."; 
             }
         }
 
-        // ... Keep your switchSubject, loadQuestion, selectOption functions as they are ...
+        function switchSubject(subject) {
+            currentSubject = subject;
+            currentQIndex = 0;
+            
+            document.querySelectorAll('.section-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.getElementById('currentSubjectTitle').innerText = subject;
+            
+            renderPalette();
+            loadQuestion();
+        }
+
+        function renderPalette() {
+            const palette = document.getElementById('questionPalette');
+            palette.innerHTML = '';
+            
+            questionsBySubject[currentSubject].forEach((q, idx) => {
+                const btn = document.createElement('div');
+                btn.className = 'p-btn';
+                btn.innerText = idx + 1;
+                btn.onclick = () => jumpToQuestion(idx);
+                
+                const qKey = `${currentSubject}-${idx}`;
+                if (idx === currentQIndex) btn.classList.add('p-current');
+                if (questionStatus[qKey] === 'answered') btn.classList.add('p-answered');
+                else if (questionStatus[qKey] === 'not-answered') btn.classList.add('p-not-answered');
+                else if (questionStatus[qKey] === 'marked') btn.classList.add('p-marked');
+                
+                palette.appendChild(btn);
+            });
+            
+            updateLegendCounts();
+        }
+
+        function loadQuestion() {
+            const questions = questionsBySubject[currentSubject];
+            if (!questions || questions.length === 0) {
+                document.getElementById('questionText').innerText = "No questions available for this subject.";
+                return;
+            }
+            
+            const q = questions[currentQIndex];
+            document.getElementById('qNumDisplay').innerText = `Question No. ${currentQIndex + 1}`;
+            document.getElementById('questionText').innerHTML = q.question;
+            
+            if (q.image) {
+                document.getElementById('questionImageContainer').innerHTML = `<img src="${q.image}" class="q-img">`;
+            } else {
+                document.getElementById('questionImageContainer').innerHTML = '';
+            }
+            
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            ['A', 'B', 'C', 'D'].forEach(opt => {
+                const card = document.createElement('div');
+                card.className = 'option-card';
+                card.onclick = () => selectOption(opt);
+                
+                const qKey = `${currentSubject}-${currentQIndex}`;
+                if (userResponses[qKey] === opt) card.classList.add('selected');
+                
+                card.innerHTML = `
+                    <input type="radio" name="answer" value="${opt}" class="option-radio" ${userResponses[qKey] === opt ? 'checked' : ''}>
+                    <div style="flex:1;">${q['option' + opt]}</div>
+                `;
+                
+                optionsContainer.appendChild(card);
+            });
+            
+            if (window.MathJax) window.MathJax.typesetPromise();
+            
+            const qKey = `${currentSubject}-${currentQIndex}`;
+            if (!questionStatus[qKey]) questionStatus[qKey] = 'visited';
+            
+            renderPalette();
+        }
+
+        function selectOption(opt) {
+            const qKey = `${currentSubject}-${currentQIndex}`;
+            userResponses[qKey] = opt;
+            questionStatus[qKey] = 'answered';
+            loadQuestion();
+        }
+
+        function clearResponse() {
+            const qKey = `${currentSubject}-${currentQIndex}`;
+            delete userResponses[qKey];
+            questionStatus[qKey] = 'visited';
+            loadQuestion();
+        }
+
+        function saveNext() {
+            const qKey = `${currentSubject}-${currentQIndex}`;
+            if (userResponses[qKey]) {
+                questionStatus[qKey] = 'answered';
+            } else {
+                questionStatus[qKey] = 'not-answered';
+            }
+            
+            if (currentQIndex < questionsBySubject[currentSubject].length - 1) {
+                currentQIndex++;
+                loadQuestion();
+            }
+        }
+
+        function markReview() {
+            const qKey = `${currentSubject}-${currentQIndex}`;
+            questionStatus[qKey] = 'marked';
+            
+            if (currentQIndex < questionsBySubject[currentSubject].length - 1) {
+                currentQIndex++;
+                loadQuestion();
+            }
+        }
+
+        function jumpToQuestion(idx) {
+            currentQIndex = idx;
+            loadQuestion();
+        }
+
+        function updateLegendCounts() {
+            let answered = 0, notAnswered = 0, notVisited = 0, marked = 0;
+            
+            Object.values(questionStatus).forEach(status => {
+                if (status === 'answered') answered++;
+                else if (status === 'not-answered') notAnswered++;
+                else if (status === 'marked') marked++;
+            });
+            
+            const totalQuestions = Object.values(questionsBySubject).reduce((sum, arr) => sum + arr.length, 0);
+            notVisited = totalQuestions - answered - notAnswered - marked;
+            
+            document.getElementById('countAnswered').innerText = answered;
+            document.getElementById('countNotAnswered').innerText = notAnswered;
+            document.getElementById('countNotVisited').innerText = notVisited;
+            document.getElementById('countMarked').innerText = marked;
+        }
+
+        function showSummary() {
+            updateLegendCounts();
+            const answered = parseInt(document.getElementById('countAnswered').innerText);
+            const notAnswered = parseInt(document.getElementById('countNotAnswered').innerText);
+            const notVisited = parseInt(document.getElementById('countNotVisited').innerText);
+            const marked = parseInt(document.getElementById('countMarked').innerText);
+            
+            document.getElementById('summaryTable').innerHTML = `
+                <table style="width:100%; border-collapse:collapse;">
+                    <tr style="border-bottom:1px solid #ddd;"><td style="padding:8px;">Answered</td><td style="text-align:right; font-weight:bold;">${answered}</td></tr>
+                    <tr style="border-bottom:1px solid #ddd;"><td style="padding:8px;">Not Answered</td><td style="text-align:right; font-weight:bold;">${notAnswered}</td></tr>
+                    <tr style="border-bottom:1px solid #ddd;"><td style="padding:8px;">Not Visited</td><td style="text-align:right; font-weight:bold;">${notVisited}</td></tr>
+                    <tr><td style="padding:8px;">Marked for Review</td><td style="text-align:right; font-weight:bold;">${marked}</td></tr>
+                </table>
+            `;
+            document.getElementById('submitModal').style.display = 'flex';
+        }
 
         async function finalSubmit() {
             const email = localStorage.getItem("userEmail");
             const testId = new URLSearchParams(window.location.search).get("test") || "iat";
             
             try {
-                // Post responses to the live MongoDB via Render
                 await axios.post(`${API_BASE_URL}/api/submit-exam`, { 
                     email, 
                     testId, 
                     userResponses 
                 });
-                alert("Test Submitted Successfully. Response sheet will be emailed to you.");
+                alert("✅ Test Submitted Successfully! Results will be emailed to you.");
                 window.location.href = "testfirstpage.html";
             } catch (error) {
-                alert("Submission failed. Checking connection...");
+                alert("❌ Submission failed. Please try again.");
             }
         }
 
-        // Add the timer logic we discussed
         function startTimer() {
-            let t = 180 * 60; // 180 minutes
-            const timerObj = setInterval(() => {
+            let t = 180 * 60;
+            timerInterval = setInterval(() => {
                 t--;
                 const h = Math.floor(t/3600).toString().padStart(2,'0');
                 const m = Math.floor((t%3600)/60).toString().padStart(2,'0');
@@ -263,15 +401,18 @@
                 document.getElementById("timerDisplay").innerText = `${h}:${m}:${s}`;
                 
                 if(t <= 0) { 
-                    clearInterval(timerObj); 
-                    finalSubmit(); // Auto-submit when time expires
+                    clearInterval(timerInterval); 
+                    alert("⏰ Time's up! Auto-submitting your test...");
+                    finalSubmit();
                 }
             }, 1000);
         }
+
+        // Prevent accidental page close
+        window.addEventListener('beforeunload', (e) => {
+            e.preventDefault();
+            e.returnValue = '';
+        });
     </script>
-    
-    <!-- JavaScript Files -->
-<script src="js/config.js"></script>
-<script src="js/auth.js"></script>
 </body>
 </html>
