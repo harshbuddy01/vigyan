@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="frontend/css/global.css">
     <link rel="stylesheet" href="frontend/css/navbar.css">
     <link rel="stylesheet" href="frontend/css/pages.css">
+    <link rel="stylesheet" href="frontend/css/user-panel.css">
     
     <script>
         const API_BASE_URL = "https://iin-production.up.railway.app";
@@ -28,7 +29,7 @@
         .grid-bg { position: fixed; inset: 0; background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.03) 1px, transparent 0); background-size: 30px 30px; z-index: -1; pointer-events: none; }
         .glass-panel { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 2rem; padding: 2.5rem; transition: 0.4s; position: relative; overflow: hidden; }
         .glass-panel:hover { border-color: var(--blue); transform: translateY(-10px); background: rgba(15, 23, 42, 0.8); box-shadow: 0 20px 40px -20px rgba(59, 130, 246, 0.3); }
-        .buy-btn { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); width: 100%; border-radius: 1rem; color: white; font-weight: 800; padding: 1.25rem; margin-top: 2rem; text-transform: uppercase; letter-spacing: 2px; transition: all 0.3s; cursor: pointer; }
+        .buy-btn { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); width: 100%; border-radius: 1rem; color: white; font-weight: 800; padding: 1.25rem; margin-top: 2rem; text-transform: uppercase; letter-spacing: 2px; transition: all 0.3s; cursor: pointer; border: none; }
         .buy-btn:hover { box-shadow: 0 0 30px rgba(59, 130, 246, 0.6); transform: scale(1.02); }
         
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); z-index: 9999; justify-content: center; align-items: center; }
@@ -39,7 +40,6 @@
     </style>
 </head>
 <body>
-    <div id="userDashboardContainer" class="fixed top-24 right-8 z-50"></div>
 
     <div class="grid-bg"></div>
 
@@ -170,7 +170,7 @@
                 btn.style.background = "#10b981";
                 btn.onclick = () => {
                     localStorage.setItem("currentTestId", testId);
-                    window.location.href = "exam.html";
+                    window.location.href = "exam.html?test=" + testId;
                 };
             }
         }
