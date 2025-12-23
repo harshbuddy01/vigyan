@@ -87,23 +87,26 @@ function initParticles() {
   animate();
 }
 
-// Pendulum Intersection Observer
+// OPTIMIZED Pendulum Intersection Observer - Instant Animation
 function initPendulumObservers() {
   const observerOptions = {
-    threshold: 0.3,
-    rootMargin: '0px'
+    threshold: 0.05, // Trigger immediately when section starts appearing
+    rootMargin: '50px 0px' // Start before section fully in view
   };
 
   const pendulumObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting && !entry.target.classList.contains('active')) {
+        // Mark as active immediately
         entry.target.classList.add('active');
         
         const pendulums = entry.target.querySelectorAll('.pendulum');
+        
+        // Start animation INSTANTLY with very short stagger
         pendulums.forEach((pendulum, index) => {
           setTimeout(() => {
             pendulum.classList.add('swinging');
-          }, 800 + (index * 100));
+          }, index * 50); // Reduced to 50ms for instant feel
         });
       }
     });
@@ -112,6 +115,25 @@ function initPendulumObservers() {
   // Observe all pendulum containers
   document.querySelectorAll('.pendulum-container').forEach(container => {
     pendulumObserver.observe(container);
+  });
+  
+  // Pre-activate pendulums that are already visible on page load
+  const containers = document.querySelectorAll('.pendulum-container');
+  
+  containers.forEach(container => {
+    const rect = container.getBoundingClientRect();
+    const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+    
+    if (isVisible && !container.classList.contains('active')) {
+      container.classList.add('active');
+      
+      const pendulums = container.querySelectorAll('.pendulum');
+      pendulums.forEach((pendulum, index) => {
+        setTimeout(() => {
+          pendulum.classList.add('swinging');
+        }, index * 50);
+      });
+    }
   });
 }
 

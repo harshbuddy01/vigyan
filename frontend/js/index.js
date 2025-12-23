@@ -21,24 +21,26 @@ document.querySelectorAll('.scroll-indicator, .section-scroll-indicator').forEac
     });
 });
 
-// Intersection Observer for pendulum animations
+// OPTIMIZED Pendulum Animation - Instant Start on Scroll
 const observerOptions = {
-    threshold: 0.3,
-    rootMargin: '0px'
+    threshold: 0.05, // Trigger immediately when section starts appearing
+    rootMargin: '50px 0px' // Start before section fully in view
 };
 
 const pendulumObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting && !entry.target.classList.contains('active')) {
-            // Add active class to trigger any drop animations
+            // Mark as active immediately
             entry.target.classList.add('active');
             
-            // Start swinging animation sequentially
             const pendulums = entry.target.querySelectorAll('.pendulum');
+            
+            // Start animation INSTANTLY with very short stagger
             pendulums.forEach((pendulum, index) => {
+                // Immediate start with minimal delay between pendulums
                 setTimeout(() => {
                     pendulum.classList.add('swinging');
-                }, 800 + (index * 100)); // Delay for natural feel
+                }, index * 50); // Reduced from 80ms to 50ms
             });
         }
     });
@@ -47,4 +49,25 @@ const pendulumObserver = new IntersectionObserver((entries) => {
 // Observe all pendulum containers
 document.querySelectorAll('.pendulum-container').forEach(container => {
     pendulumObserver.observe(container);
+});
+
+// Pre-activate pendulums that are already visible on page load
+document.addEventListener('DOMContentLoaded', () => {
+    const containers = document.querySelectorAll('.pendulum-container');
+    
+    containers.forEach(container => {
+        const rect = container.getBoundingClientRect();
+        const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+        
+        if (isVisible && !container.classList.contains('active')) {
+            container.classList.add('active');
+            
+            const pendulums = container.querySelectorAll('.pendulum');
+            pendulums.forEach((pendulum, index) => {
+                setTimeout(() => {
+                    pendulum.classList.add('swinging');
+                }, index * 50);
+            });
+        }
+    });
 });

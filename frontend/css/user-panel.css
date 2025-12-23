@@ -1,0 +1,229 @@
+/* ============================================
+   USER PANEL DROPDOWN STYLES
+   Beautiful dropdown with purchased tests
+============================================ */
+
+.user-dropdown-container {
+    position: relative;
+    display: inline-block;
+}
+
+.user-icon-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+}
+
+.user-icon-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
+}
+
+.user-icon-btn i {
+    color: white;
+    font-size: 24px;
+}
+
+/* Dropdown Panel */
+.user-dropdown-panel {
+    position: absolute;
+    top: 55px;
+    right: 0;
+    width: 320px;
+    background: linear-gradient(135deg, #1e1e2e 0%, #2a2a40 100%);
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    z-index: 1000;
+    overflow: hidden;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.user-dropdown-panel.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* User Header */
+.user-panel-header {
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.user-email-display {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    word-break: break-all;
+}
+
+.user-email-display i {
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.user-roll-display {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 600;
+}
+
+.user-roll-display i {
+    font-size: 14px;
+}
+
+/* Divider */
+.divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent);
+    margin: 0;
+}
+
+/* Purchased Tests Section */
+.purchased-tests-section {
+    padding: 20px;
+}
+
+.purchased-tests-section h4 {
+    margin: 0 0 15px 0;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.test-item {
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.3s ease;
+}
+
+.test-item.purchased {
+    background: linear-gradient(135deg, rgba(52, 211, 153, 0.15), rgba(16, 185, 129, 0.15));
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    color: #6ee7b7;
+}
+
+.test-item.not-purchased {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.15));
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #fca5a5;
+}
+
+.test-item:hover {
+    transform: translateX(5px);
+}
+
+.buy-link {
+    color: #60a5fa;
+    text-decoration: none;
+    font-size: 12px;
+    padding: 4px 10px;
+    background: rgba(96, 165, 250, 0.1);
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.buy-link:hover {
+    background: rgba(96, 165, 250, 0.2);
+    color: #93c5fd;
+}
+
+/* Logout Button */
+.logout-btn-panel {
+    width: calc(100% - 40px);
+    margin: 15px 20px 20px;
+    padding: 12px;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.logout-btn-panel:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+}
+
+.logout-btn-panel i {
+    font-size: 16px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .user-dropdown-panel {
+        width: 280px;
+        right: -10px;
+    }
+    
+    .user-email-display {
+        font-size: 12px;
+    }
+    
+    .test-item {
+        font-size: 13px;
+        padding: 10px 12px;
+    }
+}
+
+/* Animation for test items */
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.user-dropdown-panel.show .test-item {
+    animation: slideInRight 0.3s ease forwards;
+}
+
+.user-dropdown-panel.show .test-item:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.user-dropdown-panel.show .test-item:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.user-dropdown-panel.show .test-item:nth-child(3) {
+    animation-delay: 0.3s;
+}
