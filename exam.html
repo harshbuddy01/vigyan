@@ -7,6 +7,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IIN Assessment Portal - Full Screen Mode</title>
     
+    <!-- ACCESS CONTROL: Check if user has purchased tests -->
+    <script>
+        (function checkAccess() {
+            const userEmail = localStorage.getItem("userEmail");
+            const purchasedTests = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
+            
+            // Check if user is logged in and has purchased at least one test
+            if (!userEmail || purchasedTests.length === 0) {
+                alert("⚠️ Access Denied! Please purchase a test series first.");
+                window.location.href = "testfirstpage.html";
+                return;
+            }
+            
+            // Optional: Check if user has access to the specific test they're trying to take
+            const urlParams = new URLSearchParams(window.location.search);
+            const requestedTest = urlParams.get("test") || "iat";
+            
+            if (!purchasedTests.includes(requestedTest)) {
+                alert(`⚠️ You need to purchase ${requestedTest.toUpperCase()} series to access this test.`);
+                window.location.href = "testfirstpage.html";
+                return;
+            }
+        })();
+    </script>
+    
     <script>
       window.MathJax = {
         tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
@@ -174,7 +199,7 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
         // Use your live Render URL
-        const API_BASE_URL = "iin-production.up.railway.app";
+        const API_BASE_URL = "https://iin-production.up.railway.app";
         
         let questionsBySubject = { "Physics": [], "Chemistry": [], "Mathematics": [], "Biology": [] };
         let currentSubject = "Physics", currentQIndex = 0, userResponses = {}, questionStatus = {};
