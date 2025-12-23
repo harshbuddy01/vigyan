@@ -76,7 +76,7 @@
                 </p>
             </div>
             
-            <button onclick="window.location.href='exam.html'" class="buy-btn" style="background:#10b981; margin-top:0">Start Your Test 🚀</button>
+            <button onclick="redirectToInstructions()" class="buy-btn" style="background:#10b981; margin-top:0">Read Instructions & Start Test 🚀</button>
         </div>
     </div>
 
@@ -170,7 +170,7 @@
                 btn.style.background = "#10b981";
                 btn.onclick = () => {
                     localStorage.setItem("currentTestId", testId);
-                    window.location.href = "exam.html?test=" + testId;
+                    window.location.href = "instructions.html?test=" + testId;
                 };
             }
         }
@@ -188,6 +188,11 @@
             document.getElementById("emailModal").style.display = "none";
             document.getElementById("rollFieldGroup").classList.add("hidden");
             document.getElementById("modalUserEmail").disabled = false;
+        }
+
+        function redirectToInstructions() {
+            const testId = localStorage.getItem("tempTestId") || "iat";
+            window.location.href = "instructions.html?test=" + testId;
         }
 
         async function handleModalSubmit() {
