@@ -1,4 +1,4 @@
-/* OFFICIAL TCS iON / IISER INTERFACE CSS */
+/* OFFICIAL TCS iON / IISER INTERFACE CSS - FIXED */
 
 :root {
     --header-blue: #2D6187;  /* Exact IISER Header Blue */
@@ -10,6 +10,7 @@
     --c-not-answered: #dc3545; /* Red */
     --c-marked: #6610f2;       /* Purple */
     --c-not-visited: #e9ecef;  /* Grey */
+    --c-ans-marked: #6610f2;   /* Purple (Answered & Marked) */
 }
 
 * { box-sizing: border-box; }
@@ -88,7 +89,7 @@ body { margin: 0; padding: 0; font-family: Arial, sans-serif; height: 100vh; dis
 .btn-action { padding: 10px 15px; font-weight: bold; cursor: pointer; border: 1px solid #ccc; border-radius: 2px; }
 .btn-save { background: var(--c-answered); color: white; border-color: var(--c-answered); }
 .btn-save:hover { background: #218838; }
-.btn-mark { background: var(--c-marked); color: white; border-color: var(--c-marked); border-radius: 50px; /* NTA style often rounded */ }
+.btn-mark { background: var(--c-marked); color: white; border-color: var(--c-marked); border-radius: 50px; }
 .btn-clear { background: #fff; }
 
 /* RIGHT: SIDEBAR */
@@ -98,62 +99,119 @@ body { margin: 0; padding: 0; font-family: Arial, sans-serif; height: 100vh; dis
 .legend-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 0.75rem; }
 .leg-item { display: flex; align-items: center; gap: 5px; }
 .full-width { grid-column: span 2; }
-.leg-circle { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; font-size: 0.7rem; }
 
-/* PALETTE COLORS & SHAPES */
-/* TCS iON usually uses squares or slight rounded corners, but images often show circles. We use NTA standard shapes */
-.leg-circle.answered, .palette-btn.answered { background: var(--c-answered); clip-path: polygon(25% 0%, 100% 0%, 100% 100%, 25% 100%, 0% 50%); border-radius: 0; } /* NTA "Green Shape" approximation or just simple box */
-.leg-circle.not-answered, .palette-btn.not-answered { background: var(--c-not-answered); clip-path: polygon(0% 0%, 75% 0%, 100% 50%, 75% 100%, 0% 100%); border-radius: 0; }
-.leg-circle.not-visited, .palette-btn.not-visited { background: white; color: black; border: 1px solid #ccc; border-radius: 4px; }
-.leg-circle.marked, .palette-btn.marked { background: var(--c-marked); border-radius: 50%; }
-.leg-circle.ans-marked, .palette-btn.answered-marked { background: var(--c-marked); border-radius: 50%; position: relative; }
-.leg-circle.ans-marked::after, .palette-btn.answered-marked::after { content: '✓'; position: absolute; bottom: -2px; right: -2px; color: green; background: white; border-radius: 50%; font-size: 8px; padding: 1px; }
+/* PALETTE & LEGEND SHAPES (Consolidated) */
+/* Base Styles for both Legend Icons and Palette Buttons */
+.leg-circle, .palette-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    cursor: default;
+    border: 1px solid #ccc;
+    background: white;
+    position: relative;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
 
-/* Simplified Palette Buttons for cleaner code if clip-path is too complex */
-.palette-btn { width: 35px; height: 35px; margin: 4px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; border: 1px solid #ccc; background: white; position: relative; }
-.palette-btn.answered { background: var(--c-answered); color: white; border-radius: 0 15px 0 15px; border:none; }
-.palette-btn.not-answered { background: var(--c-not-answered); color: white; border-radius: 15px 0 15px 0; border:none; }
-.palette-btn.marked { background: var(--c-marked); color: white; border-radius: 50%; border:none; }
-.palette-btn.not-visited { background: white; color: black; border-radius: 4px; }
+/* Legend Icon Size */
+.leg-circle { width: 25px; height: 25px; font-size: 0.7rem; }
+/* Palette Button Size & Interaction */
+.palette-btn { width: 35px; height: 35px; margin: 4px; font-size: 0.9rem; cursor: pointer; }
 
+/* SHAPE 1: ANSWERED (Green with Top-Right/Bottom-Left rounded) */
+.leg-circle.answered, .palette-btn.answered {
+    background: var(--c-answered);
+    color: white;
+    border-color: var(--c-answered);
+    border-radius: 15px 0 15px 0; /* Distinctive shape */
+}
+
+/* SHAPE 2: NOT ANSWERED (Red with Top-Left/Bottom-Right rounded) */
+.leg-circle.not-answered, .palette-btn.not-answered {
+    background: var(--c-not-answered);
+    color: white;
+    border-color: var(--c-not-answered);
+    border-radius: 0 15px 0 15px; /* Distinctive shape */
+}
+
+/* SHAPE 3: MARKED (Purple Circle) */
+.leg-circle.marked, .palette-btn.marked {
+    background: var(--c-marked);
+    color: white;
+    border-color: var(--c-marked);
+    border-radius: 50%; /* Circle */
+}
+
+/* SHAPE 4: NOT VISITED (Square/Default) */
+.leg-circle.not-visited, .palette-btn.not-visited {
+    background: white;
+    color: black;
+    border-radius: 4px;
+}
+
+/* SHAPE 5: ANSWERED & MARKED (Purple Circle with Green Tick) */
+.leg-circle.ans-marked, .palette-btn.answered-marked {
+    background: var(--c-ans-marked);
+    color: white;
+    border-color: var(--c-ans-marked);
+    border-radius: 50%;
+}
+.leg-circle.ans-marked::after, .palette-btn.answered-marked::after {
+    content: '✓';
+    position: absolute;
+    bottom: -2px;
+    right: -4px;
+    font-size: 10px;
+    font-weight: bold;
+    background: green;
+    color: white;
+    border-radius: 50%;
+    width: 14px;
+    height: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid white;
+}
+
+/* SIDEBAR LAYOUT */
 .palette-area { flex: 1; padding: 10px; overflow-y: auto; }
 .palette-header { background: var(--header-blue); color: white; padding: 5px 10px; font-weight: bold; }
 .palette-header-sub { background: #ddd; padding: 5px; font-size: 0.9rem; font-weight: bold; margin-bottom: 5px; }
 .question-palette { display: flex; flex-wrap: wrap; gap: 2px; }
 
 .sidebar-bottom { padding: 10px; background: #eef3f7; }
-.btn-submit { width: 100%; background: #007bff; color: white; padding: 12px; border: none; font-weight: bold; cursor: pointer; }
+.btn-submit { width: 100%; background: #007bff; color: white; padding: 12px; border: none; font-weight: bold; cursor: pointer; border-radius: 4px; }
 .btn-submit:hover { background: #0056b3; }
+
+/* CURRENT QUESTION HIGHLIGHT */
+.palette-btn[style*="border: 2px solid"] {
+    transform: scale(1.1);
+    z-index: 2;
+    box-shadow: 0 0 5px rgba(0,0,0,0.5);
+}
 
 /* INSTRUCTION PAGE */
 .instruction-container { background: #fff; height: 100vh; padding: 20px; overflow-y: auto; }
-.instruction-card { max-width: 800px; margin: 0 auto; border: 1px solid #ccc; }
+.instruction-card { max-width: 800px; margin: 0 auto; border: 1px solid #ccc; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
 .inst-header { background: var(--header-blue); padding: 10px; color: white; text-align: center; }
 .instruction-body { padding: 20px; }
 .inst-legend li { display: flex; align-items: center; margin-bottom: 10px; gap: 10px; }
-.leg-icon { width: 25px; height: 25px; display: inline-block; border: 1px solid #ccc; }
-.leg-icon.answered { background: var(--c-answered); border-radius: 0 10px 0 10px; }
-.leg-icon.not-answered { background: var(--c-not-answered); border-radius: 10px 0 10px 0; }
-.leg-icon.marked { background: var(--c-marked); border-radius: 50%; }
-
 .login-form { margin-top: 20px; border-top: 1px solid #ccc; padding-top: 20px; text-align: center; }
 .begin-btn { background: var(--header-blue); color: white; padding: 10px 30px; border: none; font-size: 1.2rem; cursor: pointer; margin-top: 10px; }
 .begin-btn:disabled { background: #ccc; }
 
-/* --- GOOD CSS RESULTS MODAL --- */
+/* MODALS */
 .modal { display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; }
-
 .modal-content { background: white; border-radius: 8px; width: 500px; max-width: 90%; box-shadow: 0 5px 15px rgba(0,0,0,0.3); overflow: hidden; animation: slideIn 0.3s; }
 @keyframes slideIn { from {transform: translateY(-50px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
 
 .result-header, .score-header { background: var(--header-blue); padding: 15px; color: white; text-align: center; }
 .summary-body, .score-body { padding: 20px; }
-
-/* Summary Table in Modal */
 .summary-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
 .summary-table th, .summary-table td { border: 1px solid #ddd; padding: 8px; text-align: center; }
 .summary-table th { background-color: #f2f2f2; color: #333; }
-
 .result-footer, .score-footer { padding: 15px; background: #f9f9f9; display: flex; justify-content: center; gap: 10px; border-top: 1px solid #eee; }
 
 .modal-btn { padding: 10px 20px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s; }
