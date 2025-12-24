@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IIN Aptitude Test Series - Assessment Examination Center</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="calculator.css">
+    <!-- Force cache bust with version -->
+    <link rel="stylesheet" href="styles.css?v=2025.12.24.2">
+    <link rel="stylesheet" href="calculator.css?v=2025.12.24.2">
 </head>
 <body>
     <!-- Instruction Page -->
@@ -192,7 +193,7 @@
         </div>
 
         <!-- Version Footer -->
-        <div class="version-footer">Version : 2025.12.24</div>
+        <div class="version-footer">Version : 2025.12.24.2</div>
     </div>
 
     <!-- Scientific Calculator Modal -->
@@ -272,8 +273,8 @@
         </div>
     </div>
 
-    <!-- Load Scripts -->
-    <script src="calculator.js"></script>
-    <script src="exam-app.js"></script>
+    <!-- Load Scripts with version param to force cache bust -->
+    <script src="calculator.js?v=2025.12.24.2"></script>
+    <script src="exam-app.js?v=2025.12.24.2"></script>
 </body>
 </html>
