@@ -1,5 +1,5 @@
-/* IISER/JEE Official Exam Interface Colors - Simple & Professional */
-/* Based on Official NTA/IISER Mock Test Interface */
+/* EXACT Official JEE Main/IISER Exam Interface */
+/* Based on Official NTA Guidelines 2025 */
 
 * {
     margin: 0;
@@ -422,7 +422,7 @@ body {
     color: #1976d2;
 }
 
-/* Action Buttons */
+/* Action Buttons - OFFICIAL JEE MAIN COLORS */
 .question-actions {
     display: flex;
     gap: 12px;
@@ -443,10 +443,21 @@ body {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.action-btn:active {
+    transform: translateY(0);
+}
+
+/* Official JEE Main Button Colors */
 .mark-review-btn {
-    background: #ff9800;
+    background: #ff9800; /* Official Orange */
     color: white;
 }
 
@@ -455,7 +466,7 @@ body {
 }
 
 .clear-btn {
-    background: #f44336;
+    background: #f44336; /* Official Red */
     color: white;
 }
 
@@ -464,7 +475,7 @@ body {
 }
 
 .save-next-btn {
-    background: #4caf50;
+    background: #4caf50; /* Official Green */
     color: white;
 }
 
@@ -519,28 +530,29 @@ body {
     flex-shrink: 0;
 }
 
+/* Official JEE Main Palette Colors */
 .answered-circle {
-    background: #4caf50;
+    background: #4caf50; /* Green - Answered */
     color: white;
 }
 
 .not-answered-circle {
-    background: #f44336;
+    background: #ff9800; /* Orange - Visited but not answered */
     color: white;
 }
 
 .not-visited-circle {
-    background: #9e9e9e;
-    color: white;
+    background: #e0e0e0; /* White/Gray - Not visited */
+    color: #333;
 }
 
 .marked-circle {
-    background: #2196f3;
+    background: #9c27b0; /* Purple - Marked for review */
     color: white;
 }
 
 .answered-marked-circle {
-    background: #9c27b0;
+    background: #673ab7; /* Deep purple - Answered & Marked */
     color: white;
 }
 
@@ -565,7 +577,7 @@ body {
     margin-bottom: 15px;
 }
 
-/* Question Palette */
+/* Question Palette - OFFICIAL JEE MAIN COLORS */
 .question-palette {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -585,13 +597,14 @@ body {
     color: white;
 }
 
-/* Official IISER/JEE Colors */
+/* Official JEE Main Palette Colors */
 .palette-btn.not-visited {
-    background: #9e9e9e; /* Gray - Not Visited */
+    background: #e0e0e0; /* White/Gray - Not Visited */
+    color: #333;
 }
 
 .palette-btn.not-answered {
-    background: #f44336; /* Red - Visited but Not Answered */
+    background: #ff9800; /* Orange - Visited but Not Answered */
 }
 
 .palette-btn.answered {
@@ -599,11 +612,11 @@ body {
 }
 
 .palette-btn.marked {
-    background: #2196f3; /* Blue - Marked for Review */
+    background: #9c27b0; /* Purple - Marked for Review */
 }
 
 .palette-btn.answered-marked {
-    background: #9c27b0; /* Purple - Answered & Marked */
+    background: #673ab7; /* Deep Purple - Answered & Marked */
 }
 
 .palette-btn.current {
