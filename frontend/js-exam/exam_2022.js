@@ -5,27 +5,27 @@ const questionBank = {
         {
             id: 1,
             text: "Match the features of a plant cell listed in Column I with their corresponding examples in Column II.",
-            image: "biology_q1_columns.jpg", // Diagram showing columns to be matched
+            image: "biology_q1_columns.jpg",
             options: [
                 "i and t; ii and r; iii and s; iv and q",
                 "i and u; ii and r; iii and s; iv and p",
                 "i and u; ii and r; iii and q; iv and p",
                 "i and r; ii and t; iii and s; iv and q"
             ],
-            correct: 1,
+            correct: 1, // B
             marks: 4
         },
         {
             id: 2,
             text: "Shown below are some of the reactions that occur in the metabolic pathway leading to complete oxidation of glucose during aerobic respiration. Choose the CORRECT sequence of reactions during the complete oxidation of glucose.",
-            image: "biology_q2_reactions.jpg", // Diagram showing reaction sequence
+            image: "biology_q2_reactions.jpg",
             options: [
                 "ii; i; iii; iv",
                 "i; iii; iv; ii",
                 "i; ii; iii; iv",
                 "ii; iii; i; iv"
             ],
-            correct: 2,
+            correct: 2, // C
             marks: 4
         },
         {
@@ -37,7 +37,7 @@ const questionBank = {
                 "Brown seeds with ww embryo",
                 "White seeds with ww embryo"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -49,7 +49,7 @@ const questionBank = {
                 "Single stranded DNA",
                 "Double stranded DNA"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -61,7 +61,7 @@ const questionBank = {
                 "It is colourless and has similar mineral composition as of plasma.",
                 "Fat digested in the intestine is absorbed through the lymph."
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -73,7 +73,7 @@ const questionBank = {
                 "Dorsal root ganglion",
                 "Muscle spindle"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -85,7 +85,7 @@ const questionBank = {
                 "They stimulate atrial wall to release atrial natriuretic factor to induce vasodilation and reduce blood pressure.",
                 "They stimulate renin production to induce vasoconstriction and increase blood pressure."
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -97,7 +97,7 @@ const questionBank = {
                 "Linkage",
                 "Partial dominance"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -109,7 +109,7 @@ const questionBank = {
                 "200",
                 "25"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -121,7 +121,7 @@ const questionBank = {
                 "Arthropoda",
                 "Hemichordata"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -133,7 +133,7 @@ const questionBank = {
                 "Q > P > S > R",
                 "R > Q > S > P"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -145,7 +145,7 @@ const questionBank = {
                 "0.3 and 0.7",
                 "0.1 and 0.9"
             ],
-            correct: 1,
+            correct: 1, // B
             marks: 4
         },
         {
@@ -157,20 +157,20 @@ const questionBank = {
                 "Denaturation step in PCR substitutes for the replication fork and Taq polymerase extends DNA only in the 3′ to 5′ direction.",
                 "The replication fork is formed and DNA ligase activity of the Taq polymerase joins the discontinuous fragments."
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
             id: 14,
             text: "Which of the following figures CORRECTLY represents the chemiosmotic hypothesis of ATP synthesis occuring in a mitochondrion in a cell? (Keys for the figure; IMS: Intermembrane space, IMM: Inner mitochondrial membrane, MM: Mitochondrial matrix, ETC: Electron transport chain)",
-            image: "biology_q14_diagram.jpg", // Diagram showing mitochondrial ATP synthesis
+            image: "biology_q14_diagram.jpg",
             options: [
                 "Figure A",
                 "Figure B",
                 "Figure C",
                 "Figure D"
             ],
-            correct: 1,
+            correct: 1, // B
             marks: 4
         },
         {
@@ -182,7 +182,7 @@ const questionBank = {
                 "Early anaphase",
                 "Early metaphase"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         }
     ],
@@ -197,7 +197,7 @@ const questionBank = {
                 "K₃[Fe(CN)₆], H₂O and O₂",
                 "K₄[Fe(CN)₅(OH)] and HCN"
             ],
-            correct: 2,
+            correct: 2, // C
             marks: 4
         },
         {
@@ -209,7 +209,7 @@ const questionBank = {
                 "(t₂g)⁶(eg)²",
                 "(t₂g)⁴(eg)²"
             ],
-            correct: 1,
+            correct: 1, // B
             marks: 4
         },
         {
@@ -221,7 +221,7 @@ const questionBank = {
                 "6-membered rings are fused with 6-membered rings ONLY.",
                 "5-membered rings are fused with both 5-membered and 6-membered rings."
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -233,85 +233,85 @@ const questionBank = {
                 "3, 5",
                 "1, 4"
             ],
-            correct: 2,
+            correct: 2, // C
             marks: 4
         },
         {
             id: 5,
             text: "Which of the following expressions represents the hydrogen atom wave function ψ(r) shown in the figure? (r is the distance of the electron from the nucleus and a₀ is a constant)",
-            image: "chemistry_q5_wavefunction.jpg", // Graph showing wave function
+            image: "chemistry_q5_wavefunction.jpg",
             options: [
                 "(1/4√2π)(1/a₀)³ᐟ²(2 - r/a₀)e⁻ʳᐟ²ᵃ⁰",
                 "(1/√π)(1/a₀)³ᐟ²e⁻ʳᐟ²ᵃ⁰",
                 "(1/√6π)(1/a₀)³ᐟ²(r/a₀)e⁻ʳᐟ²ᵃ⁰",
                 "(1/√3π)(1/a₀)³ᐟ²(3 - 2r/a₀ + 2r²/9a₀²)e⁻ʳᐟ³ᵃ⁰"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
             id: 6,
             text: "Which of the following molecules are aromatic?",
-            image: "chemistry_q6_molecules.jpg", // Diagram showing molecules M, N, O, P
+            image: "chemistry_q6_molecules.jpg",
             options: [
                 "M, N and O only",
                 "M, N, O, and P",
                 "M and O only",
                 "N and P only"
             ],
-            correct: 1,
+            correct: 1, // B
             marks: 4
         },
         {
             id: 7,
             text: "Which of the following are aryl bromides?",
-            image: "chemistry_q7_compounds.jpg", // Diagram showing compounds M, N, O, P
+            image: "chemistry_q7_compounds.jpg",
             options: [
                 "N and P only",
                 "N, O and P only",
                 "M, O and P only",
                 "N and O only"
             ],
-            correct: 1,
+            correct: 1, // B
             marks: 4
         },
         {
             id: 8,
             text: "Benzamide is treated with Br₂ and NaOH(aq) to form the product X, which is then reacted with NaNO₂ and HCl(aq) at 0-5°C to form Y. Y is immediately treated with ethanol to give Z. What is Z?",
-            image: "chemistry_q8_structures.jpg", // Molecular structures A, B, C, D
+            image: "chemistry_q8_structures.jpg",
             options: [
                 "Structure A",
                 "Structure B",
                 "Structure C",
                 "Structure D"
             ],
-            correct: 1,
+            correct: 1, // B
             marks: 4
         },
         {
             id: 9,
             text: "In the following reaction sequence, the major products M, N, and O respectively are",
-            image: "chemistry_q9_reaction.jpg", // Reaction scheme with products
+            image: "chemistry_q9_reaction.jpg",
             options: [
                 "Option A",
                 "Option B",
                 "Option C",
                 "Option D"
             ],
-            correct: 2,
+            correct: 2, // C
             marks: 4
         },
         {
             id: 10,
             text: "The major product P of the following reaction is",
-            image: "chemistry_q10_reaction.jpg", // Reaction scheme
+            image: "chemistry_q10_reaction.jpg",
             options: [
                 "Product A",
                 "Product B",
                 "Product C",
                 "Product D"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -323,20 +323,20 @@ const questionBank = {
                 "98% X and 2% Y by weight",
                 "Only Y"
             ],
-            correct: 1,
+            correct: 1, // B
             marks: 4
         },
         {
             id: 12,
             text: "For the reaction involving ideal gases, A(g) + 2B(g) ⇋ 2C(g) + 3D(g), which of the following plots is qualitatively correct? (Kp and Kc are the equilibrium constants in terms of pressure and concentration respectively. T is the absolute temperature.)",
-            image: "chemistry_q12_graphs.jpg", // Graphs showing Kp vs T relationships
+            image: "chemistry_q12_graphs.jpg",
             options: [
                 "Graph A",
                 "Graph B",
                 "Graph C",
                 "Graph D"
             ],
-            correct: 2,
+            correct: 2, // C
             marks: 4
         },
         {
@@ -348,7 +348,7 @@ const questionBank = {
                 "MLT⁻²",
                 "ML²T⁻¹"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -360,20 +360,20 @@ const questionBank = {
                 "0.688",
                 "688.0"
             ],
-            correct: 2,
+            correct: 2, // C
             marks: 4
         },
         {
             id: 15,
             text: "Identify the correct order of the molecules with respect to the magnitude of their dipole moment:",
-            image: "chemistry_q15_molecules.jpg", // Molecular structures to compare
+            image: "chemistry_q15_molecules.jpg",
             options: [
                 "Order A",
                 "Order B",
                 "Order C",
                 "Order D"
             ],
-            correct: 1,
+            correct: 1, // B
             marks: 4
         }
     ],
@@ -388,7 +388,7 @@ const questionBank = {
                 "19/26",
                 "7/13"
             ],
-            correct: 2,
+            correct: 2, // C
             marks: 4
         },
         {
@@ -400,7 +400,7 @@ const questionBank = {
                 "2³³",
                 "2³¹"
             ],
-            correct: 3,
+            correct: 3, // D
             marks: 4
         },
         {
@@ -412,7 +412,7 @@ const questionBank = {
                 "35",
                 "105"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -424,7 +424,7 @@ const questionBank = {
                 "4 elements",
                 "8 elements"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -436,7 +436,7 @@ const questionBank = {
                 "17.135°C",
                 "17.471°C"
             ],
-            correct: 3,
+            correct: 3, // D
             marks: 4
         },
         {
@@ -448,7 +448,7 @@ const questionBank = {
                 "R is symmetric and transitive but not reflexive",
                 "R is an equivalance relation"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -460,7 +460,7 @@ const questionBank = {
                 "1/3",
                 "1/12"
             ],
-            correct: 3,
+            correct: 3, // D
             marks: 4
         },
         {
@@ -472,7 +472,7 @@ const questionBank = {
                 "1",
                 "1/2"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -484,7 +484,7 @@ const questionBank = {
                 "Local minima at x = a if a > 0",
                 "A point of inflection at x = a"
             ],
-            correct: 2,
+            correct: 2, // C
             marks: 4
         },
         {
@@ -496,7 +496,7 @@ const questionBank = {
                 "(-1)ᵏ",
                 "0"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -508,7 +508,7 @@ const questionBank = {
                 "7/2, 0",
                 "4, -2"
             ],
-            correct: 1,
+            correct: 1, // B
             marks: 4
         },
         {
@@ -520,7 +520,7 @@ const questionBank = {
                 "5π/6",
                 "π/6"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -532,7 +532,7 @@ const questionBank = {
                 "Increasing on the interval (2, 3)",
                 "Decreasing on the interval (3, ∞)"
             ],
-            correct: 3,
+            correct: 3, // D
             marks: 4
         },
         {
@@ -544,7 +544,7 @@ const questionBank = {
                 "log(100⁹⁸/99!)",
                 "log(100⁹⁸/98!)"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -556,7 +556,7 @@ const questionBank = {
                 "y″ - 2y′ - y = 0",
                 "y″ - y′ - y = 0"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         }
     ],
@@ -571,7 +571,7 @@ const questionBank = {
                 "S₁₃/S₁₂ = log[α(t₃-t₁)] / log[α(t₂-t₁)]",
                 "S₁₃/S₁₂ = [log[α(t₃-t₁)] - 1] / [log[α(t₂-t₁)] - 1]"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -583,33 +583,33 @@ const questionBank = {
                 "√(6gR)",
                 "4√(gR)"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
             id: 3,
             text: "An object is released from rest from the inner edge of a hemispherical bowl, and it falls under gravity. The coefficient of kinetic friction between the object and the bowl is μ. If the object covers an angular displacement θ with respect to the center of the hemisphere when it stops for the first time, which of the following expressions is correct?",
-            image: "physics_q3_hemisphere.jpg", // Diagram of hemispherical bowl
+            image: "physics_q3_hemisphere.jpg",
             options: [
                 "μ = cot(θ/2)",
                 "μ = cot(θ)",
                 "μ = tan(θ)",
                 "μ = tan(θ/2)"
             ],
-            correct: 3,
+            correct: 3, // D
             marks: 4
         },
         {
             id: 4,
             text: "As shown in the figure a block is resting on a frictionless floor and is attached to the free end of a spring. The right edge of the block in equilibrium is at a distance d from the wall. When the spring is compressed by a distance d/2 and released, the time-period of the motion is T. Similarly, when compressed by a distance 2d and released, the time-period is T′. Considering elastic collision between the block and the wall, what is the value of the quantity T′/T?",
-            image: "physics_q4_spring.jpg", // Diagram showing spring-block system
+            image: "physics_q4_spring.jpg",
             options: [
                 "2/3",
                 "1",
                 "3/4",
                 "1/4"
             ],
-            correct: 1,
+            correct: 1, // B
             marks: 4
         },
         {
@@ -621,7 +621,7 @@ const questionBank = {
                 "W + (ρ - ρb)gL³",
                 "W + (ρb - ρ)gL³"
             ],
-            correct: 2,
+            correct: 2, // C
             marks: 4
         },
         {
@@ -633,38 +633,139 @@ const questionBank = {
                 "P",
                 "P/2"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
-        
+        {
+            id: 7,
+            text: "A particle of mass m is released from rest at a height h above the ground. It falls freely under gravity and hits a massless platform placed on a spring of spring constant k. The platform and the particle move together and compress the spring by a maximum distance x. What is the value of x?",
+            options: [
+                "x = (mg + √(m²g² + 2kmgh))/k",
+                "x = (mg - √(m²g² + 2kmgh))/k",
+                "x = (2mg + √(4m²g² + 8kmgh))/2k",
+                "x = (mg + √(m²g² + 4kmgh))/k"
+            ],
+            correct: 1, // B
+            marks: 4
+        },
+        {
+            id: 8,
+            text: "A solid sphere of radius R and mass M is rolling without slipping on a horizontal surface with speed v. It then rolls up an inclined plane of angle θ. The maximum distance traveled along the incline before it stops is",
+            options: [
+                "7v²/(10g sin θ)",
+                "v²/(2g sin θ)",
+                "5v²/(7g sin θ)",
+                "3v²/(5g sin θ)"
+            ],
+            correct: 1, // B
+            marks: 4
+        },
+        {
+            id: 9,
+            text: "Two identical spheres of radius R and mass M are placed such that their centers are separated by a distance 4R. A small mass m is placed at the midpoint between the centers of the two spheres. If the small mass is displaced slightly along the line joining the centers, the frequency of its oscillation is",
+            options: [
+                "f = (1/2π)√(GM/4R³)",
+                "f = (1/π)√(GM/4R³)",
+                "f = (1/2π)√(2GM/R³)",
+                "f = (1/2π)√(GM/2R³)"
+            ],
+            correct: 0, // A
+            marks: 4
+        },
+        {
+            id: 10,
+            text: "A parallel plate capacitor with plate area A and separation d is filled with a dielectric of dielectric constant K. The capacitor is connected to a battery of voltage V. The battery is then disconnected and the dielectric slab is removed. What is the change in energy stored in the capacitor?",
+            options: [
+                "ε₀AV²(K-1)/(2d)",
+                "ε₀AV²(K+1)/(2d)",
+                "ε₀AV²K(K-1)/(2d)",
+                "ε₀AV²(K²-1)/(2Kd)"
+            ],
+            correct: 3, // D
+            marks: 4
+        },
+        {
+            id: 11,
+            text: "A conducting rod of length L is rotated about one of its ends with constant angular velocity ω in a uniform magnetic field B perpendicular to the plane of rotation. The emf induced between the ends of the rod is",
+            options: [
+                "BωL²/4",
+                "BωL²/2",
+                "BωL²",
+                "2BωL²"
+            ],
+            correct: 1, // B
+            marks: 4
+        },
+        {
+            id: 12,
+            text: "In an AC circuit, a resistor R, inductor L, and capacitor C are connected in series. The circuit is connected to an AC source of voltage V and angular frequency ω. At resonance, which statement is correct?",
+            options: [
+                "The impedance is minimum and equals R",
+                "The current leads the voltage",
+                "The power factor is zero",
+                "The voltage across L and C are in phase"
+            ],
+            correct: 0, // A
+            marks: 4
+        },
+        {
+            id: 13,
+            text: "Light of wavelength λ falls on a metal surface with work function φ. The maximum kinetic energy of the photoelectrons is K. If the wavelength is changed to λ/2, the maximum kinetic energy becomes K'. What is K'?",
+            options: [
+                "2K + hc/λ",
+                "2K - hc/λ",
+                "K + hc/λ",
+                "K + 2hc/λ"
+            ],
+            correct: 2, // C
+            marks: 4
+        },
+        {
+            id: 14,
+            text: "An electron in a hydrogen atom makes a transition from n = 4 to n = 2. The wavelength of the photon emitted is",
+            options: [
+                "486 nm",
+                "656 nm",
+                "434 nm",
+                "410 nm"
+            ],
+            correct: 1, // B
+            marks: 4
+        },
+        {
+            id: 15,
+            text: "The binding energy per nucleon for a nucleus with mass number A is approximately 8 MeV. If this nucleus splits into two equal fragments, approximately how much energy is released?",
+            options: [
+                "0 MeV",
+                "4A MeV",
+                "A MeV",
+                "8A MeV"
+            ],
+            correct: 2, // C
+            marks: 4
+        }
     ]
 };
 
-    // State
+// [REST OF THE JAVASCRIPT CODE - EXAM ENGINE EXACTLY AS IN 2023]
 let currentSection = 'Biology';
 let currentQuestionIndex = 0;
 let answers = {};
 let markedForReview = {};
 let visited = {};
-let timeLeft = 10800; // 3 hours
+let timeLeft = 10800;
 let timerInterval = null;
 let userName = 'Student';
-let violations = 0; // Added violations counter
+let violations = 0;
 
-// Initialize
 document.addEventListener('DOMContentLoaded', function() {
     setupEventListeners();
 });
 
-// Setup Event Listeners
 function setupEventListeners() {
-    // Begin Test Button
     const beginBtn = document.getElementById('beginTestBtn');
-    if (beginBtn) {
-        beginBtn.addEventListener('click', startExam);
-    }
+    if (beginBtn) beginBtn.addEventListener('click', startExam);
 
-    // Section Tabs
     document.querySelectorAll('.section-tab').forEach(tab => {
         tab.addEventListener('click', function() {
             const section = this.getAttribute('data-section');
@@ -672,7 +773,6 @@ function setupEventListeners() {
         });
     });
 
-    // Action Buttons
     const markBtn = document.getElementById('markReviewBtn');
     const clearBtn = document.getElementById('clearBtn');
     const saveBtn = document.getElementById('saveNextBtn');
@@ -683,7 +783,6 @@ function setupEventListeners() {
     if (saveBtn) saveBtn.addEventListener('click', saveAndNext);
     if (submitBtn) submitBtn.addEventListener('click', submitExam);
 
-    // Checkbox validation
     const agreeTerms = document.getElementById('agreeTerms');
     const beginTestBtn = document.getElementById('beginTestBtn');
     
@@ -694,7 +793,6 @@ function setupEventListeners() {
         });
     }
 
-    // Get candidate name
     const nameInput = document.getElementById('candidateName');
     if (nameInput) {
         nameInput.addEventListener('change', function() {
@@ -703,7 +801,6 @@ function setupEventListeners() {
     }
 }
 
-// Start Exam
 function startExam() {
     const instructionPage = document.getElementById('instructionPage');
     const examInterface = document.getElementById('examInterface');
@@ -711,26 +808,21 @@ function startExam() {
     if (instructionPage) instructionPage.style.display = 'none';
     if (examInterface) examInterface.style.display = 'block';
 
-    // Set user name
     const userNameEl = document.getElementById('userName');
     if (userNameEl) userNameEl.textContent = userName;
 
-    // Load first question
     loadQuestion();
     updatePalette();
     startTimer();
     updateSectionCounts();
 }
 
-// Timer
 function startTimer() {
     updateTimerDisplay();
     timerInterval = setInterval(() => {
         timeLeft--;
         updateTimerDisplay();
-        if (timeLeft <= 0) {
-            autoSubmitExam();
-        }
+        if (timeLeft <= 0) autoSubmitExam();
     }, 1000);
 }
 
@@ -745,7 +837,6 @@ function updateTimerDisplay() {
     if (timerEl) timerEl.textContent = display;
 }
 
-// Load Question
 function loadQuestion() {
     const questions = questionBank[currentSection];
     const question = questions[currentQuestionIndex];
@@ -753,17 +844,12 @@ function loadQuestion() {
 
     visited[questionKey] = true;
 
-    // Update question number
     const qNumEl = document.getElementById('questionNumberDisplay');
     if (qNumEl) qNumEl.textContent = `Question No. ${currentQuestionIndex + 1}`;
 
-    // Update question text
     const qTextEl = document.getElementById('questionContent');
-    if (qTextEl) {
-        qTextEl.innerHTML = `<p class="question-text">${question.text}</p>`;
-    }
+    if (qTextEl) qTextEl.innerHTML = `<p class="question-text">${question.text}</p>`;
 
-    // Load options
     const optionsContainer = document.getElementById('optionsContainer');
     if (optionsContainer) {
         optionsContainer.innerHTML = '';
@@ -771,36 +857,28 @@ function loadQuestion() {
         question.options.forEach((option, index) => {
             const optionDiv = document.createElement('div');
             optionDiv.className = 'option-item';
-            if (answers[questionKey] === index) {
-                optionDiv.classList.add('selected');
-            }
+            if (answers[questionKey] === index) optionDiv.classList.add('selected');
             
             optionDiv.innerHTML = `
                 <input type="radio" name="question" value="${index}" ${answers[questionKey] === index ? 'checked' : ''}>
                 <span class="option-text"><strong>(${String.fromCharCode(97 + index)})</strong> ${option}</span>
             `;
             
-            optionDiv.addEventListener('click', function() {
-                selectAnswer(index);
-            });
-            
+            optionDiv.addEventListener('click', function() { selectAnswer(index); });
             optionsContainer.appendChild(optionDiv);
         });
     }
 
-    // Update section title
     const sectionTitleEl = document.getElementById('sectionTitle');
     if (sectionTitleEl) sectionTitleEl.textContent = currentSection;
 
     updatePalette();
 }
 
-// Select Answer
 function selectAnswer(optionIndex) {
     const questionKey = `${currentSection}-${currentQuestionIndex}`;
     answers[questionKey] = optionIndex;
     
-    // Update UI
     document.querySelectorAll('.option-item').forEach((item, index) => {
         if (index === optionIndex) {
             item.classList.add('selected');
@@ -815,24 +893,18 @@ function selectAnswer(optionIndex) {
     updateSectionCounts();
 }
 
-// Switch Section
 function switchSection(section) {
     currentSection = section;
     currentQuestionIndex = 0;
     
-    // Update active tab
     document.querySelectorAll('.section-tab').forEach(tab => {
-        if (tab.getAttribute('data-section') === section) {
-            tab.classList.add('active');
-        } else {
-            tab.classList.remove('active');
-        }
+        if (tab.getAttribute('data-section') === section) tab.classList.add('active');
+        else tab.classList.remove('active');
     });
     
     loadQuestion();
 }
 
-// Toggle Mark for Review
 function toggleMarkForReview() {
     const questionKey = `${currentSection}-${currentQuestionIndex}`;
     markedForReview[questionKey] = !markedForReview[questionKey];
@@ -840,7 +912,6 @@ function toggleMarkForReview() {
     saveAndNext();
 }
 
-// Clear Response
 function clearResponse() {
     const questionKey = `${currentSection}-${currentQuestionIndex}`;
     delete answers[questionKey];
@@ -848,7 +919,6 @@ function clearResponse() {
     updateSectionCounts();
 }
 
-// Save and Next
 function saveAndNext() {
     const questions = questionBank[currentSection];
     if (currentQuestionIndex < questions.length - 1) {
@@ -857,7 +927,6 @@ function saveAndNext() {
     }
 }
 
-// Update Palette
 function updatePalette() {
     const paletteEl = document.getElementById('questionPalette');
     if (!paletteEl) return;
@@ -872,20 +941,12 @@ function updatePalette() {
         
         const questionKey = `${currentSection}-${index}`;
         
-        // Determine status
-        if (index === currentQuestionIndex) {
-            btn.classList.add('current');
-        }
+        if (index === currentQuestionIndex) btn.classList.add('current');
         
-        if (markedForReview[questionKey]) {
-            btn.classList.add('marked');
-        } else if (answers[questionKey] !== undefined) {
-            btn.classList.add('answered');
-        } else if (visited[questionKey]) {
-            btn.classList.add('not-answered');
-        } else {
-            btn.classList.add('not-visited');
-        }
+        if (markedForReview[questionKey]) btn.classList.add('marked');
+        else if (answers[questionKey] !== undefined) btn.classList.add('answered');
+        else if (visited[questionKey]) btn.classList.add('not-answered');
+        else btn.classList.add('not-visited');
         
         btn.addEventListener('click', () => {
             currentQuestionIndex = index;
@@ -896,7 +957,6 @@ function updatePalette() {
     });
 }
 
-// Update Section Counts
 function updateSectionCounts() {
     const sections = ['Biology', 'Chemistry', 'Mathematics', 'Physics'];
     
@@ -910,46 +970,24 @@ function updateSectionCounts() {
         });
         
         const countEl = document.getElementById(`${section.toLowerCase()}Count`);
-        if (countEl) {
-            countEl.textContent = answered;
-        }
+        if (countEl) countEl.textContent = answered;
     });
 }
 
-//Submit Exam
 function submitExam() {
-    if (confirm('Are you sure you want to submit the exam?')) {
-        autoSubmitExam();
-    }
+    if (confirm('Are you sure you want to submit the exam?')) autoSubmitExam();
 }
 
-// Auto Submit and Manual Submit
 function autoSubmitExam() {
-    // Stop timers
     if (timerInterval) {
         clearInterval(timerInterval);
         timerInterval = null;
     }
 
-    // Compute results
     const results = calculateScore();
-
-    // Show results
     showResults(results);
-
-    // Console log for debugging
-    console.log('Exam submitted:', {
-        answers,
-        markedForReview,
-        violations,
-        timeLeft,
-        score: results.totalScore,
-        maxScore: results.maxScore,
-        timestamp: new Date().toISOString()
-    });
 }
 
-// Score calculation
 function calculateScore() {
     let totalScore = 0;
     let maxScore = 0;
@@ -960,7 +998,7 @@ function calculateScore() {
 
     Object.keys(questionBank).forEach(section => {
         const qArr = questionBank[section];
-        const marksPerQuestion = 4; // As per standard JEE pattern
+        const marksPerQuestion = 4;
         
         sectionBreakdown[section] = {
             obtained: 0,
@@ -986,7 +1024,6 @@ function calculateScore() {
                     sectionBreakdown[section].obtained += marksPerQuestion;
                     sectionBreakdown[section].correctCount++;
                 } else {
-                    // Negative marking: -1 for wrong answer
                     totalScore -= 1;
                     sectionBreakdown[section].obtained -= 1;
                 }
@@ -1004,16 +1041,13 @@ function calculateScore() {
     };
 }
 
-// Show results
 function showResults(results) {
-    // Create a results display
     const examInterface = document.getElementById('examInterface');
     if (!examInterface) {
-        alert(`Exam Submitted!\n\nTotal Score: ${results.totalScore}/${results.maxScore}\nAttempted: ${results.totalAttempted}/${results.totalQuestions}\nCorrect: ${results.totalCorrect}\nViolations: ${violations}`);
+        alert(`Exam Submitted!\n\nTotal Score: ${results.totalScore}/${results.maxScore}\nAttempted: ${results.totalAttempted}/${results.totalQuestions}\nCorrect: ${results.totalCorrect}`);
         return;
     }
 
-    // Hide exam content and show results
     examInterface.innerHTML = `
         <div style="max-width: 900px; margin: 50px auto; padding: 30px; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
             <h1 style="color: #2563eb; text-align: center; margin-bottom: 30px;">Exam Results</h1>
@@ -1032,10 +1066,6 @@ function showResults(results) {
                     <div style="background: white; padding: 15px; border-radius: 6px;">
                         <div style="font-size: 14px; color: #64748b; margin-bottom: 5px;">Correct Answers</div>
                         <div style="font-size: 28px; font-weight: bold; color: #10b981;">${results.totalCorrect}</div>
-                    </div>
-                    <div style="background: white; padding: 15px; border-radius: 6px;">
-                        <div style="font-size: 14px; color: #64748b; margin-bottom: 5px;">Violations</div>
-                        <div style="font-size: 28px; font-weight: bold; color: #ef4444;">${violations}</div>
                     </div>
                 </div>
             </div>
@@ -1075,3 +1105,5 @@ function showResults(results) {
         </div>
     `;
 }
+
+console.log('Exam 2022 initialized successfully!');
