@@ -12,7 +12,7 @@ const questionBank = {
                 "Squamous",
                 "Cuboidal"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -24,7 +24,7 @@ const questionBank = {
                 "Zoospores of Chlamydomonas",
                 "Gemmules in a sponge"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -36,7 +36,7 @@ const questionBank = {
                 "5' GAAGTC 3' | 3' CTTCAG 5'",
                 "5' GACCAG 3' | 3' CTGGTC 5'"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -48,7 +48,7 @@ const questionBank = {
                 "IgM",
                 "IgG1"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -60,7 +60,7 @@ const questionBank = {
                 "Gene flow",
                 "Reduction in population size"
             ],
-            correct: 1,
+            correct: 1, // B
             marks: 4
         },
         {
@@ -72,7 +72,7 @@ const questionBank = {
                 "T1: live, T2: die, T3: die, T4: die, T5: live, T6: die",
                 "T1: live, T2: die, T3: live, T4: die, T5: die, T6: live"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -84,7 +84,7 @@ const questionBank = {
                 "NADPH and H⁺",
                 "Only NADPH"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -96,7 +96,7 @@ const questionBank = {
                 "540, 760, 1200 and 1500",
                 "320, 540, 800 and 2340"
             ],
-            correct: 1,
+            correct: 1, // B
             marks: 4
         },
         {
@@ -108,7 +108,7 @@ const questionBank = {
                 "P1 is C₄ (tropical), P2 is C₃ (temperate)",
                 "P1 is C₃ (tropical), P2 is C₄ (temperate)"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -120,7 +120,7 @@ const questionBank = {
                 "Ya; Yb; Xa; Xb",
                 "Yb; Xb; Xa; Ya"
             ],
-            correct: 1,
+            correct: 1, // B
             marks: 4
         },
         {
@@ -132,7 +132,7 @@ const questionBank = {
                 "Transacetylase",
                 "Lactate dehydrogenase"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -144,7 +144,7 @@ const questionBank = {
                 "Excretion of water",
                 "Absorption of proteins"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -178,7 +178,7 @@ const questionBank = {
                 "i-b; ii-d; iii-c; iv-a",
                 "i-b; ii-a; iii-c; iv-d"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -190,7 +190,7 @@ const questionBank = {
                 "iv → iii → i → ii",
                 "i → iii → iv → ii"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -202,7 +202,7 @@ const questionBank = {
                 "% K₍₅₎ C₍₅₊₅₎ A₍∞₎ G_perp",
                 "% K₍₅₎ C₍₅₎ A₂ G₁"
             ],
-            correct: 0,
+            correct: 2, // C
             marks: 4
         }
     ],
@@ -217,7 +217,7 @@ const questionBank = {
                 "90° only",
                 "90° and 180°"
             ],
-            correct: 1,
+            correct: 1, // B
             marks: 4
         },
         {
@@ -229,7 +229,7 @@ const questionBank = {
                 "∠Clₜ-Al-Clₜ = ∠Clᵦ-Al-Clᵦ and Al-Clₜ > Al-Clᵦ",
                 "∠Clᵦ-Al-Clᵦ > ∠Clₜ-Al-Clₜ and Al-Clᵦ > Al-Clₜ"
             ],
-            correct: 0,
+            correct: 1, // B
             marks: 4
         },
         {
@@ -241,7 +241,7 @@ const questionBank = {
                 "(CH₃)₂SiCl₂ and (CH₃)₃SiCl",
                 "(CH₃)₃SiCl and (CH₃)₂SiCl₂"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -253,7 +253,7 @@ const questionBank = {
                 "Complex with strong field ligands in octahedral geometry has a magnetic moment of 1.73 BM.",
                 "Complex with weak field ligands in octahedral geometry has a magnetic moment of 5.92 BM."
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -265,7 +265,7 @@ const questionBank = {
                 "CO is a strong field ligand.",
                 "It has synergic bonding."
             ],
-            correct: 2,
+            correct: 2, // C
             marks: 4
         },
         {
@@ -277,7 +277,7 @@ const questionBank = {
                 "II ≈ III > IV > I",
                 "I > II = III > IV"
             ],
-            correct: 1,
+            correct: 1, // B
             marks: 4
         },
         {
@@ -289,7 +289,7 @@ const questionBank = {
                 "II > III > IV > I",
                 "IV > I ≈ III > II"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -301,7 +301,7 @@ const questionBank = {
                 "(i) and (ii)",
                 "(ii) and (iii)"
             ],
-            correct: 2,
+            correct: 2, // C
             marks: 4
         },
         {
@@ -313,7 +313,7 @@ const questionBank = {
                 "Structure IV",
                 "Structure III"
             ],
-            correct: 3,
+            correct: 3, // D
             marks: 4
         },
         {
@@ -325,7 +325,7 @@ const questionBank = {
                 "2",
                 "6"
             ],
-            correct: 1,
+            correct: 1, // B
             marks: 4
         },
         {
@@ -337,7 +337,7 @@ const questionBank = {
                 "-13.41 kJmol⁻¹",
                 "-23.39 kJmol⁻¹"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -349,7 +349,7 @@ const questionBank = {
                 "at twice the Bohr radius.",
                 "at infinite distance."
             ],
-            correct: 1,
+            correct: 1, // B
             marks: 4
         },
         {
@@ -361,7 +361,7 @@ const questionBank = {
                 "Half-life of a first order reaction is independent of initial concentration.",
                 "Half-life of a first order reaction is inversely proportional to the rate constant."
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -373,7 +373,7 @@ const questionBank = {
                 "10.7 hours",
                 "64.8 microseconds"
             ],
-            correct: 2,
+            correct: 2, // C
             marks: 4
         },
         {
@@ -385,7 +385,7 @@ const questionBank = {
                 "Diagram C",
                 "Diagram D"
             ],
-            correct: 1,
+            correct: 1, // B
             marks: 4
         }
     ],
@@ -400,7 +400,7 @@ const questionBank = {
                 "√2",
                 "2√2"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -412,7 +412,7 @@ const questionBank = {
                 "1/4",
                 "1/5"
             ],
-            correct: 1,
+            correct: 1, // B
             marks: 4
         },
         {
@@ -424,7 +424,7 @@ const questionBank = {
                 "exactly three values",
                 "exactly one value"
             ],
-            correct: 3,
+            correct: 3, // D
             marks: 4
         },
         {
@@ -436,7 +436,7 @@ const questionBank = {
                 "5",
                 "10"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -448,7 +448,7 @@ const questionBank = {
                 "e",
                 "0"
             ],
-            correct: 2,
+            correct: 2, // C
             marks: 4
         },
         {
@@ -460,7 +460,7 @@ const questionBank = {
                 "3 < f(√2) < 4",
                 "4 < f(√2) < 5"
             ],
-            correct: 2,
+            correct: 2, // C
             marks: 4
         },
         {
@@ -472,7 +472,7 @@ const questionBank = {
                 "p_a has a real root if and only if a ≥ 1",
                 "p_a has a real root if and only if a ≤ -1"
             ],
-            correct: 1,
+            correct: 1, // B
             marks: 4
         },
         {
@@ -484,7 +484,7 @@ const questionBank = {
                 "31",
                 "120"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -496,7 +496,7 @@ const questionBank = {
                 "x + 2y + z = 6",
                 "x + y + 2z = 5"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -508,7 +508,7 @@ const questionBank = {
                 "π/2",
                 "π/3"
             ],
-            correct: 1,
+            correct: 1, // B
             marks: 4
         },
         {
@@ -520,7 +520,7 @@ const questionBank = {
                 "8 + 6π",
                 "8 + 8π"
             ],
-            correct: 2,
+            correct: 2, // C
             marks: 4
         },
         {
@@ -532,7 +532,7 @@ const questionBank = {
                 "f is differentiable, f' is not",
                 "f'' is differentiable"
             ],
-            correct: 2,
+            correct: 2, // C
             marks: 4
         },
         {
@@ -544,7 +544,7 @@ const questionBank = {
                 "A+I is invertible, A may not be",
                 "Neither may be invertible"
             ],
-            correct: 2,
+            correct: 2, // C
             marks: 4
         },
         {
@@ -556,7 +556,7 @@ const questionBank = {
                 "a + c - b",
                 "x² + 2b"
             ],
-            correct: 0,
+            correct: 2, // C
             marks: 4
         },
         {
@@ -568,7 +568,7 @@ const questionBank = {
                 "m₂ = m₁, v₂ = v₁",
                 "m₂ = m₁ + 50, v₂ < v₁"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         }
     ],
@@ -583,7 +583,7 @@ const questionBank = {
                 "Cubic with x",
                 "Constant"
             ],
-            correct: 1,
+            correct: 1, // B
             marks: 4
         },
         {
@@ -595,7 +595,7 @@ const questionBank = {
                 "Formula C",
                 "Formula D"
             ],
-            correct: 1,
+            correct: 1, // B
             marks: 4
         },
         {
@@ -607,7 +607,7 @@ const questionBank = {
                 "90 m",
                 "72 m"
             ],
-            correct: 1,
+            correct: 1, // B
             marks: 4
         },
         {
@@ -619,7 +619,7 @@ const questionBank = {
                 "-α ΔT C",
                 "-2α ΔT C"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -631,7 +631,7 @@ const questionBank = {
                 "16/3 µC and 8/3 µC",
                 "8/3 µC and 16/3 µC"
             ],
-            correct: 3,
+            correct: 3, // D
             marks: 4
         },
         {
@@ -643,7 +643,7 @@ const questionBank = {
                 "Eₓ = -vB_y, E_y = vBₓ",
                 "Eₓ = vBₓ, E_y = vB_y"
             ],
-            correct: 2,
+            correct: 2, // C
             marks: 4
         },
         {
@@ -655,7 +655,7 @@ const questionBank = {
                 "-30 q² / (4π ε₀ L)",
                 "30 q² / (4π ε₀ L)"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -667,7 +667,7 @@ const questionBank = {
                 "1170 hours",
                 "2830 hours"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -679,7 +679,7 @@ const questionBank = {
                 "P=1, Q=0",
                 "P=1, Q=1"
             ],
-            correct: 0,
+            correct: 1, // B
             marks: 4
         },
         {
@@ -691,7 +691,7 @@ const questionBank = {
                 "h² / (12 m_e λ_B²)",
                 "h² / (4 m_e λ_B²)"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -703,7 +703,7 @@ const questionBank = {
                 "135.5 Hz",
                 "72.0 Hz"
             ],
-            correct: 1,
+            correct: 1, // B
             marks: 4
         },
         {
@@ -715,7 +715,7 @@ const questionBank = {
                 "1/2 I₀",
                 "√3/2 I₀"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -727,7 +727,7 @@ const questionBank = {
                 "Avg KE O₂ > Avg KE N₂",
                 "RMS O₂ > RMS N₂"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         },
         {
@@ -739,7 +739,7 @@ const questionBank = {
                 "T = (T_A+T_B)/2",
                 "T < (T_A+T_B)/2"
             ],
-            correct: 3,
+            correct: 3, // D
             marks: 4
         },
         {
@@ -751,37 +751,31 @@ const questionBank = {
                 "h e",
                 "h / e"
             ],
-            correct: 0,
+            correct: 0, // A
             marks: 4
         }
     ]
 };
 
-// State
+// [REST OF THE JAVASCRIPT CODE - EXAM ENGINE REMAINS THE SAME]
 let currentSection = 'Biology';
 let currentQuestionIndex = 0;
 let answers = {};
 let markedForReview = {};
 let visited = {};
-let timeLeft = 10800; // 3 hours
+let timeLeft = 10800;
 let timerInterval = null;
 let userName = 'Student';
-let violations = 0; // Added violations counter
+let violations = 0;
 
-// Initialize
 document.addEventListener('DOMContentLoaded', function() {
     setupEventListeners();
 });
 
-// Setup Event Listeners
 function setupEventListeners() {
-    // Begin Test Button
     const beginBtn = document.getElementById('beginTestBtn');
-    if (beginBtn) {
-        beginBtn.addEventListener('click', startExam);
-    }
+    if (beginBtn) beginBtn.addEventListener('click', startExam);
 
-    // Section Tabs
     document.querySelectorAll('.section-tab').forEach(tab => {
         tab.addEventListener('click', function() {
             const section = this.getAttribute('data-section');
@@ -789,7 +783,6 @@ function setupEventListeners() {
         });
     });
 
-    // Action Buttons
     const markBtn = document.getElementById('markReviewBtn');
     const clearBtn = document.getElementById('clearBtn');
     const saveBtn = document.getElementById('saveNextBtn');
@@ -800,7 +793,6 @@ function setupEventListeners() {
     if (saveBtn) saveBtn.addEventListener('click', saveAndNext);
     if (submitBtn) submitBtn.addEventListener('click', submitExam);
 
-    // Checkbox validation
     const agreeTerms = document.getElementById('agreeTerms');
     const beginTestBtn = document.getElementById('beginTestBtn');
     
@@ -811,7 +803,6 @@ function setupEventListeners() {
         });
     }
 
-    // Get candidate name
     const nameInput = document.getElementById('candidateName');
     if (nameInput) {
         nameInput.addEventListener('change', function() {
@@ -820,7 +811,6 @@ function setupEventListeners() {
     }
 }
 
-// Start Exam
 function startExam() {
     const instructionPage = document.getElementById('instructionPage');
     const examInterface = document.getElementById('examInterface');
@@ -828,26 +818,21 @@ function startExam() {
     if (instructionPage) instructionPage.style.display = 'none';
     if (examInterface) examInterface.style.display = 'block';
 
-    // Set user name
     const userNameEl = document.getElementById('userName');
     if (userNameEl) userNameEl.textContent = userName;
 
-    // Load first question
     loadQuestion();
     updatePalette();
     startTimer();
     updateSectionCounts();
 }
 
-// Timer
 function startTimer() {
     updateTimerDisplay();
     timerInterval = setInterval(() => {
         timeLeft--;
         updateTimerDisplay();
-        if (timeLeft <= 0) {
-            autoSubmitExam();
-        }
+        if (timeLeft <= 0) autoSubmitExam();
     }, 1000);
 }
 
@@ -862,7 +847,6 @@ function updateTimerDisplay() {
     if (timerEl) timerEl.textContent = display;
 }
 
-// Load Question
 function loadQuestion() {
     const questions = questionBank[currentSection];
     const question = questions[currentQuestionIndex];
@@ -870,17 +854,12 @@ function loadQuestion() {
 
     visited[questionKey] = true;
 
-    // Update question number
     const qNumEl = document.getElementById('questionNumberDisplay');
     if (qNumEl) qNumEl.textContent = `Question No. ${currentQuestionIndex + 1}`;
 
-    // Update question text
     const qTextEl = document.getElementById('questionContent');
-    if (qTextEl) {
-        qTextEl.innerHTML = `<p class="question-text">${question.text}</p>`;
-    }
+    if (qTextEl) qTextEl.innerHTML = `<p class="question-text">${question.text}</p>`;
 
-    // Load options
     const optionsContainer = document.getElementById('optionsContainer');
     if (optionsContainer) {
         optionsContainer.innerHTML = '';
@@ -888,36 +867,28 @@ function loadQuestion() {
         question.options.forEach((option, index) => {
             const optionDiv = document.createElement('div');
             optionDiv.className = 'option-item';
-            if (answers[questionKey] === index) {
-                optionDiv.classList.add('selected');
-            }
+            if (answers[questionKey] === index) optionDiv.classList.add('selected');
             
             optionDiv.innerHTML = `
                 <input type="radio" name="question" value="${index}" ${answers[questionKey] === index ? 'checked' : ''}>
                 <span class="option-text"><strong>(${String.fromCharCode(97 + index)})</strong> ${option}</span>
             `;
             
-            optionDiv.addEventListener('click', function() {
-                selectAnswer(index);
-            });
-            
+            optionDiv.addEventListener('click', function() { selectAnswer(index); });
             optionsContainer.appendChild(optionDiv);
         });
     }
 
-    // Update section title
     const sectionTitleEl = document.getElementById('sectionTitle');
     if (sectionTitleEl) sectionTitleEl.textContent = currentSection;
 
     updatePalette();
 }
 
-// Select Answer
 function selectAnswer(optionIndex) {
     const questionKey = `${currentSection}-${currentQuestionIndex}`;
     answers[questionKey] = optionIndex;
     
-    // Update UI
     document.querySelectorAll('.option-item').forEach((item, index) => {
         if (index === optionIndex) {
             item.classList.add('selected');
@@ -932,24 +903,18 @@ function selectAnswer(optionIndex) {
     updateSectionCounts();
 }
 
-// Switch Section
 function switchSection(section) {
     currentSection = section;
     currentQuestionIndex = 0;
     
-    // Update active tab
     document.querySelectorAll('.section-tab').forEach(tab => {
-        if (tab.getAttribute('data-section') === section) {
-            tab.classList.add('active');
-        } else {
-            tab.classList.remove('active');
-        }
+        if (tab.getAttribute('data-section') === section) tab.classList.add('active');
+        else tab.classList.remove('active');
     });
     
     loadQuestion();
 }
 
-// Toggle Mark for Review
 function toggleMarkForReview() {
     const questionKey = `${currentSection}-${currentQuestionIndex}`;
     markedForReview[questionKey] = !markedForReview[questionKey];
@@ -957,7 +922,6 @@ function toggleMarkForReview() {
     saveAndNext();
 }
 
-// Clear Response
 function clearResponse() {
     const questionKey = `${currentSection}-${currentQuestionIndex}`;
     delete answers[questionKey];
@@ -965,7 +929,6 @@ function clearResponse() {
     updateSectionCounts();
 }
 
-// Save and Next
 function saveAndNext() {
     const questions = questionBank[currentSection];
     if (currentQuestionIndex < questions.length - 1) {
@@ -974,7 +937,6 @@ function saveAndNext() {
     }
 }
 
-// Update Palette
 function updatePalette() {
     const paletteEl = document.getElementById('questionPalette');
     if (!paletteEl) return;
@@ -989,20 +951,12 @@ function updatePalette() {
         
         const questionKey = `${currentSection}-${index}`;
         
-        // Determine status
-        if (index === currentQuestionIndex) {
-            btn.classList.add('current');
-        }
+        if (index === currentQuestionIndex) btn.classList.add('current');
         
-        if (markedForReview[questionKey]) {
-            btn.classList.add('marked');
-        } else if (answers[questionKey] !== undefined) {
-            btn.classList.add('answered');
-        } else if (visited[questionKey]) {
-            btn.classList.add('not-answered');
-        } else {
-            btn.classList.add('not-visited');
-        }
+        if (markedForReview[questionKey]) btn.classList.add('marked');
+        else if (answers[questionKey] !== undefined) btn.classList.add('answered');
+        else if (visited[questionKey]) btn.classList.add('not-answered');
+        else btn.classList.add('not-visited');
         
         btn.addEventListener('click', () => {
             currentQuestionIndex = index;
@@ -1013,7 +967,6 @@ function updatePalette() {
     });
 }
 
-// Update Section Counts
 function updateSectionCounts() {
     const sections = ['Biology', 'Chemistry', 'Mathematics', 'Physics'];
     
@@ -1027,46 +980,24 @@ function updateSectionCounts() {
         });
         
         const countEl = document.getElementById(`${section.toLowerCase()}Count`);
-        if (countEl) {
-            countEl.textContent = answered;
-        }
+        if (countEl) countEl.textContent = answered;
     });
 }
 
-//Submit Exam
 function submitExam() {
-    if (confirm('Are you sure you want to submit the exam?')) {
-        autoSubmitExam();
-    }
+    if (confirm('Are you sure you want to submit the exam?')) autoSubmitExam();
 }
 
-// Auto Submit and Manual Submit
 function autoSubmitExam() {
-    // Stop timers
     if (timerInterval) {
         clearInterval(timerInterval);
         timerInterval = null;
     }
 
-    // Compute results
     const results = calculateScore();
-
-    // Show results
     showResults(results);
-
-    // Console log for debugging
-    console.log('Exam submitted:', {
-        answers,
-        markedForReview,
-        violations,
-        timeLeft,
-        score: results.totalScore,
-        maxScore: results.maxScore,
-        timestamp: new Date().toISOString()
-    });
 }
 
-// Score calculation
 function calculateScore() {
     let totalScore = 0;
     let maxScore = 0;
@@ -1077,7 +1008,7 @@ function calculateScore() {
 
     Object.keys(questionBank).forEach(section => {
         const qArr = questionBank[section];
-        const marksPerQuestion = 4; // As per standard JEE pattern
+        const marksPerQuestion = 4;
         
         sectionBreakdown[section] = {
             obtained: 0,
@@ -1103,7 +1034,6 @@ function calculateScore() {
                     sectionBreakdown[section].obtained += marksPerQuestion;
                     sectionBreakdown[section].correctCount++;
                 } else {
-                    // Negative marking: -1 for wrong answer
                     totalScore -= 1;
                     sectionBreakdown[section].obtained -= 1;
                 }
@@ -1121,16 +1051,13 @@ function calculateScore() {
     };
 }
 
-// Show results
 function showResults(results) {
-    // Create a results display
     const examInterface = document.getElementById('examInterface');
     if (!examInterface) {
-        alert(`Exam Submitted!\n\nTotal Score: ${results.totalScore}/${results.maxScore}\nAttempted: ${results.totalAttempted}/${results.totalQuestions}\nCorrect: ${results.totalCorrect}\nViolations: ${violations}`);
+        alert(`Exam Submitted!\n\nTotal Score: ${results.totalScore}/${results.maxScore}\nAttempted: ${results.totalAttempted}/${results.totalQuestions}\nCorrect: ${results.totalCorrect}`);
         return;
     }
 
-    // Hide exam content and show results
     examInterface.innerHTML = `
         <div style="max-width: 900px; margin: 50px auto; padding: 30px; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
             <h1 style="color: #2563eb; text-align: center; margin-bottom: 30px;">Exam Results</h1>
@@ -1149,10 +1076,6 @@ function showResults(results) {
                     <div style="background: white; padding: 15px; border-radius: 6px;">
                         <div style="font-size: 14px; color: #64748b; margin-bottom: 5px;">Correct Answers</div>
                         <div style="font-size: 28px; font-weight: bold; color: #10b981;">${results.totalCorrect}</div>
-                    </div>
-                    <div style="background: white; padding: 15px; border-radius: 6px;">
-                        <div style="font-size: 14px; color: #64748b; margin-bottom: 5px;">Violations</div>
-                        <div style="font-size: 28px; font-weight: bold; color: #ef4444;">${violations}</div>
                     </div>
                 </div>
             </div>
@@ -1192,3 +1115,5 @@ function showResults(results) {
         </div>
     `;
 }
+
+console.log('Exam 2021 initialized successfully!');
