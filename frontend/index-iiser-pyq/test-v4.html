@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>IIN Test - V4 NO CACHE</title>
+    <link rel="stylesheet" href="styles.css?v=20251224-v4">
+    <link rel="stylesheet" href="calculator.css?v=20251224-v4">
+    <style>
+        /* Override button colors - EXACT JEE Main colors */
+        .mark-review-btn {
+            background: #ff9800 !important;
+            color: white !important;
+        }
+        .clear-btn {
+            background: #f44336 !important;
+            color: white !important;
+        }
+        .save-next-btn {
+            background: #4caf50 !important;
+            color: white !important;
+        }
+        body::before {
+            content: 'V4 - FRESH LOAD - CHECK CONSOLE!';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #ff0000;
+            color: white;
+            text-align: center;
+            padding: 5px;
+            z-index: 99999;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body style="padding-top: 30px;">
+    <!-- Instruction Page -->
+    <div id="instructionPage" class="instruction-container">
+        <div class="instruction-card">
+            <h1 class="instruction-title">IIN Aptitude Test Series - V4 TEST</h1>
+            <h2 class="instruction-subtitle">NO CACHE VERSION - Check Console!</h2>
+            
+            <div class="instruction-form">
+                <div class="form-group">
+                    <label for="candidateName">Candidate Name *</label>
+                    <input type="text" id="candidateName" value="Test Student" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="examYear">Select Exam Year *</label>
+                    <select id="examYear" required>
+                        <option value="2024" selected>2024</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="examLanguage">Select Language *</label>
+                    <select id="examLanguage" required>
+                        <option value="English" selected>English</option>
+                    </select>
+                </div>
+
+                <div class="terms-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="agreeTerms" checked required>
+                        <span>I agree to terms (auto-checked for testing)</span>
+                    </label>
+                </div>
+
+                <button class="begin-test-btn" id="beginTestBtn">START TEST NOW</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Exam Interface -->
+    <div id="examInterface" class="exam-interface" style="display: none;">
+        <!-- Header -->
+        <header class="exam-header">
+            <div class="header-left">
+                <span class="exam-title-header">V4 TEST - NO CACHE</span>
+            </div>
+            <div class="header-right">
+                <button class="calculator-tab" id="calculatorBtn">🔢 Calculator</button>
+            </div>
+        </header>
+
+        <!-- Sub Header -->
+        <div class="sub-header">
+            <div class="sub-header-left">
+                <div class="sections-tabs">
+                    <button class="section-tab active" data-section="Biology">Biology <span id="biologyCount"></span></button>
+                    <button class="section-tab" data-section="Chemistry">Chemistry <span id="chemistryCount"></span></button>
+                    <button class="section-tab" data-section="Mathematics">Mathematics <span id="mathematicsCount"></span></button>
+                    <button class="section-tab" data-section="Physics">Physics <span id="physicsCount"></span></button>
+                </div>
+            </div>
+            <div class="sub-header-right">
+                <span id="userName">Test User</span>
+                <div class="timer-display" id="timerDisplay">Time: 03:00:00</div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="question-area">
+                <div class="question-number-display" id="questionNumberDisplay">Question No. 1</div>
+                <div class="question-content" id="questionContent"></div>
+                <div class="options-container" id="optionsContainer"></div>
+
+                <div class="question-actions">
+                    <button class="action-btn mark-review-btn" id="markReviewBtn">Mark for Review & Next</button>
+                    <button class="action-btn clear-btn" id="clearBtn">Clear Response</button>
+                    <button class="action-btn save-next-btn" id="saveNextBtn">Save & Next</button>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <div class="status-legend-btn">
+                        <div class="legend-counts">
+                            <div class="legend-item"><span class="legend-circle answered-circle">0</span><span>Answered</span></div>
+                            <div class="legend-item"><span class="legend-circle not-answered-circle">0</span><span>Not Answered</span></div>
+                            <div class="legend-item"><span class="legend-circle not-visited-circle">60</span><span>Not Visited</span></div>
+                            <div class="legend-item"><span class="legend-circle marked-circle">0</span><span>Marked</span></div>
+                            <div class="legend-item"><span class="legend-circle answered-marked-circle">0</span><span>Ans+Marked</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="section-title" id="sectionTitle">Biology</div>
+                <div class="question-palette" id="questionPalette"></div>
+                <button class="submit-exam-btn" id="submitExamBtn">Submit Exam</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calculator Modal -->
+    <div id="calculatorModal" class="calculator-modal">
+        <div class="calculator-container">
+            <div class="calculator-header">
+                <span>Calculator</span>
+                <button class="calculator-close" id="closeCalculator">×</button>
+            </div>
+            <div class="calculator-body">
+                <input type="text" id="calc-display" value="0" readonly>
+                <div class="calculator-buttons">
+                    <button class="calc-btn function" data-action="sin">sin</button>
+                    <button class="calc-btn function" data-action="cos">cos</button>
+                    <button class="calc-btn function" data-action="tan">tan</button>
+                    <button class="calc-btn function" data-action="log">log</button>
+                    <button class="calc-btn function" data-action="ln">ln</button>
+                    <button class="calc-btn function" data-action="sqrt">√</button>
+                    <button class="calc-btn function" data-action="square">x²</button>
+                    <button class="calc-btn function" data-action="power">xʸ</button>
+                    <button class="calc-btn function" data-action="factorial">n!</button>
+                    <button class="calc-btn function" data-action="inverse">1/x</button>
+                    <button class="calc-btn function" data-action="pi">π</button>
+                    <button class="calc-btn function" data-action="e">e</button>
+                    <button class="calc-btn function" data-action="exp">eˣ</button>
+                    <button class="calc-btn clear" data-action="clear">C</button>
+                    <button class="calc-btn clear" data-action="delete">⌫</button>
+                    <button class="calc-btn" data-value="7">7</button>
+                    <button class="calc-btn" data-value="8">8</button>
+                    <button class="calc-btn" data-value="9">9</button>
+                    <button class="calc-btn operator" data-action="divide">÷</button>
+                    <button class="calc-btn operator" data-action="percent">%</button>
+                    <button class="calc-btn" data-value="4">4</button>
+                    <button class="calc-btn" data-value="5">5</button>
+                    <button class="calc-btn" data-value="6">6</button>
+                    <button class="calc-btn operator" data-action="multiply">×</button>
+                    <button class="calc-btn operator" data-action="negate">+/-</button>
+                    <button class="calc-btn" data-value="1">1</button>
+                    <button class="calc-btn" data-value="2">2</button>
+                    <button class="calc-btn" data-value="3">3</button>
+                    <button class="calc-btn operator" data-action="subtract">−</button>
+                    <button class="calc-btn equals tall" data-action="equals">=</button>
+                    <button class="calc-btn wide" data-value="0">0</button>
+                    <button class="calc-btn" data-value=".">.</button>
+                    <button class="calc-btn operator" data-action="add">+</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Submit Modal -->
+    <div id="submitModal" class="modal">
+        <div class="modal-content">
+            <h2>Confirm Submission</h2>
+            <div id="submissionSummary"></div>
+            <p class="warning-text">⚠️ Submit exam?</p>
+            <div class="modal-actions">
+                <button class="modal-btn cancel-btn" id="cancelSubmitBtn">Cancel</button>
+                <button class="modal-btn confirm-btn" id="confirmSubmitBtn">Yes, Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EMBEDDED JavaScript - NO EXTERNAL FILES! -->
+    <script>
+    console.log('%c[V4 TEST] JavaScript LOADED - Version 4 - ' + new Date().toISOString(), 'background: #00ff00; color: #000; font-size: 20px; font-weight: bold;');
+    
+    // Load calculator.js
+    const calcScript = document.createElement('script');
+    calcScript.src = 'calculator.js?v=20251224-v4&t=' + Date.now();
+    document.head.appendChild(calcScript);
+    
+    // Load exam-app.js  
+    const examScript = document.createElement('script');
+    examScript.src = 'exam-app.js?v=20251224-v4&t=' + Date.now();
+    examScript.onload = function() {
+        console.log('%c[V4 TEST] Exam App loaded! Check if buttons work now.', 'background: #0000ff; color: #fff; font-size: 16px;');
+    };
+    document.head.appendChild(examScript);
+    
+    console.log('[V4 TEST] Scripts loading with cache-bust timestamp:', Date.now());
+    </script>
+</body>
+</html>
