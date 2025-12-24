@@ -558,27 +558,8 @@
 
     <script>
         function startExam(year) {
-            // Store the year in localStorage
-            localStorage.setItem('selectedYear', year);
-            
-            // Navigate to respective year's page
-            if (year === 2025) {
-                window.location.href = 'index_2025.html';
-            } else if (year === 2024) {
-                window.location.href = 'index_2024.html';
-            } else if (year === 2023) {
-                window.location.href = 'index_2023.html';
-            } else if (year === 2022) {
-                window.location.href = 'index_2022.html';
-            } else if (year === 2021) {
-                window.location.href = 'index_2021.html';
-            } else if (year === 2020) {
-                window.location.href = 'index_2020.html';
-            } else if (year === 2019) {
-                window.location.href = 'index_2019.html';
-            } else if (year === 2018) {
-                window.location.href = 'index_2018.html';
-            }
+            // Navigate to the unified exam interface with year pre-selected
+            window.location.href = `frontend/index-iiser-pyq/index_2025.html?year=${year}`;
         }
     </script>
 </body>
