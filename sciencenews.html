@@ -208,7 +208,7 @@
             width: 100%;
             height: 200px;
             object-fit: cover;
-            background: rgba(255, 255, 255, 0.05);
+            background: linear-gradient(135deg, #1e293b, #334155);
         }
         
         .news-content {
@@ -332,8 +332,8 @@
                     <div class="stat-label">Articles</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number">60K+</div>
-                    <div class="stat-label">Global Sources</div>
+                    <div class="stat-number">Global</div>
+                    <div class="stat-label">Sources</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-number">Real-Time</div>
@@ -345,7 +345,7 @@
         <!-- Loading State -->
         <div id="loadingState" class="loading-container">
             <div class="spinner"></div>
-            <p class="loading-text">Fetching global science news from 60,000+ sources...</p>
+            <p class="loading-text">Fetching latest science news...</p>
         </div>
 
         <!-- Error State -->
@@ -358,20 +358,14 @@
     <script src="frontend/js/config.js"></script>
     <script src="frontend/js/auth.js"></script>
     <script src="frontend/js/user-panel.js"></script>
-    <!-- Cache-busting parameter -->
-    <script src="frontend/js/newsapi-config.js?v=2.0"></script>
     
     <script>
-        // GNews API Configuration - Inline fallback if external file fails
-        if (typeof GNEWS_CONFIG === 'undefined') {
-            window.GNEWS_CONFIG = {
-                apiKey: 'fdf9900afcdb50ceabca190fb42c19e3',
-                baseUrl: 'https://gnews.io/api/v4',
-                topic: 'science',
-                language: 'en',
-                max: 10
-            };
-        }
+        // RSS feeds from reputable science news sources
+        const RSS_FEEDS = [
+            'https://www.sciencedaily.com/rss/all.xml',
+            'https://phys.org/rss-feed/',
+            'https://www.sciencenews.org/feeds/latest'
+        ];
         
         // Function to format date
         function formatDate(dateString) {
@@ -380,6 +374,7 @@
             const diffTime = Math.abs(now - date);
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
             
+            if (isNaN(diffDays)) return 'Recent';
             if (diffDays === 0) return 'Today';
             if (diffDays === 1) return 'Yesterday';
             if (diffDays < 7) return `${diffDays} days ago`;
@@ -387,7 +382,36 @@
             return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         }
 
-        // Function to fetch news using GNews API (NO CORS issues!)
+        // Function to extract image from content or use default
+        function extractImage(item) {
+            // Try to find image in enclosure
+            if (item.enclosure && item.enclosure.link) {
+                return item.enclosure.link;
+            }
+            
+            // Try to extract from content
+            if (item.content) {
+                const imgMatch = item.content.match(/<img[^>]+src="([^"]+)"/i);
+                if (imgMatch) return imgMatch[1];
+            }
+            
+            // Try thumbnail
+            if (item.thumbnail) return item.thumbnail;
+            
+            // Science-themed default images based on hash
+            const defaults = [
+                'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=200&fit=crop',
+                'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=400&h=200&fit=crop',
+                'https://images.unsplash.com/photo-1530224264768-7ff8c1789d79?w=400&h=200&fit=crop',
+                'https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=400&h=200&fit=crop',
+                'https://images.unsplash.com/photo-1614935151651-0bea6508db6b?w=400&h=200&fit=crop'
+            ];
+            
+            const hash = item.title.split('').reduce((a, b) => ((a << 5) - a) + b.charCodeAt(0), 0);
+            return defaults[Math.abs(hash) % defaults.length];
+        }
+
+        // Function to fetch news from RSS feeds using RSS2JSON
         async function fetchScienceNews() {
             const loadingState = document.getElementById('loadingState');
             const errorState = document.getElementById('errorState');
@@ -397,24 +421,22 @@
             newsGrid.style.display = 'none';
             
             try {
-                // Build URL with GNews API
-                const url = `${window.GNEWS_CONFIG.baseUrl}/top-headlines?category=${window.GNEWS_CONFIG.topic}&lang=${window.GNEWS_CONFIG.language}&max=${window.GNEWS_CONFIG.max}&apikey=${window.GNEWS_CONFIG.apiKey}`;
+                // Use RSS2JSON free service (no API key needed, no CORS issues)
+                const rss2jsonUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(RSS_FEEDS[0])}&count=10`;
                 
-                console.log('Fetching from:', url.replace(window.GNEWS_CONFIG.apiKey, 'API_KEY_HIDDEN'));
+                console.log('Fetching from:', rss2jsonUrl);
                 
-                const response = await fetch(url);
+                const response = await fetch(rss2jsonUrl);
                 
                 if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('API Error Response:', errorText);
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 
                 const data = await response.json();
-                console.log('API Response:', data);
+                console.log('RSS Response:', data);
                 
-                if (data.articles && data.articles.length > 0) {
-                    displayNews(data.articles);
+                if (data.status === 'ok' && data.items && data.items.length > 0) {
+                    displayNews(data.items);
                 } else {
                     throw new Error('No articles found');
                 }
@@ -435,24 +457,23 @@
             newsGrid.style.display = 'grid';
             
             const articlesHTML = articles.map(article => {
-                const imageUrl = article.image || 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=200&fit=crop';
-                const sourceName = article.source.name || 'Science News';
-                const author = article.source.name || sourceName;
-                const description = article.description || 'Click to read the full article';
+                const imageUrl = extractImage(article);
+                const description = article.description ? article.description.replace(/<[^>]*>/g, '').substring(0, 200) : 'Click to read the full article';
+                const author = article.author || 'Science Daily';
                 
                 return `
-                    <div class="news-card" onclick="window.open('${article.url}', '_blank')">
+                    <div class="news-card" onclick="window.open('${article.link}', '_blank')">
                         <img src="${imageUrl}" alt="${article.title}" class="news-image" onerror="this.src='https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=200&fit=crop'">
                         <div class="news-content">
-                            <span class="news-source">${sourceName}</span>
+                            <span class="news-source">Science Daily</span>
                             <h3>${article.title}</h3>
-                            <p>${description}</p>
+                            <p>${description}...</p>
                             <div class="news-meta">
                                 <span class="news-date">
-                                    <i class="far fa-clock"></i> ${formatDate(article.publishedAt)}
+                                    <i class="far fa-clock"></i> ${formatDate(article.pubDate)}
                                 </span>
                                 <span class="news-author">
-                                    <i class="fas fa-globe"></i> ${author.split(' ')[0] || 'Global'}
+                                    <i class="fas fa-microscope"></i> Science
                                 </span>
                             </div>
                         </div>
@@ -479,7 +500,7 @@
                     <div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div>
                     <h3 class="error-title">Error Loading News</h3>
                     <p class="error-message">${errorMessage}</p>
-                    <p style="color: #64748b; font-size: 0.85rem; margin: 15px 0;">Please check the browser console for more details.</p>
+                    <p style="color: #64748b; font-size: 0.85rem; margin: 15px 0;">Please check your internet connection and try again.</p>
                     <div style="margin-top: 20px;">
                         <button class="retry-btn" onclick="location.reload()">
                             <i class="fas fa-redo"></i> Retry
@@ -491,7 +512,7 @@
 
         // Load news on page load
         window.addEventListener('load', () => {
-            console.log('Page loaded, API Key:', window.GNEWS_CONFIG.apiKey.substring(0, 10) + '...');
+            console.log('Loading science news from Science Daily RSS...');
             fetchScienceNews();
         });
     </script>
