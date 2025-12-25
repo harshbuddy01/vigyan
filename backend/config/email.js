@@ -6,17 +6,26 @@ config();
 /**
  * Email Configuration for IIN Platform using Brevo
  * Sends roll numbers and notifications to users
+ * 
+ * Updated: Added timeout handling and graceful degradation
  */
 
-// Create Brevo transporter
+// Create Brevo transporter with timeout settings
 export const transporter = nodemailer.createTransport({
   host: 'smtp-relay.brevo.com',
   port: 587,
   secure: false, // Use TLS
+  connectionTimeout: 30000, // 30 seconds
+  greetingTimeout: 30000,   // 30 seconds
+  socketTimeout: 45000,      // 45 seconds
   auth: {
     user: process.env.BREVO_SMTP_USER || '9ec09d001@smtp-brevo.com',
     pass: process.env.BREVO_API_KEY || process.env.BREVO_SMTP_KEY,
   },
+  // Add these for better connection handling
+  pool: true,
+  maxConnections: 5,
+  maxMessages: 100,
 });
 
 /**
@@ -162,7 +171,7 @@ export const sendFeedbackEmail = async (feedbackData) => {
         name: 'IIN.edu Feedback System',
         address: process.env.BREVO_SENDER_EMAIL || '9ec09d001@smtp-brevo.com'
       },
-      to: process.env.ADMIN_EMAIL,
+      to: process.env.ADMIN_EMAIL || process.env.BREVO_SENDER_EMAIL,
       subject: `🆕 New Feedback - ${testId.toUpperCase()} | Roll: ${rollNumber}`,
       html: `
         <!DOCTYPE html>
@@ -329,10 +338,12 @@ export const sendUserConfirmation = async (userEmail) => {
   }
 };
 
-// Verify Brevo connection on startup
+// Verify Brevo connection on startup (non-blocking)
 transporter.verify((error, success) => {
   if (error) {
     console.error('❌ Brevo SMTP connection failed:', error.message);
+    console.log('⚠️  Server will continue running, but emails may not be sent');
+    console.log('🔧 Check your Brevo credentials in environment variables');
   } else {
     console.log('✅ Brevo SMTP server is ready to send emails');
   }
