@@ -16,7 +16,21 @@ config();
 connectDB();
 
 const app = express();
-app.use(cors());
+
+// CORS Configuration - Explicitly allow Vercel frontend
+const corsOptions = {
+  origin: [
+    'https://iin-theta.vercel.app',
+    'http://localhost:3000',
+    'http://localhost:5500',
+    'http://127.0.0.1:5500'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
@@ -74,7 +88,7 @@ app.get("/api/user-status", async (req, res) => {
         email: userRecords[0].email, 
         rollNumber: userRecords[0].rollNumber, 
         tests: tests 
-      });
+      }); 
     } else {
       res.status(404).json({ message: "Not found" });
     }
@@ -91,8 +105,11 @@ app.post("/api/feedback", async (req, res) => {
   try {
     const { email, rollNumber, testId, ratings, comment } = req.body;
 
+    console.log("📥 Feedback submission received:", { email, rollNumber, testId });
+
     // Validation
     if (!email || !rollNumber || !testId || !ratings || !comment) {
+      console.log("❌ Validation failed: Missing required fields");
       return res.status(400).json({ 
         success: false, 
         message: "All fields are required" 
@@ -102,6 +119,7 @@ app.post("/api/feedback", async (req, res) => {
     // Validate ratings
     const { login, interface: interfaceRating, quality, server } = ratings;
     if (!login || !interfaceRating || !quality || !server) {
+      console.log("❌ Validation failed: Missing rating categories");
       return res.status(400).json({ 
         success: false, 
         message: "All rating categories must be provided" 
@@ -123,6 +141,7 @@ app.post("/api/feedback", async (req, res) => {
     });
 
     await feedback.save();
+    console.log("✅ Feedback saved to database:", feedback._id);
 
     // Send email notifications (async - don't block response)
     const feedbackData = {
@@ -141,14 +160,15 @@ app.post("/api/feedback", async (req, res) => {
 
     // Send admin notification
     sendFeedbackEmail(feedbackData).catch(err => {
-      console.error('Failed to send admin email:', err);
+      console.error('❌ Failed to send admin email:', err);
     });
 
     // Send user confirmation
     sendUserConfirmation(email.toLowerCase()).catch(err => {
-      console.error('Failed to send user confirmation:', err);
+      console.error('❌ Failed to send user confirmation:', err);
     });
 
+    console.log("✅ Feedback submission successful");
     res.json({ 
       success: true, 
       message: "Feedback submitted successfully. You'll receive a confirmation email shortly.",
@@ -156,7 +176,7 @@ app.post("/api/feedback", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Feedback submission error:", error);
+    console.error("❌ Feedback submission error:", error);
     res.status(500).json({ 
       success: false, 
       message: "Failed to submit feedback" 
@@ -243,6 +263,15 @@ app.patch("/api/admin/feedback/:id", async (req, res) => {
       message: "Failed to update feedback" 
     });
   }
+});
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    message: 'Server is running',
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Routes
