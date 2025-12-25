@@ -388,7 +388,6 @@
     <script src="frontend/js/config.js"></script>
     <script src="frontend/js/auth.js"></script>
     <script src="frontend/js/user-panel.js"></script>
-    <script src="frontend/js/newsapi-config.js"></script>
     
     <script>
         let currentPage = 1;
@@ -408,7 +407,7 @@
             return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         }
 
-        // Function to fetch news from NewsAPI (GLOBAL)
+        // Function to fetch news using serverless backend (bypasses CORS)
         async function fetchScienceNews(page = 1, append = false) {
             const loadingState = document.getElementById('loadingState');
             const errorState = document.getElementById('errorState');
@@ -420,13 +419,8 @@
             }
             
             try {
-                // Check if API key is configured
-                if (!window.NEWSAPI_CONFIG || window.NEWSAPI_CONFIG.apiKey === 'YOUR_NEWSAPI_KEY_HERE') {
-                    throw new Error('API_KEY_NOT_CONFIGURED');
-                }
-                
-                // Use top-headlines endpoint with NO country restriction for global coverage
-                const url = `${window.NEWSAPI_CONFIG.baseUrl}/top-headlines?category=${window.NEWSAPI_CONFIG.category}&language=${window.NEWSAPI_CONFIG.language}&pageSize=${window.NEWSAPI_CONFIG.pageSize}&page=${page}&apiKey=${window.NEWSAPI_CONFIG.apiKey}`;
+                // Use serverless function to bypass CORS restrictions
+                const url = `/api/news?category=science&language=en&pageSize=50&page=${page}`;
                 
                 const response = await fetch(url);
                 
@@ -442,7 +436,7 @@
                     
                     // Show load more button if there are more articles
                     const loadMoreContainer = document.getElementById('loadMoreContainer');
-                    if (data.articles.length >= window.NEWSAPI_CONFIG.pageSize && totalResults > page * window.NEWSAPI_CONFIG.pageSize) {
+                    if (data.articles.length >= 50 && totalResults > page * 50) {
                         loadMoreContainer.style.display = 'block';
                     } else {
                         loadMoreContainer.style.display = 'none';
@@ -517,31 +511,14 @@
             loadingState.style.display = 'none';
             errorState.style.display = 'block';
             
-            let errorMessage = 'Unable to load science news. Please try again later.';
-            let setupInstructions = '';
-            
-            if (error.message === 'API_KEY_NOT_CONFIGURED') {
-                errorMessage = 'NewsAPI key not configured';
-                setupInstructions = `
-                    <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); padding: 20px; border-radius: 8px; margin-top: 20px; text-align: left;">
-                        <h4 style="color: #3b82f6; margin-bottom: 10px; font-weight: 700;">📝 Setup Instructions:</h4>
-                        <ol style="color: #94a3b8; font-size: 0.9rem; line-height: 1.8; margin-left: 20px;">
-                            <li>Go to <a href="https://newsapi.org/register" target="_blank" style="color: #3b82f6; text-decoration: underline;">newsapi.org/register</a></li>
-                            <li>Create a free account (100 requests/day, 150K+ sources)</li>
-                            <li>Copy your API key from the dashboard</li>
-                            <li>Open <code style="background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px;">frontend/js/newsapi-config.js</code></li>
-                            <li>Replace <code style="background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px;">YOUR_NEWSAPI_KEY_HERE</code> with your actual API key</li>
-                        </ol>
-                    </div>
-                `;
-            }
+            let errorMessage = 'Unable to load science news. The service may be temporarily unavailable.';
             
             errorState.innerHTML = `
                 <div class="error-container">
                     <div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div>
                     <h3 class="error-title">Oops! Something went wrong</h3>
                     <p class="error-message">${errorMessage}</p>
-                    ${setupInstructions}
+                    <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 20px;">Please check your internet connection and try again.</p>
                     <button class="retry-btn" onclick="location.reload()">
                         <i class="fas fa-redo"></i> Retry
                     </button>
