@@ -20,6 +20,79 @@
       };
     </script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <style>
+        .cleanup-section {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .cleanup-section h3 {
+            color: #ef4444;
+            margin-bottom: 10px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .cleanup-section p {
+            color: #94a3b8;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+        
+        .cleanup-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-warning:hover {
+            background: linear-gradient(135deg, #d97706, #b45309);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+    </style>
 </head>
 <body>
 
@@ -275,6 +348,21 @@
                 </button>
             </div>
             
+            <!-- CLEANUP SECTION -->
+            <div class="cleanup-section">
+                <h3>
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Data Cleanup Tools
+                </h3>
+                <p>Remove test/fake student records from the database. This action is permanent!</p>
+                <div class="cleanup-buttons">
+                    <button class="btn-danger" onclick="cleanupNAStudents()">
+                        <i class="fas fa-trash-alt"></i>
+                        Clean Up N/A Students
+                    </button>
+                </div>
+            </div>
+            
             <div class="search-bar">
                 <i class="fas fa-search"></i>
                 <input type="text" id="searchStudents" placeholder="Search students..." oninput="filterStudents()">
@@ -342,6 +430,21 @@
                 </button>
             </div>
             
+            <!-- CLEANUP SECTION FOR FEEDBACK -->
+            <div class="cleanup-section">
+                <h3>
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Feedback Cleanup Tools
+                </h3>
+                <p>Remove all test feedback entries from the database. This action is permanent!</p>
+                <div class="cleanup-buttons">
+                    <button class="btn-warning" onclick="deleteAllFeedback()">
+                        <i class="fas fa-trash-alt"></i>
+                        Delete All Feedback
+                    </button>
+                </div>
+            </div>
+            
             <div class="table-container">
                 <table>
                     <thead>
@@ -378,5 +481,58 @@
     
     <!-- Custom JavaScript - NEW PATH -->
     <script src="frontend/js/admin-script.js"></script>
+    
+    <!-- Cleanup Functions -->
+    <script>
+        const API_BASE_URL = 'https://iin-production.up.railway.app';
+        
+        async function cleanupNAStudents() {
+            if (!confirm('⚠️ Are you sure you want to delete ALL students with "N/A" roll numbers?\n\nThis action CANNOT be undone!')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/admin/students/cleanup`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(`✅ Success!\n\nDeleted ${data.deletedCount} test student records from MongoDB.`);
+                    loadStudents(); // Refresh the table
+                } else {
+                    alert('❌ Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Failed to cleanup students: ' + error.message);
+            }
+        }
+        
+        async function deleteAllFeedback() {
+            if (!confirm('⚠️ Are you sure you want to delete ALL feedback entries?\n\nThis action CANNOT be undone!')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/admin/feedback/all`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(`✅ Success!\n\nDeleted ${data.deletedCount} feedback entries from MongoDB.`);
+                    loadFeedbacks(); // Refresh the table
+                } else {
+                    alert('❌ Error: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Failed to delete feedback: ' + error.message);
+            }
+        }
+    </script>
 </body>
 </html>
