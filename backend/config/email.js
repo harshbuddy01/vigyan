@@ -1,32 +1,26 @@
-import nodemailer from 'nodemailer';
+import sgMail from '@sendgrid/mail';
 import { config } from 'dotenv';
 
 config();
 
 /**
- * Email Configuration for IIN Platform using Brevo
+ * Email Configuration for IIN Platform using SendGrid
  * Sends roll numbers and notifications to users
  * 
- * Updated: Added timeout handling and graceful degradation
+ * Migrated from Brevo to SendGrid for better Railway compatibility
  */
 
-// Create Brevo transporter with timeout settings
-export const transporter = nodemailer.createTransport({
-  host: 'smtp-relay.brevo.com',
-  port: 587,
-  secure: false, // Use TLS
-  connectionTimeout: 30000, // 30 seconds
-  greetingTimeout: 30000,   // 30 seconds
-  socketTimeout: 45000,      // 45 seconds
-  auth: {
-    user: process.env.BREVO_SMTP_USER || '9ec09d001@smtp-brevo.com',
-    pass: process.env.BREVO_API_KEY || process.env.BREVO_SMTP_KEY,
-  },
-  // Add these for better connection handling
-  pool: true,
-  maxConnections: 5,
-  maxMessages: 100,
-});
+// Initialize SendGrid with API key
+const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
+const SENDER_EMAIL = process.env.SENDGRID_SENDER_EMAIL || process.env.ADMIN_EMAIL || 'noreply@iin.edu';
+
+if (SENDGRID_API_KEY) {
+  sgMail.setApiKey(SENDGRID_API_KEY);
+  console.log('✅ SendGrid initialized successfully');
+} else {
+  console.warn('⚠️  SENDGRID_API_KEY not found in environment variables');
+  console.warn('⚠️  Emails will not be sent until API key is configured');
+}
 
 /**
  * Send Roll Number to User
@@ -37,12 +31,17 @@ export const transporter = nodemailer.createTransport({
  */
 export const sendRollNumberEmail = async (userEmail, rollNumber, userName = 'Student', testName = 'IIN.edu Platform') => {
   try {
-    const mailOptions = {
-      from: {
-        name: 'IIN.edu Platform',
-        address: process.env.BREVO_SENDER_EMAIL || '9ec09d001@smtp-brevo.com'
-      },
+    if (!SENDGRID_API_KEY) {
+      console.warn('⚠️  SendGrid not configured, skipping email');
+      return { success: false, error: 'SendGrid API key not configured' };
+    }
+
+    const msg = {
       to: userEmail,
+      from: {
+        email: SENDER_EMAIL,
+        name: 'IIN.edu Platform'
+      },
       subject: `🎓 Your Roll Number - ${testName}`,
       html: `
         <!DOCTYPE html>
@@ -116,7 +115,7 @@ export const sendRollNumberEmail = async (userEmail, rollNumber, userName = 'Stu
               
               <p class="support-text">
                 Need help? Contact our support team at 
-                <a href="mailto:${process.env.SUPPORT_EMAIL || 'support@iin.edu'}">support@iin.edu</a>
+                <a href="mailto:${process.env.SUPPORT_EMAIL || 'support@iin.edu'}">${process.env.SUPPORT_EMAIL || 'support@iin.edu'}</a>
               </p>
             </div>
             
@@ -148,12 +147,15 @@ This is an automated email. Please do not reply.
       `,
     };
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log('✅ Roll number email sent to:', userEmail, '| Message ID:', info.messageId);
-    return { success: true, messageId: info.messageId, rollNumber };
+    await sgMail.send(msg);
+    console.log('✅ Roll number email sent to:', userEmail, '| Roll Number:', rollNumber);
+    return { success: true, rollNumber };
 
   } catch (error) {
     console.error('❌ Roll number email failed:', error.message);
+    if (error.response) {
+      console.error('SendGrid Error:', error.response.body);
+    }
     return { success: false, error: error.message };
   }
 };
@@ -164,14 +166,19 @@ This is an automated email. Please do not reply.
  */
 export const sendFeedbackEmail = async (feedbackData) => {
   try {
+    if (!SENDGRID_API_KEY) {
+      console.warn('⚠️  SendGrid not configured, skipping email');
+      return { success: false, error: 'SendGrid API key not configured' };
+    }
+
     const { email, rollNumber, testId, ratings, comment, feedbackId } = feedbackData;
 
-    const mailOptions = {
+    const msg = {
+      to: process.env.ADMIN_EMAIL || SENDER_EMAIL,
       from: {
-        name: 'IIN.edu Feedback System',
-        address: process.env.BREVO_SENDER_EMAIL || '9ec09d001@smtp-brevo.com'
+        email: SENDER_EMAIL,
+        name: 'IIN.edu Feedback System'
       },
-      to: process.env.ADMIN_EMAIL || process.env.BREVO_SENDER_EMAIL,
       subject: `🆕 New Feedback - ${testId.toUpperCase()} | Roll: ${rollNumber}`,
       html: `
         <!DOCTYPE html>
@@ -265,12 +272,15 @@ export const sendFeedbackEmail = async (feedbackData) => {
       `,
     };
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log('✅ Feedback email sent to admin | Message ID:', info.messageId);
-    return { success: true, messageId: info.messageId };
+    await sgMail.send(msg);
+    console.log('✅ Feedback email sent to admin');
+    return { success: true };
 
   } catch (error) {
     console.error('❌ Feedback email failed:', error.message);
+    if (error.response) {
+      console.error('SendGrid Error:', error.response.body);
+    }
     return { success: false, error: error.message };
   }
 };
@@ -281,12 +291,17 @@ export const sendFeedbackEmail = async (feedbackData) => {
  */
 export const sendUserConfirmation = async (userEmail) => {
   try {
-    const mailOptions = {
-      from: {
-        name: 'IIN.edu Platform',
-        address: process.env.BREVO_SENDER_EMAIL || '9ec09d001@smtp-brevo.com'
-      },
+    if (!SENDGRID_API_KEY) {
+      console.warn('⚠️  SendGrid not configured, skipping email');
+      return { success: false, error: 'SendGrid API key not configured' };
+    }
+
+    const msg = {
       to: userEmail,
+      from: {
+        email: SENDER_EMAIL,
+        name: 'IIN.edu Platform'
+      },
       subject: '✅ Thank You for Your Feedback - IIN.edu',
       html: `
         <!DOCTYPE html>
@@ -328,25 +343,17 @@ export const sendUserConfirmation = async (userEmail) => {
       `,
     };
 
-    const info = await transporter.sendMail(mailOptions);
+    await sgMail.send(msg);
     console.log('✅ Confirmation email sent to user:', userEmail);
-    return { success: true, messageId: info.messageId };
+    return { success: true };
 
   } catch (error) {
     console.error('❌ User confirmation email failed:', error.message);
+    if (error.response) {
+      console.error('SendGrid Error:', error.response.body);
+    }
     return { success: false, error: error.message };
   }
 };
 
-// Verify Brevo connection on startup (non-blocking)
-transporter.verify((error, success) => {
-  if (error) {
-    console.error('❌ Brevo SMTP connection failed:', error.message);
-    console.log('⚠️  Server will continue running, but emails may not be sent');
-    console.log('🔧 Check your Brevo credentials in environment variables');
-  } else {
-    console.log('✅ Brevo SMTP server is ready to send emails');
-  }
-});
-
-export default transporter;
+export default sgMail;
