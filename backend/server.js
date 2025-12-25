@@ -265,6 +265,123 @@ app.patch("/api/admin/feedback/:id", async (req, res) => {
   }
 });
 
+/**
+ * Delete All Feedback (Admin Cleanup)
+ * Removes all feedback entries from database
+ */
+app.delete("/api/admin/feedback/all", async (req, res) => {
+  try {
+    const result = await Feedback.deleteMany({});
+    
+    console.log(`🗑️ Deleted ${result.deletedCount} feedback entries`);
+    
+    res.json({ 
+      success: true, 
+      message: `Successfully deleted ${result.deletedCount} feedback entries`,
+      deletedCount: result.deletedCount
+    });
+
+  } catch (error) {
+    console.error("Delete all feedback error:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Failed to delete feedback" 
+    });
+  }
+});
+
+/**
+ * Delete All N/A Students (Test Data Cleanup)
+ * Removes all student payment records with rollNumber = 'N/A'
+ */
+app.delete("/api/admin/students/cleanup", async (req, res) => {
+  try {
+    const Payment = mongoose.model("Payment");
+    
+    // Delete all students with rollNumber 'N/A'
+    const result = await Payment.deleteMany({ rollNumber: "N/A" });
+    
+    console.log(`🗑️ Cleaned up ${result.deletedCount} N/A student records`);
+    
+    res.json({ 
+      success: true, 
+      message: `Successfully deleted ${result.deletedCount} test student records`,
+      deletedCount: result.deletedCount
+    });
+
+  } catch (error) {
+    console.error("Cleanup students error:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Failed to cleanup students" 
+    });
+  }
+});
+
+/**
+ * Delete Student by Email
+ * Removes all payment records for a specific email address
+ */
+app.delete("/api/admin/students/email/:email", async (req, res) => {
+  try {
+    const { email } = req.params;
+    const Payment = mongoose.model("Payment");
+    
+    const result = await Payment.deleteMany({ email: email.toLowerCase() });
+    
+    console.log(`🗑️ Deleted ${result.deletedCount} records for email: ${email}`);
+    
+    res.json({ 
+      success: true, 
+      message: `Successfully deleted ${result.deletedCount} records for ${email}`,
+      deletedCount: result.deletedCount
+    });
+
+  } catch (error) {
+    console.error("Delete student by email error:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Failed to delete student" 
+    });
+  }
+});
+
+/**
+ * Delete All Test Students (Nuclear Option)
+ * Removes ALL payment records - USE WITH CAUTION!
+ */
+app.delete("/api/admin/students/all", async (req, res) => {
+  try {
+    const { confirmPassword } = req.body;
+    
+    // Require password confirmation for safety
+    if (confirmPassword !== process.env.ADMIN_PASSWORD) {
+      return res.status(403).json({ 
+        success: false, 
+        message: "Invalid admin password" 
+      });
+    }
+    
+    const Payment = mongoose.model("Payment");
+    const result = await Payment.deleteMany({});
+    
+    console.log(`⚠️ DELETED ALL ${result.deletedCount} student records`);
+    
+    res.json({ 
+      success: true, 
+      message: `⚠️ Successfully deleted ALL ${result.deletedCount} student records`,
+      deletedCount: result.deletedCount
+    });
+
+  } catch (error) {
+    console.error("Delete all students error:", error);
+    res.status(500).json({ 
+      success: false, 
+      message: "Failed to delete all students" 
+    });
+  }
+});
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({ 
