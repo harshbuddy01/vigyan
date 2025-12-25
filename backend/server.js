@@ -291,17 +291,26 @@ app.delete("/api/admin/feedback/all", async (req, res) => {
 });
 
 /**
- * Delete All N/A Students (Test Data Cleanup)
- * Removes all student payment records with rollNumber = 'N/A'
+ * Delete All Test/N/A Students (Test Data Cleanup)
+ * Removes student records with rollNumber = undefined, null, or 'N/A'
  */
 app.delete("/api/admin/students/cleanup", async (req, res) => {
   try {
     const Payment = mongoose.model("Payment");
     
-    // Delete all students with rollNumber 'N/A'
-    const result = await Payment.deleteMany({ rollNumber: "N/A" });
+    // Delete students where rollNumber is undefined, null, or "N/A"
+    // Using $or to match multiple conditions
+    const result = await Payment.deleteMany({
+      $or: [
+        { rollNumber: { $exists: false } },  // Field doesn't exist
+        { rollNumber: null },                 // Field is null
+        { rollNumber: undefined },            // Field is undefined
+        { rollNumber: "N/A" },                // Field is "N/A" string
+        { rollNumber: "" }                    // Field is empty string
+      ]
+    });
     
-    console.log(`🗑️ Cleaned up ${result.deletedCount} N/A student records`);
+    console.log(`🗑️ Cleaned up ${result.deletedCount} test student records`);
     
     res.json({ 
       success: true, 
