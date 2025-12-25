@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Science News - IIN</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="frontend/css/index.css">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+            min-height: 100vh;
+        }
+        
+        .news-container {
+            max-width: 1200px;
+            margin: 100px auto 50px;
+            padding: 0 20px;
+        }
+        
+        .news-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .news-header h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 0%, #3b82f6 40%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+        }
+        
+        .news-header p {
+            font-size: 1.2rem;
+            color: #94a3b8;
+        }
+        
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .news-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            cursor: pointer;
+        }
+        
+        .news-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(59, 130, 246, 0.4);
+            background: rgba(59, 130, 246, 0.05);
+            box-shadow: 0 20px 60px rgba(59, 130, 246, 0.3);
+        }
+        
+        .news-category {
+            display: inline-block;
+            padding: 6px 14px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+        
+        .news-card h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        
+        .news-card p {
+            font-size: 0.95rem;
+            color: #94a3b8;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .news-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+        
+        .news-date {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .news-source {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 768px) {
+            .news-header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .news-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+
+    <nav class="navbar" id="navbar">
+        <div class="logo">IIN<span>.edu</span></div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="aboutpage.html">About</a>
+            <a href="subtittlepyq.html">PYQ</a>
+            <a href="testfirstpage.html">Tests</a>
+            <div class="nav-dropdown">
+                <a href="#" class="dropdown-trigger">Future Career <i class="fas fa-chevron-down"></i></a>
+                <div class="dropdown-menu">
+                    <a href="future.html">Future Career</a>
+                    <a href="sciencenews.html" style="color:#3b82f6">Science News</a>
+                </div>
+            </div>
+            <a href="signinpage.html" class="btn-login">Login</a>
+        </div>
+    </nav>
+
+    <div class="news-container">
+        <div class="news-header">
+            <h1>Science News</h1>
+            <p>Latest discoveries and breakthroughs from the scientific world</p>
+        </div>
+
+        <div class="news-grid">
+            <!-- News Card 1 -->
+            <div class="news-card">
+                <span class="news-category">Physics</span>
+                <h3>Quantum Computing Breakthrough at IISc Bangalore</h3>
+                <p>Researchers achieve new milestone in quantum entanglement, paving way for faster quantum computers.</p>
+                <div class="news-meta">
+                    <span class="news-date">
+                        <i class="far fa-clock"></i> 2 days ago
+                    </span>
+                    <span class="news-source">
+                        <i class="fas fa-university"></i> IISc
+                    </span>
+                </div>
+            </div>
+
+            <!-- News Card 2 -->
+            <div class="news-card">
+                <span class="news-category">Biology</span>
+                <h3>IISER Pune Discovers New Antibiotic Compound</h3>
+                <p>Scientists identify novel antimicrobial agent from marine organisms in the Indian Ocean.</p>
+                <div class="news-meta">
+                    <span class="news-date">
+                        <i class="far fa-clock"></i> 5 days ago
+                    </span>
+                    <span class="news-source">
+                        <i class="fas fa-university"></i> IISER Pune
+                    </span>
+                </div>
+            </div>
+
+            <!-- News Card 3 -->
+            <div class="news-card">
+                <span class="news-category">Chemistry</span>
+                <h3>Sustainable Energy Storage Solution Developed</h3>
+                <p>NISER researchers create eco-friendly battery technology using abundant materials.</p>
+                <div class="news-meta">
+                    <span class="news-date">
+                        <i class="far fa-clock"></i> 1 week ago
+                    </span>
+                    <span class="news-source">
+                        <i class="fas fa-university"></i> NISER
+                    </span>
+                </div>
+            </div>
+
+            <!-- News Card 4 -->
+            <div class="news-card">
+                <span class="news-category">Astronomy</span>
+                <h3>ISI Calcutta Maps Dark Matter Distribution</h3>
+                <p>New computational models reveal unprecedented details about dark matter in galaxy clusters.</p>
+                <div class="news-meta">
+                    <span class="news-date">
+                        <i class="far fa-clock"></i> 1 week ago
+                    </span>
+                    <span class="news-source">
+                        <i class="fas fa-university"></i> ISI
+                    </span>
+                </div>
+            </div>
+
+            <!-- News Card 5 -->
+            <div class="news-card">
+                <span class="news-category">AI & ML</span>
+                <h3>Machine Learning Algorithm Predicts Climate Patterns</h3>
+                <p>IISER Kolkata develops advanced AI model for accurate monsoon forecasting.</p>
+                <div class="news-meta">
+                    <span class="news-date">
+                        <i class="far fa-clock"></i> 2 weeks ago
+                    </span>
+                    <span class="news-source">
+                        <i class="fas fa-university"></i> IISER Kolkata
+                    </span>
+                </div>
+            </div>
+
+            <!-- News Card 6 -->
+            <div class="news-card">
+                <span class="news-category">Mathematics</span>
+                <h3>Breakthrough in Number Theory Published</h3>
+                <p>Indian mathematicians solve decades-old conjecture in algebraic geometry.</p>
+                <div class="news-meta">
+                    <span class="news-date">
+                        <i class="far fa-clock"></i> 3 weeks ago
+                    </span>
+                    <span class="news-source">
+                        <i class="fas fa-university"></i> IISc
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="frontend/js/index.js"></script>
+</body>
+</html>
