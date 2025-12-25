@@ -355,7 +355,7 @@
                     <div class="stat-label">Articles</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number">150K+</div>
+                    <div class="stat-number">87K+</div>
                     <div class="stat-label">Global Sources</div>
                 </div>
                 <div class="stat-item">
@@ -368,7 +368,7 @@
         <!-- Loading State -->
         <div id="loadingState" class="loading-container">
             <div class="spinner"></div>
-            <p class="loading-text">Fetching global science news from 150,000+ sources...</p>
+            <p class="loading-text">Fetching global science news from 87,000+ sources...</p>
         </div>
 
         <!-- Error State -->
@@ -388,9 +388,10 @@
     <script src="frontend/js/config.js"></script>
     <script src="frontend/js/auth.js"></script>
     <script src="frontend/js/user-panel.js"></script>
+    <script src="frontend/js/newsapi-config.js"></script>
     
     <script>
-        let currentPage = 1;
+        let nextPage = null;
         let totalResults = 0;
         
         // Function to format date
@@ -407,8 +408,8 @@
             return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         }
 
-        // Function to fetch news using serverless backend (bypasses CORS)
-        async function fetchScienceNews(page = 1, append = false) {
+        // Function to fetch news using NewsData.io (NO CORS issues!)
+        async function fetchScienceNews(page = null, append = false) {
             const loadingState = document.getElementById('loadingState');
             const errorState = document.getElementById('errorState');
             const newsGrid = document.getElementById('newsGrid');
@@ -419,8 +420,13 @@
             }
             
             try {
-                // Use serverless function to bypass CORS restrictions
-                const url = `/api/news?category=science&language=en&pageSize=50&page=${page}`;
+                // Build URL with NewsData.io API
+                let url = `${window.NEWSDATA_CONFIG.baseUrl}/news?apikey=${window.NEWSDATA_CONFIG.apiKey}&category=${window.NEWSDATA_CONFIG.category}&language=${window.NEWSDATA_CONFIG.language}&size=${window.NEWSDATA_CONFIG.size}`;
+                
+                // Add pagination if available
+                if (page) {
+                    url += `&page=${page}`;
+                }
                 
                 const response = await fetch(url);
                 
@@ -430,13 +436,14 @@
                 
                 const data = await response.json();
                 
-                if (data.status === 'ok' && data.articles && data.articles.length > 0) {
-                    totalResults = data.totalResults;
-                    displayNews(data.articles, append);
+                if (data.status === 'success' && data.results && data.results.length > 0) {
+                    nextPage = data.nextPage || null;
+                    totalResults = data.totalResults || 0;
+                    displayNews(data.results, append);
                     
-                    // Show load more button if there are more articles
+                    // Show load more button if there's a next page
                     const loadMoreContainer = document.getElementById('loadMoreContainer');
-                    if (data.articles.length >= 50 && totalResults > page * 50) {
+                    if (nextPage) {
                         loadMoreContainer.style.display = 'block';
                     } else {
                         loadMoreContainer.style.display = 'none';
@@ -461,13 +468,13 @@
             newsGrid.style.display = 'grid';
             
             const articlesHTML = articles.map(article => {
-                const imageUrl = article.urlToImage || 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=200&fit=crop';
-                const sourceName = article.source.name || 'Science News';
-                const author = article.author || sourceName;
+                const imageUrl = article.image_url || 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=200&fit=crop';
+                const sourceName = article.source_id || 'Science News';
+                const author = article.creator?.[0] || sourceName;
                 const description = article.description || 'Click to read the full article';
                 
                 return `
-                    <div class="news-card" onclick="window.open('${article.url}', '_blank')">
+                    <div class="news-card" onclick="window.open('${article.link}', '_blank')">
                         <img src="${imageUrl}" alt="${article.title}" class="news-image" onerror="this.src='https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=200&fit=crop'">
                         <div class="news-content">
                             <span class="news-source">${sourceName}</span>
@@ -475,7 +482,7 @@
                             <p>${description}</p>
                             <div class="news-meta">
                                 <span class="news-date">
-                                    <i class="far fa-clock"></i> ${formatDate(article.publishedAt)}
+                                    <i class="far fa-clock"></i> ${formatDate(article.pubDate)}
                                 </span>
                                 <span class="news-author">
                                     <i class="fas fa-globe"></i> ${author.split(' ')[0] || 'Global'}
@@ -499,8 +506,9 @@
 
         // Function to load more news
         function loadMoreNews() {
-            currentPage++;
-            fetchScienceNews(currentPage, true);
+            if (nextPage) {
+                fetchScienceNews(nextPage, true);
+            }
         }
 
         // Function to display error
