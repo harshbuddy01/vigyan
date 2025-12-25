@@ -243,6 +243,9 @@ async function loadStudents() {
                             <button class="action-btn" style="color: var(--accent);" onclick="viewStudentDetails('${s._id}')" title="View Details">
                                 <i class="fas fa-eye"></i>
                             </button>
+                            <button class="action-btn" style="color: var(--danger);" onclick="deleteStudent('${s.email}')" title="Delete Student">
+                                <i class="fas fa-trash"></i>
+                            </button>
                         </td>
                     </tr>
                 `;
@@ -254,6 +257,30 @@ async function loadStudents() {
     } catch(e) {
         console.error('Error loading students:', e);
         tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; color: var(--danger);'>Failed to load students</td></tr>";
+    }
+}
+
+/**
+ * Delete a student by email
+ */
+async function deleteStudent(email) {
+    if(!confirm(`⚠️ Are you sure you want to delete this student?\n\nEmail: ${email}\n\nThis will delete ALL records for this student and CANNOT be undone!`)) {
+        return;
+    }
+    
+    try {
+        const res = await axios.delete(`${API_BASE_URL}/api/admin/students/email/${email}`);
+        
+        if(res.data.success) {
+            alert(`✅ Success!\n\nDeleted ${res.data.deletedCount} record(s) for ${email}`);
+            await loadStudents();
+            await updateStats();
+        } else {
+            alert('❌ Error: ' + res.data.message);
+        }
+    } catch(e) {
+        console.error('Delete student error:', e);
+        alert('❌ Failed to delete student: ' + (e.response?.data?.message || e.message));
     }
 }
 
