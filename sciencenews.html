@@ -111,7 +111,7 @@
         }
         
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to { transform: rotate(360deg); }  
         }
         
         .loading-text {
@@ -149,7 +149,7 @@
             margin-bottom: 20px;
         }
         
-        .retry-btn, .setup-btn {
+        .retry-btn {
             background: linear-gradient(135deg, #3b82f6, #8b5cf6);
             color: white;
             padding: 12px 30px;
@@ -161,12 +161,8 @@
             margin: 0 10px;
         }
         
-        .retry-btn:hover, .setup-btn:hover {
+        .retry-btn:hover {
             transform: scale(1.05);
-        }
-        
-        .setup-btn {
-            background: linear-gradient(135deg, #10b981, #059669);
         }
         
         /* News Grid */
@@ -362,9 +358,21 @@
     <script src="frontend/js/config.js"></script>
     <script src="frontend/js/auth.js"></script>
     <script src="frontend/js/user-panel.js"></script>
-    <script src="frontend/js/newsapi-config.js"></script>
+    <!-- Cache-busting parameter -->
+    <script src="frontend/js/newsapi-config.js?v=2.0"></script>
     
     <script>
+        // GNews API Configuration - Inline fallback if external file fails
+        if (typeof GNEWS_CONFIG === 'undefined') {
+            window.GNEWS_CONFIG = {
+                apiKey: 'fdf9900afcdb50ceabca190fb42c19e3',
+                baseUrl: 'https://gnews.io/api/v4',
+                topic: 'science',
+                language: 'en',
+                max: 10
+            };
+        }
+        
         // Function to format date
         function formatDate(dateString) {
             const date = new Date(dateString);
@@ -389,24 +397,21 @@
             newsGrid.style.display = 'none';
             
             try {
-                // Check if API key is configured
-                if (!window.GNEWS_CONFIG || window.GNEWS_CONFIG.apiKey === 'b3a2c0d6e4f8a9b1c2d3e4f5a6b7c8d9') {
-                    throw new Error('API_KEY_NOT_CONFIGURED');
-                }
-                
                 // Build URL with GNews API
                 const url = `${window.GNEWS_CONFIG.baseUrl}/top-headlines?category=${window.GNEWS_CONFIG.topic}&lang=${window.GNEWS_CONFIG.language}&max=${window.GNEWS_CONFIG.max}&apikey=${window.GNEWS_CONFIG.apiKey}`;
+                
+                console.log('Fetching from:', url.replace(window.GNEWS_CONFIG.apiKey, 'API_KEY_HIDDEN'));
                 
                 const response = await fetch(url);
                 
                 if (!response.ok) {
-                    if (response.status === 403) {
-                        throw new Error('API_KEY_INVALID');
-                    }
+                    const errorText = await response.text();
+                    console.error('API Error Response:', errorText);
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 
                 const data = await response.json();
+                console.log('API Response:', data);
                 
                 if (data.articles && data.articles.length > 0) {
                     displayNews(data.articles);
@@ -467,35 +472,15 @@
             loadingState.style.display = 'none';
             errorState.style.display = 'block';
             
-            let errorMessage = 'Unable to load science news.';
-            let setupInstructions = '';
-            
-            if (error.message === 'API_KEY_NOT_CONFIGURED' || error.message === 'API_KEY_INVALID') {
-                errorMessage = 'GNews API key needs to be configured';
-                setupInstructions = `
-                    <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); padding: 20px; border-radius: 8px; margin-top: 20px; text-align: left;">
-                        <h4 style="color: #3b82f6; margin-bottom: 10px; font-weight: 700;">🛠️ Quick Setup (2 minutes):</h4>
-                        <ol style="color: #94a3b8; font-size: 0.9rem; line-height: 1.8; margin-left: 20px;">
-                            <li>Go to <a href="https://gnews.io/" target="_blank" style="color: #3b82f6; text-decoration: underline;">gnews.io</a></li>
-                            <li>Click "Get API Key" (instant, no credit card)</li>
-                            <li>Copy your API key from the dashboard</li>
-                            <li>I'll add it for you - just share it!</li>
-                        </ol>
-                        <p style="color: #10b981; font-size: 0.85rem; margin-top: 15px; font-weight: 600;">✅ 100 requests/day FREE • 60K+ sources • No CORS issues</p>
-                    </div>
-                `;
-            }
+            let errorMessage = error.message || 'Unable to load science news.';
             
             errorState.innerHTML = `
                 <div class="error-container">
                     <div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div>
-                    <h3 class="error-title">Setup Required</h3>
+                    <h3 class="error-title">Error Loading News</h3>
                     <p class="error-message">${errorMessage}</p>
-                    ${setupInstructions}
+                    <p style="color: #64748b; font-size: 0.85rem; margin: 15px 0;">Please check the browser console for more details.</p>
                     <div style="margin-top: 20px;">
-                        <button class="setup-btn" onclick="window.open('https://gnews.io/', '_blank')">
-                            <i class="fas fa-external-link-alt"></i> Get API Key
-                        </button>
                         <button class="retry-btn" onclick="location.reload()">
                             <i class="fas fa-redo"></i> Retry
                         </button>
@@ -506,6 +491,7 @@
 
         // Load news on page load
         window.addEventListener('load', () => {
+            console.log('Page loaded, API Key:', window.GNEWS_CONFIG.apiKey.substring(0, 10) + '...');
             fetchScienceNews();
         });
     </script>
