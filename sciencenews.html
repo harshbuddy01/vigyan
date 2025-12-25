@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Science News | IIN.edu</title>
+    <title>Global Science News | IIN.edu</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -36,14 +36,14 @@
         }
         
         .news-container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 140px 20px 50px;
         }
         
         .news-header {
             text-align: center;
-            margin-bottom: 60px;
+            margin-bottom: 40px;
         }
         
         .news-header h1 {
@@ -62,6 +62,33 @@
             font-size: 1.2rem;
             color: #94a3b8;
             font-weight: 400;
+            margin-bottom: 20px;
+        }
+        
+        .news-stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 900;
+            color: #3b82f6;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
         }
         
         /* Loading Spinner */
@@ -140,8 +167,8 @@
         /* News Grid */
         .news-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
             margin-bottom: 50px;
         }
         
@@ -149,12 +176,13 @@
             background: rgba(15, 23, 42, 0.6);
             backdrop-filter: blur(20px);
             border-radius: 20px;
-            padding: 25px;
+            padding: 0;
             border: 1px solid rgba(255, 255, 255, 0.08);
             transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
             cursor: pointer;
             opacity: 0;
             animation: fadeInUp 0.6s ease-out forwards;
+            overflow: hidden;
         }
         
         @keyframes fadeInUp {
@@ -168,19 +196,6 @@
             }
         }
         
-        .news-card:nth-child(1) { animation-delay: 0.1s; }
-        .news-card:nth-child(2) { animation-delay: 0.2s; }
-        .news-card:nth-child(3) { animation-delay: 0.3s; }
-        .news-card:nth-child(4) { animation-delay: 0.4s; }
-        .news-card:nth-child(5) { animation-delay: 0.5s; }
-        .news-card:nth-child(6) { animation-delay: 0.6s; }
-        .news-card:nth-child(7) { animation-delay: 0.7s; }
-        .news-card:nth-child(8) { animation-delay: 0.8s; }
-        .news-card:nth-child(9) { animation-delay: 0.9s; }
-        .news-card:nth-child(10) { animation-delay: 1s; }
-        .news-card:nth-child(11) { animation-delay: 1.1s; }
-        .news-card:nth-child(12) { animation-delay: 1.2s; }
-        
         .news-card:hover {
             transform: translateY(-10px);
             border-color: rgba(59, 130, 246, 0.4);
@@ -192,9 +207,11 @@
             width: 100%;
             height: 200px;
             object-fit: cover;
-            border-radius: 12px;
-            margin-bottom: 15px;
             background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .news-content {
+            padding: 20px;
         }
         
         .news-source {
@@ -206,15 +223,15 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             color: white;
         }
         
         .news-card h3 {
-            font-size: 1.4rem;
+            font-size: 1.25rem;
             font-weight: 700;
             color: #fff;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             line-height: 1.4;
             display: -webkit-box;
             -webkit-line-clamp: 2;
@@ -223,7 +240,7 @@
         }
         
         .news-card p {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: #94a3b8;
             line-height: 1.6;
             margin-bottom: 15px;
@@ -237,20 +254,44 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: #64748b;
-            padding-top: 15px;
+            padding-top: 12px;
             border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
         
         .news-date, .news-author {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
         }
         
         .news-author {
             font-weight: 600;
+        }
+        
+        .load-more-container {
+            text-align: center;
+            margin-top: 40px;
+        }
+        
+        .load-more-btn {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            padding: 14px 40px;
+            border-radius: 50px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .load-more-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
         }
         
         @media (max-width: 768px) {
@@ -265,6 +306,10 @@
             
             .news-container {
                 padding: 120px 20px 40px;
+            }
+            
+            .news-stats {
+                gap: 20px;
             }
         }
     </style>
@@ -301,14 +346,29 @@
 
     <div class="news-container">
         <div class="news-header">
-            <h1>Science News</h1>
-            <p>Latest discoveries and breakthroughs from the scientific world</p>
+            <h1>🌍 Global Science News</h1>
+            <p>Latest discoveries and breakthroughs from around the world</p>
+            
+            <div class="news-stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="articleCount">0</div>
+                    <div class="stat-label">Articles</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">150K+</div>
+                    <div class="stat-label">Global Sources</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">Real-Time</div>
+                    <div class="stat-label">Updates</div>
+                </div>
+            </div>
         </div>
 
         <!-- Loading State -->
         <div id="loadingState" class="loading-container">
             <div class="spinner"></div>
-            <p class="loading-text">Fetching latest science news...</p>
+            <p class="loading-text">Fetching global science news from 150,000+ sources...</p>
         </div>
 
         <!-- Error State -->
@@ -316,6 +376,13 @@
 
         <!-- News Grid -->
         <div id="newsGrid" class="news-grid" style="display: none;"></div>
+        
+        <!-- Load More Button -->
+        <div id="loadMoreContainer" class="load-more-container" style="display: none;">
+            <button class="load-more-btn" onclick="loadMoreNews()">
+                <i class="fas fa-plus-circle"></i> Load More Articles
+            </button>
+        </div>
     </div>
 
     <script src="frontend/js/config.js"></script>
@@ -324,6 +391,9 @@
     <script src="frontend/js/newsapi-config.js"></script>
     
     <script>
+        let currentPage = 1;
+        let totalResults = 0;
+        
         // Function to format date
         function formatDate(dateString) {
             const date = new Date(dateString);
@@ -335,14 +405,19 @@
             if (diffDays === 1) return 'Yesterday';
             if (diffDays < 7) return `${diffDays} days ago`;
             if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
-            return date.toLocaleDateString();
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         }
 
-        // Function to fetch news from NewsAPI
-        async function fetchScienceNews() {
+        // Function to fetch news from NewsAPI (GLOBAL)
+        async function fetchScienceNews(page = 1, append = false) {
             const loadingState = document.getElementById('loadingState');
             const errorState = document.getElementById('errorState');
             const newsGrid = document.getElementById('newsGrid');
+            
+            if (!append) {
+                loadingState.style.display = 'flex';
+                newsGrid.style.display = 'none';
+            }
             
             try {
                 // Check if API key is configured
@@ -350,7 +425,8 @@
                     throw new Error('API_KEY_NOT_CONFIGURED');
                 }
                 
-                const url = `${window.NEWSAPI_CONFIG.baseUrl}/top-headlines?category=${window.NEWSAPI_CONFIG.category}&language=${window.NEWSAPI_CONFIG.language}&pageSize=${window.NEWSAPI_CONFIG.pageSize}&apiKey=${window.NEWSAPI_CONFIG.apiKey}`;
+                // Use top-headlines endpoint with NO country restriction for global coverage
+                const url = `${window.NEWSAPI_CONFIG.baseUrl}/top-headlines?category=${window.NEWSAPI_CONFIG.category}&language=${window.NEWSAPI_CONFIG.language}&pageSize=${window.NEWSAPI_CONFIG.pageSize}&page=${page}&apiKey=${window.NEWSAPI_CONFIG.apiKey}`;
                 
                 const response = await fetch(url);
                 
@@ -361,7 +437,16 @@
                 const data = await response.json();
                 
                 if (data.status === 'ok' && data.articles && data.articles.length > 0) {
-                    displayNews(data.articles);
+                    totalResults = data.totalResults;
+                    displayNews(data.articles, append);
+                    
+                    // Show load more button if there are more articles
+                    const loadMoreContainer = document.getElementById('loadMoreContainer');
+                    if (data.articles.length >= window.NEWSAPI_CONFIG.pageSize && totalResults > page * window.NEWSAPI_CONFIG.pageSize) {
+                        loadMoreContainer.style.display = 'block';
+                    } else {
+                        loadMoreContainer.style.display = 'none';
+                    }
                 } else {
                     throw new Error('No articles found');
                 }
@@ -373,36 +458,55 @@
         }
 
         // Function to display news articles
-        function displayNews(articles) {
+        function displayNews(articles, append = false) {
             const loadingState = document.getElementById('loadingState');
             const newsGrid = document.getElementById('newsGrid');
+            const articleCount = document.getElementById('articleCount');
             
             loadingState.style.display = 'none';
             newsGrid.style.display = 'grid';
             
-            newsGrid.innerHTML = articles.map(article => {
-                const imageUrl = article.urlToImage || 'https://via.placeholder.com/400x200/1e293b/3b82f6?text=Science+News';
-                const sourceName = article.source.name || 'Unknown Source';
+            const articlesHTML = articles.map(article => {
+                const imageUrl = article.urlToImage || 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=200&fit=crop';
+                const sourceName = article.source.name || 'Science News';
                 const author = article.author || sourceName;
-                const description = article.description || 'No description available';
+                const description = article.description || 'Click to read the full article';
                 
                 return `
                     <div class="news-card" onclick="window.open('${article.url}', '_blank')">
-                        <img src="${imageUrl}" alt="${article.title}" class="news-image" onerror="this.src='https://via.placeholder.com/400x200/1e293b/3b82f6?text=Science+News'">
-                        <span class="news-source">${sourceName}</span>
-                        <h3>${article.title}</h3>
-                        <p>${description}</p>
-                        <div class="news-meta">
-                            <span class="news-date">
-                                <i class="far fa-clock"></i> ${formatDate(article.publishedAt)}
-                            </span>
-                            <span class="news-author">
-                                <i class="fas fa-user"></i> ${author.split(' ')[0]}
-                            </span>
+                        <img src="${imageUrl}" alt="${article.title}" class="news-image" onerror="this.src='https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=200&fit=crop'">
+                        <div class="news-content">
+                            <span class="news-source">${sourceName}</span>
+                            <h3>${article.title}</h3>
+                            <p>${description}</p>
+                            <div class="news-meta">
+                                <span class="news-date">
+                                    <i class="far fa-clock"></i> ${formatDate(article.publishedAt)}
+                                </span>
+                                <span class="news-author">
+                                    <i class="fas fa-globe"></i> ${author.split(' ')[0] || 'Global'}
+                                </span>
+                            </div>
                         </div>
                     </div>
                 `;
             }).join('');
+            
+            if (append) {
+                newsGrid.innerHTML += articlesHTML;
+            } else {
+                newsGrid.innerHTML = articlesHTML;
+            }
+            
+            // Update article count
+            const currentArticleCount = newsGrid.children.length;
+            articleCount.textContent = currentArticleCount;
+        }
+
+        // Function to load more news
+        function loadMoreNews() {
+            currentPage++;
+            fetchScienceNews(currentPage, true);
         }
 
         // Function to display error
@@ -423,7 +527,7 @@
                         <h4 style="color: #3b82f6; margin-bottom: 10px; font-weight: 700;">📝 Setup Instructions:</h4>
                         <ol style="color: #94a3b8; font-size: 0.9rem; line-height: 1.8; margin-left: 20px;">
                             <li>Go to <a href="https://newsapi.org/register" target="_blank" style="color: #3b82f6; text-decoration: underline;">newsapi.org/register</a></li>
-                            <li>Create a free account (100 requests/day)</li>
+                            <li>Create a free account (100 requests/day, 150K+ sources)</li>
                             <li>Copy your API key from the dashboard</li>
                             <li>Open <code style="background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px;">frontend/js/newsapi-config.js</code></li>
                             <li>Replace <code style="background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px;">YOUR_NEWSAPI_KEY_HERE</code> with your actual API key</li>
