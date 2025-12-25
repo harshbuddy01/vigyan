@@ -1,21 +1,10 @@
 import crypto from "crypto";
 import { instance } from "../server.js";
 import { Payment } from "../models/payment.js";
-import nodemailer from "nodemailer";
+import sgMail from "@sendgrid/mail";
 
-// Gmail SMTP Transporter
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-  port: process.env.EMAIL_PORT || 587,
-  secure: false, // true for 465, false for other ports
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  },
-  tls: {
-    rejectUnauthorized: false
-  }
-});
+// Initialize SendGrid
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // 1. GET API KEY
 export const getApiKey = (req, res) => {
@@ -36,7 +25,7 @@ export const checkout = async (req, res) => {
   }
 };
 
-// 3. PAYMENT VERIFICATION (USING GMAIL SMTP)
+// 3. PAYMENT VERIFICATION (USING SENDGRID)
 export const paymentVerification = async (req, res) => {
   console.log("🔹 Verification Started...");
   console.log("📦 Request Body:", JSON.stringify(req.body, null, 2));
@@ -138,8 +127,8 @@ export const paymentVerification = async (req, res) => {
       console.log(`✅ Created new student: ${normalizedEmail}, Roll: ${rollNumber}`);
     }
 
-    // Send email using Gmail SMTP
-    console.log("📧 Attempting to send email...");
+    // Send email using SendGrid
+    console.log("📧 Attempting to send email via SendGrid...");
     try {
       const emailHtml = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f5f5f5;">
@@ -196,20 +185,22 @@ export const paymentVerification = async (req, res) => {
         </div>
       `;
 
-      // Send email via Gmail SMTP
-      const mailOptions = {
-        from: process.env.EMAIL_USER || 'IIN Exams <noreply@iin.edu>',
+      // Send email via SendGrid
+      const msg = {
         to: normalizedEmail,
+        from: process.env.SENDGRID_SENDER_EMAIL || 'noreply@iin.edu',
         subject: `🎓 ${isNewStudent ? 'Your Roll Number' : 'Payment Confirmed'} - ${testId.toUpperCase()} Test Series`,
-        html: emailHtml
+        html: emailHtml,
       };
 
-      await transporter.sendMail(mailOptions);
-      console.log(`✅ Email sent successfully to ${normalizedEmail} via Gmail`);
+      await sgMail.send(msg);
+      console.log(`✅ Email sent successfully to ${normalizedEmail} via SendGrid`);
       
     } catch (emailError) {
-      console.error("❌ Email Error:", emailError.message);
-      console.error("❌ Email Error Stack:", emailError.stack);
+      console.error("❌ SendGrid Email Error:", emailError.message);
+      if (emailError.response) {
+        console.error("❌ SendGrid Response Body:", emailError.response.body);
+      }
       // Don't fail the payment if email fails
     }
 
