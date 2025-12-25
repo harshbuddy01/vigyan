@@ -127,69 +127,127 @@ export const paymentVerification = async (req, res) => {
       console.log(`✅ Created new student: ${normalizedEmail}, Roll: ${rollNumber}`);
     }
 
-    // Send email using SendGrid
+    // Send email using SendGrid - PREMIUM TEMPLATE
     console.log("📧 Attempting to send email via SendGrid...");
     try {
+      // Extract first name from email
+      const firstName = normalizedEmail.split('@')[0].split('.')[0];
+      const capitalizedFirstName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
+      
+      // Get current date
+      const currentDate = new Date().toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+      
+      // Test series full name
+      const testSeriesName = testId.toUpperCase() + " Test Series";
+      
       const emailHtml = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f5f5f5;">
-          <div style="background-color: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-            <div style="text-align: center; margin-bottom: 30px;">
-              <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px;">
-                <h1 style="margin: 0; font-size: 28px;">✅ Payment Successful!</h1>
-              </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Confirmed - IIN.EDU</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f5f5f5;">
+    <div style="max-width: 600px; margin: 40px auto; background-color: white; border-radius: 0;">
+        
+        <!-- Header with Green Bar -->
+        <div style="background-color: #059669; height: 8px;"></div>
+        
+        <!-- Logo & Date Section -->
+        <div style="padding: 40px 60px 20px; border-bottom: 2px solid #e5e7eb;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <div style="font-size: 28px; font-weight: 900; color: #1f2937; letter-spacing: -0.5px;">
+                        IIN<span style="color: #059669;">.EDU</span>
+                    </div>
+                    <div style="font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;">
+                        EXAMINATION CELL
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">
+                        DATE:
+                    </div>
+                    <div style="font-size: 13px; font-weight: 700; color: #1f2937; margin-top: 2px;">
+                        ${currentDate}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div style="padding: 50px 60px;">
+            
+            <h1 style="font-size: 22px; font-weight: 700; color: #1f2937; margin: 0 0 30px 0; letter-spacing: -0.3px;">
+                Registration Confirmed.
+            </h1>
+            
+            <p style="font-size: 15px; color: #374151; line-height: 1.6; margin: 0 0 8px 0;">
+                Dear <strong style="color: #1f2937;">${capitalizedFirstName}</strong>,
+            </p>
+            
+            <p style="font-size: 15px; color: #374151; line-height: 1.7; margin: 0 0 10px 0;">
+                You have been successfully enrolled in the <strong style="color: #1f2937;">${testSeriesName}</strong>.
+            </p>
+            
+            <p style="font-size: 15px; color: #374151; line-height: 1.7; margin: 0 0 40px 0;">
+                The competent authority has generated your unique examination credentials.
+            </p>
+            
+            <!-- Roll Number Box -->
+            <div style="background: linear-gradient(to bottom, #fffbeb 0%, #fef3c7 100%); border: 2px solid #f59e0b; border-radius: 8px; padding: 35px 30px; text-align: center; margin-bottom: 35px;">
+                <div style="font-size: 11px; font-weight: 700; color: #92400e; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 18px;">
+                    YOUR ROLL NUMBER
+                </div>
+                <div style="font-size: 38px; font-weight: 700; color: #1f2937; font-family: 'Courier New', monospace; letter-spacing: 4px; margin-bottom: 20px;">
+                    ${rollNumber}
+                </div>
+                <div style="font-size: 11px; font-weight: 600; color: #b45309; text-transform: uppercase; letter-spacing: 0.5px;">
+                    ★ DO NOT SHARE THIS CREDENTIAL
+                </div>
             </div>
             
-            <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-              <p style="font-size: 16px; color: #333; margin: 0 0 10px 0;">
-                ${isNewStudent ? 'Your Roll Number has been generated:' : 'Your existing Roll Number:'}
-              </p>
-              <div style="background-color: white; padding: 15px; border-radius: 5px; text-align: center; border: 2px dashed #667eea;">
-                <p style="margin: 0; font-size: 14px; color: #666;">Roll Number</p>
-                <h2 style="margin: 10px 0 0 0; font-size: 36px; color: #667eea; letter-spacing: 3px; font-family: 'Courier New', monospace;">${rollNumber}</h2>
-              </div>
+            <!-- Important Notice -->
+            <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 18px 22px; margin-bottom: 40px;">
+                <p style="margin: 0; font-size: 13px; color: #92400e; line-height: 1.6;">
+                    <strong style="font-weight: 700;">⚠️ Important:</strong> Save this Roll Number securely. You will need it to access all your purchased tests.
+                </p>
             </div>
-
-            <div style="background-color: #e8f5e9; padding: 15px; border-radius: 8px; border-left: 4px solid #4caf50; margin-bottom: 20px;">
-              <p style="margin: 0; font-size: 14px; color: #2e7d32;">
-                <strong>✅ Test Purchased:</strong> ${testId.toUpperCase()} Test Series
-              </p>
+            
+            <!-- CTA Button -->
+            <div style="text-align: center; margin: 45px 0 20px;">
+                <a href="https://iin-theta.vercel.app" style="display: inline-block; background-color: #1f2937; color: white; padding: 16px 50px; text-decoration: none; border-radius: 6px; font-weight: 700; font-size: 14px; letter-spacing: 0.5px; text-transform: uppercase;">
+                    PROCEED TO DASHBOARD →
+                </a>
             </div>
-
-            ${!isNewStudent ? `
-            <div style="background-color: #fff3e0; padding: 15px; border-radius: 8px; border-left: 4px solid #ff9800; margin-bottom: 20px;">
-              <p style="margin: 0; font-size: 14px; color: #e65100;">
-                <strong>📝 Note:</strong> You're using your existing Roll Number. All your purchased tests are linked to this Roll Number.
-              </p>
-            </div>
-            ` : ''}
-
-            <div style="background-color: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107; margin-bottom: 20px;">
-              <p style="margin: 0; font-size: 14px; color: #856404;">
-                <strong>⚠️ Important:</strong> Save this Roll Number securely. You'll need it to access all your purchased tests.
-              </p>
-            </div>
-
-            <div style="text-align: center; margin-top: 30px;">
-              <a href="https://iin-theta.vercel.app" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; text-decoration: none; border-radius: 25px; font-weight: bold; font-size: 16px;">
-                Access Your Tests 🚀
-              </a>
-            </div>
-
-            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center;">
-              <p style="margin: 0; font-size: 12px; color: #999;">
-                If you have any questions, reply to this email.<br>
-                © ${new Date().getFullYear()} IIN Exams. All rights reserved.
-              </p>
-            </div>
-          </div>
+            
         </div>
+        
+        <!-- Footer -->
+        <div style="background-color: #1f2937; padding: 35px 60px; text-align: center;">
+            <p style="margin: 0 0 8px 0; font-size: 12px; color: #9ca3af; line-height: 1.5;">
+                If you have any questions, reply to this email.
+            </p>
+            <p style="margin: 0; font-size: 11px; color: #6b7280;">
+                © ${new Date().getFullYear()} IIN Exams. All rights reserved.
+            </p>
+        </div>
+        
+    </div>
+</body>
+</html>
       `;
 
       // Send email via SendGrid
       const msg = {
         to: normalizedEmail,
         from: process.env.SENDGRID_SENDER_EMAIL || 'noreply@iin.edu',
-        subject: `🎓 ${isNewStudent ? 'Your Roll Number' : 'Payment Confirmed'} - ${testId.toUpperCase()} Test Series`,
+        subject: `Registration Confirmed - ${testSeriesName}`,
         html: emailHtml,
       };
 
