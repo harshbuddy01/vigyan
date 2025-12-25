@@ -3,7 +3,7 @@
 // Free tier: 100 requests/day, 1-month history
 
 const NEWSAPI_CONFIG = {
-    apiKey: 'YOUR_NEWSAPI_KEY_HERE', // Replace with your actual API key
+    apiKey: 'ae81963351934c928bade0ee18de9c25', // Your NewsAPI key
     baseUrl: 'https://newsapi.org/v2',
     
     // Fetch science news from ALL countries worldwide
@@ -23,7 +23,7 @@ const NEWSAPI_CONFIG = {
 // Alternative configuration for even broader coverage
 // Use 'everything' endpoint instead of 'top-headlines' for worldwide sources
 const NEWSAPI_GLOBAL_CONFIG = {
-    apiKey: 'YOUR_NEWSAPI_KEY_HERE',
+    apiKey: 'ae81963351934c928bade0ee18de9c25',
     baseUrl: 'https://newsapi.org/v2',
     
     // Use /everything endpoint for truly global coverage
