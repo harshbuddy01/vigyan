@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="frontend/css/navbar.css">
     <link rel="stylesheet" href="frontend/css/pages.css">
     <link rel="stylesheet" href="frontend/css/user-panel.css">
+    <link rel="stylesheet" href="shared-nav-dropdown.css">
     
     <style>
         :root { --blue: #3b82f6; --navy-dark: #0B021D; --violet: #8b5cf6; }
@@ -38,7 +39,13 @@
         <a href="aboutpage.html" class="hover:text-white transition">About</a>
         <a href="subtittlepyq.html" class="hover:text-white transition">PYQ</a>
         <a href="testfirstpage.html" class="hover:text-white transition">Tests</a>
-        <a href="future.html" class="hover:text-white transition">Future Career</a>
+        <div class="nav-dropdown">
+            <a href="#" class="dropdown-trigger hover:text-white transition">Future Career <i class="fas fa-chevron-down"></i></a>
+            <div class="dropdown-menu">
+                <a href="future.html">Future Career</a>
+                <a href="sciencenews.html">Science News</a>
+            </div>
+        </div>
         
         <a href="signinpage.html" class="btn-login bg-blue-600 px-6 py-2 rounded-full text-white hover:bg-blue-700 transition">Login</a>
     </div>

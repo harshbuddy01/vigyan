@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="frontend/css/navbar.css">
     <link rel="stylesheet" href="frontend/css/pages.css">
     <link rel="stylesheet" href="frontend/css/user-panel.css">
+    <link rel="stylesheet" href="shared-nav-dropdown.css">
     
     <script>
         const API_BASE_URL = "https://iin-production.up.railway.app";
@@ -91,7 +92,13 @@
             <a href="aboutpage.html" class="hover:text-white transition">About</a>
             <a href="subtittlepyq.html" class="hover:text-white transition">PYQ</a>
             <a href="testfirstpage.html" class="text-white transition underline decoration-blue-500 decoration-2 underline-offset-8">Tests</a>
-            <a href="future.html" class="hover:text-white transition">Future Career</a>
+            <div class="nav-dropdown">
+                <a href="#" class="dropdown-trigger hover:text-white transition">Future Career <i class="fas fa-chevron-down"></i></a>
+                <div class="dropdown-menu">
+                    <a href="future.html">Future Career</a>
+                    <a href="sciencenews.html">Science News</a>
+                </div>
+            </div>
             
             <div id="navLoginPlaceholder">
                 <a href="signinpage.html" class="btn-login bg-blue-600 px-6 py-2 rounded-full text-white hover:bg-blue-700 transition shadow-lg shadow-blue-900/40">
