@@ -77,7 +77,7 @@
                 </p>
             </div>
             
-            <button onclick="redirectToInstructions()" class="buy-btn" style="background:#10b981; margin-top:0">Read Instructions & Start Test 🚀</button>
+            <button onclick="closeSuccessModal()" class="buy-btn" style="background:#10b981; margin-top:0">Get Started with Test 🚀</button>
         </div>
     </div>
 
@@ -197,9 +197,16 @@
             document.getElementById("modalUserEmail").disabled = false;
         }
 
-        function redirectToInstructions() {
-            const testId = localStorage.getItem("tempTestId") || "iat";
-            window.location.href = "instructions.html?test=" + testId;
+        // FIXED: Close success modal and stay on testfirstpage.html
+        function closeSuccessModal() {
+            document.getElementById("successModal").style.display = "none";
+            
+            // Refresh the page to show updated state
+            // User will see:
+            // 1. Profile icon (data already in localStorage)
+            // 2. GREEN test card (purchased)
+            // 3. Can click card to go to instructions
+            window.location.reload();
         }
 
         async function handleModalSubmit() {
@@ -257,17 +264,21 @@
                         if (verifyRes.data.success) {
                             const rollNumber = verifyRes.data.rollNumber;
                             
+                            // Save user data to localStorage (persists across pages)
                             localStorage.setItem("userEmail", userEmail);
                             localStorage.setItem("userRollNumber", rollNumber);
                             
+                            // Mark test as purchased
                             const purchased = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
                             if (!purchased.includes(testId)) purchased.push(testId);
                             localStorage.setItem("purchasedTests", JSON.stringify(purchased));
                             
+                            // Update UI
                             markAsPurchased(testId);
                             if (window.refreshUserDashboard) window.refreshUserDashboard();
                             closeEntryModal();
 
+                            // Show success modal
                             document.getElementById("finalTokenDisplay").innerText = rollNumber;
                             document.getElementById("successModal").style.display = "flex";
                         }
