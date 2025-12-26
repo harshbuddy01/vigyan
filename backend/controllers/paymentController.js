@@ -4,7 +4,31 @@ import { pool } from "../config/mysql.js";
 import sgMail from "@sendgrid/mail";
 
 // Initialize SendGrid
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+if (process.env.SENDGRID_API_KEY) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+} else {
+  console.warn('⚠️ SENDGRID_API_KEY not set - email functionality disabled');
+}
+
+// Helper function to safely extract first name from email
+const extractFirstName = (email) => {
+  try {
+    if (!email || typeof email !== 'string') return 'User';
+    
+    const emailParts = email.split('@');
+    if (emailParts.length < 2) return 'User';
+    
+    const username = emailParts[0];
+    const nameParts = username.split('.');
+    const firstName = nameParts[0] || 'User';
+    
+    // Capitalize first letter
+    return firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
+  } catch (error) {
+    console.error('Error extracting first name:', error.message);
+    return 'User';
+  }
+};
 
 // 1. GET API KEY
 export const getApiKey = (req, res) => {
@@ -14,13 +38,24 @@ export const getApiKey = (req, res) => {
 // 2. CHECKOUT
 export const checkout = async (req, res) => {
   try {
+    const { amount } = req.body;
+    
+    if (!amount || isNaN(amount)) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Valid amount is required" 
+      });
+    }
+    
     const options = {
-      amount: Number(req.body.amount * 100),
+      amount: Number(amount * 100),
       currency: "INR",
     };
+    
     const order = await instance.orders.create(options);
     res.status(200).json({ success: true, order });
   } catch (error) {
+    console.error('Checkout error:', error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -38,14 +73,19 @@ export const paymentVerification = async (req, res) => {
     console.log(`🔹 Amount: ${amount}`);
     
     // Validate required fields
-    if (!email) {
-      console.log("❌ Email is missing!");
-      return res.status(400).json({ success: false, message: "Email is required" });
+    if (!email || typeof email !== 'string' || !email.includes('@')) {
+      console.log("❌ Invalid or missing email!");
+      return res.status(400).json({ success: false, message: "Valid email is required" });
     }
 
-    if (!testId) {
-      console.log("❌ TestId is missing!");
-      return res.status(400).json({ success: false, message: "TestId is required" });
+    if (!testId || typeof testId !== 'string') {
+      console.log("❌ TestId is missing or invalid!");
+      return res.status(400).json({ success: false, message: "Valid TestId is required" });
+    }
+    
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      console.log("❌ Missing payment verification parameters!");
+      return res.status(400).json({ success: false, message: "Missing payment verification data" });
     }
 
     // Verify Razorpay signature
@@ -153,22 +193,23 @@ export const paymentVerification = async (req, res) => {
 
     // Send email using SendGrid - PREMIUM TEMPLATE
     console.log("📧 Attempting to send email via SendGrid...");
-    try {
-      // Extract first name from email
-      const firstName = normalizedEmail.split('@')[0].split('.')[0];
-      const capitalizedFirstName = firstName.charAt(0).toUpperCase() + firstName.slice(1);
-      
-      // Get current date
-      const currentDate = new Date().toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
-      });
-      
-      // Test series full name
-      const testSeriesName = testId.toUpperCase() + " Test Series";
-      
-      const emailHtml = `
+    
+    if (process.env.SENDGRID_API_KEY && process.env.SENDGRID_SENDER_EMAIL) {
+      try {
+        // ✅ Safe first name extraction
+        const firstName = extractFirstName(normalizedEmail);
+        
+        // Get current date
+        const currentDate = new Date().toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        });
+        
+        // Test series full name
+        const testSeriesName = testId.toUpperCase() + " Test Series";
+        
+        const emailHtml = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -212,7 +253,7 @@ export const paymentVerification = async (req, res) => {
             </h1>
             
             <p style="font-size: 15px; color: #374151; line-height: 1.6; margin: 0 0 8px 0;">
-                Dear <strong style="color: #1f2937;">${capitalizedFirstName}</strong>,
+                Dear <strong style="color: #1f2937;">${firstName}</strong>,
             </p>
             
             <p style="font-size: 15px; color: #374151; line-height: 1.7; margin: 0 0 10px 0;">
@@ -265,25 +306,28 @@ export const paymentVerification = async (req, res) => {
     </div>
 </body>
 </html>
-      `;
+        `;
 
-      // Send email via SendGrid
-      const msg = {
-        to: normalizedEmail,
-        from: process.env.SENDGRID_SENDER_EMAIL || 'noreply@iin.edu',
-        subject: `Registration Confirmed - ${testSeriesName}`,
-        html: emailHtml,
-      };
+        // Send email via SendGrid
+        const msg = {
+          to: normalizedEmail,
+          from: process.env.SENDGRID_SENDER_EMAIL,
+          subject: `Registration Confirmed - ${testSeriesName}`,
+          html: emailHtml,
+        };
 
-      await sgMail.send(msg);
-      console.log(`✅ Email sent successfully to ${normalizedEmail} via SendGrid`);
-      
-    } catch (emailError) {
-      console.error("❌ SendGrid Email Error:", emailError.message);
-      if (emailError.response) {
-        console.error("❌ SendGrid Response Body:", emailError.response.body);
+        await sgMail.send(msg);
+        console.log(`✅ Email sent successfully to ${normalizedEmail} via SendGrid`);
+        
+      } catch (emailError) {
+        console.error("❌ SendGrid Email Error:", emailError.message);
+        if (emailError.response) {
+          console.error("❌ SendGrid Response Body:", JSON.stringify(emailError.response.body));
+        }
+        // Don't fail the payment if email fails
       }
-      // Don't fail the payment if email fails
+    } else {
+      console.warn('⚠️ Email sending skipped - SendGrid credentials not configured');
     }
 
     console.log("✅ Sending success response to frontend...");
