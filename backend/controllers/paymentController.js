@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import { instance } from "../server.js";
-import { Payment } from "../models/payment.js";
+import { pool } from "../config/mysql.js";
 import sgMail from "@sendgrid/mail";
 
 // Initialize SendGrid
@@ -25,7 +25,7 @@ export const checkout = async (req, res) => {
   }
 };
 
-// 3. PAYMENT VERIFICATION (USING SENDGRID)
+// 3. PAYMENT VERIFICATION (USING MYSQL + SENDGRID)
 export const paymentVerification = async (req, res) => {
   console.log("🔹 Verification Started...");
   console.log("📦 Request Body:", JSON.stringify(req.body, null, 2));
@@ -65,20 +65,30 @@ export const paymentVerification = async (req, res) => {
     // Payment verified! Now handle roll number logic
     const normalizedEmail = email.toLowerCase().trim();
     
-    // Check if student already exists
-    let student = await Payment.findOne({ email: normalizedEmail });
+    // Check if student already exists in MySQL
+    const [existingStudents] = await pool.query(
+      "SELECT * FROM students_payments WHERE email = ?",
+      [normalizedEmail]
+    );
     
     let rollNumber;
     let isNewStudent = false;
+    let purchasedTests = [];
 
-    if (student) {
+    if (existingStudents.length > 0) {
       // EXISTING STUDENT - Use their existing roll number
-      rollNumber = student.rollNumber;
+      const student = existingStudents[0];
+      rollNumber = student.roll_number;
       
       console.log(`👤 Existing student found: ${normalizedEmail}`);
       
       // Check if they already purchased this test
-      if (student.purchasedTests.includes(testId)) {
+      const [existingPurchase] = await pool.query(
+        "SELECT * FROM purchased_tests WHERE email = ? AND test_id = ?",
+        [normalizedEmail, testId]
+      );
+      
+      if (existingPurchase.length > 0) {
         console.log(`⚠️ Student already purchased ${testId}`);
         return res.status(400).json({ 
           success: false, 
@@ -87,19 +97,26 @@ export const paymentVerification = async (req, res) => {
       }
       
       // Add new test to their purchased tests
-      student.purchasedTests.push(testId);
+      await pool.query(
+        "INSERT INTO purchased_tests (email, test_id) VALUES (?, ?)",
+        [normalizedEmail, testId]
+      );
       
       // Add payment to history
-      student.payments.push({
-        razorpay_order_id,
-        razorpay_payment_id,
-        razorpay_signature,
-        testId,
-        amount: amount || 199,
-        status: "paid"
-      });
+      await pool.query(
+        `INSERT INTO payment_transactions 
+         (email, razorpay_order_id, razorpay_payment_id, razorpay_signature, test_id, amount, status) 
+         VALUES (?, ?, ?, ?, ?, ?, 'paid')`,
+        [normalizedEmail, razorpay_order_id, razorpay_payment_id, razorpay_signature, testId, amount || 199]
+      );
       
-      await student.save();
+      // Get all purchased tests
+      const [tests] = await pool.query(
+        "SELECT test_id FROM purchased_tests WHERE email = ?",
+        [normalizedEmail]
+      );
+      purchasedTests = tests.map(t => t.test_id);
+      
       console.log(`✅ Updated existing student: ${normalizedEmail}, Roll: ${rollNumber}`);
       
     } else {
@@ -110,19 +127,26 @@ export const paymentVerification = async (req, res) => {
       console.log(`🆕 New Student. Generated Roll Number: ${rollNumber}`);
       
       // Create new student record
-      student = await Payment.create({
-        email: normalizedEmail,
-        rollNumber: rollNumber,
-        purchasedTests: [testId],
-        payments: [{
-          razorpay_order_id,
-          razorpay_payment_id,
-          razorpay_signature,
-          testId,
-          amount: amount || 199,
-          status: "paid"
-        }]
-      });
+      await pool.query(
+        "INSERT INTO students_payments (email, roll_number) VALUES (?, ?)",
+        [normalizedEmail, rollNumber]
+      );
+      
+      // Add purchased test
+      await pool.query(
+        "INSERT INTO purchased_tests (email, test_id) VALUES (?, ?)",
+        [normalizedEmail, testId]
+      );
+      
+      // Add payment transaction
+      await pool.query(
+        `INSERT INTO payment_transactions 
+         (email, razorpay_order_id, razorpay_payment_id, razorpay_signature, test_id, amount, status) 
+         VALUES (?, ?, ?, ?, ?, ?, 'paid')`,
+        [normalizedEmail, razorpay_order_id, razorpay_payment_id, razorpay_signature, testId, amount || 199]
+      );
+      
+      purchasedTests = [testId];
       
       console.log(`✅ Created new student: ${normalizedEmail}, Roll: ${rollNumber}`);
     }
@@ -268,7 +292,7 @@ export const paymentVerification = async (req, res) => {
       success: true, 
       rollNumber,
       isNewStudent,
-      purchasedTests: student.purchasedTests,
+      purchasedTests,
       message: isNewStudent 
         ? "Payment successful! Your Roll Number has been sent to your email." 
         : "Payment successful! Test added to your account."
