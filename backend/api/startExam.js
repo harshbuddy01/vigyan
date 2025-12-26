@@ -12,20 +12,23 @@ export async function startExam(req, res) {
       });
     }
 
-    // Get student ID from email
-    const [students] = await pool.query(
-      'SELECT id, roll_number, email FROM students WHERE email = ?',
-      [email.toLowerCase()]
+    console.log('📝 Starting exam for:', email, testId);
+
+    // Check if user has purchased this test
+    const [purchases] = await pool.query(
+      'SELECT * FROM purchases WHERE email = ? AND test_id = ?',
+      [email.toLowerCase(), testId.toLowerCase()]
     );
 
-    if (students.length === 0) {
+    if (purchases.length === 0) {
       return res.status(404).json({ 
         success: false, 
-        message: 'Student not found. Please complete payment first.' 
+        message: 'Payment not found. Please purchase this test first.' 
       });
     }
 
-    const student = students[0];
+    const purchase = purchases[0];
+    console.log('✅ Purchase verified:', purchase);
 
     // Get test details
     const [tests] = await pool.query(
@@ -41,11 +44,12 @@ export async function startExam(req, res) {
     }
 
     const test = tests[0];
+    console.log('✅ Test found:', test.title);
 
     // Check if already attempted
     const [attempts] = await pool.query(
-      'SELECT * FROM student_attempts WHERE student_id = ? AND test_id = ?',
-      [student.id, test.id]
+      'SELECT * FROM student_attempts WHERE email = ? AND test_id = ?',
+      [email.toLowerCase(), testId.toLowerCase()]
     );
 
     if (attempts.length > 0) {
@@ -58,44 +62,45 @@ export async function startExam(req, res) {
 
     // Create new attempt
     const startTime = new Date();
-    const endTime = new Date(startTime.getTime() + test.duration * 60000);
+    const endTime = new Date(startTime.getTime() + test.duration_minutes * 60000);
 
     const [result] = await pool.query(
       `INSERT INTO student_attempts 
-       (student_id, test_id, start_time, end_time, status) 
+       (email, test_id, start_time, end_time, status) 
        VALUES (?, ?, ?, ?, 'in_progress')`,
-      [student.id, test.id, startTime, endTime]
+      [email.toLowerCase(), testId.toLowerCase(), startTime, endTime]
     );
 
     const attemptId = result.insertId;
+    console.log('✅ Attempt created with ID:', attemptId);
 
     // Get questions for this test
     const [questions] = await pool.query(
       'SELECT * FROM questions WHERE test_id = ? ORDER BY question_number',
-      [test.id]
+      [testId.toLowerCase()]
     );
+
+    console.log('✅ Loaded', questions.length, 'questions');
 
     res.json({
       success: true,
       data: {
         attemptId,
         student: {
-          id: student.id,
-          email: student.email,
-          rollNumber: student.roll_number
+          email: purchase.email,
+          rollNumber: purchase.roll_number
         },
         test: {
-          id: test.id,
           testId: test.test_id,
           title: test.title,
-          duration: test.duration,
+          duration: test.duration_minutes,
           totalMarks: test.total_marks,
           totalQuestions: questions.length
         },
         timing: {
           startTime,
           endTime,
-          duration: test.duration
+          duration: test.duration_minutes
         },
         questions: questions.map(q => ({
           id: q.id,
@@ -111,10 +116,11 @@ export async function startExam(req, res) {
     });
 
   } catch (error) {
-    console.error('Start exam error:', error);
+    console.error('❌ Start exam error:', error);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to start exam' 
+      message: 'Failed to start exam',
+      error: error.message 
     });
   }
 }
