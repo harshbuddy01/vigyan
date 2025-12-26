@@ -11,6 +11,8 @@ export async function submitExam(req, res) {
       });
     }
 
+    console.log('📝 Submitting exam for attempt:', attemptId);
+
     // Get attempt details
     const [attempts] = await pool.query(
       'SELECT * FROM student_attempts WHERE id = ?',
@@ -29,11 +31,17 @@ export async function submitExam(req, res) {
     if (attempt.status === 'completed') {
       return res.status(400).json({ 
         success: false, 
-        message: 'Exam already submitted' 
+        message: 'Exam already submitted',
+        data: {
+          score: attempt.score,
+          correctAnswers: attempt.correct_answers
+        }
       });
     }
 
-    // Calculate score
+    console.log('✅ Attempt found, calculating score...');
+
+    // Get all answers with correct answers from questions
     const [answers] = await pool.query(
       `SELECT a.selected_option, q.correct_answer, q.marks
        FROM answers a
@@ -42,17 +50,28 @@ export async function submitExam(req, res) {
       [attemptId]
     );
 
+    console.log('📊 Total answers received:', answers.length);
+
+    // Calculate score
     let totalScore = 0;
     let correctAnswers = 0;
+    let totalQuestions = answers.length;
 
     answers.forEach(ans => {
-      if (ans.selected_option === ans.correct_answer) {
-        totalScore += ans.marks;
+      if (ans.selected_option && ans.selected_option.toUpperCase() === ans.correct_answer.toUpperCase()) {
+        totalScore += parseFloat(ans.marks) || 0;
         correctAnswers++;
       }
     });
 
-    // Update attempt
+    console.log('🎯 Score calculated:', {
+      totalScore,
+      correctAnswers,
+      totalQuestions,
+      percentage: ((correctAnswers / totalQuestions) * 100).toFixed(2)
+    });
+
+    // Update attempt with results
     await pool.query(
       `UPDATE student_attempts 
        SET status = 'completed', 
@@ -63,6 +82,8 @@ export async function submitExam(req, res) {
       [totalScore, correctAnswers, attemptId]
     );
 
+    console.log('✅ Exam submitted successfully!');
+
     res.json({
       success: true,
       message: 'Exam submitted successfully',
@@ -70,15 +91,17 @@ export async function submitExam(req, res) {
         attemptId,
         score: totalScore,
         correctAnswers,
-        totalQuestions: answers.length
+        totalQuestions,
+        percentage: totalQuestions > 0 ? ((correctAnswers / totalQuestions) * 100).toFixed(2) : 0
       }
     });
 
   } catch (error) {
-    console.error('Submit exam error:', error);
+    console.error('❌ Submit exam error:', error);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to submit exam' 
+      message: 'Failed to submit exam',
+      error: error.message 
     });
   }
 }
