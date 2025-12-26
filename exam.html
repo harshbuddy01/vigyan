@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IIN Assessment Portal - Full Screen Mode</title>
+    <title>IIN Assessment Portal - Exam Mode</title>
     
-    <!-- ACCESS CONTROL: Check if user has purchased tests -->
+    <!-- ACCESS CONTROL -->
     <script>
         (function checkAccess() {
             const userEmail = localStorage.getItem("userEmail");
@@ -94,13 +94,27 @@
         .submit-btn { width: 100%; background: #0088cc; color: white; border: none; padding: 15px; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
 
         .q-img { max-width: 100%; margin: 20px 0; border: 1px solid #ddd; padding: 10px; box-shadow: 2px 2px 10px rgba(0,0,0,0.05); }
+        
+        .loading-screen { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 10000; }
+        .loading-content { text-align: center; color: white; }
+        .spinner { width: 50px; height: 50px; border: 5px solid #333; border-top-color: #0088cc; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <h2>Starting Your Exam...</h2>
+            <p>Please wait while we load your questions</p>
+        </div>
+    </div>
+
     <header class="exam-header">
         <div>IIN Aptitude Test Series 2025</div>
-        <div style="font-size: 0.8rem;">Version : 17.07.00</div>
+        <div style="font-size: 0.8rem;">Version : 18.00.00</div>
     </header>
 
     <div class="sub-header">
@@ -108,7 +122,6 @@
             <button class="section-tab active" onclick="switchSubject('Physics')">Physics</button>
             <button class="section-tab" onclick="switchSubject('Chemistry')">Chemistry</button>
             <button class="section-tab" onclick="switchSubject('Mathematics')">Mathematics</button>
-            <button class="section-tab" onclick="switchSubject('Biology')">Biology</button>
         </div>
         <div class="sub-header-right">
             <span style="font-weight: bold; margin-right:15px;">Time Left:</span>
@@ -182,13 +195,16 @@
     <script>
         const API_BASE_URL = "https://iin-production.up.railway.app";
         
-        let questionsBySubject = { "Physics": [], "Chemistry": [], "Mathematics": [], "Biology": [] };
-        let currentSubject = "Physics", currentQIndex = 0, userResponses = {}, questionStatus = {};
+        let allQuestions = [];
+        let questionsBySubject = { "Physics": [], "Chemistry": [], "Mathematics": [] };
+        let currentSubject = "Physics", currentQIndex = 0;
+        let userResponses = {}, questionStatus = {};
+        let attemptId = null;
+        let examEndTime = null;
         let timerInterval;
 
         window.onload = function() {
             const email = localStorage.getItem("userEmail");
-            const rollNumber = localStorage.getItem("userRollNumber");
             
             if (!email) {
                 window.location.href = "signinpage.html";
@@ -196,33 +212,60 @@
             }
             
             document.getElementById("userName").innerText = email.split('@')[0].toUpperCase();
-            document.getElementById("rollDisplay").innerText = "Roll: " + (rollNumber || "N/A");
             
-            fetchQuestions(new URLSearchParams(window.location.search).get("test") || "iat");
-            startTimer();
+            const testId = new URLSearchParams(window.location.search).get("test") || "iat";
+            startExam(email, testId);
         };
 
-        async function fetchQuestions(testId) {
+        async function startExam(email, testId) {
             try {
-                console.log('Fetching questions for:', testId);
-                const res = await axios.get(`${API_BASE_URL}/api/get-questions?testId=${testId}`);
-                console.log('Questions response:', res.data);
+                console.log('🚀 Starting exam:', { email, testId });
                 
-                if(res.data.success && res.data.questions) {
-                    res.data.questions.forEach(q => { 
-                        if(questionsBySubject[q.subject]) {
-                            questionsBySubject[q.subject].push(q);
-                        }
+                const res = await axios.post(`${API_BASE_URL}/api/exam/start`, {
+                    email: email,
+                    testId: testId
+                });
+                
+                console.log('✅ Exam started:', res.data);
+                
+                if(res.data.success && res.data.data) {
+                    attemptId = res.data.data.attemptId;
+                    examEndTime = new Date(res.data.data.timing.endTime);
+                    
+                    document.getElementById("rollDisplay").innerText = "Roll: " + (res.data.data.student.rollNumber || "N/A");
+                    
+                    // Organize questions by subject (1-30 Physics, 31-60 Chemistry, 61-90 Math)
+                    res.data.data.questions.forEach(q => {
+                        let subject = "Physics";
+                        if(q.questionNumber > 60) subject = "Mathematics";
+                        else if(q.questionNumber > 30) subject = "Chemistry";
+                        
+                        questionsBySubject[subject].push({
+                            ...q,
+                            subject: subject
+                        });
                     });
                     
-                    console.log('Questions organized by subject:', questionsBySubject);
+                    allQuestions = res.data.data.questions;
+                    
+                    console.log('📚 Questions organized:', questionsBySubject);
+                    
+                    // Hide loading screen
+                    document.getElementById('loadingScreen').style.display = 'none';
+                    
+                    // Start timer
+                    startTimer(res.data.data.timing.duration);
+                    
+                    // Load first question
                     switchSubject("Physics");
                 } else {
-                    document.getElementById("questionText").innerText = "No questions found for this test.";
+                    alert('❌ Failed to start exam: ' + (res.data.message || 'Unknown error'));
+                    window.location.href = "testfirstpage.html";
                 }
             } catch(e) { 
-                console.error('Error fetching questions:', e);
-                document.getElementById("questionText").innerText = "Connection Error: " + (e.message || "Please check your internet connection.");
+                console.error('❌ Error starting exam:', e);
+                alert('Connection Error: ' + (e.response?.data?.message || e.message));
+                window.location.href = "testfirstpage.html";
             }
         }
 
@@ -265,36 +308,32 @@
             const questions = questionsBySubject[currentSubject];
             if (!questions || questions.length === 0) {
                 document.getElementById('questionText').innerText = "No questions available for this subject.";
-                document.getElementById('optionsContainer').innerHTML = '';
-                document.getElementById('questionImageContainer').innerHTML = '';
                 return;
             }
             
             const q = questions[currentQIndex];
-            document.getElementById('qNumDisplay').innerText = `Question No. ${currentQIndex + 1}`;
-            document.getElementById('questionText').innerHTML = q.questionText; // Changed from q.question
+            document.getElementById('qNumDisplay').innerText = `Question No. ${q.questionNumber}`;
+            document.getElementById('questionText').innerHTML = q.questionText;
             
-            if (q.image) {
-                document.getElementById('questionImageContainer').innerHTML = `<img src="${q.image}" class="q-img">`;
-            } else {
-                document.getElementById('questionImageContainer').innerHTML = '';
-            }
+            document.getElementById('questionImageContainer').innerHTML = '';
             
             const optionsContainer = document.getElementById('optionsContainer');
             optionsContainer.innerHTML = '';
             
-            // Changed to use options array instead of optionA, optionB, etc.
-            q.options.forEach((optionText, index) => {
+            const options = [q.optionA, q.optionB, q.optionC, q.optionD];
+            const optionLabels = ['A', 'B', 'C', 'D'];
+            
+            options.forEach((optionText, index) => {
                 const card = document.createElement('div');
                 card.className = 'option-card';
-                card.onclick = () => selectOption(index);
+                card.onclick = () => selectOption(optionLabels[index], q.id);
                 
                 const qKey = `${currentSubject}-${currentQIndex}`;
-                if (userResponses[qKey] === index) card.classList.add('selected');
+                if (userResponses[qKey] === optionLabels[index]) card.classList.add('selected');
                 
                 card.innerHTML = `
-                    <input type="radio" name="answer" value="${index}" class="option-radio" ${userResponses[qKey] === index ? 'checked' : ''}>
-                    <div style="flex:1;">${optionText}</div>
+                    <input type="radio" name="answer" value="${optionLabels[index]}" class="option-radio" ${userResponses[qKey] === optionLabels[index] ? 'checked' : ''}>
+                    <div style="flex:1;"><strong>${optionLabels[index]}.</strong> ${optionText}</div>
                 `;
                 
                 optionsContainer.appendChild(card);
@@ -308,17 +347,41 @@
             renderPalette();
         }
 
-        function selectOption(optionIndex) {
+        async function selectOption(optionLabel, questionId) {
             const qKey = `${currentSubject}-${currentQIndex}`;
-            userResponses[qKey] = optionIndex;
+            userResponses[qKey] = optionLabel;
             questionStatus[qKey] = 'answered';
+            
+            // Auto-save to backend
+            try {
+                await axios.post(`${API_BASE_URL}/api/exam/sync`, {
+                    attemptId: attemptId,
+                    questionId: questionId,
+                    answer: optionLabel
+                });
+                console.log('💾 Answer synced:', questionId, optionLabel);
+            } catch(error) {
+                console.error('❌ Sync failed:', error);
+            }
+            
             loadQuestion();
         }
 
         function clearResponse() {
             const qKey = `${currentSubject}-${currentQIndex}`;
+            const questions = questionsBySubject[currentSubject];
+            const currentQ = questions[currentQIndex];
+            
             delete userResponses[qKey];
             questionStatus[qKey] = 'visited';
+            
+            // Sync clear to backend
+            axios.post(`${API_BASE_URL}/api/exam/sync`, {
+                attemptId: attemptId,
+                questionId: currentQ.id,
+                answer: null
+            }).catch(err => console.error('Clear sync failed:', err));
+            
             loadQuestion();
         }
 
@@ -360,7 +423,7 @@
                 else if (status === 'marked') marked++;
             });
             
-            const totalQuestions = Object.values(questionsBySubject).reduce((sum, arr) => sum + arr.length, 0);
+            const totalQuestions = allQuestions.length;
             notVisited = totalQuestions - answered - notAnswered - marked;
             
             document.getElementById('countAnswered').innerText = answered;
@@ -388,35 +451,38 @@
         }
 
         async function finalSubmit() {
-            const email = localStorage.getItem("userEmail");
-            const rollNumber = localStorage.getItem("userRollNumber");
-            const testId = new URLSearchParams(window.location.search).get("test") || "iat";
-            
             try {
-                await axios.post(`${API_BASE_URL}/api/submit-exam`, { 
-                    email, 
-                    rollNumber,
-                    testId, 
-                    userResponses 
+                console.log('📤 Submitting exam:', attemptId);
+                
+                const res = await axios.post(`${API_BASE_URL}/api/exam/submit`, { 
+                    attemptId: attemptId
                 });
-                alert("✅ Test Submitted Successfully! Results will be emailed to you.");
-                window.location.href = "testfirstpage.html";
+                
+                console.log('✅ Exam submitted:', res.data);
+                
+                if(res.data.success) {
+                    clearInterval(timerInterval);
+                    alert(`✅ Test Submitted Successfully!\n\nYour Score: ${res.data.data.score}\nCorrect Answers: ${res.data.data.correctAnswers}/${res.data.data.totalQuestions}\nPercentage: ${res.data.data.percentage}%`);
+                    window.location.href = "testfirstpage.html";
+                }
             } catch (error) {
-                console.error('Submission error:', error);
-                alert("❌ Submission failed. Please try again.");
+                console.error('❌ Submission error:', error);
+                alert("❌ Submission failed: " + (error.response?.data?.message || error.message));
             }
         }
 
-        function startTimer() {
-            let t = 180 * 60;
+        function startTimer(durationMinutes) {
+            let timeLeft = durationMinutes * 60; // Convert to seconds
+            
             timerInterval = setInterval(() => {
-                t--;
-                const h = Math.floor(t/3600).toString().padStart(2,'0');
-                const m = Math.floor((t%3600)/60).toString().padStart(2,'0');
-                const s = (t%60).toString().padStart(2,'0');
+                timeLeft--;
+                
+                const h = Math.floor(timeLeft/3600).toString().padStart(2,'0');
+                const m = Math.floor((timeLeft%3600)/60).toString().padStart(2,'0');
+                const s = (timeLeft%60).toString().padStart(2,'0');
                 document.getElementById("timerDisplay").innerText = `${h}:${m}:${s}`;
                 
-                if(t <= 0) { 
+                if(timeLeft <= 0) { 
                     clearInterval(timerInterval); 
                     alert("⏰ Time's up! Auto-submitting your test...");
                     finalSubmit();
