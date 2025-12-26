@@ -132,8 +132,13 @@ app.post("/api/feedback", async (req, res) => {
 
 console.log('🔵 Mounting API routes...');
 app.use("/api", paymentRoutes);
+console.log('✅ Payment routes mounted');
+
 app.use("/api", adminRoutes);
+console.log('✅ Admin routes mounted');
+
 app.use("/api", examRoutes);
+console.log('✅ Exam routes mounted at /api/exam/*');
 
 console.log('🔵 Setting up static files...');
 const __filename = fileURLToPath(import.meta.url);
@@ -153,7 +158,7 @@ process.on('unhandledRejection', (reason, promise) => {
   console.error('❌ UNHANDLED REJECTION:', reason);
 });
 
-const PORT = process.env.PORT || 8400;
+const PORT = process.env.PORT || 8080;
 const HOST = '0.0.0.0';
 
 console.log('🔵 Starting server initialization...');
@@ -180,6 +185,7 @@ console.log(`🔵 Will listen on ${HOST}:${PORT}`);
       console.log(`✅ Health endpoint: http://${HOST}:${PORT}/health`);
       console.log(`✅ Root endpoint: http://${HOST}:${PORT}/`);
       console.log(`✅ API health: http://${HOST}:${PORT}/api/health`);
+      console.log(`✅ Exam routes available at: /api/exam/*`);
       console.log('\n🚀 Ready to accept connections!\n');
     });
     
