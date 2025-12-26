@@ -1,5 +1,15 @@
 import { pool } from "../config/mysql.js";
 
+// Helper function to safely parse JSON
+const safeJsonParse = (jsonString, fallback = null) => {
+  try {
+    return typeof jsonString === 'string' ? JSON.parse(jsonString) : jsonString;
+  } catch (error) {
+    console.error('JSON Parse Error:', error.message);
+    return fallback;
+  }
+};
+
 // Login Logic
 export const adminLogin = (req, res) => {
   if (req.body.password === process.env.ADMIN_PASSWORD) {
@@ -13,6 +23,14 @@ export const adminLogin = (req, res) => {
 export const uploadQuestion = async (req, res) => {
   try {
     const { testId, questionNumber, questionText, image, options, correctAnswer, subject, difficulty, topic, explanation } = req.body;
+    
+    // Validate required fields
+    if (!testId || !questionText || !options || !correctAnswer) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Missing required fields: testId, questionText, options, and correctAnswer are required" 
+      });
+    }
     
     // Insert question into MySQL
     const [result] = await pool.query(
@@ -46,9 +64,21 @@ export const uploadQuestion = async (req, res) => {
 
 export const deleteQuestion = async (req, res) => {
   try {
-    await pool.query("DELETE FROM questions WHERE id = ?", [req.params.id]);
+    const { id } = req.params;
+    
+    if (!id) {
+      return res.status(400).json({ success: false, message: "Question ID is required" });
+    }
+    
+    const [result] = await pool.query("DELETE FROM questions WHERE id = ?", [id]);
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: "Question not found" });
+    }
+    
     res.status(200).json({ success: true, message: "Deleted" });
   } catch (error) {
+    console.error('Delete error:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 };
@@ -60,14 +90,14 @@ export const getAllQuestions = async (req, res) => {
       "SELECT * FROM questions ORDER BY created_at DESC"
     );
     
-    // Parse JSON options field
+    // Parse JSON options field with error handling
     const formattedQuestions = questions.map(q => ({
       _id: q.id, // For compatibility with frontend
       id: q.id,
       testId: q.test_id,
       questionNumber: q.question_number,
       questionText: q.question_text,
-      options: typeof q.options === 'string' ? JSON.parse(q.options) : q.options,
+      options: safeJsonParse(q.options, []), // ✅ Safe parsing
       correctAnswer: q.correct_answer,
       difficulty: q.difficulty,
       topic: q.topic,
@@ -109,7 +139,7 @@ export const getAllStudents = async (req, res) => {
       email: s.email,
       rollNumber: s.roll_number,
       purchasedTests: s.purchased_tests ? s.purchased_tests.split(',') : [],
-      totalPurchases: s.total_purchases,
+      totalPurchases: s.total_purchases || 0,
       createdAt: s.created_at,
       updatedAt: s.updated_at
     }));
@@ -140,8 +170,14 @@ export const getFeedbacks = async (req, res) => {
       "SELECT * FROM feedbacks ORDER BY created_at DESC"
     );
     
-    console.log(`Found ${feedbacks.length} feedbacks`);
-    res.status(200).json({ success: true, feedbacks });
+    // Parse JSON fields safely
+    const formattedFeedbacks = feedbacks.map(f => ({
+      ...f,
+      ratings: safeJsonParse(f.ratings, {})
+    }));
+    
+    console.log(`Found ${formattedFeedbacks.length} feedbacks`);
+    res.status(200).json({ success: true, feedbacks: formattedFeedbacks });
     
   } catch (error) {
     console.error('Get feedbacks error:', error);
@@ -163,7 +199,7 @@ export const getResults = async (req, res) => {
       "SELECT * FROM questions ORDER BY test_id, question_number"
     );
     
-    // Parse JSON fields in results
+    // Parse JSON fields in results with error handling
     const formattedResults = results.map(r => ({
       _id: r.id, // For compatibility
       id: r.id,
@@ -176,27 +212,26 @@ export const getResults = async (req, res) => {
       correctAnswers: r.correct_answers,
       wrongAnswers: r.wrong_answers,
       unanswered: r.unanswered,
-      score: parseFloat(r.score),
-      percentage: parseFloat(r.percentage),
+      score: parseFloat(r.score) || 0,
+      percentage: parseFloat(r.percentage) || 0,
       timeTaken: r.time_taken,
-      answers: typeof r.answers === 'string' ? JSON.parse(r.answers) : r.answers,
-      questionWiseResults: typeof r.question_wise_results === 'string' 
-        ? JSON.parse(r.question_wise_results) 
-        : r.question_wise_results,
+      answers: safeJsonParse(r.answers, []), // ✅ Safe parsing
+      questionWiseResults: safeJsonParse(r.question_wise_results, []), // ✅ Safe parsing
       startedAt: r.started_at,
       submittedAt: r.submitted_at,
       submissionTime: r.submitted_at, // For compatibility
       status: r.status
     }));
     
-    // Parse JSON fields in questions
+    // Parse JSON fields in questions with error handling
     const formattedQuestions = questions.map(q => ({
       _id: q.id,
       id: q.id,
       testId: q.test_id,
+      subject: q.topic, // Map topic to subject for compatibility
       questionNumber: q.question_number,
       questionText: q.question_text,
-      options: typeof q.options === 'string' ? JSON.parse(q.options) : q.options,
+      options: safeJsonParse(q.options, []), // ✅ Safe parsing
       correctAnswer: q.correct_answer,
       difficulty: q.difficulty,
       topic: q.topic,
@@ -238,16 +273,16 @@ export const getAnalytics = async (req, res) => {
     
     // Total revenue (sum of all payments)
     const [revenue] = await pool.query(
-      "SELECT SUM(amount) as total FROM payment_transactions"
+      "SELECT SUM(amount) as total FROM payment_transactions WHERE status = 'paid'"
     );
     
     res.status(200).json({
       success: true,
       analytics: {
-        totalStudents: studentCount[0].total,
-        totalQuestions: questionCount[0].total,
-        totalAttempts: attemptCount[0].total,
-        totalRevenue: revenue[0].total || 0
+        totalStudents: studentCount[0]?.total || 0,
+        totalQuestions: questionCount[0]?.total || 0,
+        totalAttempts: attemptCount[0]?.total || 0,
+        totalRevenue: revenue[0]?.total || 0
       }
     });
     
