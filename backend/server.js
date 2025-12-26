@@ -110,6 +110,53 @@ app.post("/api/verify-user-full", async (req, res) => {
   }
 });
 
+// 🔥 TEMPORARY DEBUG: Direct exam/start endpoint
+app.post("/api/exam/start", async (req, res) => {
+  try {
+    console.log('🎯 Direct /api/exam/start hit!');
+    const { rollNumber, email } = req.body;
+    
+    if (!email || !rollNumber) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Email and Roll Number required" 
+      });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+    
+    // Find student in MySQL
+    const [students] = await pool.query(
+      "SELECT * FROM students_payments WHERE email = ? AND roll_number = ?",
+      [normalizedEmail, rollNumber]
+    );
+
+    if (students.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Invalid Roll Number or Email" 
+      });
+    }
+
+    // Get purchased tests
+    const [purchasedTests] = await pool.query(
+      "SELECT test_id FROM purchased_tests WHERE email = ?",
+      [normalizedEmail]
+    );
+
+    // Return purchased tests
+    res.status(200).json({ 
+      success: true, 
+      purchasedTests: purchasedTests.map(t => t.test_id),
+      rollNumber: students[0].roll_number
+    });
+    
+  } catch (error) {
+    console.error("❌ startTest Error:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 console.log('🔵 Setting up feedback route...');
 app.post("/api/feedback", async (req, res) => {
   try {
@@ -185,7 +232,7 @@ console.log(`🔵 Will listen on ${HOST}:${PORT}`);
       console.log(`✅ Health endpoint: http://${HOST}:${PORT}/health`);
       console.log(`✅ Root endpoint: http://${HOST}:${PORT}/`);
       console.log(`✅ API health: http://${HOST}:${PORT}/api/health`);
-      console.log(`✅ Exam routes available at: /api/exam/*`);
+      console.log(`✅ DIRECT exam/start endpoint: http://${HOST}:${PORT}/api/exam/start`);
       console.log('\n🚀 Ready to accept connections!\n');
     });
     
