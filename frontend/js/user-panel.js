@@ -1,27 +1,27 @@
 // ============================================
-// ULTRA-FAST USER PANEL SYSTEM - WITH CALENDAR LINK
-// Two-Layer Architecture:
-// 1. Direct Rendering from localStorage (Immediate - <50ms)
-// 2. Backend Verification (Background - for data sync)
+// SIMPLE USER PANEL - LOCALHOST ONLY (NO BACKEND VERIFICATION)
+// Reads from localStorage and renders user panel with calendar link
 // ============================================
 
-// LAYER 1: Direct Rendering Function (NO API CALL)
-// Called immediately after payment OR on page load from localStorage
+console.log('📦 User Panel v3.0 - Simple localStorage-only version');
+
+// Main render function - reads from localStorage and displays panel
 window.renderUserPanelDirect = function(userData) {
-  console.log('⚡ DIRECT RENDER: Instant user panel with data:', userData);
+  console.log('⚡ Rendering user panel with data:', userData);
   
   const navPlaceholder = document.getElementById("navLoginPlaceholder");
   if (!navPlaceholder) {
-    console.error('❌ navLoginPlaceholder not found');
+    console.warn('⚠️ navLoginPlaceholder not found in DOM');
     return;
   }
   
-  // Extract data
   const email = userData.email || '';
   const rollNumber = userData.rollNumber || 'N/A';
   const tests = userData.tests || [];
   
-  // Render profile icon + dropdown INSTANTLY
+  console.log('📊 Panel data:', { email, rollNumber, tests });
+  
+  // Render user panel
   navPlaceholder.innerHTML = `
     <div class="relative">
       <button id="profileButton" class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-500 flex items-center justify-center shadow-lg focus:outline-none hover:scale-110 transition-transform">
@@ -71,59 +71,45 @@ window.renderUserPanelDirect = function(userData) {
     </div>
   `;
   
-  // Attach event listeners
   attachProfileEventListeners();
-  
-  console.log('✅ User panel rendered INSTANTLY!');
+  console.log('✅ User panel rendered successfully!');
 };
 
-// LAYER 2: Persistent Rendering Function (with optional API call)
-// Called on page load to check localStorage + optionally verify with backend
-window.refreshUserDashboard = async function (skipBackendCheck = false) {
+// Simple function - just reads localStorage and renders (NO BACKEND CALLS)
+window.refreshUserDashboard = function() {
+  console.log('🔄 refreshUserDashboard called');
+  
   const email = localStorage.getItem("userEmail");
   const rollNumber = localStorage.getItem("userRollNumber");
   const purchasedTests = localStorage.getItem("purchasedTests");
   
-  console.log('🔍 Checking localStorage:');
-  console.log('  - userEmail:', email);
-  console.log('  - userRollNumber:', rollNumber);
-  console.log('  - purchasedTests:', purchasedTests);
+  console.log('📂 localStorage data:', { email, rollNumber, purchasedTests });
   
-  // 🔥 CRITICAL: If we have localStorage data, render IMMEDIATELY
   if (email && rollNumber) {
     const tests = purchasedTests ? JSON.parse(purchasedTests) : [];
     
-    console.log('⚡ INSTANT RENDER from localStorage!');
-    
-    // Render profile icon INSTANTLY (no API call yet)
     window.renderUserPanelDirect({
       email: email,
       rollNumber: rollNumber,
       tests: tests
     });
-    
-    // 🔥 HOTFIX: Skip backend verification entirely to prevent 404 errors
-    console.log('ℹ️ Backend verification disabled (HOTFIX)');
-    
   } else {
-    console.log('ℹ️ No user data in localStorage - user not logged in');
+    console.log('ℹ️ User not logged in (missing email or rollNumber)');
   }
 };
 
-// Helper: Attach event listeners to profile button and logout
+// Attach event listeners
 function attachProfileEventListeners() {
   const btn = document.getElementById("profileButton");
   const dropdown = document.getElementById("profileDropdown");
   const logoutBtn = document.getElementById("logoutBtn");
   
   if (btn && dropdown) {
-    // Toggle dropdown on click
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
       dropdown.classList.toggle("hidden");
     });
     
-    // Close dropdown when clicking outside
     document.addEventListener('click', (e) => {
       if (!btn.contains(e.target) && !dropdown.contains(e.target)) {
         dropdown.classList.add('hidden');
@@ -140,27 +126,22 @@ function attachProfileEventListeners() {
   }
 }
 
-// 🔥 CRITICAL: Initialize IMMEDIATELY when script loads
-// Don't wait for DOMContentLoaded - run as soon as possible
+// Initialize on page load
 function initUserPanel() {
-  console.log('🚀 User panel initializing...');
+  console.log('🚀 Initializing user panel...');
   if (window.refreshUserDashboard) {
     window.refreshUserDashboard();
   }
 }
 
-// Run immediately if DOM is ready, otherwise wait
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initUserPanel);
 } else {
-  // DOM is already ready, run now!
   initUserPanel();
 }
 
-// Also run on window load as backup
 window.addEventListener('load', initUserPanel);
 
-// Export for modules
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { 
     refreshUserDashboard: window.refreshUserDashboard,
