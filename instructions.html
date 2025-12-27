@@ -6,6 +6,21 @@
     <title>IIN - Exam Instructions</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- ⏰ CRITICAL: TIME WINDOW VALIDATION (9 AM - 12 PM) - MUST BE FIRST! -->
+    <script>
+        (function checkTimeWindow() {
+            const now = new Date();
+            const hours = now.getHours();
+            
+            // Check if current time is between 9 AM (9) and 12 PM (12)
+            if (hours < 9 || hours >= 12) {
+                alert(`⚠️ TEST WINDOW CLOSED!\n\nThis test is only available between:\n🕒 9:00 AM - 12:00 PM\n\nCurrent time: ${now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}\n\nPlease come back during the test window tomorrow.`);
+                window.location.href = "testfirstpage.html";
+                return;
+            }
+        })();
+    </script>
+    
     <!-- ACCESS CONTROL: Check if user has purchased tests -->
     <script>
         (function checkAccess() {
@@ -516,7 +531,7 @@
         // Load candidate information
         window.onload = function() {
             const email = localStorage.getItem("userEmail");
-            const rollNumber = localStorage.getItem("userRollNumber");
+            const rollNumber = localStorage.getItem("userToken"); // Roll number stored as userToken
             const urlParams = new URLSearchParams(window.location.search);
             const testId = urlParams.get("test") || "iat";
 
