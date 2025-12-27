@@ -344,7 +344,7 @@ app.post('/api/admin/questions/:id/image', (req, res) => {
     res.json({success: true, message: 'Image linked successfully'});
 });
 
-// Tests API
+// Tests API - GET all scheduled tests
 app.get('/api/admin/tests', async (req, res) => {
     try {
         const [rows] = await pool.query('SELECT * FROM scheduled_tests ORDER BY exam_date DESC');
@@ -355,9 +355,61 @@ app.get('/api/admin/tests', async (req, res) => {
     }
 });
 
-app.post('/api/admin/tests', (req, res) => {
-    console.log('✅ Test created');
-    res.status(201).json({test:{id:Date.now(),...req.body,createdAt:new Date().toISOString()}});
+// Tests API - CREATE new test (NOW SAVES TO DATABASE!)
+app.post('/api/admin/tests', async (req, res) => {
+    try {
+        console.log('📝 Creating new test:', req.body);
+        const {
+            test_name,
+            test_id,
+            exam_date,
+            exam_time,
+            duration,
+            total_marks,
+            sections,
+            description,
+            status
+        } = req.body;
+        
+        // Validate required fields
+        if (!test_name || !test_id || !exam_date) {
+            return res.status(400).json({
+                success: false,
+                error: 'Missing required fields: test_name, test_id, exam_date'
+            });
+        }
+        
+        // Insert test into scheduled_tests table
+        const [result] = await pool.query(
+            `INSERT INTO scheduled_tests 
+             (test_name, test_id, exam_date, exam_time, duration, total_marks, sections, description, status, created_at) 
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+            [
+                test_name,
+                test_id,
+                exam_date,
+                exam_time || '10:00:00',
+                duration || 180,
+                total_marks || 100,
+                sections || 'Physics,Chemistry,Mathematics',
+                description || '',
+                status || 'scheduled'
+            ]
+        );
+        
+        console.log('✅ Test created with ID:', result.insertId);
+        res.status(201).json({
+            success: true,
+            test: {
+                id: result.insertId,
+                ...req.body,
+                createdAt: new Date().toISOString()
+            }
+        });
+    } catch (error) {
+        console.error('❌ Error creating test:', error);
+        res.status(500).json({success: false, error: error.message});
+    }
 });
 
 app.get('/api/admin/transactions', (req, res) => {
