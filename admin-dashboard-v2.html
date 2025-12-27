@@ -5,373 +5,291 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IIN Admin Portal - Dashboard</title>
     
-    <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Chart.js for Analytics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     
     <link rel="stylesheet" href="frontend/css/admin-dashboard-v2.css">
     <link rel="stylesheet" href="frontend/css/admin-modals.css">
     <link rel="stylesheet" href="frontend/css/admin-forms.css">
+    
+    <style>
+    /* Additional styles for new pages */
+    .data-table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; }
+    .data-table thead { background: #f8fafc; }
+    .data-table th { padding: 16px; text-align: left; font-weight: 600; color: #475569; font-size: 13px; text-transform: uppercase; }
+    .data-table td { padding: 16px; border-top: 1px solid #e2e8f0; }
+    .data-table tbody tr:hover { background: #f8fafc; }
+    .action-btn { padding: 8px 12px; background: #f1f5f9; border: none; border-radius: 6px; cursor: pointer; margin: 0 4px; transition: all 0.3s; }
+    .action-btn:hover { background: #e2e8f0; }
+    .action-btn.danger:hover { background: #fee2e2; color: #dc2626; }
+    .badge { padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-physics { background: #dbeafe; color: #1e40af; }
+    .badge-mathematics { background: #d1fae5; color: #065f46; }
+    .badge-chemistry { background: #fed7aa; color: #92400e; }
+    .badge-primary { background: #e0e7ff; color: #4338ca; }
+    .difficulty-easy { color: #10b981; font-weight: 600; }
+    .difficulty-medium { color: #f59e0b; font-weight: 600; }
+    .difficulty-hard { color: #ef4444; font-weight: 600; }
+    .status-badge { padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .status-active, .status-success { background: #d1fae5; color: #065f46; }
+    .status-inactive, .status-failed { background: #fee2e2; color: #991b1b; }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .rank-badge { background: #fef3c7; color: #92400e; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .payment-method { background: #e0e7ff; color: #4338ca; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .filter-bar { display: flex; gap: 12px; align-items: center; }
+    .filter-select, .search-input { padding: 10px 16px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 14px; }
+    .search-input { width: 300px; }
+    .export-btn { padding: 10px 20px; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    .export-btn:hover { background: #059669; }
+    .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
 </head>
 <body>
-    <!-- Sidebar Navigation -->
     <aside class="sidebar">
         <div class="sidebar-header">
-            <div class="logo">
-                <i class="fas fa-graduation-cap"></i>
-                <span>IIN PORTAL</span>
-            </div>
+            <div class="logo"><i class="fas fa-graduation-cap"></i><span>IIN PORTAL</span></div>
         </div>
-        
         <nav class="sidebar-nav">
-            <a href="#" class="nav-link active" data-page="dashboard">
-                <i class="fas fa-home"></i>
-                <span>Dashboard</span>
-            </a>
-            
+            <a href="#" class="nav-link active" data-page="dashboard"><i class="fas fa-home"></i><span>Dashboard</span></a>
             <div class="nav-section">
                 <div class="nav-section-title">Test Management</div>
-                <a href="#" class="nav-link" data-page="test-management">
-                    <i class="fas fa-calendar-alt"></i>
-                    <span>Test Calendar</span>
-                </a>
-                <a href="#" class="nav-link" data-page="create-test">
-                    <i class="fas fa-plus-circle"></i>
-                    <span>Create Test</span>
-                </a>
-                <a href="#" class="nav-link" data-page="scheduled-tests">
-                    <i class="fas fa-clock"></i>
-                    <span>Scheduled Tests</span>
-                </a>
-                <a href="#" class="nav-link" data-page="past-tests">
-                    <i class="fas fa-history"></i>
-                    <span>Past Tests</span>
-                </a>
+                <a href="#" class="nav-link" data-page="test-management"><i class="fas fa-calendar-alt"></i><span>Test Calendar</span></a>
+                <a href="#" class="nav-link" data-page="create-test"><i class="fas fa-plus-circle"></i><span>Create Test</span></a>
+                <a href="#" class="nav-link" data-page="scheduled-tests"><i class="fas fa-clock"></i><span>Scheduled Tests</span></a>
+                <a href="#" class="nav-link" data-page="past-tests"><i class="fas fa-history"></i><span>Past Tests</span></a>
             </div>
-            
             <div class="nav-section">
                 <div class="nav-section-title">Question Bank</div>
-                <a href="#" class="nav-link" data-page="add-questions">
-                    <i class="fas fa-file-medical"></i>
-                    <span>Add Questions</span>
-                </a>
-                <a href="#" class="nav-link" data-page="view-questions">
-                    <i class="fas fa-list"></i>
-                    <span>View/Edit</span>
-                </a>
-                <a href="#" class="nav-link" data-page="upload-pdf">
-                    <i class="fas fa-file-pdf"></i>
-                    <span>Upload PDF</span>
-                </a>
-                <a href="#" class="nav-link" data-page="upload-image">
-                    <i class="fas fa-image"></i>
-                    <span>Image Upload</span>
-                </a>
+                <a href="#" class="nav-link" data-page="add-questions"><i class="fas fa-file-medical"></i><span>Add Questions</span></a>
+                <a href="#" class="nav-link" data-page="view-questions"><i class="fas fa-list"></i><span>View/Edit</span></a>
+                <a href="#" class="nav-link" data-page="upload-pdf"><i class="fas fa-file-pdf"></i><span>Upload PDF</span></a>
+                <a href="#" class="nav-link" data-page="upload-image"><i class="fas fa-image"></i><span>Image Upload</span></a>
             </div>
-            
             <div class="nav-section">
                 <div class="nav-section-title">Students</div>
-                <a href="#" class="nav-link" data-page="all-students">
-                    <i class="fas fa-users"></i>
-                    <span>All Students</span>
-                </a>
-                <a href="#" class="nav-link" data-page="add-student">
-                    <i class="fas fa-user-plus"></i>
-                    <span>Add Student</span>
-                </a>
-                <a href="#" class="nav-link" data-page="performance">
-                    <i class="fas fa-chart-line"></i>
-                    <span>Performance</span>
-                </a>
+                <a href="#" class="nav-link" data-page="all-students"><i class="fas fa-users"></i><span>All Students</span></a>
+                <a href="#" class="nav-link" data-page="add-student"><i class="fas fa-user-plus"></i><span>Add Student</span></a>
+                <a href="#" class="nav-link" data-page="performance"><i class="fas fa-chart-line"></i><span>Performance</span></a>
             </div>
-            
             <div class="nav-section">
                 <div class="nav-section-title">Financial</div>
-                <a href="#" class="nav-link" data-page="transactions">
-                    <i class="fas fa-receipt"></i>
-                    <span>Transactions</span>
-                </a>
-                <a href="#" class="nav-link" data-page="pending-payments">
-                    <i class="fas fa-hourglass-half"></i>
-                    <span>Pending</span>
-                </a>
-                <a href="#" class="nav-link" data-page="reports">
-                    <i class="fas fa-file-invoice-dollar"></i>
-                    <span>Reports</span>
-                </a>
+                <a href="#" class="nav-link" data-page="transactions"><i class="fas fa-receipt"></i><span>Transactions</span></a>
+                <a href="#" class="nav-link" data-page="pending-payments"><i class="fas fa-hourglass-half"></i><span>Pending</span></a>
+                <a href="#" class="nav-link" data-page="reports"><i class="fas fa-file-invoice-dollar"></i><span>Reports</span></a>
             </div>
-            
             <div class="nav-section">
                 <div class="nav-section-title">Results & Analytics</div>
-                <a href="#" class="nav-link" data-page="view-results">
-                    <i class="fas fa-poll"></i>
-                    <span>View Results</span>
-                </a>
-                <a href="#" class="nav-link" data-page="analytics">
-                    <i class="fas fa-chart-bar"></i>
-                    <span>Analytics</span>
-                </a>
-                <a href="#" class="nav-link" data-page="export-data">
-                    <i class="fas fa-download"></i>
-                    <span>Export Data</span>
-                </a>
+                <a href="#" class="nav-link" data-page="view-results"><i class="fas fa-poll"></i><span>View Results</span></a>
+                <a href="#" class="nav-link" data-page="analytics"><i class="fas fa-chart-bar"></i><span>Analytics</span></a>
+                <a href="#" class="nav-link" data-page="export-data"><i class="fas fa-download"></i><span>Export Data</span></a>
             </div>
-            
             <div class="nav-section">
                 <div class="nav-section-title">System</div>
-                <a href="#" class="nav-link" data-page="settings">
-                    <i class="fas fa-cog"></i>
-                    <span>Settings</span>
-                </a>
-                <a href="#" class="nav-link" data-page="support">
-                    <i class="fas fa-headset"></i>
-                    <span>Support</span>
-                </a>
+                <a href="#" class="nav-link" data-page="settings"><i class="fas fa-cog"></i><span>Settings</span></a>
+                <a href="#" class="nav-link" data-page="support"><i class="fas fa-headset"></i><span>Support</span></a>
             </div>
         </nav>
-        
-        <div class="sidebar-footer">
-            <a href="#" class="logout-btn" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>Logout</span>
-            </a>
-        </div>
+        <div class="sidebar-footer"><a href="#" class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i><span>Logout</span></a></div>
     </aside>
 
-    <!-- Main Content Area -->
     <main class="main-content">
-        <!-- Top Header -->
         <header class="top-header">
             <h1 class="page-title">Dashboard</h1>
             <div class="header-actions">
-                <div class="notification-bell">
-                    <i class="fas fa-bell"></i>
-                    <span class="badge">3</span>
-                </div>
-                <div class="settings-icon">
-                    <i class="fas fa-cog"></i>
-                </div>
+                <div class="notification-bell"><i class="fas fa-bell"></i><span class="badge">3</span></div>
+                <div class="settings-icon"><i class="fas fa-cog"></i></div>
                 <div class="admin-profile">
                     <img src="https://ui-avatars.com/api/?name=Admin+User&background=6366f1&color=fff" alt="Admin">
-                    <div class="admin-info">
-                        <span class="admin-name">Admin User</span>
-                        <span class="admin-role">Super Admin</span>
-                    </div>
+                    <div class="admin-info"><span class="admin-name">Admin User</span><span class="admin-role">Super Admin</span></div>
                 </div>
             </div>
         </header>
 
-        <!-- Dashboard Content -->
+        <!-- DASHBOARD -->
         <div class="content-area" id="dashboard-page">
-            <!-- Dashboard content stays the same... -->
             <div class="stats-grid">
-                <div class="stat-card blue">
-                    <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
-                    <div class="stat-content">
-                        <div class="stat-value">24</div>
-                        <div class="stat-label">Active Tests</div>
-                        <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 12% from last month</div>
-                    </div>
-                </div>
-                <div class="stat-card green">
-                    <div class="stat-icon"><i class="fas fa-users"></i></div>
-                    <div class="stat-content">
-                        <div class="stat-value">1,250</div>
-                        <div class="stat-label">Students Enrolled</div>
-                        <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 8% from last month</div>
-                    </div>
-                </div>
-                <div class="stat-card orange">
-                    <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
-                    <div class="stat-content">
-                        <div class="stat-value">3</div>
-                        <div class="stat-label">Today's Exams</div>
-                        <div class="stat-trend neutral"><i class="fas fa-minus"></i> Scheduled</div>
-                    </div>
-                </div>
-                <div class="stat-card purple">
-                    <div class="stat-icon"><i class="fas fa-rupee-sign"></i></div>
-                    <div class="stat-content">
-                        <div class="stat-value">₹2.4L</div>
-                        <div class="stat-label">Revenue This Month</div>
-                        <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 15% from last month</div>
-                    </div>
-                </div>
+                <div class="stat-card blue"><div class="stat-icon"><i class="fas fa-file-alt"></i></div><div class="stat-content"><div class="stat-value">24</div><div class="stat-label">Active Tests</div><div class="stat-trend up"><i class="fas fa-arrow-up"></i> 12%</div></div></div>
+                <div class="stat-card green"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-content"><div class="stat-value">1,250</div><div class="stat-label">Students</div><div class="stat-trend up"><i class="fas fa-arrow-up"></i> 8%</div></div></div>
+                <div class="stat-card orange"><div class="stat-icon"><i class="fas fa-calendar-check"></i></div><div class="stat-content"><div class="stat-value">3</div><div class="stat-label">Today's Exams</div><div class="stat-trend neutral"><i class="fas fa-minus"></i> Scheduled</div></div></div>
+                <div class="stat-card purple"><div class="stat-icon"><i class="fas fa-rupee-sign"></i></div><div class="stat-content"><div class="stat-value">₹2.4L</div><div class="stat-label">Revenue</div><div class="stat-trend up"><i class="fas fa-arrow-up"></i> 15%</div></div></div>
             </div>
-            <div class="analytics-section">
-                <div class="chart-card">
-                    <div class="chart-header">
-                        <h2>Student Performance Trend</h2>
-                        <div class="chart-controls">
-                            <button class="time-btn active">7D</button>
-                            <button class="time-btn">1M</button>
-                            <button class="time-btn">3M</button>
-                            <button class="time-btn">1Y</button>
-                        </div>
-                    </div>
-                    <canvas id="performanceChart"></canvas>
-                </div>
-            </div>
-            <div class="info-grid">
-                <div class="upcoming-tests-card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-calendar-alt"></i> Upcoming Tests</h3>
-                        <a href="#" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                    <div class="test-list"></div>
-                </div>
-                <div class="recent-activity-card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-history"></i> Recent Activity</h3>
-                    </div>
-                    <div class="activity-list"></div>
-                </div>
-            </div>
+            <div class="analytics-section"><div class="chart-card"><div class="chart-header"><h2>Student Performance Trend</h2><div class="chart-controls"><button class="time-btn active">7D</button><button class="time-btn">1M</button><button class="time-btn">3M</button><button class="time-btn">1Y</button></div></div><canvas id="performanceChart"></canvas></div></div>
         </div>
 
-        <!-- CREATE TEST PAGE - COMPLETE FORM -->
+        <!-- CREATE TEST (from previous code) -->
         <div class="content-area" id="create-test-page" style="display: none;">
             <div class="form-container">
-                <div class="form-header">
-                    <h2><i class="fas fa-plus-circle"></i> Create New Test</h2>
-                    <p>Fill in the details below to create a new test for your students</p>
-                </div>
-
+                <div class="form-header"><h2><i class="fas fa-plus-circle"></i> Create New Test</h2><p>Fill in the details to create a test</p></div>
                 <form id="createTestForm">
-                    <!-- Basic Information -->
-                    <h3 style="margin-bottom: 20px; color: #0f172a;"><i class="fas fa-info-circle"></i> Basic Information</h3>
-                    
+                    <h3 style="margin-bottom: 20px;"><i class="fas fa-info-circle"></i> Basic Information</h3>
                     <div class="form-row">
-                        <div>
-                            <label class="form-label">Test Name <span class="required">*</span></label>
-                            <input type="text" class="form-input" id="testName" placeholder="e.g., NEST Mock Test 1" required>
-                        </div>
-                        <div>
-                            <label class="form-label">Test Code <span class="required">*</span></label>
-                            <input type="text" class="form-input" id="testCode" placeholder="e.g., NEST-M1-2025" required>
-                        </div>
+                        <div><label class="form-label">Test Name <span class="required">*</span></label><input type="text" class="form-input" id="testName" placeholder="NEST Mock 1" required></div>
+                        <div><label class="form-label">Test Code <span class="required">*</span></label><input type="text" class="form-input" id="testCode" placeholder="NEST-M1-2025" required></div>
                     </div>
-
                     <div class="form-row">
-                        <div>
-                            <label class="form-label">Exam Type <span class="required">*</span></label>
-                            <select class="form-select" id="examType" required>
-                                <option value="">Select exam type</option>
-                                <option value="NEST">NEST</option>
-                                <option value="IAT">IAT</option>
-                                <option value="ISI">ISI</option>
-                                <option value="JEST">JEST</option>
-                                <option value="Mock">Mock Test</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="form-label">Duration (minutes) <span class="required">*</span></label>
-                            <input type="number" class="form-input" id="duration" placeholder="e.g., 180" min="1" required>
-                        </div>
+                        <div><label class="form-label">Exam Type <span class="required">*</span></label><select class="form-select" id="examType" required><option value="">Select</option><option value="NEST">NEST</option><option value="IAT">IAT</option><option value="ISI">ISI</option><option value="JEST">JEST</option><option value="Mock">Mock</option></select></div>
+                        <div><label class="form-label">Duration (min) <span class="required">*</span></label><input type="number" class="form-input" id="duration" placeholder="180" required></div>
                     </div>
-
+                    <div class="form-row"><div><label class="form-label">Total Marks <span class="required">*</span></label><input type="number" class="form-input" id="totalMarks" placeholder="100" required></div></div>
+                    <h3 style="margin: 32px 0 20px;"><i class="fas fa-calendar"></i> Schedule</h3>
                     <div class="form-row">
-                        <div>
-                            <label class="form-label">Total Marks <span class="required">*</span></label>
-                            <input type="number" class="form-input" id="totalMarks" placeholder="e.g., 100" min="1" required>
-                        </div>
+                        <div><label class="form-label">Exam Date <span class="required">*</span></label><input type="date" class="form-input" id="examDate" required></div>
+                        <div class="datetime-group"><div><label class="form-label">Start Time</label><input type="time" class="form-input" id="startTime" required></div><div><label class="form-label">End Time</label><input type="time" class="form-input" id="endTime" required></div></div>
                     </div>
-
-                    <!-- Schedule -->
-                    <h3 style="margin: 32px 0 20px; color: #0f172a;"><i class="fas fa-calendar"></i> Schedule</h3>
-                    
-                    <div class="form-row">
-                        <div>
-                            <label class="form-label">Exam Date <span class="required">*</span></label>
-                            <input type="date" class="form-input" id="examDate" required>
-                        </div>
-                        <div class="datetime-group">
-                            <div>
-                                <label class="form-label">Start Time <span class="required">*</span></label>
-                                <input type="time" class="form-input" id="startTime" required>
-                            </div>
-                            <div>
-                                <label class="form-label">End Time <span class="required">*</span></label>
-                                <input type="time" class="form-input" id="endTime" required>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Instructions -->
-                    <h3 style="margin: 32px 0 20px; color: #0f172a;"><i class="fas fa-list-ol"></i> Instructions</h3>
-                    
-                    <div class="form-group-full">
-                        <label class="form-label">Test Instructions</label>
-                        <textarea class="form-textarea" id="instructions" placeholder="Enter instructions for students...\n\n1. Read all questions carefully\n2. Each question carries equal marks\n3. No negative marking"></textarea>
-                    </div>
-
-                    <!-- Settings -->
-                    <h3 style="margin: 32px 0 20px; color: #0f172a;"><i class="fas fa-cog"></i> Settings</h3>
-                    
+                    <h3 style="margin: 32px 0 20px;"><i class="fas fa-list-ol"></i> Instructions</h3>
+                    <div class="form-group-full"><label class="form-label">Test Instructions</label><textarea class="form-textarea" id="instructions" placeholder="Enter instructions..."></textarea></div>
+                    <h3 style="margin: 32px 0 20px;"><i class="fas fa-cog"></i> Settings</h3>
                     <div class="checkbox-group">
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="negativeMarking">
-                            <label for="negativeMarking">Enable Negative Marking (-0.25 per wrong answer)</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="shuffleQuestions" checked>
-                            <label for="shuffleQuestions">Shuffle Questions Order</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="showResults" checked>
-                            <label for="showResults">Show Results After Submission</label>
-                        </div>
+                        <div class="checkbox-item"><input type="checkbox" id="negativeMarking"><label for="negativeMarking">Negative Marking</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="shuffleQuestions" checked><label for="shuffleQuestions">Shuffle Questions</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="showResults" checked><label for="showResults">Show Results</label></div>
                     </div>
-
-                    <!-- Question Selection -->
-                    <h3 style="margin: 32px 0 20px; color: #0f172a;"><i class="fas fa-question-circle"></i> Select Questions</h3>
-                    
-                    <div class="question-selection">
-                        <div class="subject-tabs" id="subjectTabs"></div>
-                        <div class="questions-list" id="questionsList"></div>
-                        <div class="selected-count" id="selectedCount">0 questions selected (0 marks)</div>
-                    </div>
-
-                    <!-- Form Actions -->
-                    <div class="form-actions">
-                        <button type="button" class="btn-secondary" onclick="document.getElementById('createTestForm').reset();">Cancel</button>
-                        <button type="submit" class="btn-primary" id="submitBtn">
-                            <i class="fas fa-check"></i> Create Test
-                        </button>
-                    </div>
+                    <h3 style="margin: 32px 0 20px;"><i class="fas fa-question-circle"></i> Select Questions</h3>
+                    <div class="question-selection"><div class="subject-tabs" id="subjectTabs"></div><div class="questions-list" id="questionsList"></div><div class="selected-count" id="selectedCount">0 questions selected</div></div>
+                    <div class="form-actions"><button type="button" class="btn-secondary" onclick="document.getElementById('createTestForm').reset();">Cancel</button><button type="submit" class="btn-primary" id="submitBtn"><i class="fas fa-check"></i> Create Test</button></div>
                 </form>
             </div>
         </div>
 
-        <!-- Other pages remain as placeholders -->
+        <!-- ADD QUESTIONS -->
+        <div class="content-area" id="add-questions-page" style="display: none;">
+            <div class="form-container">
+                <div class="form-header"><h2><i class="fas fa-file-medical"></i> Add Question</h2><p>Add a new question to the question bank</p></div>
+                <form id="addQuestionForm">
+                    <div class="form-row">
+                        <div><label class="form-label">Subject <span class="required">*</span></label><select class="form-select" id="subject" required><option value="">Select</option><option>Physics</option><option>Mathematics</option><option>Chemistry</option></select></div>
+                        <div><label class="form-label">Topic <span class="required">*</span></label><input type="text" class="form-input" id="topic" placeholder="e.g., Mechanics" required></div>
+                    </div>
+                    <div class="form-row">
+                        <div><label class="form-label">Difficulty <span class="required">*</span></label><select class="form-select" id="difficulty" required><option value="">Select</option><option>Easy</option><option>Medium</option><option>Hard</option></select></div>
+                        <div><label class="form-label">Marks <span class="required">*</span></label><input type="number" class="form-input" id="marks" placeholder="1" required></div>
+                    </div>
+                    <div class="form-row"><div><label class="form-label">Question Type <span class="required">*</span></label><select class="form-select" id="questionType" required><option value="">Select</option><option value="MCQ">MCQ</option><option value="Descriptive">Descriptive</option><option value="Numerical">Numerical</option></select></div></div>
+                    <div class="form-group-full"><label class="form-label">Question Text <span class="required">*</span></label><textarea class="form-textarea" id="questionText" placeholder="Enter the question..." required></textarea><span class="form-hint">Supports LaTeX: Use \( \) for inline and \[ \] for block math</span></div>
+                    <div class="form-row">
+                        <div><label class="form-label">Option 1</label><input type="text" class="form-input" id="option1"></div>
+                        <div><label class="form-label">Option 2</label><input type="text" class="form-input" id="option2"></div>
+                    </div>
+                    <div class="form-row">
+                        <div><label class="form-label">Option 3</label><input type="text" class="form-input" id="option3"></div>
+                        <div><label class="form-label">Option 4</label><input type="text" class="form-input" id="option4"></div>
+                    </div>
+                    <div class="form-row"><div><label class="form-label">Correct Answer</label><select class="form-select" id="correctAnswer"><option value="">Select</option><option value="1">Option 1</option><option value="2">Option 2</option><option value="3">Option 3</option><option value="4">Option 4</option></select></div></div>
+                    <div class="form-group-full"><label class="form-label">Explanation (Optional)</label><textarea class="form-textarea" id="explanation" placeholder="Explain the answer..."></textarea></div>
+                    <div class="form-actions"><button type="button" class="btn-secondary" onclick="document.getElementById('addQuestionForm').reset();">Clear</button><button type="submit" class="btn-primary" id="submitQuestionBtn"><i class="fas fa-plus"></i> Add Question</button></div>
+                </form>
+            </div>
+        </div>
+
+        <!-- VIEW/EDIT QUESTIONS -->
+        <div class="content-area" id="view-questions-page" style="display: none;">
+            <div class="form-container">
+                <div class="form-header"><h2><i class="fas fa-list"></i> View & Edit Questions</h2><p>Manage your question bank</p></div>
+                <div class="table-header">
+                    <div class="filter-bar">
+                        <select class="filter-select" id="subjectFilter"><option value="all">All Subjects</option><option value="Physics">Physics</option><option value="Mathematics">Mathematics</option><option value="Chemistry">Chemistry</option></select>
+                        <select class="filter-select" id="difficultyFilter"><option value="all">All Difficulties</option><option value="Easy">Easy</option><option value="Medium">Medium</option><option value="Hard">Hard</option></select>
+                        <input type="text" class="search-input" id="searchQuestions" placeholder="Search questions...">
+                    </div>
+                </div>
+                <table class="data-table">
+                    <thead><tr><th>ID</th><th>Subject</th><th>Topic</th><th>Difficulty</th><th>Marks</th><th>Question</th><th>Actions</th></tr></thead>
+                    <tbody id="questionsTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ALL STUDENTS -->
+        <div class="content-area" id="all-students-page" style="display: none;">
+            <div class="form-container">
+                <div class="form-header"><h2><i class="fas fa-users"></i> All Students</h2><p>Manage student records</p></div>
+                <div class="table-header">
+                    <input type="text" class="search-input" id="searchStudents" placeholder="Search students...">
+                    <button class="export-btn"><i class="fas fa-download"></i> Export</button>
+                </div>
+                <table class="data-table">
+                    <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Course</th><th>Join Date</th><th>Actions</th></tr></thead>
+                    <tbody id="studentsTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ADD STUDENT -->
+        <div class="content-area" id="add-student-page" style="display: none;">
+            <div class="form-container">
+                <div class="form-header"><h2><i class="fas fa-user-plus"></i> Add Student</h2><p>Register a new student</p></div>
+                <form id="addStudentForm">
+                    <div class="form-row">
+                        <div><label class="form-label">Full Name <span class="required">*</span></label><input type="text" class="form-input" id="studentName" placeholder="John Doe" required></div>
+                        <div><label class="form-label">Email <span class="required">*</span></label><input type="email" class="form-input" id="studentEmail" placeholder="john@example.com" required></div>
+                    </div>
+                    <div class="form-row">
+                        <div><label class="form-label">Phone <span class="required">*</span></label><input type="tel" class="form-input" id="studentPhone" placeholder="9876543210" required></div>
+                        <div><label class="form-label">Course <span class="required">*</span></label><select class="form-select" id="studentCourse" required><option value="">Select</option><option>NEST</option><option>IAT</option><option>ISI</option><option>JEST</option></select></div>
+                    </div>
+                    <div class="form-group-full"><label class="form-label">Address</label><textarea class="form-textarea" id="studentAddress" placeholder="Enter address..."></textarea></div>
+                    <div class="form-actions"><button type="button" class="btn-secondary" onclick="document.getElementById('addStudentForm').reset();">Clear</button><button type="submit" class="btn-primary" id="submitStudentBtn"><i class="fas fa-user-plus"></i> Add Student</button></div>
+                </form>
+            </div>
+        </div>
+
+        <!-- TRANSACTIONS -->
+        <div class="content-area" id="transactions-page" style="display: none;">
+            <div class="form-container">
+                <div class="form-header"><h2><i class="fas fa-receipt"></i> Transactions</h2><p>View all payment transactions</p></div>
+                <div class="table-header">
+                    <div></div>
+                    <button class="export-btn" id="exportTransactions"><i class="fas fa-download"></i> Export</button>
+                </div>
+                <table class="data-table">
+                    <thead><tr><th>Transaction ID</th><th>Student</th><th>Amount</th><th>Date</th><th>Method</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody id="transactionsTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- VIEW RESULTS -->
+        <div class="content-area" id="view-results-page" style="display: none;">
+            <div class="form-container">
+                <div class="form-header"><h2><i class="fas fa-poll"></i> Test Results</h2><p>View and analyze test results</p></div>
+                <div class="table-header">
+                    <div></div>
+                    <button class="export-btn" id="exportResults"><i class="fas fa-download"></i> Export</button>
+                </div>
+                <table class="data-table">
+                    <thead><tr><th>ID</th><th>Test</th><th>Student</th><th>Score</th><th>Percentage</th><th>Rank</th><th>Date</th></tr></thead>
+                    <tbody id="resultsTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Placeholder pages -->
         <div class="content-area" id="test-management-page" style="display: none;"><p class="coming-soon">Calendar interface coming soon...</p></div>
         <div class="content-area" id="scheduled-tests-page" style="display: none;"><p class="coming-soon">Scheduled tests page coming soon...</p></div>
         <div class="content-area" id="past-tests-page" style="display: none;"><p class="coming-soon">Past tests page coming soon...</p></div>
-        <div class="content-area" id="add-questions-page" style="display: none;"><p class="coming-soon">Add questions page coming soon...</p></div>
-        <div class="content-area" id="view-questions-page" style="display: none;"><p class="coming-soon">View questions page coming soon...</p></div>
         <div class="content-area" id="upload-pdf-page" style="display: none;"><p class="coming-soon">PDF upload page coming soon...</p></div>
         <div class="content-area" id="upload-image-page" style="display: none;"><p class="coming-soon">Image upload page coming soon...</p></div>
-        <div class="content-area" id="all-students-page" style="display: none;"><p class="coming-soon">All students page coming soon...</p></div>
-        <div class="content-area" id="add-student-page" style="display: none;"><p class="coming-soon">Add student page coming soon...</p></div>
         <div class="content-area" id="performance-page" style="display: none;"><p class="coming-soon">Performance page coming soon...</p></div>
-        <div class="content-area" id="transactions-page" style="display: none;"><p class="coming-soon">Transactions page coming soon...</p></div>
         <div class="content-area" id="pending-payments-page" style="display: none;"><p class="coming-soon">Pending payments page coming soon...</p></div>
         <div class="content-area" id="reports-page" style="display: none;"><p class="coming-soon">Reports page coming soon...</p></div>
-        <div class="content-area" id="view-results-page" style="display: none;"><p class="coming-soon">View results page coming soon...</p></div>
         <div class="content-area" id="analytics-page" style="display: none;"><p class="coming-soon">Analytics page coming soon...</p></div>
         <div class="content-area" id="export-data-page" style="display: none;"><p class="coming-soon">Export data page coming soon...</p></div>
         <div class="content-area" id="settings-page" style="display: none;"><p class="coming-soon">Settings page coming soon...</p></div>
         <div class="content-area" id="support-page" style="display: none;"><p class="coming-soon">Support page coming soon...</p></div>
     </main>
 
-    <!-- Load Scripts in Order -->
     <script src="frontend/js/admin-auth.js"></script>
     <script src="frontend/js/admin-api-service.js"></script>
     <script src="frontend/js/admin-utils.js"></script>
     <script src="frontend/js/admin-dashboard-v2.js"></script>
     <script src="frontend/js/create-test.js"></script>
+    <script src="frontend/js/add-questions.js"></script>
+    <script src="frontend/js/view-questions.js"></script>
+    <script src="frontend/js/students.js"></script>
+    <script src="frontend/js/transactions.js"></script>
+    <script src="frontend/js/results.js"></script>
 </body>
 </html>
