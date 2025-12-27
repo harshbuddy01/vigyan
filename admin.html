@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Command Center | IIN</title>
-    <!-- Deployment: 2025-12-27 17:14 IST -->
+    <!-- Force Redeploy: 2025-12-27 17:48 IST - Cache Clear -->
     
     <!-- External Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -94,13 +94,15 @@
             box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
         }
         
-        /* Calendar button styling */
+        /* Calendar button styling - CRITICAL */
         .calendar-access {
             padding: 15px;
             margin: 15px 15px 0 15px;
-            background: linear-gradient(135deg, #10b981, #059669);
+            background: linear-gradient(135deg, #10b981, #059669) !important;
             border-radius: 10px;
             border: 2px solid rgba(16, 185, 129, 0.3);
+            display: block !important;
+            visibility: visible !important;
         }
         
         .calendar-btn {
@@ -113,7 +115,7 @@
             font-weight: 600;
             font-size: 14px;
             cursor: pointer;
-            display: flex;
+            display: flex !important;
             align-items: center;
             justify-content: center;
             gap: 10px;
