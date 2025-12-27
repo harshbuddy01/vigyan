@@ -52,9 +52,6 @@ app.use(cors({
   optionsSuccessStatus: 204
 }));
 
-// 🔥 EXPLICIT OPTIONS HANDLING
-app.options('*', cors());
-
 console.log('🔵 Setting up body parsers...');
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
