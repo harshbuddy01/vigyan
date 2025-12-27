@@ -23,9 +23,9 @@
                             <label>Exam Type *</label>
                             <select id="pdfExamType" required>
                                 <option value="">Select Exam Type</option>
-                                <option value="JAM">IIT JAM</option>
-                                <option value="GATE">GATE</option>
-                                <option value="Practice">Practice</option>
+                                <option value="IAT">IAT (IISER Aptitude Test)</option>
+                                <option value="ISI">ISI (Indian Statistical Institute)</option>
+                                <option value="NEST">NEST (National Entrance Screening Test)</option>
                             </select>
                         </div>
                         
@@ -36,6 +36,7 @@
                                 <option value="Physics">Physics</option>
                                 <option value="Mathematics">Mathematics</option>
                                 <option value="Chemistry">Chemistry</option>
+                                <option value="Biology">Biology</option>
                             </select>
                         </div>
 
