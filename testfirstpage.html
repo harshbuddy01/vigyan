@@ -41,6 +41,86 @@
         .token-display { font-size: 2.5rem; font-weight: 900; color: #3b82f6; letter-spacing: 4px; margin: 1.5rem 0; text-shadow: 0 0 20px rgba(59, 130, 246, 0.5); font-family: monospace; }
         .error-banner { background: rgba(239, 68, 68, 0.1); color: #f87171; padding: 1rem; border-radius: 0.75rem; margin-top: 1rem; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 0.9rem; }
         .hidden { display: none !important; }
+        
+        /* Calendar Banner */
+        .calendar-banner {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%);
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            display: none;
+            align-items: center;
+            gap: 2rem;
+            backdrop-filter: blur(20px);
+            transition: all 0.4s;
+        }
+        
+        .calendar-banner:hover {
+            border-color: rgba(16, 185, 129, 0.6);
+            box-shadow: 0 10px 40px rgba(16, 185, 129, 0.2);
+            transform: translateY(-4px);
+        }
+        
+        .calendar-icon {
+            font-size: 4rem;
+            color: #10b981;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .calendar-content {
+            flex: 1;
+        }
+        
+        .calendar-title {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: white;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .calendar-subtitle {
+            color: #94a3b8;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+        
+        .calendar-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            font-weight: 800;
+            padding: 1rem 2.5rem;
+            border-radius: 1rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-size: 0.9rem;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .calendar-btn:hover {
+            box-shadow: 0 0 40px rgba(16, 185, 129, 0.6);
+            transform: scale(1.05);
+        }
+        
+        @media (max-width: 768px) {
+            .calendar-banner {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
@@ -122,6 +202,25 @@
                 Unlock the gateway to India's premier research institutes.
             </p>
         </header>
+        
+        <!-- Calendar Banner (shows only if user has purchased tests) -->
+        <div id="calendarBanner" class="calendar-banner">
+            <div class="calendar-icon">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="calendar-content">
+                <h2 class="calendar-title">
+                    📅 View Your Upcoming Tests
+                </h2>
+                <p class="calendar-subtitle">
+                    Check your personalized test schedule and prepare for upcoming exams. Only tests from your purchased series are shown.
+                </p>
+            </div>
+            <a href="student-calendar.html" class="calendar-btn">
+                <i class="fas fa-calendar-check"></i>
+                My Test Calendar
+            </a>
+        </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-10" id="cardsContainer"></div>
     </main>
@@ -169,6 +268,12 @@
         window.onload = function () {
             if (window.refreshUserDashboard) window.refreshUserDashboard();
             const purchased = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
+            
+            // Show calendar banner if user has purchased any tests
+            if (purchased.length > 0) {
+                document.getElementById('calendarBanner').style.display = 'flex';
+            }
+            
             testSeries.forEach(test => {
                 if (purchased.includes(test.id)) markAsPurchased(test.id);
             });
@@ -223,6 +328,9 @@
             if (testId) {
                 markAsPurchased(testId);
             }
+            
+            // Show calendar banner
+            document.getElementById('calendarBanner').style.display = 'flex';
             
             // 🔥 CRITICAL: Get data from localStorage (already saved during payment)
             const email = localStorage.getItem("userEmail");
