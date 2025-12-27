@@ -38,13 +38,13 @@
         <div class="login-card">
             <div id="main-view">
                 <h1>Student Login</h1>
-                <p class="subtitle">Enter the Email used during payment and your 8-digit Exam Token.</p>
+                <p class="subtitle">Enter the Email used during payment and your 8-digit Roll Number.</p>
                 <div class="input-group">
                     <label>Registered Email</label>
                     <input type="email" id="emailInput" placeholder="name@example.com">
                 </div>
                 <div class="input-group">
-                    <label>Exam Token (Roll Number)</label>
+                    <label>Roll Number</label>
                     <input type="text" id="tokenInput" placeholder="12345678" maxlength="8">
                 </div>
                 <button class="btn" id="loginBtn" onclick="attemptLogin()">
@@ -58,7 +58,7 @@
 
     <script>
         async function attemptLogin() {
-            const email = document.getElementById("emailInput").value.trim();
+            const email = document.getElementById("emailInput").value.trim().toLowerCase();
             const token = document.getElementById("tokenInput").value.trim();
             const btn = document.getElementById("loginBtn");
             const btnText = document.getElementById("btnText");
@@ -67,7 +67,10 @@
 
             errorDiv.style.display = 'none';
 
-            if (!email || !token) { showError("Both Email and Token are required."); return; }
+            if (!email || !token) { 
+                showError("Both Email and Roll Number are required."); 
+                return; 
+            }
             
             btn.disabled = true;
             btnText.style.display = 'none';
@@ -76,7 +79,6 @@
             try {
                 console.log('🚀 Sending login request to:', `${API_BASE_URL}/api/exam/start`);
                 
-                // ✅ FIXED: Updated endpoint to match backend route
                 const response = await axios.post(`${API_BASE_URL}/api/exam/start`, {
                     rollNumber: token,
                     email: email
@@ -85,11 +87,31 @@
                 console.log('✅ Login response:', response.data);
 
                 if (response.data.success) {
-                    // Smart Login: Persist credentials locally
-                    localStorage.setItem("userEmail", email);
-                    localStorage.setItem("userToken", token);
-                    localStorage.setItem("isLoggedIn", "true");
-                    localStorage.setItem("purchasedTests", JSON.stringify(response.data.purchasedTests));
+                    console.log('💾 Saving login data to localStorage...');
+                    
+                    // 🔥 CRITICAL: Set ALL required keys for unified user panel
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('userEmail', email);
+                    localStorage.setItem('userRollNumber', token); // ✅ Unified key
+                    localStorage.setItem('userToken', token); // Legacy support
+                    
+                    // Parse and normalize purchased tests
+                    const tests = response.data.purchasedTests || [];
+                    const normalizedTests = tests.map(t => {
+                        // Normalize to lowercase (iat, nest, isi)
+                        if (typeof t === 'string') {
+                            return t.toLowerCase().replace(' series', '').trim();
+                        }
+                        return t;
+                    });
+                    
+                    localStorage.setItem('purchasedTests', JSON.stringify(normalizedTests));
+                    
+                    console.log('✅ Saved:', {
+                        email,
+                        rollNumber: token,
+                        tests: normalizedTests
+                    });
 
                     btn.style.backgroundColor = "#10b981";
                     spinner.style.display = 'none';
@@ -105,7 +127,19 @@
                 btn.disabled = false;
                 spinner.style.display = 'none';
                 btnText.style.display = 'block';
-                const msg = error.response?.data?.message || "Server Error. Please try again in 30s.";
+                
+                let msg = "Server Error. Please try again.";
+                
+                if (error.response) {
+                    if (error.response.status === 404) {
+                        msg = "Invalid credentials. Please check your email and roll number.";
+                    } else if (error.response.data?.message) {
+                        msg = error.response.data.message;
+                    }
+                } else if (error.request) {
+                    msg = "Cannot connect to server. Please check your internet connection.";
+                }
+                
                 showError(msg);
             }
         }
@@ -115,6 +149,13 @@
             errorDiv.innerText = msg;
             errorDiv.style.display = 'block';
         }
+
+        // Enter key support
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                attemptLogin();
+            }
+        });
 
         // Particle Animation Logic
         const canvas = document.getElementById("canvas");
