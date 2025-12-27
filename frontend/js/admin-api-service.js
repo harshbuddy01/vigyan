@@ -1,9 +1,23 @@
 /**
  * Admin API Service - Complete Backend Integration
+ * UPDATED: Points to Railway backend in production
  */
 
 const AdminAPI = {
-    baseURL: window.location.origin,
+    // 🔥 CRITICAL FIX: Use Railway backend URL
+    get baseURL() {
+        // If running locally, use local backend
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            return 'http://localhost:8080';
+        }
+        
+        // 🚀 PRODUCTION: Point to Railway backend
+        // Replace this with your actual Railway backend URL
+        const RAILWAY_BACKEND_URL = 'https://iin-production.up.railway.app';
+        
+        // You can also use environment variable if configured
+        return window.BACKEND_URL || RAILWAY_BACKEND_URL;
+    },
     
     // Helper method for API calls
     async request(endpoint, options = {}) {
@@ -15,19 +29,26 @@ const AdminAPI = {
         };
         
         try {
-            const response = await fetch(`${this.baseURL}${endpoint}`, {
+            const fullURL = `${this.baseURL}${endpoint}`;
+            console.log(`🔵 API Request: ${fullURL}`);
+            
+            const response = await fetch(fullURL, {
                 ...defaultOptions,
                 ...options,
                 headers: { ...defaultOptions.headers, ...options.headers }
             });
             
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
             
-            return await response.json();
+            const data = await response.json();
+            console.log('✅ API Response:', data);
+            return data;
         } catch (error) {
-            console.error('API Error:', error);
+            console.error('❌ API Error:', error);
+            console.error('Endpoint:', endpoint);
+            console.error('Base URL:', this.baseURL);
             throw error;
         }
     },
@@ -195,3 +216,7 @@ const AdminAPI = {
 
 // Make it globally available
 window.AdminAPI = AdminAPI;
+
+// Log the backend URL being used
+console.log('🚀 Admin API Service initialized');
+console.log('🔗 Backend URL:', AdminAPI.baseURL);
