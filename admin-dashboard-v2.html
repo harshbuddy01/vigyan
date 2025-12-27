@@ -24,12 +24,34 @@
     .badge-physics { background: #dbeafe; color: #1e40af; }
     .badge-mathematics { background: #d1fae5; color: #065f46; }
     .badge-chemistry { background: #fed7aa; color: #92400e; }
+    .badge-jam { background: #dbeafe; color: #1e40af; }
+    .badge-gate { background: #d1fae5; color: #065f46; }
+    .badge-practice { background: #fed7aa; color: #92400e; }
     .difficulty-easy { color: #10b981; font-weight: 600; }
     .difficulty-medium { color: #f59e0b; font-weight: 600; }
     .difficulty-hard { color: #ef4444; font-weight: 600; }
     .status-active { background: #d1fae5; color: #065f46; padding: 4px 12px; border-radius: 12px; font-size: 12px; }
     .status-inactive { background: #fee2e2; color: #991b1b; padding: 4px 12px; border-radius: 12px; font-size: 12px; }
     .coming-soon { text-align: center; padding: 60px 20px; color: #94a3b8; font-size: 18px; }
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
+    .modal-content { background: white; border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); max-height: 90vh; overflow-y: auto; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 24px; border-bottom: 1px solid #e2e8f0; }
+    .modal-header h2 { margin: 0; font-size: 20px; font-weight: 600; }
+    .close-btn { background: none; border: none; font-size: 28px; cursor: pointer; color: #94a3b8; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: all 0.2s; }
+    .close-btn:hover { background: #f1f5f9; color: #475569; }
+    .modal-actions { display: flex; gap: 12px; padding: 24px; border-top: 1px solid #e2e8f0; justify-content: flex-end; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: #334155; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; transition: all 0.2s; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); }
+    .btn-primary { background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-primary:hover { background: #2563eb; transform: translateY(-1px); box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2); }
+    .btn-secondary { background: #f1f5f9; color: #475569; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-secondary:hover { background: #e2e8f0; }
+    .btn-danger { background: #ef4444; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-danger:hover { background: #dc2626; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .page-header h1 { font-size: 28px; font-weight: 700; color: #1e293b; margin: 0; display: flex; align-items: center; gap: 12px; }
     </style>
 </head>
 <body>
@@ -107,6 +129,7 @@
             </div>
         </div>
 
+        <!-- Dynamic content pages -->
         <div class="content-area" id="create-test-page" style="display: none;"></div>
         <div class="content-area" id="add-questions-page" style="display: none;"></div>
         <div class="content-area" id="view-questions-page" style="display: none;"></div>
@@ -116,11 +139,12 @@
         <div class="content-area" id="view-results-page" style="display: none;"></div>
         <div class="content-area" id="upload-image-page" style="display: none;"></div>
         
-        <div class="content-area" id="test-calendar-page" style="display: none;"><p class="coming-soon">Calendar coming soon...</p></div>
-        <div class="content-area" id="scheduled-tests-page" style="display: none;"><p class="coming-soon">Scheduled tests coming soon...</p></div>
-        <div class="content-area" id="past-tests-page" style="display: none;"><p class="coming-soon">Past tests coming soon...</p></div>
-        <div class="content-area" id="upload-pdf-page" style="display: none;"><p class="coming-soon">PDF upload coming soon...</p></div>
-        <div class="content-area" id="performance-page" style="display: none;"><p class="coming-soon">Performance coming soon...</p></div>
+        <!-- Now fully functional pages (no more "coming soon") -->
+        <div class="content-area" id="test-calendar-page" style="display: none;"></div>
+        <div class="content-area" id="scheduled-tests-page" style="display: none;"></div>
+        <div class="content-area" id="past-tests-page" style="display: none;"></div>
+        <div class="content-area" id="upload-pdf-page" style="display: none;"></div>
+        <div class="content-area" id="performance-page" style="display: none;"><p class="coming-soon">Performance analytics coming soon...</p></div>
     </main>
 
     <!-- SCRIPTS IN EXACT ORDER -->
@@ -137,15 +161,41 @@
         };
         
         window.AdminUtils = {
-            showToast(msg, type) { console.log(`[${type}] ${msg}`); }
+            showToast(msg, type) { 
+                console.log(`[${type}] ${msg}`);
+                // Create simple toast notification
+                const toast = document.createElement('div');
+                toast.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: ${type === 'success' ? '#10b981' : '#ef4444'};
+                    color: white;
+                    padding: 16px 24px;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                    z-index: 10000;
+                    animation: slideIn 0.3s ease;
+                `;
+                toast.textContent = msg;
+                document.body.appendChild(toast);
+                setTimeout(() => {
+                    toast.style.animation = 'slideOut 0.3s ease';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
         };
         
         function logout() {
             if (confirm('Logout?')) window.location.href = 'admin-login.html';
         }
     </script>
+    
+    <!-- Core utilities -->
     <script src="frontend/js/admin-api-service.js"></script>
     <script src="frontend/js/admin-utils.js"></script>
+    
+    <!-- Feature modules -->
     <script src="frontend/js/create-test.js"></script>
     <script src="frontend/js/add-questions.js"></script>
     <script src="frontend/js/view-questions.js"></script>
@@ -153,6 +203,14 @@
     <script src="frontend/js/transactions.js"></script>
     <script src="frontend/js/results.js"></script>
     <script src="frontend/js/upload-image.js"></script>
+    
+    <!-- NEW: Test management modules -->
+    <script src="frontend/js/test-calendar.js"></script>
+    <script src="frontend/js/scheduled-tests.js"></script>
+    <script src="frontend/js/past-tests.js"></script>
+    <script src="frontend/js/upload-pdf.js"></script>
+    
+    <!-- Main dashboard controller (must load last) -->
     <script src="frontend/js/admin-dashboard-v2.js"></script>
 </body>
 </html>
