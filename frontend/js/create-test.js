@@ -1,78 +1,19 @@
 /**
- * Create Test Form Handler
+ * Create Test - Connected to Backend
  */
 
 let selectedQuestions = [];
 let currentSubject = 'Physics';
-
-// Mock questions data (replace with API call)
 const mockQuestions = {
-    Physics: [
-        {
-            id: 1,
-            text: 'What is the SI unit of force?',
-            difficulty: 'Easy',
-            marks: 1
-        },
-        {
-            id: 2,
-            text: 'Derive the equation of motion for a body under constant acceleration.',
-            difficulty: 'Medium',
-            marks: 3
-        },
-        {
-            id: 3,
-            text: 'Explain the photoelectric effect and its significance.',
-            difficulty: 'Hard',
-            marks: 5
-        }
-    ],
-    Mathematics: [
-        {
-            id: 4,
-            text: 'Solve the equation: 2x + 5 = 15',
-            difficulty: 'Easy',
-            marks: 1
-        },
-        {
-            id: 5,
-            text: 'Find the derivative of f(x) = x³ + 2x² - 5x + 7',
-            difficulty: 'Medium',
-            marks: 3
-        },
-        {
-            id: 6,
-            text: 'Prove that the sum of angles in a triangle is 180°',
-            difficulty: 'Hard',
-            marks: 5
-        }
-    ],
-    Chemistry: [
-        {
-            id: 7,
-            text: 'What is the atomic number of Carbon?',
-            difficulty: 'Easy',
-            marks: 1
-        },
-        {
-            id: 8,
-            text: 'Explain the concept of electronegativity.',
-            difficulty: 'Medium',
-            marks: 3
-        },
-        {
-            id: 9,
-            text: 'Describe the mechanism of SN1 and SN2 reactions.',
-            difficulty: 'Hard',
-            marks: 5
-        }
-    ]
+    Physics: [{ id: 1, text: 'What is the SI unit of force?', difficulty: 'Easy', marks: 1 }],
+    Mathematics: [{ id: 4, text: 'Solve: 2x + 5 = 15', difficulty: 'Easy', marks: 1 }],
+    Chemistry: [{ id: 7, text: 'Atomic number of Carbon?', difficulty: 'Easy', marks: 1 }]
 };
 
 function initCreateTestForm() {
-    // Subject tabs
     const subjects = ['Physics', 'Mathematics', 'Chemistry'];
     const subjectTabsContainer = document.getElementById('subjectTabs');
+    if (!subjectTabsContainer) return;
     
     subjects.forEach(subject => {
         const tab = document.createElement('button');
@@ -83,88 +24,50 @@ function initCreateTestForm() {
         subjectTabsContainer.appendChild(tab);
     });
     
-    // Load initial questions
     loadQuestions();
-    
-    // Form submission
-    document.getElementById('createTestForm').addEventListener('submit', handleTestSubmit);
+    document.getElementById('createTestForm')?.addEventListener('submit', handleTestSubmit);
 }
 
 function switchSubject(subject) {
     currentSubject = subject;
-    
-    // Update active tab
     document.querySelectorAll('.subject-tab').forEach(tab => {
         tab.classList.toggle('active', tab.textContent === subject);
     });
-    
-    // Load questions for this subject
     loadQuestions();
 }
 
 function loadQuestions() {
     const questionsList = document.getElementById('questionsList');
-    questionsList.innerHTML = '';
-    
+    if (!questionsList) return;
     const questions = mockQuestions[currentSubject] || [];
-    
-    questions.forEach(question => {
-        const isSelected = selectedQuestions.some(q => q.id === question.id);
-        
-        const questionItem = document.createElement('div');
-        questionItem.className = `question-item ${isSelected ? 'selected' : ''}`;
-        questionItem.innerHTML = `
-            <div class="question-header">
-                <input 
-                    type="checkbox" 
-                    class="question-checkbox" 
-                    id="q${question.id}"
-                    ${isSelected ? 'checked' : ''}
-                    onchange="toggleQuestion(${question.id}, '${currentSubject}')"
-                >
-                <label for="q${question.id}" class="question-text">
-                    ${question.text}
-                </label>
-            </div>
-            <div class="question-meta">
-                <span><i class="fas fa-signal"></i> ${question.difficulty}</span>
-                <span><i class="fas fa-star"></i> ${question.marks} marks</span>
-            </div>
-        `;
-        
-        questionsList.appendChild(questionItem);
-    });
-    
+    questionsList.innerHTML = questions.map(q => {
+        const isSelected = selectedQuestions.some(sq => sq.id === q.id);
+        return `<div class="question-item ${isSelected ? 'selected' : ''}"><div class="question-header"><input type="checkbox" class="question-checkbox" id="q${q.id}" ${isSelected ? 'checked' : ''} onchange="toggleQuestion(${q.id}, '${currentSubject}')"><label for="q${q.id}" class="question-text">${q.text}</label></div><div class="question-meta"><span><i class="fas fa-signal"></i> ${q.difficulty}</span><span><i class="fas fa-star"></i> ${q.marks} marks</span></div></div>`;
+    }).join('');
     updateSelectedCount();
 }
 
 function toggleQuestion(questionId, subject) {
     const question = mockQuestions[subject].find(q => q.id === questionId);
     const index = selectedQuestions.findIndex(q => q.id === questionId);
-    
-    if (index > -1) {
-        // Remove question
-        selectedQuestions.splice(index, 1);
-    } else {
-        // Add question
-        selectedQuestions.push({ ...question, subject });
-    }
-    
+    if (index > -1) selectedQuestions.splice(index, 1);
+    else selectedQuestions.push({ ...question, subject });
     loadQuestions();
 }
 
 function updateSelectedCount() {
     const count = selectedQuestions.length;
     const totalMarks = selectedQuestions.reduce((sum, q) => sum + q.marks, 0);
-    
-    document.getElementById('selectedCount').textContent = 
-        `${count} questions selected (${totalMarks} marks)`;
+    document.getElementById('selectedCount').textContent = `${count} questions selected (${totalMarks} marks)`;
 }
 
 async function handleTestSubmit(e) {
     e.preventDefault();
+    if (selectedQuestions.length === 0) {
+        AdminUtils.showToast('Please select at least one question', 'error');
+        return;
+    }
     
-    // Get form data
     const formData = {
         testName: document.getElementById('testName').value,
         testCode: document.getElementById('testCode').value,
@@ -181,44 +84,25 @@ async function handleTestSubmit(e) {
         questions: selectedQuestions
     };
     
-    // Validation
-    if (selectedQuestions.length === 0) {
-        AdminUtils.showToast('Please select at least one question', 'error');
-        return;
-    }
-    
-    // Show loading
     const submitBtn = document.getElementById('submitBtn');
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<div class="spinner"></div> Creating Test...';
     
     try {
-        // Call API to create test
-        // const response = await window.adminAPI.createTest(formData);
-        
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
+        await AdminAPI.createTest(formData);
         AdminUtils.showToast('Test created successfully!', 'success');
-        
-        // Reset form
         setTimeout(() => {
             document.getElementById('createTestForm').reset();
             selectedQuestions = [];
             updateSelectedCount();
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="fas fa-check"></i> Create Test';
         }, 1000);
-        
     } catch (error) {
-        console.error('Error creating test:', error);
         AdminUtils.showToast('Failed to create test', 'error');
+    } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fas fa-check"></i> Create Test';
     }
 }
 
-// Initialize when page loads
-if (document.getElementById('createTestForm')) {
-    initCreateTestForm();
-}
+if (document.getElementById('createTestForm')) initCreateTestForm();
+window.toggleQuestion = toggleQuestion;

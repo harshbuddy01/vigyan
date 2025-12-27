@@ -1,21 +1,16 @@
 /**
- * Add Questions Form Handler
+ * Add Questions - Connected to Backend
  */
 
 function initAddQuestionsForm() {
-    // Form submission
     document.getElementById('addQuestionForm')?.addEventListener('submit', handleQuestionSubmit);
-    
-    // Preview LaTeX
     document.getElementById('questionText')?.addEventListener('input', updatePreview);
 }
 
 function updatePreview() {
     const text = document.getElementById('questionText').value;
     const preview = document.getElementById('questionPreview');
-    if (preview) {
-        preview.textContent = text || 'Preview will appear here...';
-    }
+    if (preview) preview.textContent = text || 'Preview will appear here...';
 }
 
 async function handleQuestionSubmit(e) {
@@ -25,7 +20,7 @@ async function handleQuestionSubmit(e) {
         subject: document.getElementById('subject').value,
         topic: document.getElementById('topic').value,
         difficulty: document.getElementById('difficulty').value,
-        marks: document.getElementById('marks').value,
+        marks: parseInt(document.getElementById('marks').value),
         questionType: document.getElementById('questionType').value,
         questionText: document.getElementById('questionText').value,
         option1: document.getElementById('option1')?.value,
@@ -41,18 +36,16 @@ async function handleQuestionSubmit(e) {
     submitBtn.innerHTML = '<div class="spinner"></div> Adding Question...';
     
     try {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await AdminAPI.addQuestion(formData);
         AdminUtils.showToast('Question added successfully!', 'success');
         document.getElementById('addQuestionForm').reset();
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-plus"></i> Add Question';
     } catch (error) {
+        console.error('Error adding question:', error);
         AdminUtils.showToast('Failed to add question', 'error');
+    } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fas fa-plus"></i> Add Question';
     }
 }
 
-if (document.getElementById('addQuestionForm')) {
-    initAddQuestionsForm();
-}
+if (document.getElementById('addQuestionForm')) initAddQuestionsForm();

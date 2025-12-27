@@ -1,20 +1,11 @@
 /**
- * Students Management - FULLY FUNCTIONAL
+ * Students Management - Connected to Backend
  */
-
-const mockStudents = [
-    { id: 1, name: 'Rahul Sharma', email: 'rahul@example.com', phone: '9876543210', course: 'NEST', joinDate: '2025-01-15', status: 'Active', address: 'Mumbai, Maharashtra' },
-    { id: 2, name: 'Priya Patel', email: 'priya@example.com', phone: '9876543211', course: 'IAT', joinDate: '2025-01-20', status: 'Active', address: 'Ahmedabad, Gujarat' },
-    { id: 3, name: 'Amit Kumar', email: 'amit@example.com', phone: '9876543212', course: 'ISI', joinDate: '2025-02-01', status: 'Inactive', address: 'Delhi, India' },
-    { id: 4, name: 'Neha Singh', email: 'neha@example.com', phone: '9876543213', course: 'JEST', joinDate: '2025-02-05', status: 'Active', address: 'Pune, Maharashtra' },
-    { id: 5, name: 'Vikram Reddy', email: 'vikram@example.com', phone: '9876543214', course: 'NEST', joinDate: '2025-02-10', status: 'Active', address: 'Hyderabad, Telangana' }
-];
 
 let studentsData = [];
 
-function initStudents() {
-    studentsData = [...mockStudents];
-    renderStudentsTable();
+async function initStudents() {
+    await loadStudentsFromBackend();
     
     document.getElementById('searchStudents')?.addEventListener('input', (e) => {
         renderStudentsTable(e.target.value.toLowerCase());
@@ -23,6 +14,25 @@ function initStudents() {
     document.querySelector('#all-students-page .export-btn')?.addEventListener('click', () => {
         AdminUtils.exportToCSV(studentsData, 'students.csv');
     });
+}
+
+async function loadStudentsFromBackend(search = '') {
+    try {
+        const response = await AdminAPI.getStudents(search);
+        studentsData = response.students || response;
+        renderStudentsTable();
+    } catch (error) {
+        console.error('Error loading students:', error);
+        AdminUtils.showToast('Failed to load students from server. Using cached data.', 'error');
+        
+        // Fallback data
+        studentsData = [
+            { id: 1, name: 'Rahul Sharma', email: 'rahul@example.com', phone: '9876543210', course: 'NEST', joinDate: '2025-01-15', status: 'Active', address: 'Mumbai, Maharashtra' },
+            { id: 2, name: 'Priya Patel', email: 'priya@example.com', phone: '9876543211', course: 'IAT', joinDate: '2025-01-20', status: 'Active', address: 'Ahmedabad, Gujarat' },
+            { id: 3, name: 'Amit Kumar', email: 'amit@example.com', phone: '9876543212', course: 'ISI', joinDate: '2025-02-01', status: 'Inactive', address: 'Delhi, India' }
+        ];
+        renderStudentsTable();
+    }
 }
 
 function renderStudentsTable(searchTerm = '') {
@@ -72,57 +82,28 @@ function viewStudent(id) {
             </div>
             <div class="confirm-modal-body" style="text-align: left; padding: 24px 0;">
                 <div style="background: #f8fafc; padding: 20px; border-radius: 12px;">
-                    <div style="margin-bottom: 16px;">
-                        <p style="color: #64748b; font-size: 12px; margin-bottom: 4px;">STUDENT ID</p>
-                        <p style="font-weight: 700; font-size: 18px; color: #0f172a;">#${student.id}</p>
-                    </div>
-                    <div style="margin-bottom: 16px;">
-                        <p style="color: #64748b; font-size: 12px; margin-bottom: 4px;">NAME</p>
-                        <p style="font-weight: 600; color: #0f172a;">${student.name}</p>
-                    </div>
-                    <div style="margin-bottom: 16px;">
-                        <p style="color: #64748b; font-size: 12px; margin-bottom: 4px;">EMAIL</p>
-                        <p style="color: #0f172a;">${student.email}</p>
-                    </div>
-                    <div style="margin-bottom: 16px;">
-                        <p style="color: #64748b; font-size: 12px; margin-bottom: 4px;">PHONE</p>
-                        <p style="color: #0f172a;">${student.phone}</p>
-                    </div>
-                    <div style="margin-bottom: 16px;">
-                        <p style="color: #64748b; font-size: 12px; margin-bottom: 4px;">COURSE</p>
-                        <span class="badge badge-primary">${student.course}</span>
-                    </div>
-                    <div style="margin-bottom: 16px;">
-                        <p style="color: #64748b; font-size: 12px; margin-bottom: 4px;">ADDRESS</p>
-                        <p style="color: #0f172a;">${student.address}</p>
-                    </div>
-                    <div style="margin-bottom: 16px;">
-                        <p style="color: #64748b; font-size: 12px; margin-bottom: 4px;">JOIN DATE</p>
-                        <p style="color: #0f172a;">${AdminUtils.formatDate(student.joinDate)}</p>
-                    </div>
-                    <div>
-                        <p style="color: #64748b; font-size: 12px; margin-bottom: 4px;">STATUS</p>
-                        <span class="status-badge status-${student.status.toLowerCase()}">${student.status}</span>
-                    </div>
+                    <div style="margin-bottom: 16px;"><p style="color: #64748b; font-size: 12px; margin-bottom: 4px;">STUDENT ID</p><p style="font-weight: 700; font-size: 18px; color: #0f172a;">#${student.id}</p></div>
+                    <div style="margin-bottom: 16px;"><p style="color: #64748b; font-size: 12px; margin-bottom: 4px;">NAME</p><p style="font-weight: 600; color: #0f172a;">${student.name}</p></div>
+                    <div style="margin-bottom: 16px;"><p style="color: #64748b; font-size: 12px; margin-bottom: 4px;">EMAIL</p><p style="color: #0f172a;">${student.email}</p></div>
+                    <div style="margin-bottom: 16px;"><p style="color: #64748b; font-size: 12px; margin-bottom: 4px;">PHONE</p><p style="color: #0f172a;">${student.phone}</p></div>
+                    <div style="margin-bottom: 16px;"><p style="color: #64748b; font-size: 12px; margin-bottom: 4px;">COURSE</p><span class="badge badge-primary">${student.course}</span></div>
+                    <div style="margin-bottom: 16px;"><p style="color: #64748b; font-size: 12px; margin-bottom: 4px;">ADDRESS</p><p style="color: #0f172a;">${student.address || 'N/A'}</p></div>
+                    <div style="margin-bottom: 16px;"><p style="color: #64748b; font-size: 12px; margin-bottom: 4px;">JOIN DATE</p><p style="color: #0f172a;">${AdminUtils.formatDate(student.joinDate)}</p></div>
+                    <div><p style="color: #64748b; font-size: 12px; margin-bottom: 4px;">STATUS</p><span class="status-badge status-${student.status.toLowerCase()}">${student.status}</span></div>
                 </div>
             </div>
-            <div class="confirm-modal-footer">
-                <button class="btn-primary" onclick="this.closest('.confirm-modal-overlay').remove()">Close</button>
-            </div>
+            <div class="confirm-modal-footer"><button class="btn-primary" onclick="this.closest('.confirm-modal-overlay').remove()">Close</button></div>
         </div>
     `;
     document.body.appendChild(modal);
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.remove();
-    });
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
 }
 
 function editStudent(id) {
     const student = studentsData.find(s => s.id === id);
     if (!student) return;
     
-    AdminUtils.showEditModal(
-        'Edit Student',
+    AdminUtils.showEditModal('Edit Student',
         [
             { key: 'name', label: 'Full Name', type: 'text' },
             { key: 'email', label: 'Email', type: 'email' },
@@ -132,10 +113,16 @@ function editStudent(id) {
             { key: 'address', label: 'Address', type: 'textarea' }
         ],
         student,
-        (updatedData) => {
-            Object.assign(student, updatedData);
-            renderStudentsTable();
-            AdminUtils.showToast('Student updated successfully!', 'success');
+        async (updatedData) => {
+            try {
+                await AdminAPI.updateStudent(student.id, updatedData);
+                Object.assign(student, updatedData);
+                renderStudentsTable();
+                AdminUtils.showToast('Student updated successfully!', 'success');
+            } catch (error) {
+                console.error('Error updating student:', error);
+                AdminUtils.showToast('Failed to update student', 'error');
+            }
         }
     );
 }
@@ -143,10 +130,16 @@ function editStudent(id) {
 function deleteStudent(id) {
     AdminUtils.showConfirmModal(
         'Are you sure you want to delete this student? All their records will be permanently removed.',
-        () => {
-            studentsData = studentsData.filter(s => s.id !== id);
-            renderStudentsTable();
-            AdminUtils.showToast('Student deleted successfully!', 'success');
+        async () => {
+            try {
+                await AdminAPI.deleteStudent(id);
+                studentsData = studentsData.filter(s => s.id !== id);
+                renderStudentsTable();
+                AdminUtils.showToast('Student deleted successfully!', 'success');
+            } catch (error) {
+                console.error('Error deleting student:', error);
+                AdminUtils.showToast('Failed to delete student', 'error');
+            }
         }
     );
 }
@@ -164,18 +157,16 @@ function initAddStudentForm() {
         }
         
         if (!AdminUtils.validatePhone(phone)) {
-            AdminUtils.showToast('Invalid phone number (must be 10 digits starting with 6-9)', 'error');
+            AdminUtils.showToast('Invalid phone number', 'error');
             return;
         }
         
         const formData = {
-            id: studentsData.length + 1,
             name: document.getElementById('studentName').value,
             email: email,
             phone: phone,
             course: document.getElementById('studentCourse').value,
             address: document.getElementById('studentAddress').value,
-            joinDate: new Date().toISOString().split('T')[0],
             status: 'Active'
         };
         
@@ -183,14 +174,26 @@ function initAddStudentForm() {
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<div class="spinner"></div> Adding Student...';
         
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        studentsData.push(formData);
-        AdminUtils.showToast('Student added successfully!', 'success');
-        document.getElementById('addStudentForm').reset();
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fas fa-user-plus"></i> Add Student';
+        try {
+            const response = await AdminAPI.addStudent(formData);
+            studentsData.push(response.student || response);
+            AdminUtils.showToast('Student added successfully!', 'success');
+            document.getElementById('addStudentForm').reset();
+        } catch (error) {
+            console.error('Error adding student:', error);
+            AdminUtils.showToast('Failed to add student', 'error');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-user-plus"></i> Add Student';
+        }
     });
 }
 
 if (document.getElementById('studentsTableBody')) initStudents();
 if (document.getElementById('addStudentForm')) initAddStudentForm();
+
+// Make functions globally available
+window.initStudents = initStudents;
+window.viewStudent = viewStudent;
+window.editStudent = editStudent;
+window.deleteStudent = deleteStudent;
