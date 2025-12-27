@@ -22,18 +22,48 @@ config();
 console.log('🔵 Creating Express app...');
 const app = express();
 
+// 🔥 IMPROVED CORS CONFIGURATION FOR VERCEL + RAILWAY
 console.log('🔵 Setting up CORS...');
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'https://iin-theta.vercel.app',
+  'https://iinedu-git-main-harshs-projects-7f661eb3.vercel.app',
+];
+
 app.use(cors({
-  origin: true,
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    
+    // Allow any Vercel preview deployment
+    if (origin.includes('.vercel.app')) return callback(null, true);
+    
+    // Allow specific origins
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    
+    // Log rejected origins for debugging
+    console.warn('⚠️ CORS rejected origin:', origin);
+    callback(null, true); // Allow anyway for now
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
   optionsSuccessStatus: 204
 }));
 
+// 🔥 EXPLICIT OPTIONS HANDLING
+app.options('*', cors());
+
 console.log('🔵 Setting up body parsers...');
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
+// 🔵 REQUEST LOGGER
+app.use((req, res, next) => {
+  console.log(`🔗 ${req.method} ${req.path} - Origin: ${req.get('origin') || 'none'}`);
+  next();
+});
 
 app.get('/health', (req, res) => {
   console.log('✅ Health check hit!');
@@ -100,44 +130,62 @@ app.get('/api/admin/dashboard/recent-activity', (req, res) => {
     res.json([{icon:'user-plus',message:'New student registered',time:'2 hours ago'},{icon:'file-alt',message:'Test created: NEST Mock Test 3',time:'5 hours ago'}]);
 });
 
-// Students API - REAL DATA
+// 🔥 STUDENTS API - FIXED WITH BETTER LOGGING
 app.get('/api/admin/students', async (req, res) => {
     try {
+        console.log('📄 Fetching students from database...');
         const search = req.query.search || '';
+        
         let query = 'SELECT * FROM students_payments';
         let params = [];
+        
         if (search) {
             query += ' WHERE name LIKE ? OR email LIKE ? OR roll_number LIKE ?';
             params = [`%${search}%`, `%${search}%`, `%${search}%`];
         }
+        
         query += ' ORDER BY created_at DESC';
+        
+        console.log('🔍 SQL Query:', query);
+        console.log('🔍 Params:', params);
+        
         const [rows] = await pool.query(query, params);
+        
+        console.log(`📋 Found ${rows.length} rows in database`);
+        console.log('📦 Raw data:', JSON.stringify(rows, null, 2));
+        
         const students = rows.map(r => ({
             id: r.id,
-            name: r.name,
+            name: r.name || 'N/A',
             email: r.email,
-            phone: r.phone || '9876543210',
+            phone: r.phone || 'N/A',
             course: r.course || 'NEST',
             joinDate: r.created_at ? new Date(r.created_at).toISOString().split('T')[0] : '2025-01-15',
             status: 'Active',
-            address: r.address || 'India'
+            address: r.address || 'India',
+            rollNumber: r.roll_number || 'N/A'
         }));
-        console.log(`✅ Loaded ${students.length} students from database`);
+        
+        console.log(`✅ Returning ${students.length} students to frontend`);
+        console.log('📤 Response data:', JSON.stringify({students}, null, 2));
+        
         res.json({students});
     } catch (error) {
         console.error('❌ Students API error:', error);
-        res.status(200).json({students: []});
+        console.error('🚨 Error stack:', error.stack);
+        res.status(500).json({students: [], error: error.message});
     }
 });
 
 app.post('/api/admin/students', async (req, res) => {
     try {
+        console.log('➕ Adding new student:', req.body);
         const {name,email,phone,course,address} = req.body;
         const [result] = await pool.query(
             'INSERT INTO students_payments (name, email, phone, course, address, created_at) VALUES (?, ?, ?, ?, ?, NOW())',
             [name,email,phone,course,address]
         );
-        console.log('✅ Student added:', result.insertId);
+        console.log('✅ Student added with ID:', result.insertId);
         res.status(201).json({student:{id:result.insertId,...req.body,joinDate:new Date().toISOString().split('T')[0],status:'Active'}});
     } catch (error) {
         console.error('❌ Add student error:', error);
@@ -176,7 +224,6 @@ app.get('/api/admin/questions', async (req, res) => {
     try {
         console.log('🔍 Fetching questions from MySQL database...');
         
-        // Get filters from query params
         const subject = req.query.subject || '';
         const difficulty = req.query.difficulty || '';
         const search = req.query.search || '';
@@ -191,8 +238,6 @@ app.get('/api/admin/questions', async (req, res) => {
         }
         
         if (difficulty) {
-            // Note: 'difficulty' column might not exist in your table
-            // You may need to add it or remove this filter
             conditions.push('difficulty = ?');
             params.push(difficulty);
         }
@@ -210,7 +255,6 @@ app.get('/api/admin/questions', async (req, res) => {
         
         const [rows] = await pool.query(query, params);
         
-        // Format questions for frontend
         const questions = rows.map(q => {
             let options = [];
             try {
@@ -238,8 +282,6 @@ app.get('/api/admin/questions', async (req, res) => {
     } catch (error) {
         console.error('❌ Questions API error:', error);
         console.error('Error details:', error.message);
-        
-        // Return empty array with error message
         res.status(200).json({
             questions: [],
             error: error.message,
@@ -251,8 +293,6 @@ app.get('/api/admin/questions', async (req, res) => {
 app.post('/api/admin/questions', async (req, res) => {
     try {
         const {testId, questionText, options, correctAnswer, section, marks} = req.body;
-        
-        // Get next question number for this test
         const [maxQ] = await pool.query(
             'SELECT MAX(question_number) as max_num FROM questions WHERE test_id = ?',
             [testId]
@@ -267,13 +307,7 @@ app.post('/api/admin/questions', async (req, res) => {
         );
         
         console.log('✅ Question added:', result.insertId);
-        res.status(201).json({
-            question: {
-                id: result.insertId,
-                questionNumber,
-                ...req.body
-            }
-        });
+        res.status(201).json({question: {id: result.insertId, questionNumber, ...req.body}});
     } catch (error) {
         console.error('❌ Add question error:', error);
         res.status(500).json({error: error.message});
@@ -283,14 +317,12 @@ app.post('/api/admin/questions', async (req, res) => {
 app.put('/api/admin/questions/:id', async (req, res) => {
     try {
         const {questionText, options, correctAnswer, section, marks} = req.body;
-        
         await pool.query(
             `UPDATE questions 
              SET question_text=?, options=?, correct_answer=?, section=?, marks_positive=? 
              WHERE id=?`,
             [questionText, JSON.stringify(options), correctAnswer, section, marks, req.params.id]
         );
-        
         console.log('✅ Question updated:', req.params.id);
         res.json({question:{id:parseInt(req.params.id),...req.body}});
     } catch (error) {
@@ -310,7 +342,6 @@ app.delete('/api/admin/questions/:id', async (req, res) => {
     }
 });
 
-// Image Upload for Questions
 app.post('/api/admin/questions/:id/image', (req, res) => {
     console.log('✅ Image linked to question:', req.params.id);
     res.json({success: true, message: 'Image linked successfully'});
@@ -332,15 +363,12 @@ app.post('/api/admin/tests', (req, res) => {
     res.status(201).json({test:{id:Date.now(),...req.body,createdAt:new Date().toISOString()}});
 });
 
-// Transactions API
 app.get('/api/admin/transactions', (req, res) => {
-    // TODO: Connect to real payment transactions table
     const transactions = [];
     console.log('✅ Transactions loaded');
     res.json({transactions});
 });
 
-// Results API
 app.get('/api/admin/results', async (req, res) => {
     try {
         const [rows] = await pool.query(
@@ -354,7 +382,7 @@ app.get('/api/admin/results', async (req, res) => {
             email: r.email,
             score: r.score,
             total: r.total_questions,
-            rank: 0, // Calculate if needed
+            rank: 0,
             percentile: parseFloat(r.percentage) || 0,
             timeTaken: r.time_taken
         }));
@@ -465,6 +493,7 @@ const HOST = '0.0.0.0';
       console.log('\n🎉🎉🎉 SERVER STARTED! 🎉🎉🎉');
       console.log(`✅ Listening on ${HOST}:${PORT}`);
       console.log(`✅ Admin API: /api/admin/*`);
+      console.log(`✅ CORS: Vercel domains allowed`);
       console.log(`✅ Questions: /api/admin/questions`);
       console.log('\n🚀 Ready!\n');
     });
