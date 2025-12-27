@@ -6,7 +6,7 @@
     <title>IIN - Exam Instructions</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- ⏰ TIME WINDOW VALIDATION WITH BEAUTIFUL MODAL -->
+    <!-- ⏰ TIME WINDOW VALIDATION - CLEAN & SIMPLE -->
     <style>
         .time-block-overlay {
             position: fixed;
@@ -14,108 +14,77 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.7);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 99999;
-            animation: fadeIn 0.3s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
         }
         
         .time-block-modal {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 20px;
-            padding: 40px;
-            max-width: 500px;
+            background: #fff;
+            border-radius: 8px;
+            padding: 30px;
+            max-width: 400px;
             text-align: center;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            animation: slideUp 0.4s ease;
-        }
-        
-        @keyframes slideUp {
-            from { transform: translateY(50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
         
         .time-block-icon {
-            font-size: 80px;
-            color: #fff;
-            margin-bottom: 20px;
-            animation: bounce 1s infinite;
-        }
-        
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+            font-size: 50px;
+            color: #e74c3c;
+            margin-bottom: 15px;
         }
         
         .time-block-title {
-            color: #fff;
-            font-size: 2rem;
+            color: #2c3e50;
+            font-size: 1.5rem;
             font-weight: 700;
             margin-bottom: 15px;
-            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
         }
         
         .time-block-message {
-            color: #f0f0f0;
-            font-size: 1.1rem;
-            line-height: 1.8;
-            margin-bottom: 25px;
+            color: #555;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
         }
         
-        .time-window-box {
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 10px;
-            padding: 20px;
+        .time-window {
+            background: #f8f9fa;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            padding: 15px;
             margin: 20px 0;
-            backdrop-filter: blur(10px);
         }
         
-        .time-window-box .clock-icon {
-            font-size: 40px;
-            color: #ffd700;
-            margin-bottom: 10px;
-        }
-        
-        .time-window-box .time-text {
-            color: #fff;
-            font-size: 1.5rem;
+        .time-window .time-text {
+            color: #2c3e50;
+            font-size: 1.2rem;
             font-weight: 700;
-            margin: 10px 0;
         }
         
         .current-time {
-            color: #ff6b6b;
-            font-size: 1.8rem;
-            font-weight: 700;
+            color: #e74c3c;
+            font-size: 1.1rem;
+            font-weight: 600;
             margin: 15px 0;
-            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
         }
         
         .time-block-btn {
-            background: #fff;
-            color: #667eea;
+            background: #3498db;
+            color: #fff;
             border: none;
-            padding: 15px 50px;
-            border-radius: 50px;
-            font-size: 1.1rem;
-            font-weight: 700;
+            padding: 12px 35px;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: 0.3s;
         }
         
         .time-block-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            background: #2980b9;
         }
     </style>
     
@@ -126,23 +95,19 @@
             
             // Check if current time is between 9 AM (9) and 12 PM (12)
             if (hours < 9 || hours >= 12) {
-                // Create beautiful blocking modal
                 document.addEventListener('DOMContentLoaded', function() {
                     const overlay = document.createElement('div');
                     overlay.className = 'time-block-overlay';
                     overlay.innerHTML = `
                         <div class="time-block-modal">
                             <div class="time-block-icon">
-                                <i class="fas fa-clock"></i>
+                                <i class="fas fa-exclamation-circle"></i>
                             </div>
-                            <h1 class="time-block-title">⚠️ TEST WINDOW CLOSED</h1>
+                            <h2 class="time-block-title">Test Window Closed</h2>
                             <p class="time-block-message">
-                                This test is only available during the scheduled window
+                                This test is only available during scheduled hours
                             </p>
-                            <div class="time-window-box">
-                                <div class="clock-icon">
-                                    <i class="fas fa-calendar-check"></i>
-                                </div>
+                            <div class="time-window">
                                 <div class="time-text">
                                     🕒 9:00 AM - 12:00 PM
                                 </div>
@@ -151,7 +116,7 @@
                                 Current Time: ${now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}
                             </div>
                             <p class="time-block-message">
-                                📅 Please come back during the test window tomorrow
+                                Please come back during the test window
                             </p>
                             <button class="time-block-btn" onclick="window.location.href='testfirstpage.html'">
                                 <i class="fas fa-arrow-left"></i> Back to Home
@@ -159,8 +124,6 @@
                         </div>
                     `;
                     document.body.appendChild(overlay);
-                    
-                    // Prevent scrolling
                     document.body.style.overflow = 'hidden';
                 });
                 return;
@@ -168,7 +131,7 @@
         })();
     </script>
     
-    <!-- ACCESS CONTROL: Check if user has purchased tests -->
+    <!-- ACCESS CONTROL -->
     <script>
         (function checkAccess() {
             const userEmail = localStorage.getItem("userEmail");
@@ -675,7 +638,6 @@
     </div>
 
     <script>
-        // Load candidate information
         window.onload = function() {
             const email = localStorage.getItem("userEmail");
             const rollNumber = localStorage.getItem("userToken");
