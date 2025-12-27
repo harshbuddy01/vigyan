@@ -6,7 +6,119 @@
     <title>IIN - Exam Instructions</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- ⏰ CRITICAL: TIME WINDOW VALIDATION (9 AM - 12 PM) - MUST BE FIRST! -->
+    <!-- ⏰ TIME WINDOW VALIDATION WITH BEAUTIFUL MODAL -->
+    <style>
+        .time-block-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .time-block-modal {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.4s ease;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .time-block-icon {
+            font-size: 80px;
+            color: #fff;
+            margin-bottom: 20px;
+            animation: bounce 1s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .time-block-title {
+            color: #fff;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .time-block-message {
+            color: #f0f0f0;
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 25px;
+        }
+        
+        .time-window-box {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+        }
+        
+        .time-window-box .clock-icon {
+            font-size: 40px;
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+        
+        .time-window-box .time-text {
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+        
+        .current-time {
+            color: #ff6b6b;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 15px 0;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .time-block-btn {
+            background: #fff;
+            color: #667eea;
+            border: none;
+            padding: 15px 50px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .time-block-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+    </style>
+    
     <script>
         (function checkTimeWindow() {
             const now = new Date();
@@ -14,8 +126,43 @@
             
             // Check if current time is between 9 AM (9) and 12 PM (12)
             if (hours < 9 || hours >= 12) {
-                alert(`⚠️ TEST WINDOW CLOSED!\n\nThis test is only available between:\n🕒 9:00 AM - 12:00 PM\n\nCurrent time: ${now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}\n\nPlease come back during the test window tomorrow.`);
-                window.location.href = "testfirstpage.html";
+                // Create beautiful blocking modal
+                document.addEventListener('DOMContentLoaded', function() {
+                    const overlay = document.createElement('div');
+                    overlay.className = 'time-block-overlay';
+                    overlay.innerHTML = `
+                        <div class="time-block-modal">
+                            <div class="time-block-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <h1 class="time-block-title">⚠️ TEST WINDOW CLOSED</h1>
+                            <p class="time-block-message">
+                                This test is only available during the scheduled window
+                            </p>
+                            <div class="time-window-box">
+                                <div class="clock-icon">
+                                    <i class="fas fa-calendar-check"></i>
+                                </div>
+                                <div class="time-text">
+                                    🕒 9:00 AM - 12:00 PM
+                                </div>
+                            </div>
+                            <div class="current-time">
+                                Current Time: ${now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}
+                            </div>
+                            <p class="time-block-message">
+                                📅 Please come back during the test window tomorrow
+                            </p>
+                            <button class="time-block-btn" onclick="window.location.href='testfirstpage.html'">
+                                <i class="fas fa-arrow-left"></i> Back to Home
+                            </button>
+                        </div>
+                    `;
+                    document.body.appendChild(overlay);
+                    
+                    // Prevent scrolling
+                    document.body.style.overflow = 'hidden';
+                });
                 return;
             }
         })();
@@ -531,7 +678,7 @@
         // Load candidate information
         window.onload = function() {
             const email = localStorage.getItem("userEmail");
-            const rollNumber = localStorage.getItem("userToken"); // Roll number stored as userToken
+            const rollNumber = localStorage.getItem("userToken");
             const urlParams = new URLSearchParams(window.location.search);
             const testId = urlParams.get("test") || "iat";
 
@@ -539,12 +686,10 @@
             document.getElementById("candidateRoll").innerText = rollNumber || "N/A";
             document.getElementById("testSeries").innerText = testId.toUpperCase() + " TEST SERIES";
 
-            // Enable proceed button when checkbox is checked
             document.getElementById("agreeCheck").addEventListener("change", function() {
                 document.getElementById("proceedBtn").disabled = !this.checked;
             });
 
-            // Start timer
             startReadTimer();
         };
 
@@ -567,12 +712,6 @@
         function goBack() {
             window.location.href = "testfirstpage.html";
         }
-
-        // Prevent accidental page close
-        window.addEventListener('beforeunload', (e) => {
-            e.preventDefault();
-            e.returnValue = '';
-        });
     </script>
 </body>
 </html>
