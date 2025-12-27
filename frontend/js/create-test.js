@@ -1,6 +1,8 @@
 /**
- * Create Test Page - Complete Implementation with Exam Types and Sections
+ * Create Test Page - Complete Implementation with Backend Integration
  */
+
+const API_BASE_URL = "https://iin-production.up.railway.app";
 
 function initCreateTest() {
     console.log('Initializing Create Test page...');
@@ -29,9 +31,9 @@ function initCreateTest() {
                         <label for="examType">Exam Type *</label>
                         <select id="examType" required class="form-input">
                             <option value="">Select Exam Type</option>
-                            <option value="IAT">IAT (IISER Aptitude Test)</option>
-                            <option value="ISI">ISI (Indian Statistical Institute)</option>
-                            <option value="NEST">NEST (National Entrance Screening Test)</option>
+                            <option value="iat">IAT (IISER Aptitude Test)</option>
+                            <option value="isi">ISI (Indian Statistical Institute)</option>
+                            <option value="nest">NEST (National Entrance Screening Test)</option>
                         </select>
                     </div>
                     
@@ -95,7 +97,7 @@ function initCreateTest() {
                     <button type="button" onclick="resetCreateTestForm()" class="btn-secondary">
                         <i class="fas fa-redo"></i> Reset
                     </button>
-                    <button type="submit" class="btn-primary">
+                    <button type="submit" class="btn-primary" id="submitTestBtn">
                         <i class="fas fa-plus"></i> Create Test
                     </button>
                 </div>
@@ -142,8 +144,11 @@ function resetCreateTestForm() {
     }
 }
 
-function handleCreateTest(e) {
+async function handleCreateTest(e) {
     e.preventDefault();
+    
+    const submitBtn = document.getElementById('submitTestBtn');
+    const originalBtnText = submitBtn.innerHTML;
     
     // Get selected sections
     const selectedSections = Array.from(
@@ -159,31 +164,82 @@ function handleCreateTest(e) {
         return;
     }
     
-    const test = {
-        id: Date.now(),
-        name: document.getElementById('testName').value,
-        examType: document.getElementById('examType').value,
-        sections: selectedSections,
+    // Disable button and show loading
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+    
+    // Prepare test data for backend
+    const testName = document.getElementById('testName').value;
+    const examType = document.getElementById('examType').value;
+    const testDate = document.getElementById('testDate').value;
+    const testTime = document.getElementById('testTime').value;
+    
+    // Combine date and time into a single datetime string
+    const examDateTime = `${testDate}T${testTime}:00`;
+    
+    const testData = {
+        test_name: testName,
+        test_id: examType.toLowerCase(), // iat, nest, or isi
+        exam_date: testDate,
+        exam_time: testTime,
         duration: parseInt(document.getElementById('testDuration').value),
-        totalMarks: parseInt(document.getElementById('totalMarks').value),
-        date: document.getElementById('testDate').value,
-        time: document.getElementById('testTime').value,
-        description: document.getElementById('testDescription').value,
-        status: 'Scheduled',
-        createdAt: new Date().toISOString()
+        total_marks: parseInt(document.getElementById('totalMarks').value),
+        sections: selectedSections.join(','), // Store as comma-separated string
+        description: document.getElementById('testDescription').value || '',
+        status: 'scheduled',
+        created_at: new Date().toISOString()
     };
     
-    const tests = JSON.parse(localStorage.getItem('tests') || '[]');
-    tests.push(test);
-    localStorage.setItem('tests', JSON.stringify(tests));
+    console.log('📤 Sending test data to backend:', testData);
     
-    if (typeof AdminUtils !== 'undefined') {
-        AdminUtils.showToast(`Test created successfully! Sections: ${selectedSections.join(', ')}`, 'success');
-    } else {
-        alert('Test created successfully!');
+    try {
+        // Send to backend API
+        const response = await fetch(`${API_BASE_URL}/api/admin/tests`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(testData)
+        });
+        
+        console.log('📥 Backend response status:', response.status);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        console.log('✅ Backend response:', result);
+        
+        // Show success message
+        if (typeof AdminUtils !== 'undefined') {
+            AdminUtils.showToast(
+                `Test "${testName}" created successfully! Sections: ${selectedSections.join(', ')}`, 
+                'success'
+            );
+        } else {
+            alert(`Test "${testName}" created successfully!`);
+        }
+        
+        // Reset form
+        resetCreateTestForm();
+        
+    } catch (error) {
+        console.error('❌ Error creating test:', error);
+        
+        if (typeof AdminUtils !== 'undefined') {
+            AdminUtils.showToast(
+                'Failed to create test. Please check console for details.', 
+                'error'
+            );
+        } else {
+            alert('Failed to create test. Please check console for details.');
+        }
+    } finally {
+        // Re-enable button
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnText;
     }
-    
-    resetCreateTestForm();
 }
 
 if (document.getElementById('create-test-page')) {
