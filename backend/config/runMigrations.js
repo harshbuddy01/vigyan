@@ -14,7 +14,8 @@ export const runMigrations = async () => {
     const migrationFiles = [
       'create_payment_tables.sql',
       'create_exam_tables.sql',
-      'alter_scheduled_tests_table.sql'  // 🔥 NEW: Alter existing table
+      'alter_scheduled_tests_table.sql',
+      'fix_questions_table_schema.sql'  // 🔥 NEW: Fix missing columns for PDF upload
     ];
     
     for (const file of migrationFiles) {
