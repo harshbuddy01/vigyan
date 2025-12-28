@@ -1,6 +1,6 @@
 /**
  * Create Test Page - Complete Implementation with Backend Integration
- * Last Updated: 2025-12-28 - Fixed to use global API config
+ * Last Updated: 2025-12-28 19:02 IST - FIXED: Field names match backend exactly
  */
 
 // Use global API URL from config.js
@@ -184,23 +184,22 @@ async function handleCreateTest(e) {
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
     
-    // Prepare test data for backend
+    // Get form values
     const testName = document.getElementById('testName').value;
     const examType = document.getElementById('examType').value.toUpperCase();
     const testDate = document.getElementById('testDate').value;
     const testTime = document.getElementById('testTime').value;
+    const testDescription = document.getElementById('testDescription').value;
     
-    // Backend expects this structure based on adminController.js
+    // 🔥 CRITICAL FIX: Backend expects EXACT field names
     const testData = {
-        testId: `TEST-${examType}-${Date.now()}`,
-        testName: testName,
-        testType: examType,
-        examDate: testDate,
-        startTime: testTime + ':00', // Add seconds
-        durationMinutes: parseInt(document.getElementById('testDuration').value),
-        totalMarks: parseInt(document.getElementById('totalMarks').value),
-        description: document.getElementById('testDescription').value || `${examType} test: ${testName}`,
-        sections: selectedSections // Pass as array
+        testId: `TEST-${examType}-${Date.now()}`,                    // backend expects: testId
+        testName: testName,                                         // backend expects: testName
+        testType: examType,                                         // backend expects: testType
+        examDate: testDate,                                         // backend expects: examDate
+        startTime: testTime + ':00',                                // backend expects: startTime (with seconds)
+        durationMinutes: parseInt(document.getElementById('testDuration').value), // backend expects: durationMinutes
+        description: testDescription || `${examType} test: ${testName}` // backend expects: description
     };
     
     console.log('📤 Sending test data to backend:', testData);
