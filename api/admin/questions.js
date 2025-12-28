@@ -4,6 +4,7 @@
 
 const express = require('express');
 const router = express.Router();
+const pool = require('../../backend/db');
 
 let questions = [
     { id: 1, subject: 'Physics', topic: 'Mechanics', difficulty: 'Easy', marks: 1, question: 'What is the SI unit of force?', type: 'MCQ', options: ['Newton', 'Joule', 'Watt', 'Pascal'], answer: 'Newton' },
@@ -11,7 +12,59 @@ let questions = [
     { id: 3, subject: 'Mathematics', topic: 'Calculus', difficulty: 'Easy', marks: 1, question: 'What is the derivative of x²?', type: 'MCQ', options: ['2x', 'x', 'x²', '2'], answer: '2x' }
 ];
 
-// GET all questions
+// 🔥 NEW: Fixed endpoint with safe JSON parsing from database
+router.get('/questions-fixed', async (req, res) => {
+    try {
+        console.log('📥 Fetching questions from database with safe JSON parsing...');
+        
+        const result = await pool.query(
+            'SELECT * FROM questions ORDER BY id'
+        );
+        
+        const questions = result.rows.map(row => {
+            // Safe JSON parsing function
+            const safeParseJSON = (str) => {
+                if (!str) return null;
+                try {
+                    // Handle double-stringified JSON
+                    let parsed = str;
+                    while (typeof parsed === 'string') {
+                        parsed = JSON.parse(parsed);
+                    }
+                    return parsed;
+                } catch (e) {
+                    console.warn('Failed to parse JSON:', str);
+                    return null;
+                }
+            };
+            
+            return {
+                id: row.id,
+                subject: row.subject,
+                topic: row.topic || '',
+                difficulty: row.difficulty,
+                marks: row.marks,
+                question: row.question_text,
+                type: row.question_type || 'MCQ',
+                options: safeParseJSON(row.options) || [],
+                answer: row.correct_answer,
+                created_at: row.created_at
+            };
+        });
+        
+        console.log(`✅ Successfully fetched ${questions.length} questions`);
+        res.json({ questions });
+        
+    } catch (error) {
+        console.error('❌ Database error:', error);
+        res.status(500).json({ 
+            error: 'Failed to fetch questions',
+            message: error.message 
+        });
+    }
+});
+
+// GET all questions (original endpoint - mock data)
 router.get('/', (req, res) => {
     try {
         const { subject, difficulty, search } = req.query;
