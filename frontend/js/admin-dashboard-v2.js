@@ -10,6 +10,7 @@ async function initDashboard() {
     
     try {
         setupNavigation();
+        setupHeaderActions(); // NEW: Setup header icons functionality
         await loadDashboardData();
         console.log('✅ Dashboard initialized successfully');
     } catch (error) {
@@ -25,6 +26,395 @@ function logout() {
         window.location.href = 'admin-login.html';
     }
 }
+
+// NEW: Setup header actions (notifications, settings, profile)
+function setupHeaderActions() {
+    console.log('🔵 Setting up header actions...');
+    
+    // Notification Bell
+    const notificationBell = document.querySelector('.notification-bell');
+    if (notificationBell) {
+        notificationBell.style.cursor = 'pointer';
+        notificationBell.addEventListener('click', showNotifications);
+    }
+    
+    // Settings Icon
+    const settingsIcon = document.querySelector('.settings-icon');
+    if (settingsIcon) {
+        settingsIcon.style.cursor = 'pointer';
+        settingsIcon.addEventListener('click', showSettings);
+    }
+    
+    // Admin Profile
+    const adminProfile = document.querySelector('.admin-profile');
+    if (adminProfile) {
+        adminProfile.style.cursor = 'pointer';
+        adminProfile.addEventListener('click', showProfileMenu);
+    }
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.notification-bell') && !e.target.closest('.notification-dropdown')) {
+            closeNotifications();
+        }
+        if (!e.target.closest('.settings-icon') && !e.target.closest('.settings-dropdown')) {
+            closeSettings();
+        }
+        if (!e.target.closest('.admin-profile') && !e.target.closest('.profile-dropdown')) {
+            closeProfileMenu();
+        }
+    });
+    
+    console.log('✅ Header actions setup complete');
+}
+
+// Show notifications dropdown
+function showNotifications(e) {
+    e.stopPropagation();
+    
+    // Close other dropdowns
+    closeSettings();
+    closeProfileMenu();
+    
+    // Check if already open
+    let dropdown = document.querySelector('.notification-dropdown');
+    if (dropdown) {
+        dropdown.remove();
+        return;
+    }
+    
+    // Create notifications dropdown
+    dropdown = document.createElement('div');
+    dropdown.className = 'notification-dropdown';
+    dropdown.style.cssText = `
+        position: absolute;
+        top: 70px;
+        right: 20px;
+        width: 360px;
+        max-height: 500px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        z-index: 1000;
+        overflow: hidden;
+        animation: slideDown 0.2s ease;
+    `;
+    
+    // Sample notifications
+    const notifications = [
+        { title: 'New Test Scheduled', message: 'IAT Mock Test 5 scheduled for tomorrow', time: '5 min ago', type: 'info', unread: true },
+        { title: 'Student Registered', message: 'Rahul Sharma has registered for Physics Test Series', time: '1 hour ago', type: 'success', unread: true },
+        { title: 'Payment Received', message: '₹2,500 received from Priya Patel', time: '2 hours ago', type: 'success', unread: true },
+        { title: 'Low Question Bank', message: 'Chemistry section has only 15 questions', time: '1 day ago', type: 'warning', unread: false },
+        { title: 'System Update', message: 'Dashboard updated to v2.0', time: '2 days ago', type: 'info', unread: false }
+    ];
+    
+    dropdown.innerHTML = `
+        <div style="padding: 16px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0; font-size: 16px; font-weight: 600;">Notifications</h3>
+            <button onclick="markAllRead()" style="background: none; border: none; color: #3b82f6; font-size: 13px; cursor: pointer; font-weight: 500;">Mark all read</button>
+        </div>
+        <div style="max-height: 400px; overflow-y: auto;">
+            ${notifications.map(notif => `
+                <div style="padding: 16px; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: background 0.2s; ${notif.unread ? 'background: #f8fafc;' : ''}" 
+                     onmouseover="this.style.background='#f8fafc'" 
+                     onmouseout="this.style.background='${notif.unread ? '#f8fafc' : 'white'}'">
+                    <div style="display: flex; gap: 12px; align-items: start;">
+                        <div style="width: 8px; height: 8px; border-radius: 50%; background: ${notif.unread ? '#3b82f6' : 'transparent'}; margin-top: 6px; flex-shrink: 0;"></div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; font-size: 14px; color: #1e293b; margin-bottom: 4px;">${notif.title}</div>
+                            <div style="font-size: 13px; color: #64748b; margin-bottom: 6px;">${notif.message}</div>
+                            <div style="font-size: 12px; color: #94a3b8;">${notif.time}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+        <div style="padding: 12px; text-align: center; border-top: 1px solid #e2e8f0;">
+            <a href="#" style="color: #3b82f6; text-decoration: none; font-size: 14px; font-weight: 500;">View All Notifications</a>
+        </div>
+    `;
+    
+    document.body.appendChild(dropdown);
+    
+    // Update badge
+    const badge = document.querySelector('.notification-bell .badge');
+    if (badge) {
+        badge.textContent = '0';
+        badge.style.display = 'none';
+    }
+}
+
+function closeNotifications() {
+    const dropdown = document.querySelector('.notification-dropdown');
+    if (dropdown) dropdown.remove();
+}
+
+window.markAllRead = function() {
+    const badge = document.querySelector('.notification-bell .badge');
+    if (badge) {
+        badge.textContent = '0';
+        badge.style.display = 'none';
+    }
+    if (window.AdminUtils) {
+        window.AdminUtils.showToast('All notifications marked as read', 'success');
+    }
+    closeNotifications();
+}
+
+// Show settings dropdown
+function showSettings(e) {
+    e.stopPropagation();
+    
+    // Close other dropdowns
+    closeNotifications();
+    closeProfileMenu();
+    
+    // Check if already open
+    let dropdown = document.querySelector('.settings-dropdown');
+    if (dropdown) {
+        dropdown.remove();
+        return;
+    }
+    
+    // Create settings dropdown
+    dropdown = document.createElement('div');
+    dropdown.className = 'settings-dropdown';
+    dropdown.style.cssText = `
+        position: absolute;
+        top: 70px;
+        right: 20px;
+        width: 300px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        z-index: 1000;
+        overflow: hidden;
+        animation: slideDown 0.2s ease;
+    `;
+    
+    dropdown.innerHTML = `
+        <div style="padding: 16px; border-bottom: 1px solid #e2e8f0;">
+            <h3 style="margin: 0; font-size: 16px; font-weight: 600;">Settings</h3>
+        </div>
+        <div style="padding: 8px;">
+            <a href="#" onclick="openGeneralSettings()" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; text-decoration: none; color: #334155; transition: background 0.2s;" 
+               onmouseover="this.style.background='#f8fafc'" 
+               onmouseout="this.style.background='white'">
+                <i class="fas fa-cog" style="color: #64748b; width: 20px;"></i>
+                <span style="font-size: 14px;">General Settings</span>
+            </a>
+            <a href="#" onclick="openTestSettings()" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; text-decoration: none; color: #334155; transition: background 0.2s;" 
+               onmouseover="this.style.background='#f8fafc'" 
+               onmouseout="this.style.background='white'">
+                <i class="fas fa-file-alt" style="color: #64748b; width: 20px;"></i>
+                <span style="font-size: 14px;">Test Settings</span>
+            </a>
+            <a href="#" onclick="openEmailSettings()" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; text-decoration: none; color: #334155; transition: background 0.2s;" 
+               onmouseover="this.style.background='#f8fafc'" 
+               onmouseout="this.style.background='white'">
+                <i class="fas fa-envelope" style="color: #64748b; width: 20px;"></i>
+                <span style="font-size: 14px;">Email Notifications</span>
+            </a>
+            <a href="#" onclick="openPaymentSettings()" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; text-decoration: none; color: #334155; transition: background 0.2s;" 
+               onmouseover="this.style.background='#f8fafc'" 
+               onmouseout="this.style.background='white'">
+                <i class="fas fa-credit-card" style="color: #64748b; width: 20px;"></i>
+                <span style="font-size: 14px;">Payment Gateway</span>
+            </a>
+            <a href="#" onclick="openSecuritySettings()" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; text-decoration: none; color: #334155; transition: background 0.2s;" 
+               onmouseover="this.style.background='#f8fafc'" 
+               onmouseout="this.style.background='white'">
+                <i class="fas fa-shield-alt" style="color: #64748b; width: 20px;"></i>
+                <span style="font-size: 14px;">Security</span>
+            </a>
+            <a href="#" onclick="openBackupSettings()" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; text-decoration: none; color: #334155; transition: background 0.2s;" 
+               onmouseover="this.style.background='#f8fafc'" 
+               onmouseout="this.style.background='white'">
+                <i class="fas fa-database" style="color: #64748b; width: 20px;"></i>
+                <span style="font-size: 14px;">Backup & Restore</span>
+            </a>
+        </div>
+    `;
+    
+    document.body.appendChild(dropdown);
+}
+
+function closeSettings() {
+    const dropdown = document.querySelector('.settings-dropdown');
+    if (dropdown) dropdown.remove();
+}
+
+// Settings menu actions
+window.openGeneralSettings = function() {
+    closeSettings();
+    if (window.AdminUtils) {
+        window.AdminUtils.showToast('General settings - Coming soon!', 'info');
+    }
+}
+
+window.openTestSettings = function() {
+    closeSettings();
+    if (window.AdminUtils) {
+        window.AdminUtils.showToast('Test settings - Coming soon!', 'info');
+    }
+}
+
+window.openEmailSettings = function() {
+    closeSettings();
+    if (window.AdminUtils) {
+        window.AdminUtils.showToast('Email settings - Coming soon!', 'info');
+    }
+}
+
+window.openPaymentSettings = function() {
+    closeSettings();
+    if (window.AdminUtils) {
+        window.AdminUtils.showToast('Payment settings - Coming soon!', 'info');
+    }
+}
+
+window.openSecuritySettings = function() {
+    closeSettings();
+    if (window.AdminUtils) {
+        window.AdminUtils.showToast('Security settings - Coming soon!', 'info');
+    }
+}
+
+window.openBackupSettings = function() {
+    closeSettings();
+    if (window.AdminUtils) {
+        window.AdminUtils.showToast('Backup settings - Coming soon!', 'info');
+    }
+}
+
+// Show profile menu dropdown
+function showProfileMenu(e) {
+    e.stopPropagation();
+    
+    // Close other dropdowns
+    closeNotifications();
+    closeSettings();
+    
+    // Check if already open
+    let dropdown = document.querySelector('.profile-dropdown');
+    if (dropdown) {
+        dropdown.remove();
+        return;
+    }
+    
+    // Create profile dropdown
+    dropdown = document.createElement('div');
+    dropdown.className = 'profile-dropdown';
+    dropdown.style.cssText = `
+        position: absolute;
+        top: 70px;
+        right: 20px;
+        width: 280px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        z-index: 1000;
+        overflow: hidden;
+        animation: slideDown 0.2s ease;
+    `;
+    
+    dropdown.innerHTML = `
+        <div style="padding: 20px; border-bottom: 1px solid #e2e8f0; text-align: center;">
+            <img src="https://ui-avatars.com/api/?name=Admin+User&background=6366f1&color=fff&size=80" 
+                 alt="Admin" 
+                 style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 12px;">
+            <div style="font-weight: 600; font-size: 16px; color: #1e293b; margin-bottom: 4px;">Admin User</div>
+            <div style="font-size: 13px; color: #64748b;">admin@iinedu.com</div>
+            <div style="margin-top: 8px; display: inline-block; padding: 4px 12px; background: #dbeafe; color: #1e40af; border-radius: 12px; font-size: 12px; font-weight: 600;">Super Admin</div>
+        </div>
+        <div style="padding: 8px;">
+            <a href="#" onclick="viewProfile()" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; text-decoration: none; color: #334155; transition: background 0.2s;" 
+               onmouseover="this.style.background='#f8fafc'" 
+               onmouseout="this.style.background='white'">
+                <i class="fas fa-user" style="color: #64748b; width: 20px;"></i>
+                <span style="font-size: 14px;">My Profile</span>
+            </a>
+            <a href="#" onclick="editProfile()" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; text-decoration: none; color: #334155; transition: background 0.2s;" 
+               onmouseover="this.style.background='#f8fafc'" 
+               onmouseout="this.style.background='white'">
+                <i class="fas fa-edit" style="color: #64748b; width: 20px;"></i>
+                <span style="font-size: 14px;">Edit Profile</span>
+            </a>
+            <a href="#" onclick="changePassword()" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; text-decoration: none; color: #334155; transition: background 0.2s;" 
+               onmouseover="this.style.background='#f8fafc'" 
+               onmouseout="this.style.background='white'">
+                <i class="fas fa-key" style="color: #64748b; width: 20px;"></i>
+                <span style="font-size: 14px;">Change Password</span>
+            </a>
+            <a href="#" onclick="viewActivity()" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; text-decoration: none; color: #334155; transition: background 0.2s;" 
+               onmouseover="this.style.background='#f8fafc'" 
+               onmouseout="this.style.background='white'">
+                <i class="fas fa-history" style="color: #64748b; width: 20px;"></i>
+                <span style="font-size: 14px;">Activity Log</span>
+            </a>
+            <div style="height: 1px; background: #e2e8f0; margin: 8px 0;"></div>
+            <a href="#" onclick="logout()" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; text-decoration: none; color: #ef4444; transition: background 0.2s;" 
+               onmouseover="this.style.background='#fee2e2'" 
+               onmouseout="this.style.background='white'">
+                <i class="fas fa-sign-out-alt" style="color: #ef4444; width: 20px;"></i>
+                <span style="font-size: 14px; font-weight: 600;">Logout</span>
+            </a>
+        </div>
+    `;
+    
+    document.body.appendChild(dropdown);
+}
+
+function closeProfileMenu() {
+    const dropdown = document.querySelector('.profile-dropdown');
+    if (dropdown) dropdown.remove();
+}
+
+// Profile menu actions
+window.viewProfile = function() {
+    closeProfileMenu();
+    if (window.AdminUtils) {
+        window.AdminUtils.showToast('Profile view - Coming soon!', 'info');
+    }
+}
+
+window.editProfile = function() {
+    closeProfileMenu();
+    if (window.AdminUtils) {
+        window.AdminUtils.showToast('Profile edit - Coming soon!', 'info');
+    }
+}
+
+window.changePassword = function() {
+    closeProfileMenu();
+    if (window.AdminUtils) {
+        window.AdminUtils.showToast('Password change - Coming soon!', 'info');
+    }
+}
+
+window.viewActivity = function() {
+    closeProfileMenu();
+    if (window.AdminUtils) {
+        window.AdminUtils.showToast('Activity log - Coming soon!', 'info');
+    }
+}
+
+// Add CSS animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+`;
+document.head.appendChild(style);
 
 // Setup navigation
 function setupNavigation() {
