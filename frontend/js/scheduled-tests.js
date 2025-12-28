@@ -1,13 +1,11 @@
 /**
  * Scheduled Tests Page - Complete Backend Integration
- * Last Updated: 2025-12-28 21:20 IST - Fixed API_BASE_URL conflict
+ * Last Updated: 2025-12-28 21:25 IST - Fixed API_BASE_URL conflict properly
  */
 
-// Use global API URL (already defined in HTML, no need to redeclare)
-const API_BASE_URL = window.API_BASE_URL || 'https://iin-production.up.railway.app';
-
+// NO const declaration - use window.API_BASE_URL directly throughout
 console.log('🔵 scheduled-tests.js loading...');
-console.log('🔧 API_BASE_URL:', API_BASE_URL);
+console.log('🔧 API_BASE_URL:', window.API_BASE_URL);
 
 let allTests = [];
 let filteredTests = [];
@@ -16,7 +14,7 @@ let filteredTests = [];
 window.initScheduledTests = async function() {
     console.log('🔥 ✅ initScheduledTests CALLED!');
     console.log('🔵 Initializing Scheduled Tests page...');
-    console.log('🔧 Using API Base URL:', API_BASE_URL);
+    console.log('🔧 Using API Base URL:', window.API_BASE_URL);
     
     const page = document.getElementById('scheduled-tests-page');
     if (!page) {
@@ -108,7 +106,7 @@ async function loadScheduledTests() {
     try {
         showLoading(true);
         
-        const endpoint = `${API_BASE_URL}/api/admin/tests`;
+        const endpoint = `${window.API_BASE_URL}/api/admin/tests`;
         console.log('📡 Fetching tests from:', endpoint);
         
         const response = await fetch(endpoint, {
@@ -294,7 +292,7 @@ window.deleteTest = async function(testId) {
     try {
         console.log('🗑️ Deleting test with ID:', testId);
         
-        const endpoint = `${API_BASE_URL}/api/admin/tests/${testId}`;
+        const endpoint = `${window.API_BASE_URL}/api/admin/tests/${testId}`;
         console.log('📡 DELETE request to:', endpoint);
         
         const response = await fetch(endpoint, {
@@ -357,5 +355,5 @@ function showError(message) {
 }
 
 console.log('✅ Scheduled Tests module loaded');
-console.log('🔧 API Configuration:', API_BASE_URL);
+console.log('🔧 API Configuration:', window.API_BASE_URL);
 console.log('🔍 initScheduledTests available:', typeof window.initScheduledTests === 'function');
