@@ -1,259 +1,212 @@
 #!/usr/bin/env python3
 """
-PDF Question Extractor with Math Formula Support
-Extracts questions from PDF files and converts them to structured format
+PDF Question Extractor with Mathematical Equation Support
+Extracts questions from PDF files and converts them to structured JSON format
 """
 
-import PyPDF2
-import re
-import json
 import sys
-from pathlib import Path
-import logging
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+import json
+import re
+import PyPDF2
+from io import BytesIO
+import base64
 
 class PDFQuestionExtractor:
-    """Extract questions from PDF files with math formula support"""
-    
-    def __init__(self, pdf_path):
-        self.pdf_path = pdf_path
+    def __init__(self):
         self.questions = []
         
-    def extract_text_from_pdf(self):
-        """Extract all text from PDF"""
+    def extract_text_from_pdf(self, pdf_file_path):
+        """Extract text content from PDF file"""
         try:
-            with open(self.pdf_path, 'rb') as file:
+            with open(pdf_file_path, 'rb') as file:
                 pdf_reader = PyPDF2.PdfReader(file)
                 text = ""
                 for page in pdf_reader.pages:
                     text += page.extract_text() + "\n"
                 return text
         except Exception as e:
-            logger.error(f"Error reading PDF: {e}")
-            return None
+            return f"Error reading PDF: {str(e)}"
     
-    def detect_math_formulas(self, text):
-        """Detect and preserve mathematical formulas in LaTeX format"""
+    def extract_text_from_base64(self, base64_string):
+        """Extract text from base64 encoded PDF"""
+        try:
+            pdf_bytes = base64.b64decode(base64_string)
+            pdf_file = BytesIO(pdf_bytes)
+            pdf_reader = PyPDF2.PdfReader(pdf_file)
+            text = ""
+            for page in pdf_reader.pages:
+                text += page.extract_text() + "\n"
+            return text
+        except Exception as e:
+            return f"Error reading PDF: {str(e)}"
+    
+    def detect_math_equations(self, text):
+        """Detect and format mathematical equations"""
         # Common math patterns
         patterns = {
-            'equations': r'([a-zA-Z]?\s*[=<>≤≥≠]\s*[\w\s\+\-\*/\^√∫∑πθαβγδε]+)',
-            'fractions': r'(\d+/\d+)',
-            'powers': r'([a-zA-Z]\^?\d+)',
-            'symbols': r'([∫∑∏√±×÷≤≥≠≈∞πθαβγδελμσφψω])',
-            'subscripts': r'([a-zA-Z]_\d+)',
+            'fraction': r'(\d+)/(\d+)',
+            'power': r'(\w+)\^(\d+)',
+            'sqrt': r'√(\w+)',
+            'integral': r'∫',
+            'summation': r'∑',
+            'greek': r'[α-ωΑ-Ω]',
+            'operators': r'[≤≥≠±×÷∞]'
         }
         
-        math_expressions = []
+        has_math = False
         for pattern_name, pattern in patterns.items():
-            matches = re.finditer(pattern, text)
-            for match in matches:
-                math_expressions.append({
-                    'type': pattern_name,
-                    'text': match.group(0),
-                    'position': match.span()
-                })
+            if re.search(pattern, text):
+                has_math = True
+                break
         
-        return math_expressions
+        return has_math
     
-    def convert_to_latex(self, text):
-        """Convert mathematical expressions to LaTeX format"""
-        # Replace common symbols with LaTeX equivalents
-        latex_replacements = {
-            '√': r'\sqrt{}',
-            '∫': r'\int',
-            '∑': r'\sum',
-            '∏': r'\prod',
-            '≤': r'\leq',
-            '≥': r'\geq',
-            '≠': r'\neq',
-            '≈': r'\approx',
-            '±': r'\pm',
-            '×': r'\times',
-            '÷': r'\div',
-            'π': r'\pi',
-            'θ': r'\theta',
-            'α': r'\alpha',
-            'β': r'\beta',
-            'γ': r'\gamma',
-            'δ': r'\delta',
-            'ε': r'\epsilon',
-            'λ': r'\lambda',
-            'μ': r'\mu',
-            'σ': r'\sigma',
-            'φ': r'\phi',
-            'ψ': r'\psi',
-            'ω': r'\omega',
-        }
-        
-        for symbol, latex in latex_replacements.items():
-            text = text.replace(symbol, latex)
-        
-        # Convert fractions
+    def format_math_equation(self, text):
+        """Convert math notation to LaTeX format"""
+        # Convert common patterns to LaTeX
         text = re.sub(r'(\d+)/(\d+)', r'\\frac{\1}{\2}', text)
-        
-        # Convert powers
-        text = re.sub(r'([a-zA-Z])(\^?)(\d+)', r'\1^{\3}', text)
-        
-        # Convert subscripts
-        text = re.sub(r'([a-zA-Z])_(\d+)', r'\1_{\2}', text)
+        text = re.sub(r'(\w+)\^(\d+)', r'\1^{\2}', text)
+        text = re.sub(r'√(\w+)', r'\\sqrt{\1}', text)
+        text = re.sub(r'α', r'\\alpha', text)
+        text = re.sub(r'β', r'\\beta', text)
+        text = re.sub(r'γ', r'\\gamma', text)
+        text = re.sub(r'≤', r'\\leq', text)
+        text = re.sub(r'≥', r'\\geq', text)
+        text = re.sub(r'≠', r'\\neq', text)
+        text = re.sub(r'∞', r'\\infty', text)
         
         return text
     
     def parse_questions(self, text):
         """Parse questions from extracted text"""
-        # Split by common question markers
-        question_patterns = [
-            r'Q\.?\s*\d+[\.:)]',  # Q.1, Q1:, Q1)
-            r'Question\s*\d+[\.:)]',
-            r'\d+[\.:)]\s*(?=[A-Z])',  # 1. Question, 1) Question
-            r'\n\d+\s*[\.:)]',
-        ]
-        
-        # Combine patterns
-        combined_pattern = '|'.join(question_patterns)
-        
-        # Split text by question markers
-        raw_questions = re.split(combined_pattern, text, flags=re.MULTILINE)
-        
         questions = []
-        for i, q_text in enumerate(raw_questions):
-            if not q_text.strip():
-                continue
-                
-            # Extract question number
-            q_number = i
+        
+        # Pattern to match numbered questions (1., 2., Q1, Q.1, etc.)
+        question_pattern = r'(?:^|\n)(?:Q\.?\s*)?(\d+)[\.\)]\s*(.+?)(?=(?:\n(?:Q\.?\s*)?\d+[\.\)])|$)'
+        
+        matches = re.finditer(question_pattern, text, re.MULTILINE | re.DOTALL)
+        
+        for match in matches:
+            question_num = match.group(1)
+            question_text = match.group(2).strip()
             
-            # Split into question text and options
-            parts = re.split(r'\n\s*[A-D][\.:)]\s*', q_text, flags=re.IGNORECASE)
+            # Try to extract options (A), B), (a), b), etc.
+            options_pattern = r'(?:^|\n)\s*(?:\()?([A-Da-d])[\.\)]\s*(.+?)(?=(?:\n\s*(?:\()?[A-Da-d][\.\)])|$)'
+            options = []
+            option_matches = re.finditer(options_pattern, question_text, re.MULTILINE | re.DOTALL)
             
-            if len(parts) > 0:
-                question_text = parts[0].strip()
-                
-                # Extract options (A, B, C, D)
-                options = []
-                option_pattern = r'[A-D][\.:)]\s*([^\n]+)'
-                option_matches = re.finditer(option_pattern, q_text, re.IGNORECASE)
-                
-                for match in option_matches:
-                    options.append(match.group(1).strip())
-                
-                # If we have 4 options, consider it a valid MCQ
-                if len(options) >= 4:
-                    # Convert math to LaTeX
-                    question_text = self.convert_to_latex(question_text)
-                    options = [self.convert_to_latex(opt) for opt in options]
-                    
-                    questions.append({
-                        'questionNumber': q_number + 1,
-                        'questionText': question_text,
-                        'options': options[:4],  # Take first 4 options
-                        'correctAnswer': 0,  # Default to option A, can be updated
-                        'explanation': '',
-                        'difficulty': 'medium',
-                        'hasFormula': self.has_mathematical_content(question_text)
-                    })
+            for opt in option_matches:
+                option_letter = opt.group(1).upper()
+                option_text = opt.group(2).strip()
+                options.append({
+                    'label': option_letter,
+                    'text': self.format_math_equation(option_text) if self.detect_math_equations(option_text) else option_text
+                })
+            
+            # Remove options from question text
+            if options:
+                for opt_match in re.finditer(options_pattern, question_text, re.MULTILINE | re.DOTALL):
+                    question_text = question_text.replace(opt_match.group(0), '')
+            
+            question_text = question_text.strip()
+            
+            # Detect if question contains math
+            has_math = self.detect_math_equations(question_text)
+            if has_math:
+                question_text = self.format_math_equation(question_text)
+            
+            question_obj = {
+                'question_number': int(question_num),
+                'question_text': question_text,
+                'has_math': has_math,
+                'options': options if len(options) >= 2 else [],
+                'answer': None,  # To be filled manually or extracted separately
+                'difficulty': 'medium',  # Default
+                'marks': 1  # Default
+            }
+            
+            questions.append(question_obj)
         
         return questions
     
-    def has_mathematical_content(self, text):
-        """Check if text contains mathematical content"""
-        math_indicators = [
-            r'\\[a-zA-Z]+',  # LaTeX commands
-            r'\d+/\d+',       # Fractions
-            r'[=<>≤≥]',       # Math operators
-            r'[∫∑∏√±×÷]',    # Math symbols
-            r'[πθαβγδε]',     # Greek letters
-        ]
-        
-        for pattern in math_indicators:
-            if re.search(pattern, text):
-                return True
-        return False
-    
     def extract_answer_key(self, text):
-        """Try to extract answer keys from the PDF"""
-        # Look for answer key section
-        answer_patterns = [
-            r'Answer\s*Key[:\s]+([A-D\s,\d]+)',
-            r'Answers?[:\s]+([A-D\s,\d]+)',
-            r'Correct\s*Answers?[:\s]+([A-D\s,\d]+)',
-        ]
-        
+        """Try to extract answer key if present"""
+        answer_pattern = r'(?:Answer|Ans|Key)[\s:]*(\d+)[\.\)]\s*([A-Da-d])'
         answers = {}
-        for pattern in answer_patterns:
-            matches = re.finditer(pattern, text, re.IGNORECASE)
-            for match in matches:
-                answer_text = match.group(1)
-                # Parse answers like "1-A, 2-B, 3-C"
-                answer_pairs = re.findall(r'(\d+)[:\-\s]*([A-D])', answer_text, re.IGNORECASE)
-                for q_num, answer in answer_pairs:
-                    answers[int(q_num)] = answer.upper()
+        
+        matches = re.finditer(answer_pattern, text, re.IGNORECASE)
+        for match in matches:
+            q_num = int(match.group(1))
+            answer = match.group(2).upper()
+            answers[q_num] = answer
         
         return answers
     
-    def process(self):
-        """Main processing function"""
-        logger.info(f"Processing PDF: {self.pdf_path}")
-        
+    def process_pdf(self, pdf_input, input_type='file', metadata=None):
+        """
+        Main processing function
+        input_type: 'file' or 'base64'
+        metadata: dict with examType, subject, topic, year
+        """
         # Extract text
-        text = self.extract_text_from_pdf()
-        if not text:
-            return {'success': False, 'error': 'Could not extract text from PDF'}
+        if input_type == 'file':
+            text = self.extract_text_from_pdf(pdf_input)
+        else:
+            text = self.extract_text_from_base64(pdf_input)
+        
+        if text.startswith("Error"):
+            return {'error': text}
         
         # Parse questions
         questions = self.parse_questions(text)
         
-        # Extract answer keys if available
-        answer_keys = self.extract_answer_key(text)
+        # Try to extract answers
+        answers = self.extract_answer_key(text)
         
-        # Update questions with answer keys
-        for question in questions:
-            q_num = question['questionNumber']
-            if q_num in answer_keys:
-                answer_letter = answer_keys[q_num]
-                # Convert A, B, C, D to 0, 1, 2, 3
-                question['correctAnswer'] = ord(answer_letter) - ord('A')
+        # Apply answers to questions
+        for q in questions:
+            q_num = q['question_number']
+            if q_num in answers:
+                q['answer'] = answers[q_num]
         
-        logger.info(f"Extracted {len(questions)} questions")
+        # Add metadata if provided
+        if metadata:
+            for q in questions:
+                q.update({
+                    'examType': metadata.get('examType', ''),
+                    'subject': metadata.get('subject', ''),
+                    'topic': metadata.get('topic', ''),
+                    'year': metadata.get('year', '')
+                })
         
         return {
             'success': True,
-            'questionCount': len(questions),
+            'total_questions': len(questions),
             'questions': questions,
-            'hasAnswerKey': len(answer_keys) > 0
+            'raw_text_length': len(text)
         }
 
 def main():
-    """Main entry point for command line usage"""
+    """Command line interface"""
     if len(sys.argv) < 2:
-        print(json.dumps({
-            'success': False,
-            'error': 'No PDF file path provided'
-        }))
+        print(json.dumps({'error': 'No PDF file path provided'}))
         sys.exit(1)
     
     pdf_path = sys.argv[1]
     
-    if not Path(pdf_path).exists():
-        print(json.dumps({
-            'success': False,
-            'error': f'PDF file not found: {pdf_path}'
-        }))
-        sys.exit(1)
+    # Get metadata from command line args if provided
+    metadata = {}
+    if len(sys.argv) > 2:
+        metadata['examType'] = sys.argv[2] if len(sys.argv) > 2 else ''
+        metadata['subject'] = sys.argv[3] if len(sys.argv) > 3 else ''
+        metadata['topic'] = sys.argv[4] if len(sys.argv) > 4 else ''
+        metadata['year'] = sys.argv[5] if len(sys.argv) > 5 else ''
     
-    try:
-        extractor = PDFQuestionExtractor(pdf_path)
-        result = extractor.process()
-        print(json.dumps(result, indent=2))
-    except Exception as e:
-        print(json.dumps({
-            'success': False,
-            'error': str(e)
-        }))
-        sys.exit(1)
+    extractor = PDFQuestionExtractor()
+    result = extractor.process_pdf(pdf_path, input_type='file', metadata=metadata)
+    
+    # Output as JSON
+    print(json.dumps(result, indent=2))
 
 if __name__ == '__main__':
     main()
