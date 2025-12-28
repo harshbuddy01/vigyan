@@ -10,6 +10,9 @@ import { connectDB, pool } from "./config/mysql.js";
 import { runMigrations } from "./config/runMigrations.js";
 import { sendFeedbackEmail, sendUserConfirmation } from "./config/email.js";
 
+// 🔧 AUTO-FIX for test_id column
+import { fixTestIdColumn } from "./migrations/auto-fix-test-id.js";
+
 // Route Imports
 import paymentRoutes from "./routes/paymentRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
@@ -819,6 +822,10 @@ const HOST = '0.0.0.0';
     console.log('✅ Database connected!');
     await runMigrations();
     console.log('✅ Migrations complete!');
+    
+    // 🔧 AUTO-FIX: test_id column migration
+    await fixTestIdColumn();
+    
   } catch (dbError) {
     console.error('⚠️ Database error (continuing anyway):', dbError.message);
   }
