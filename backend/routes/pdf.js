@@ -37,6 +37,70 @@ const upload = multer({
     }
 });
 
+// 🧪 DEBUG ENDPOINT: Test Python and PyPDF2
+router.get('/test-python', async (req, res) => {
+    try {
+        console.log('🧪 Testing Python and PyPDF2...');
+        
+        // Test 1: Python version
+        const pythonTest = spawn('python3', ['--version']);
+        let pythonVersion = '';
+        
+        pythonTest.stdout.on('data', (data) => {
+            pythonVersion += data.toString();
+        });
+        
+        pythonTest.stderr.on('data', (data) => {
+            pythonVersion += data.toString();
+        });
+        
+        await new Promise((resolve) => pythonTest.on('close', resolve));
+        
+        // Test 2: PyPDF2 availability
+        const pypdfTest = spawn('python3', ['-c', 'import PyPDF2; print("PyPDF2 version:", PyPDF2.__version__)']);
+        let pypdfResult = '';
+        let pypdfError = '';
+        
+        pypdfTest.stdout.on('data', (data) => {
+            pypdfResult += data.toString();
+        });
+        
+        pypdfTest.stderr.on('data', (data) => {
+            pypdfError += data.toString();
+        });
+        
+        await new Promise((resolve) => pypdfTest.on('close', resolve));
+        
+        // Test 3: Check if pdf_processor.py exists
+        const pythonScriptPath = path.join(__dirname, '../pdf_processor.py');
+        const scriptExists = fs.existsSync(pythonScriptPath);
+        
+        res.json({
+            success: true,
+            tests: {
+                python: {
+                    version: pythonVersion.trim(),
+                    available: pythonVersion.length > 0
+                },
+                pypdf2: {
+                    installed: pypdfResult.length > 0 && pypdfError.length === 0,
+                    version: pypdfResult.trim(),
+                    error: pypdfError.trim()
+                },
+                script: {
+                    exists: scriptExists,
+                    path: pythonScriptPath
+                }
+            }
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
+
 // POST /api/pdf/upload - Upload and process PDF
 router.post('/upload', upload.single('pdfFile'), async (req, res) => {
     try {
@@ -66,6 +130,9 @@ router.post('/upload', upload.single('pdfFile'), async (req, res) => {
                 });
             }
             
+            console.log('🐍 Spawning Python process...');
+            console.log('Command: python3', [pythonScriptPath, pdfPath, examType || '', subject || '', topic || '', year || '']);
+            
             const pythonProcess = spawn('python3', [
                 pythonScriptPath,
                 pdfPath,
@@ -79,11 +146,15 @@ router.post('/upload', upload.single('pdfFile'), async (req, res) => {
             let pythonError = '';
 
             pythonProcess.stdout.on('data', (data) => {
-                pythonOutput += data.toString();
+                const chunk = data.toString();
+                console.log('🐍 Python stdout chunk:', chunk.substring(0, 200));
+                pythonOutput += chunk;
             });
 
             pythonProcess.stderr.on('data', (data) => {
-                pythonError += data.toString();
+                const chunk = data.toString();
+                console.log('🐍 Python stderr chunk:', chunk);
+                pythonError += chunk;
             });
 
             pythonProcess.on('error', (error) => {
@@ -99,6 +170,8 @@ router.post('/upload', upload.single('pdfFile'), async (req, res) => {
                 console.log('🐍 Python process exited with code:', code);
                 console.log('📤 Python stdout length:', pythonOutput.length);
                 console.log('📤 Python stderr length:', pythonError.length);
+                console.log('📝 Full stdout:', pythonOutput);
+                console.log('📝 Full stderr:', pythonError);
 
                 // Check if there's any output at all
                 if (!pythonOutput || pythonOutput.trim() === '') {
@@ -108,7 +181,11 @@ router.post('/upload', upload.single('pdfFile'), async (req, res) => {
                         error: 'PDF processing failed - no output from extractor',
                         details: pythonError || 'Python script produced no output',
                         hint: 'Make sure PyPDF2 is installed: pip3 install PyPDF2',
-                        exitCode: code
+                        exitCode: code,
+                        debug: {
+                            stdout: pythonOutput,
+                            stderr: pythonError
+                        }
                     });
                 }
 
@@ -119,14 +196,18 @@ router.post('/upload', upload.single('pdfFile'), async (req, res) => {
                         error: 'PDF processing failed',
                         details: pythonError || pythonOutput || 'Unknown Python error',
                         exitCode: code,
-                        hint: 'Check server logs for detailed Python error messages'
+                        hint: 'Check server logs for detailed Python error messages',
+                        debug: {
+                            stdout: pythonOutput,
+                            stderr: pythonError
+                        }
                     });
                 }
 
                 try {
                     // Validate JSON before parsing
                     const trimmedOutput = pythonOutput.trim();
-                    console.log('📝 First 200 chars of output:', trimmedOutput.substring(0, 200));
+                    console.log('📝 First 500 chars of output:', trimmedOutput.substring(0, 500));
                     
                     if (!trimmedOutput.startsWith('{') && !trimmedOutput.startsWith('[')) {
                         throw new Error('Output is not valid JSON. First 100 chars: ' + trimmedOutput.substring(0, 100));
@@ -200,7 +281,8 @@ router.post('/upload', upload.single('pdfFile'), async (req, res) => {
                     res.status(500).json({
                         error: 'Failed to parse extraction results',
                         details: parseError.message,
-                        rawOutput: pythonOutput.substring(0, 200),
+                        rawOutput: pythonOutput.substring(0, 500),
+                        rawStderr: pythonError.substring(0, 500),
                         hint: 'The Python script output was not valid JSON. Check if PyPDF2 is installed.'
                     });
                 }
