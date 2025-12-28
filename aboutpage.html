@@ -82,6 +82,17 @@
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
         
+        /* Logo link styling */
+        .logo a {
+            text-decoration: none;
+            color: inherit;
+            transition: opacity 0.3s ease;
+        }
+        
+        .logo a:hover {
+            opacity: 0.8;
+        }
+        
         /* Custom AOS animations */
         [data-aos="fade-up-scale"] {
             transform: translateY(50px) scale(0.9);
@@ -109,7 +120,9 @@
     <div class="grid-bg"></div>
 
     <nav class="navbar fixed top-0 w-full z-50 px-12 py-5 flex justify-between items-center bg-[#020617]/90 backdrop-blur-md border-b border-white/5" id="navbar">
-        <div class="logo text-2xl font-black text-white">IIN<span class="text-blue-500">.edu</span></div>
+        <div class="logo text-2xl font-black text-white">
+            <a href="index.html">IIN<span class="text-blue-500">.edu</span></a>
+        </div>
         
         <div class="nav-links hidden lg:flex items-center space-x-8 text-sm font-bold text-gray-400">
             <a href="index.html" class="hover:text-white transition">Home</a>
