@@ -1,16 +1,20 @@
 /**
  * Scheduled Tests Page - Complete Backend Integration
- * Last Updated: 2025-12-28 - Fixed API endpoints to match backend
+ * Last Updated: 2025-12-28 18:57 IST - Added debug logging
  */
 
 // Use global API URL
 const API_BASE_URL = window.API_BASE_URL || 'https://iin-production.up.railway.app';
+
+console.log('🔵 scheduled-tests.js loading...');
+console.log('🔧 API_BASE_URL:', API_BASE_URL);
 
 let allTests = [];
 let filteredTests = [];
 
 // Initialize page when called from dashboard
 window.initScheduledTests = async function() {
+    console.log('🔥 ✅ initScheduledTests CALLED!');
     console.log('🔵 Initializing Scheduled Tests page...');
     console.log('🔧 Using API Base URL:', API_BASE_URL);
     
@@ -19,6 +23,8 @@ window.initScheduledTests = async function() {
         console.error('❌ Scheduled tests page element not found');
         return;
     }
+    
+    console.log('✅ Page container found');
     
     // Render page HTML
     page.innerHTML = `
@@ -65,12 +71,16 @@ window.initScheduledTests = async function() {
         </div>
     `;
     
+    console.log('✅ HTML rendered');
+    
     // Load tests from backend
     await loadScheduledTests();
     setupEventListeners();
     
     console.log('✅ Scheduled Tests page initialized');
 };
+
+console.log('🔍 Verifying initScheduledTests function:', typeof window.initScheduledTests);
 
 // Navigate to create test page
 window.navigateToCreateTest = function() {
@@ -89,6 +99,8 @@ function setupEventListeners() {
     if (typeFilter) typeFilter.addEventListener('change', applyFilters);
     if (statusFilter) statusFilter.addEventListener('change', applyFilters);
     if (searchInput) searchInput.addEventListener('input', applyFilters);
+    
+    console.log('✅ Event listeners attached');
 }
 
 // Load scheduled tests from database
@@ -348,3 +360,4 @@ function showError(message) {
 
 console.log('✅ Scheduled Tests module loaded');
 console.log('🔧 API Configuration:', API_BASE_URL);
+console.log('🔍 initScheduledTests available:', typeof window.initScheduledTests === 'function');
