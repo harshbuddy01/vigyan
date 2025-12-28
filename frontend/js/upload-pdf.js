@@ -1,4 +1,4 @@
-// Upload PDF Module
+// Upload PDF Module with Backend Integration
 (function() {
     'use strict';
 
@@ -64,9 +64,10 @@
 
                         <div class="form-group">
                             <label style="display: flex; align-items: center; gap: 8px;">
-                                <input type="checkbox" id="autoExtract">
-                                <span>Auto-extract questions (AI powered)</span>
+                                <input type="checkbox" id="autoExtract" checked>
+                                <span>Auto-extract questions using AI (Recommended)</span>
                             </label>
+                            <p style="color: #64748b; font-size: 12px; margin-top: 4px; margin-left: 24px;">Questions will be automatically extracted and saved to the question bank</p>
                         </div>
 
                         <div class="form-group">
@@ -74,7 +75,7 @@
                             <textarea id="pdfNotes" rows="3" placeholder="Additional information about this PDF..."></textarea>
                         </div>
 
-                        <button type="submit" class="btn-primary" style="width: 100%;">
+                        <button type="submit" class="btn-primary" id="uploadBtn" style="width: 100%;">
                             <i class="fas fa-upload"></i> Upload PDF
                         </button>
                     </form>
@@ -119,7 +120,7 @@
                         <div style="background: #f1f5f9; border-radius: 8px; height: 8px; overflow: hidden;">
                             <div id="progressBar" style="background: #3b82f6; height: 100%; width: 0%; transition: width 0.3s;"></div>
                         </div>
-                        <p id="progressText" style="color: #64748b; font-size: 14px; margin-top: 8px;">0%</p>
+                        <p id="progressText" style="color: #64748b; font-size: 14px; margin-top: 8px;">Uploading...</p>
                     </div>
                 </div>
             </div>
@@ -141,7 +142,7 @@
                     <div style="padding: 40px;">
                         <i class="fas fa-spinner fa-spin" style="font-size: 48px; color: #3b82f6; margin-bottom: 20px;"></i>
                         <h3 style="margin-bottom: 12px;">Processing PDF</h3>
-                        <p style="color: #64748b;">Please wait while we process your file...</p>
+                        <p id="processingText" style="color: #64748b;">Uploading and extracting questions...</p>
                     </div>
                 </div>
             </div>
@@ -152,15 +153,17 @@
     };
 
     let selectedFile = null;
-    let uploadHistory = [];
 
     function loadUploadHistory() {
-        const stored = localStorage.getItem('pdfUploadHistory');
-        uploadHistory = stored ? JSON.parse(stored) : [];
-    }
-
-    function saveUploadHistory() {
-        localStorage.setItem('pdfUploadHistory', JSON.stringify(uploadHistory));
+        // Load history from backend
+        fetch('/api/pdf/history')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    window.uploadHistoryData = data.uploads;
+                }
+            })
+            .catch(err => console.error('Error loading history:', err));
     }
 
     window.handleDragOver = function(e) {
@@ -190,6 +193,7 @@
             const file = files[0];
             if (file.type === 'application/pdf') {
                 selectedFile = file;
+                document.getElementById('pdfFile').files = files;
                 displayFileInfo(file);
             } else {
                 alert('Please upload a PDF file only.');
@@ -235,7 +239,7 @@
         document.getElementById('fileInfo').style.display = 'none';
     };
 
-    window.handlePDFUpload = function(e) {
+    window.handlePDFUpload = async function(e) {
         e.preventDefault();
         
         if (!selectedFile) {
@@ -243,59 +247,101 @@
             return;
         }
 
-        const uploadData = {
-            id: Date.now(),
-            fileName: selectedFile.name,
-            fileSize: (selectedFile.size / (1024 * 1024)).toFixed(2),
-            examType: document.getElementById('pdfExamType').value,
-            subject: document.getElementById('pdfSubject').value,
-            topic: document.getElementById('pdfTopic').value || 'N/A',
-            year: document.getElementById('pdfYear').value || 'N/A',
-            autoExtract: document.getElementById('autoExtract').checked,
-            notes: document.getElementById('pdfNotes').value,
-            uploadDate: new Date().toISOString(),
-            status: 'completed'
-        };
+        const formData = new FormData();
+        formData.append('pdfFile', selectedFile);
+        formData.append('examType', document.getElementById('pdfExamType').value);
+        formData.append('subject', document.getElementById('pdfSubject').value);
+        formData.append('topic', document.getElementById('pdfTopic').value);
+        formData.append('year', document.getElementById('pdfYear').value);
+        formData.append('autoExtract', document.getElementById('autoExtract').checked);
+        formData.append('notes', document.getElementById('pdfNotes').value);
 
         // Show processing modal
-        document.getElementById('processingModal').style.display = 'flex';
+        const modal = document.getElementById('processingModal');
+        const progressDiv = document.getElementById('uploadProgress');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const uploadBtn = document.getElementById('uploadBtn');
+        
+        modal.style.display = 'flex';
+        progressDiv.style.display = 'block';
+        uploadBtn.disabled = true;
 
-        // Simulate upload process
-        simulateUpload(() => {
-            uploadHistory.unshift(uploadData);
-            saveUploadHistory();
-            
-            document.getElementById('processingModal').style.display = 'none';
+        try {
+            // Simulate progress
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += 5;
+                if (progress <= 90) {
+                    progressBar.style.width = progress + '%';
+                    progressText.textContent = `Uploading... ${progress}%`;
+                }
+            }, 200);
+
+            const response = await fetch('/api/pdf/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            clearInterval(progressInterval);
+            progressBar.style.width = '100%';
+            progressText.textContent = 'Complete! 100%';
+
+            const result = await response.json();
+
+            modal.style.display = 'none';
+            progressDiv.style.display = 'none';
+            progressBar.style.width = '0%';
+            uploadBtn.disabled = false;
+
+            if (result.success) {
+                const message = result.questionsExtracted > 0 
+                    ? `PDF uploaded successfully! ${result.questionsExtracted} questions extracted and saved.` 
+                    : 'PDF uploaded successfully!';
+                
+                if (window.AdminUtils) {
+                    window.AdminUtils.showToast(message, 'success');
+                } else {
+                    alert(message);
+                }
+                
+                // Reset form
+                document.getElementById('pdfUploadForm').reset();
+                clearFile();
+                
+                // Reload history
+                loadUploadHistory();
+                
+                // If questions were extracted, show option to view them
+                if (result.questionsExtracted > 0) {
+                    setTimeout(() => {
+                        if (confirm('Questions extracted successfully! Would you like to view them in the Edit/Review section?')) {
+                            // Navigate to view-questions page
+                            document.querySelectorAll('.nav-link').forEach(link => {
+                                if (link.dataset.page === 'view-questions') {
+                                    link.click();
+                                }
+                            });
+                        }
+                    }, 1000);
+                }
+            } else {
+                throw new Error(result.error || 'Upload failed');
+            }
+        } catch (error) {
+            console.error('Upload error:', error);
+            modal.style.display = 'none';
+            progressDiv.style.display = 'none';
+            progressBar.style.width = '0%';
+            uploadBtn.disabled = false;
             
             if (window.AdminUtils) {
-                window.AdminUtils.showToast('PDF uploaded successfully!', 'success');
+                window.AdminUtils.showToast('Upload failed: ' + error.message, 'error');
             } else {
-                alert('PDF uploaded successfully!');
+                alert('Upload failed: ' + error.message);
             }
-            
-            document.getElementById('pdfUploadForm').reset();
-            clearFile();
-        });
+        }
     };
-
-    function simulateUpload(callback) {
-        let progress = 0;
-        const interval = setInterval(() => {
-            progress += 10;
-            document.getElementById('progressBar').style.width = progress + '%';
-            document.getElementById('progressText').textContent = progress + '%';
-            document.getElementById('uploadProgress').style.display = 'block';
-            
-            if (progress >= 100) {
-                clearInterval(interval);
-                setTimeout(() => {
-                    document.getElementById('uploadProgress').style.display = 'none';
-                    document.getElementById('progressBar').style.width = '0%';
-                    callback();
-                }, 500);
-            }
-        }, 200);
-    }
 
     window.viewUploadHistory = function() {
         const section = document.getElementById('uploadHistorySection');
@@ -309,8 +355,9 @@
 
     function renderUploadHistory() {
         const container = document.getElementById('uploadHistoryContent');
+        const history = window.uploadHistoryData || [];
         
-        if (uploadHistory.length === 0) {
+        if (history.length === 0) {
             container.innerHTML = `
                 <div style="text-align: center; padding: 40px; color: #94a3b8;">
                     <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 16px;"></i>
@@ -327,24 +374,23 @@
                         <th>File Name</th>
                         <th>Subject</th>
                         <th>Exam Type</th>
-                        <th>Size</th>
+                        <th>Questions</th>
                         <th>Upload Date</th>
-                        <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    ${uploadHistory.map(upload => `
+                    ${history.map(upload => `
                         <tr>
-                            <td><i class="fas fa-file-pdf" style="color: #dc2626; margin-right: 8px;"></i>${upload.fileName}</td>
+                            <td><i class="fas fa-file-pdf" style="color: #dc2626; margin-right: 8px;"></i>${upload.original_name}</td>
                             <td>${upload.subject}</td>
-                            <td><span class="badge badge-${upload.examType.toLowerCase()}">${upload.examType}</span></td>
-                            <td>${upload.fileSize} MB</td>
-                            <td>${new Date(upload.uploadDate).toLocaleDateString('en-IN')}</td>
-                            <td><span class="status-active">Completed</span></td>
+                            <td><span class="badge badge-${upload.exam_type.toLowerCase()}">${upload.exam_type}</span></td>
+                            <td>${upload.questions_extracted || 0}</td>
+                            <td>${new Date(upload.upload_date).toLocaleDateString('en-IN')}</td>
                             <td>
-                                <button class="action-btn" title="View"><i class="fas fa-eye"></i></button>
-                                <button class="action-btn danger" title="Delete" onclick="deleteUpload(${upload.id})"><i class="fas fa-trash"></i></button>
+                                <button class="action-btn danger" title="Delete" onclick="deleteUpload(${upload.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </td>
                         </tr>
                     `).join('')}
@@ -355,15 +401,34 @@
         container.innerHTML = html;
     }
 
-    window.deleteUpload = function(uploadId) {
+    window.deleteUpload = async function(uploadId) {
         if (!confirm('Delete this upload record?')) return;
         
-        uploadHistory = uploadHistory.filter(u => u.id !== uploadId);
-        saveUploadHistory();
-        renderUploadHistory();
-        
-        if (window.AdminUtils) {
-            window.AdminUtils.showToast('Upload record deleted!', 'success');
+        try {
+            const response = await fetch(`/api/pdf/delete/${uploadId}`, {
+                method: 'DELETE'
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                if (window.AdminUtils) {
+                    window.AdminUtils.showToast('Upload deleted!', 'success');
+                } else {
+                    alert('Upload deleted!');
+                }
+                loadUploadHistory();
+                renderUploadHistory();
+            } else {
+                throw new Error(result.error);
+            }
+        } catch (error) {
+            console.error('Delete error:', error);
+            if (window.AdminUtils) {
+                window.AdminUtils.showToast('Delete failed: ' + error.message, 'error');
+            } else {
+                alert('Delete failed: ' + error.message);
+            }
         }
     };
 
