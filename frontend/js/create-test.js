@@ -1,6 +1,6 @@
 /**
  * Create Test Page - Complete Implementation with Backend Integration
- * Last Updated: 2025-12-28 19:02 IST - FIXED: Field names match backend exactly
+ * Last Updated: 2025-12-28 19:07 IST - FINAL FIX: snake_case to match backend
  */
 
 // Use global API URL from config.js
@@ -190,16 +190,23 @@ async function handleCreateTest(e) {
     const testDate = document.getElementById('testDate').value;
     const testTime = document.getElementById('testTime').value;
     const testDescription = document.getElementById('testDescription').value;
+    const durationMinutes = parseInt(document.getElementById('testDuration').value);
+    const totalMarks = parseInt(document.getElementById('totalMarks').value);
+    const sectionsString = selectedSections.join(', ');
     
-    // 🔥 CRITICAL FIX: Backend expects EXACT field names
+    // 🔥 CRITICAL FIX: Backend server.js expects snake_case field names
     const testData = {
-        testId: `TEST-${examType}-${Date.now()}`,                    // backend expects: testId
-        testName: testName,                                         // backend expects: testName
-        testType: examType,                                         // backend expects: testType
-        examDate: testDate,                                         // backend expects: examDate
-        startTime: testTime + ':00',                                // backend expects: startTime (with seconds)
-        durationMinutes: parseInt(document.getElementById('testDuration').value), // backend expects: durationMinutes
-        description: testDescription || `${examType} test: ${testName}` // backend expects: description
+        test_name: testName,                             // backend expects: test_name (snake_case)
+        test_type: examType,                             // backend expects: test_type (snake_case)
+        test_id: `TEST-${examType}-${Date.now()}`,       // backend expects: test_id (snake_case)
+        exam_date: testDate,                             // backend expects: exam_date (snake_case)
+        start_time: testTime + ':00',                    // backend expects: start_time (snake_case with seconds)
+        duration_minutes: durationMinutes,               // backend expects: duration_minutes (snake_case)
+        total_marks: totalMarks,                         // backend expects: total_marks (snake_case)
+        subjects: sectionsString,                        // backend expects: subjects
+        description: testDescription || `${examType} test: ${testName}`, // backend expects: description
+        total_questions: 0,                              // backend expects: total_questions
+        status: 'scheduled'                              // backend expects: status
     };
     
     console.log('📤 Sending test data to backend:', testData);
@@ -227,7 +234,7 @@ async function handleCreateTest(e) {
         // Show success message
         if (window.AdminUtils) {
             window.AdminUtils.showToast(
-                `✅ Test "${testName}" created successfully! Test ID: ${testData.testId}`, 
+                `✅ Test "${testName}" created successfully! Test ID: ${testData.test_id}`, 
                 'success'
             );
         } else {
