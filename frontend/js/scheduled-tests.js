@@ -1,6 +1,6 @@
 /**
  * Scheduled Tests Page - Complete Backend Integration
- * Last Updated: 2025-12-28 - Fixed API endpoints
+ * Last Updated: 2025-12-28 - Fixed API endpoints to match backend
  */
 
 // Use global API URL
@@ -96,9 +96,11 @@ async function loadScheduledTests() {
     try {
         showLoading(true);
         
-        console.log('📡 Fetching tests from:', `${API_BASE_URL}/api/admin/scheduled-tests`);
+        // 🔥 FIXED: Use correct backend endpoint
+        const endpoint = `${API_BASE_URL}/api/admin/tests`;
+        console.log('📡 Fetching tests from:', endpoint);
         
-        const response = await fetch(`${API_BASE_URL}/api/admin/scheduled-tests`, {
+        const response = await fetch(endpoint, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -148,7 +150,7 @@ function applyFilters() {
         const testName = test.test_name || test.testName || '';
         const subjects = test.subjects || '';
         
-        if (typeFilter !== 'all' && testType.toLowerCase() !== typeFilter.toLowerCase()) return false;
+        if (typeFilter !== 'all' && testType.toUpperCase() !== typeFilter.toUpperCase()) return false;
         if (statusFilter !== 'all' && testStatus !== statusFilter) return false;
         if (searchQuery) {
             const matchName = testName.toLowerCase().includes(searchQuery);
@@ -189,15 +191,15 @@ function createTestCard(test) {
     const examDate = test.exam_date || test.examDate;
     const testDate = new Date(examDate);
     const formattedDate = testDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-    const startTime = test.start_time || test.startTime || 'Not set';
+    const startTime = test.start_time || test.startTime || test.exam_time || 'Not set';
     const testType = (test.test_type || test.testType || 'TEST').toUpperCase();
     const testName = test.test_name || test.testName || 'Unnamed Test';
-    const subjects = test.subjects || 'N/A';
+    const subjects = test.subjects || test.sections || 'N/A';
     const totalQuestions = test.total_questions || 0;
     const totalMarks = test.total_marks || test.totalMarks || 0;
     const status = test.status || 'scheduled';
-    const testId = test.test_id || test.testId || test.id;
-    const durationMinutes = test.duration_minutes || test.durationMinutes || 180;
+    const testId = test.id || test.test_id || test.testId;
+    const durationMinutes = test.duration_minutes || test.duration || test.durationMinutes || 180;
 
     // Status badge colors
     const statusColors = {
@@ -226,10 +228,10 @@ function createTestCard(test) {
                     </div>
                 </div>
                 <div class="test-actions" style="display: flex; gap: 8px;">
-                    <button class="btn-icon" onclick="event.stopPropagation(); editTest('${testId}');" title="Edit" style="padding: 8px 12px; background: #f1f5f9; border: none; border-radius: 6px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
+                    <button class="btn-icon" onclick="event.stopPropagation(); editTest(${testId});" title="Edit" style="padding: 8px 12px; background: #f1f5f9; border: none; border-radius: 6px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
                         <i class="fas fa-edit" style="color: #475569;"></i>
                     </button>
-                    <button class="btn-icon danger" onclick="event.stopPropagation(); deleteTest('${testId}');" title="Delete" style="padding: 8px 12px; background: #fee2e2; color: #dc2626; border: none; border-radius: 6px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#fecaca'" onmouseout="this.style.background='#fee2e2'">
+                    <button class="btn-icon danger" onclick="event.stopPropagation(); deleteTest(${testId});" title="Delete" style="padding: 8px 12px; background: #fee2e2; color: #dc2626; border: none; border-radius: 6px; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#fecaca'" onmouseout="this.style.background='#fee2e2'">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -279,19 +281,28 @@ window.deleteTest = async function(testId) {
     if (!confirm('⚠️ Are you sure you want to delete this test? This action cannot be undone.')) return;
     
     try {
-        console.log('🗑️ Deleting test:', testId);
+        console.log('🗑️ Deleting test with ID:', testId);
         
-        const response = await fetch(`${API_BASE_URL}/api/admin/delete-test/${testId}`, {
+        // 🔥 FIXED: Use correct backend endpoint
+        const endpoint = `${API_BASE_URL}/api/admin/tests/${testId}`;
+        console.log('📡 DELETE request to:', endpoint);
+        
+        const response = await fetch(endpoint, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json'
             }
         });
 
+        console.log('📥 Delete response status:', response.status);
+
         if (!response.ok) {
             const error = await response.json();
-            throw new Error(error.message || 'Failed to delete test');
+            throw new Error(error.message || error.error || 'Failed to delete test');
         }
+
+        const result = await response.json();
+        console.log('✅ Delete result:', result);
 
         if (window.AdminUtils) {
             window.AdminUtils.showToast('✅ Test deleted successfully!', 'success');
