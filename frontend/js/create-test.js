@@ -4,16 +4,19 @@
 
 const API_BASE_URL = "https://iin-production.up.railway.app";
 
-function initCreateTest() {
-    console.log('Initializing Create Test page...');
+window.initCreateTest = function() {
+    console.log('🔵 Initializing Create Test page...');
     
     const container = document.getElementById('create-test-page');
-    if (!container) return;
+    if (!container) {
+        console.error('❌ Create test page element not found');
+        return;
+    }
     
     container.innerHTML = `
         <div class="page-header" style="margin-bottom: 24px;">
-            <h2>Create New Test</h2>
-            <p>Create and schedule a new test</p>
+            <h1><i class="fas fa-plus-circle"></i> Create New Test</h1>
+            <p style="color: #64748b; margin-top: 8px;">Create and configure a new test for students</p>
         </div>
         
         <div class="form-container" style="max-width: 800px; margin: 0 auto;">
@@ -119,30 +122,40 @@ function initCreateTest() {
     
     // Set min date to today
     const today = new Date().toISOString().split('T')[0];
-    document.getElementById('testDate').setAttribute('min', today);
+    const dateInput = document.getElementById('testDate');
+    if (dateInput) {
+        dateInput.setAttribute('min', today);
+    }
     
     // Add checkbox interaction handlers
     document.querySelectorAll('.section-checkbox-item').forEach(item => {
         item.addEventListener('click', function(e) {
             if (e.target.tagName !== 'INPUT') {
                 const checkbox = this.querySelector('input[type="checkbox"]');
-                checkbox.checked = !checkbox.checked;
+                if (checkbox) {
+                    checkbox.checked = !checkbox.checked;
+                }
             }
         });
     });
     
-    document.getElementById('createTestForm')?.addEventListener('submit', handleCreateTest);
+    // Add form submit handler
+    const form = document.getElementById('createTestForm');
+    if (form) {
+        form.addEventListener('submit', handleCreateTest);
+    }
+    
     console.log('✅ Create Test page initialized');
-}
+};
 
-function resetCreateTestForm() {
+window.resetCreateTestForm = function() {
     const form = document.getElementById('createTestForm');
     if (form) {
         form.reset();
         // Reset all checkboxes to checked
         form.querySelectorAll('input[name="sections"]').forEach(cb => cb.checked = true);
     }
-}
+};
 
 async function handleCreateTest(e) {
     e.preventDefault();
@@ -156,8 +169,8 @@ async function handleCreateTest(e) {
     ).map(cb => cb.value);
     
     if (selectedSections.length === 0) {
-        if (typeof AdminUtils !== 'undefined') {
-            AdminUtils.showToast('Please select at least one section', 'error');
+        if (window.AdminUtils) {
+            window.AdminUtils.showToast('Please select at least one section', 'error');
         } else {
             alert('Please select at least one section');
         }
@@ -174,27 +187,25 @@ async function handleCreateTest(e) {
     const testDate = document.getElementById('testDate').value;
     const testTime = document.getElementById('testTime').value;
     
-    // Combine date and time into a single datetime string
-    const examDateTime = `${testDate}T${testTime}:00`;
-    
     const testData = {
         test_name: testName,
-        test_id: examType.toLowerCase(), // iat, nest, or isi
+        test_type: examType.toUpperCase(),
+        test_id: `TEST-${Date.now()}`,
         exam_date: testDate,
-        exam_time: testTime,
-        duration: parseInt(document.getElementById('testDuration').value),
+        start_time: testTime,
+        duration_minutes: parseInt(document.getElementById('testDuration').value),
         total_marks: parseInt(document.getElementById('totalMarks').value),
-        sections: selectedSections.join(','), // Store as comma-separated string
+        subjects: selectedSections.join(', '),
         description: document.getElementById('testDescription').value || '',
-        status: 'scheduled',
-        created_at: new Date().toISOString()
+        total_questions: 0,
+        status: 'scheduled'
     };
     
     console.log('📤 Sending test data to backend:', testData);
     
     try {
         // Send to backend API
-        const response = await fetch(`${API_BASE_URL}/api/admin/tests`, {
+        const response = await fetch(`${API_BASE_URL}/api/admin/create-test`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -205,15 +216,16 @@ async function handleCreateTest(e) {
         console.log('📥 Backend response status:', response.status);
         
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorData = await response.json();
+            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
         }
         
         const result = await response.json();
         console.log('✅ Backend response:', result);
         
         // Show success message
-        if (typeof AdminUtils !== 'undefined') {
-            AdminUtils.showToast(
+        if (window.AdminUtils) {
+            window.AdminUtils.showToast(
                 `Test "${testName}" created successfully! Sections: ${selectedSections.join(', ')}`, 
                 'success'
             );
@@ -222,18 +234,18 @@ async function handleCreateTest(e) {
         }
         
         // Reset form
-        resetCreateTestForm();
+        window.resetCreateTestForm();
         
     } catch (error) {
         console.error('❌ Error creating test:', error);
         
-        if (typeof AdminUtils !== 'undefined') {
-            AdminUtils.showToast(
-                'Failed to create test. Please check console for details.', 
+        if (window.AdminUtils) {
+            window.AdminUtils.showToast(
+                `Failed to create test: ${error.message}`, 
                 'error'
             );
         } else {
-            alert('Failed to create test. Please check console for details.');
+            alert(`Failed to create test: ${error.message}`);
         }
     } finally {
         // Re-enable button
@@ -242,6 +254,4 @@ async function handleCreateTest(e) {
     }
 }
 
-if (document.getElementById('create-test-page')) {
-    initCreateTest();
-}
+console.log('✅ Create Test module loaded');
