@@ -91,6 +91,15 @@
             transform: translateX(-50%) rotate(45deg);
         }
         
+        /* Active nav link styling */
+        .nav-links a.active-link {
+            color: #fff !important;
+            text-decoration: underline;
+            text-decoration-color: #3b82f6;
+            text-decoration-thickness: 2px;
+            text-underline-offset: 8px;
+        }
+        
         /* ===============================================
            MINIMAL ELEGANT FOOTER - CLEAN & COMPACT
            =============================================== */
@@ -373,7 +382,7 @@
     <nav class="navbar" id="navbar">
         <div class="logo">IIN<span>.edu</span></div>
         <div class="nav-links">
-            <a href="index.html" style="color:#fff">Home</a>
+            <a href="index.html" class="active-link">Home</a>
             
             <!-- About Dropdown -->
             <div class="nav-dropdown">
