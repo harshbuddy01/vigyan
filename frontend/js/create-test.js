@@ -1,11 +1,14 @@
 /**
  * Create Test Page - Complete Implementation with Backend Integration
+ * Last Updated: 2025-12-28 - Fixed to use global API config
  */
 
-const API_BASE_URL = "https://iin-production.up.railway.app";
+// Use global API URL from config.js
+const API_BASE_URL = window.API_BASE_URL || 'https://iin-production.up.railway.app';
 
 window.initCreateTest = function() {
     console.log('🔵 Initializing Create Test page...');
+    console.log('🔧 Using API Base URL:', API_BASE_URL);
     
     const container = document.getElementById('create-test-page');
     if (!container) {
@@ -34,9 +37,9 @@ window.initCreateTest = function() {
                         <label for="examType">Exam Type *</label>
                         <select id="examType" required class="form-input">
                             <option value="">Select Exam Type</option>
-                            <option value="iat">IAT (IISER Aptitude Test)</option>
-                            <option value="isi">ISI (Indian Statistical Institute)</option>
-                            <option value="nest">NEST (National Entrance Screening Test)</option>
+                            <option value="IAT">IAT (IISER Aptitude Test)</option>
+                            <option value="ISI">ISI (Indian Statistical Institute)</option>
+                            <option value="NEST">NEST (National Entrance Screening Test)</option>
                         </select>
                     </div>
                     
@@ -183,25 +186,25 @@ async function handleCreateTest(e) {
     
     // Prepare test data for backend
     const testName = document.getElementById('testName').value;
-    const examType = document.getElementById('examType').value;
+    const examType = document.getElementById('examType').value.toUpperCase();
     const testDate = document.getElementById('testDate').value;
     const testTime = document.getElementById('testTime').value;
     
+    // Backend expects this structure based on adminController.js
     const testData = {
-        test_name: testName,
-        test_type: examType.toUpperCase(),
-        test_id: `TEST-${Date.now()}`,
-        exam_date: testDate,
-        start_time: testTime,
-        duration_minutes: parseInt(document.getElementById('testDuration').value),
-        total_marks: parseInt(document.getElementById('totalMarks').value),
-        subjects: selectedSections.join(', '),
-        description: document.getElementById('testDescription').value || '',
-        total_questions: 0,
-        status: 'scheduled'
+        testId: `TEST-${examType}-${Date.now()}`,
+        testName: testName,
+        testType: examType,
+        examDate: testDate,
+        startTime: testTime + ':00', // Add seconds
+        durationMinutes: parseInt(document.getElementById('testDuration').value),
+        totalMarks: parseInt(document.getElementById('totalMarks').value),
+        description: document.getElementById('testDescription').value || `${examType} test: ${testName}`,
+        sections: selectedSections // Pass as array
     };
     
     console.log('📤 Sending test data to backend:', testData);
+    console.log('🔗 API Endpoint:', `${API_BASE_URL}/api/admin/create-test`);
     
     try {
         // Send to backend API
@@ -215,37 +218,45 @@ async function handleCreateTest(e) {
         
         console.log('📥 Backend response status:', response.status);
         
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-        }
-        
         const result = await response.json();
-        console.log('✅ Backend response:', result);
+        console.log('📦 Backend response data:', result);
+        
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || `HTTP error! status: ${response.status}`);
+        }
         
         // Show success message
         if (window.AdminUtils) {
             window.AdminUtils.showToast(
-                `Test "${testName}" created successfully! Sections: ${selectedSections.join(', ')}`, 
+                `✅ Test "${testName}" created successfully! Test ID: ${testData.testId}`, 
                 'success'
             );
         } else {
-            alert(`Test "${testName}" created successfully!`);
+            alert(`✅ Test "${testName}" created successfully!`);
         }
         
         // Reset form
         window.resetCreateTestForm();
         
+        // Navigate to scheduled tests page after 2 seconds
+        setTimeout(() => {
+            const scheduledTestsLink = document.querySelector('[data-page="scheduled-tests"]');
+            if (scheduledTestsLink) {
+                scheduledTestsLink.click();
+            }
+        }, 2000);
+        
     } catch (error) {
         console.error('❌ Error creating test:', error);
+        console.error('Error details:', error.message);
         
         if (window.AdminUtils) {
             window.AdminUtils.showToast(
-                `Failed to create test: ${error.message}`, 
+                `❌ Failed to create test: ${error.message}`, 
                 'error'
             );
         } else {
-            alert(`Failed to create test: ${error.message}`);
+            alert(`❌ Failed to create test: ${error.message}`);
         }
     } finally {
         // Re-enable button
@@ -255,3 +266,4 @@ async function handleCreateTest(e) {
 }
 
 console.log('✅ Create Test module loaded');
+console.log('🔧 API Configuration:', API_BASE_URL);
