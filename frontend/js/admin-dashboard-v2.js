@@ -1,5 +1,5 @@
 /**
- * Admin Dashboard Main - Complete with ALL modules
+ * Admin Dashboard Main - Complete with ALL modules + Real Backend Integration
  */
 
 let performanceChart = null;
@@ -10,7 +10,7 @@ async function initDashboard() {
     
     try {
         setupNavigation();
-        setupHeaderActions(); // NEW: Setup header icons functionality
+        setupHeaderActions(); // Setup header icons functionality
         await loadDashboardData();
         console.log('✅ Dashboard initialized successfully');
     } catch (error) {
@@ -27,7 +27,7 @@ function logout() {
     }
 }
 
-// NEW: Setup header actions (notifications, settings, profile)
+// Setup header actions (notifications, settings, profile)
 function setupHeaderActions() {
     console.log('🔵 Setting up header actions...');
     
@@ -52,6 +52,12 @@ function setupHeaderActions() {
         adminProfile.addEventListener('click', showProfileMenu);
     }
     
+    // Load admin profile data on init
+    loadAdminProfile();
+    
+    // Load notifications count
+    loadNotificationsCount();
+    
     // Close dropdowns when clicking outside
     document.addEventListener('click', (e) => {
         if (!e.target.closest('.notification-bell') && !e.target.closest('.notification-dropdown')) {
@@ -68,8 +74,55 @@ function setupHeaderActions() {
     console.log('✅ Header actions setup complete');
 }
 
-// Show notifications dropdown
-function showNotifications(e) {
+// 🆕 Load admin profile from backend
+async function loadAdminProfile() {
+    try {
+        const profile = await AdminAPI.request('/api/admin/profile');
+        
+        // Update profile display
+        const adminName = document.querySelector('.admin-name');
+        const adminRole = document.querySelector('.admin-role');
+        const adminImg = document.querySelector('.admin-profile img');
+        
+        if (adminName && profile.name) {
+            adminName.textContent = profile.name;
+        }
+        if (adminRole && profile.role) {
+            adminRole.textContent = profile.role;
+        }
+        if (adminImg && profile.name) {
+            adminImg.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name)}&background=6366f1&color=fff`;
+        }
+        
+        // Store profile globally for profile menu
+        window.adminProfileData = profile;
+        
+        console.log('✅ Admin profile loaded:', profile.name);
+    } catch (error) {
+        console.error('❌ Error loading admin profile:', error);
+        // Keep default "Admin User" if API fails
+    }
+}
+
+// 🆕 Load notifications count from backend
+async function loadNotificationsCount() {
+    try {
+        const data = await AdminAPI.request('/api/admin/notifications/count');
+        const badge = document.querySelector('.notification-bell .badge');
+        
+        if (badge && data.count) {
+            badge.textContent = data.count;
+            badge.style.display = data.count > 0 ? 'flex' : 'none';
+        }
+        
+        console.log(`✅ Notifications count: ${data.count}`);
+    } catch (error) {
+        console.error('❌ Error loading notifications count:', error);
+    }
+}
+
+// 🆕 Show notifications dropdown with REAL data from backend
+async function showNotifications(e) {
     e.stopPropagation();
     
     // Close other dropdowns
@@ -83,7 +136,7 @@ function showNotifications(e) {
         return;
     }
     
-    // Create notifications dropdown
+    // Create loading state
     dropdown = document.createElement('div');
     dropdown.className = 'notification-dropdown';
     dropdown.style.cssText = `
@@ -100,48 +153,77 @@ function showNotifications(e) {
         animation: slideDown 0.2s ease;
     `;
     
-    // Sample notifications
-    const notifications = [
-        { title: 'New Test Scheduled', message: 'IAT Mock Test 5 scheduled for tomorrow', time: '5 min ago', type: 'info', unread: true },
-        { title: 'Student Registered', message: 'Rahul Sharma has registered for Physics Test Series', time: '1 hour ago', type: 'success', unread: true },
-        { title: 'Payment Received', message: '₹2,500 received from Priya Patel', time: '2 hours ago', type: 'success', unread: true },
-        { title: 'Low Question Bank', message: 'Chemistry section has only 15 questions', time: '1 day ago', type: 'warning', unread: false },
-        { title: 'System Update', message: 'Dashboard updated to v2.0', time: '2 days ago', type: 'info', unread: false }
-    ];
-    
     dropdown.innerHTML = `
-        <div style="padding: 16px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+        <div style="padding: 16px; border-bottom: 1px solid #e2e8f0;">
             <h3 style="margin: 0; font-size: 16px; font-weight: 600;">Notifications</h3>
-            <button onclick="markAllRead()" style="background: none; border: none; color: #3b82f6; font-size: 13px; cursor: pointer; font-weight: 500;">Mark all read</button>
         </div>
-        <div style="max-height: 400px; overflow-y: auto;">
-            ${notifications.map(notif => `
-                <div style="padding: 16px; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: background 0.2s; ${notif.unread ? 'background: #f8fafc;' : ''}" 
-                     onmouseover="this.style.background='#f8fafc'" 
-                     onmouseout="this.style.background='${notif.unread ? '#f8fafc' : 'white'}'">
-                    <div style="display: flex; gap: 12px; align-items: start;">
-                        <div style="width: 8px; height: 8px; border-radius: 50%; background: ${notif.unread ? '#3b82f6' : 'transparent'}; margin-top: 6px; flex-shrink: 0;"></div>
-                        <div style="flex: 1;">
-                            <div style="font-weight: 600; font-size: 14px; color: #1e293b; margin-bottom: 4px;">${notif.title}</div>
-                            <div style="font-size: 13px; color: #64748b; margin-bottom: 6px;">${notif.message}</div>
-                            <div style="font-size: 12px; color: #94a3b8;">${notif.time}</div>
-                        </div>
-                    </div>
-                </div>
-            `).join('')}
-        </div>
-        <div style="padding: 12px; text-align: center; border-top: 1px solid #e2e8f0;">
-            <a href="#" style="color: #3b82f6; text-decoration: none; font-size: 14px; font-weight: 500;">View All Notifications</a>
+        <div style="padding: 40px; text-align: center; color: #94a3b8;">
+            <i class="fas fa-spinner fa-spin" style="font-size: 24px;"></i>
+            <div style="margin-top: 12px;">Loading notifications...</div>
         </div>
     `;
     
     document.body.appendChild(dropdown);
     
-    // Update badge
-    const badge = document.querySelector('.notification-bell .badge');
-    if (badge) {
-        badge.textContent = '0';
-        badge.style.display = 'none';
+    try {
+        // 🆕 Fetch REAL notifications from backend
+        const data = await AdminAPI.request('/api/admin/notifications');
+        const notifications = data.notifications || [];
+        
+        // Update dropdown with real data
+        dropdown.innerHTML = `
+            <div style="padding: 16px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin: 0; font-size: 16px; font-weight: 600;">Notifications</h3>
+                ${notifications.filter(n => n.unread).length > 0 ? 
+                    `<button onclick="markAllRead()" style="background: none; border: none; color: #3b82f6; font-size: 13px; cursor: pointer; font-weight: 500;">Mark all read</button>` : ''}
+            </div>
+            <div style="max-height: 400px; overflow-y: auto;">
+                ${notifications.length > 0 ? notifications.map(notif => `
+                    <div style="padding: 16px; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: background 0.2s; ${notif.unread ? 'background: #f8fafc;' : ''}" 
+                         onclick="markNotificationRead('${notif.id}')" 
+                         onmouseover="this.style.background='#f8fafc'" 
+                         onmouseout="this.style.background='${notif.unread ? '#f8fafc' : 'white'}'">
+                        <div style="display: flex; gap: 12px; align-items: start;">
+                            <div style="width: 8px; height: 8px; border-radius: 50%; background: ${notif.unread ? '#3b82f6' : 'transparent'}; margin-top: 6px; flex-shrink: 0;"></div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; font-size: 14px; color: #1e293b; margin-bottom: 4px;">${notif.title}</div>
+                                <div style="font-size: 13px; color: #64748b; margin-bottom: 6px;">${notif.message}</div>
+                                <div style="font-size: 12px; color: #94a3b8;">${formatTimeAgo(notif.createdAt)}</div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('') : `
+                    <div style="padding: 60px 20px; text-align: center; color: #94a3b8;">
+                        <i class="fas fa-bell-slash" style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;"></i>
+                        <div>No notifications</div>
+                    </div>
+                `}
+            </div>
+            ${notifications.length > 0 ? `
+                <div style="padding: 12px; text-align: center; border-top: 1px solid #e2e8f0;">
+                    <a href="#" onclick="viewAllNotifications()" style="color: #3b82f6; text-decoration: none; font-size: 14px; font-weight: 500;">View All Notifications</a>
+                </div>
+            ` : ''}
+        `;
+        
+        // Clear badge
+        const badge = document.querySelector('.notification-bell .badge');
+        if (badge) {
+            badge.style.display = 'none';
+        }
+        
+    } catch (error) {
+        console.error('❌ Error loading notifications:', error);
+        dropdown.innerHTML = `
+            <div style="padding: 16px; border-bottom: 1px solid #e2e8f0;">
+                <h3 style="margin: 0; font-size: 16px; font-weight: 600;">Notifications</h3>
+            </div>
+            <div style="padding: 60px 20px; text-align: center; color: #ef4444;">
+                <i class="fas fa-exclamation-circle" style="font-size: 48px; margin-bottom: 16px;"></i>
+                <div>Failed to load notifications</div>
+                <div style="font-size: 13px; margin-top: 8px;">Please try again later</div>
+            </div>
+        `;
     }
 }
 
@@ -150,20 +232,52 @@ function closeNotifications() {
     if (dropdown) dropdown.remove();
 }
 
-window.markAllRead = function() {
-    const badge = document.querySelector('.notification-bell .badge');
-    if (badge) {
-        badge.textContent = '0';
-        badge.style.display = 'none';
+// 🆕 Mark all notifications as read
+window.markAllRead = async function() {
+    try {
+        await AdminAPI.request('/api/admin/notifications/mark-all-read', { method: 'POST' });
+        
+        const badge = document.querySelector('.notification-bell .badge');
+        if (badge) {
+            badge.textContent = '0';
+            badge.style.display = 'none';
+        }
+        
+        if (window.AdminUtils) {
+            window.AdminUtils.showToast('All notifications marked as read', 'success');
+        }
+        closeNotifications();
+    } catch (error) {
+        console.error('❌ Error marking notifications as read:', error);
+        if (window.AdminUtils) {
+            window.AdminUtils.showToast('Failed to mark notifications as read', 'error');
+        }
     }
-    if (window.AdminUtils) {
-        window.AdminUtils.showToast('All notifications marked as read', 'success');
-    }
-    closeNotifications();
 }
 
-// Show settings dropdown
-function showSettings(e) {
+// 🆕 Mark single notification as read
+window.markNotificationRead = async function(notificationId) {
+    try {
+        await AdminAPI.request(`/api/admin/notifications/${notificationId}/read`, { method: 'POST' });
+        console.log(`✅ Notification ${notificationId} marked as read`);
+        
+        // Reload notifications count
+        loadNotificationsCount();
+    } catch (error) {
+        console.error('❌ Error marking notification as read:', error);
+    }
+}
+
+window.viewAllNotifications = function() {
+    closeNotifications();
+    // Navigate to notifications page (implement if exists)
+    if (window.AdminUtils) {
+        window.AdminUtils.showToast('Full notifications page - Coming soon!', 'info');
+    }
+}
+
+// 🆕 Show settings dropdown
+async function showSettings(e) {
     e.stopPropagation();
     
     // Close other dropdowns
@@ -245,7 +359,7 @@ function closeSettings() {
     if (dropdown) dropdown.remove();
 }
 
-// Settings menu actions
+// Settings menu actions - These can be connected to backend when settings pages are built
 window.openGeneralSettings = function() {
     closeSettings();
     if (window.AdminUtils) {
@@ -288,8 +402,8 @@ window.openBackupSettings = function() {
     }
 }
 
-// Show profile menu dropdown
-function showProfileMenu(e) {
+// 🆕 Show profile menu dropdown with REAL data
+async function showProfileMenu(e) {
     e.stopPropagation();
     
     // Close other dropdowns
@@ -302,6 +416,13 @@ function showProfileMenu(e) {
         dropdown.remove();
         return;
     }
+    
+    // Get profile data
+    const profile = window.adminProfileData || {
+        name: 'Admin User',
+        email: 'admin@iinedu.com',
+        role: 'Super Admin'
+    };
     
     // Create profile dropdown
     dropdown = document.createElement('div');
@@ -321,12 +442,12 @@ function showProfileMenu(e) {
     
     dropdown.innerHTML = `
         <div style="padding: 20px; border-bottom: 1px solid #e2e8f0; text-align: center;">
-            <img src="https://ui-avatars.com/api/?name=Admin+User&background=6366f1&color=fff&size=80" 
+            <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(profile.name)}&background=6366f1&color=fff&size=80" 
                  alt="Admin" 
                  style="width: 80px; height: 80px; border-radius: 50%; margin-bottom: 12px;">
-            <div style="font-weight: 600; font-size: 16px; color: #1e293b; margin-bottom: 4px;">Admin User</div>
-            <div style="font-size: 13px; color: #64748b;">admin@iinedu.com</div>
-            <div style="margin-top: 8px; display: inline-block; padding: 4px 12px; background: #dbeafe; color: #1e40af; border-radius: 12px; font-size: 12px; font-weight: 600;">Super Admin</div>
+            <div style="font-weight: 600; font-size: 16px; color: #1e293b; margin-bottom: 4px;">${profile.name}</div>
+            <div style="font-size: 13px; color: #64748b;">${profile.email}</div>
+            <div style="margin-top: 8px; display: inline-block; padding: 4px 12px; background: #dbeafe; color: #1e40af; border-radius: 12px; font-size: 12px; font-weight: 600;">${profile.role}</div>
         </div>
         <div style="padding: 8px;">
             <a href="#" onclick="viewProfile()" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 8px; text-decoration: none; color: #334155; transition: background 0.2s;" 
@@ -400,6 +521,19 @@ window.viewActivity = function() {
     }
 }
 
+// Utility: Format time ago
+function formatTimeAgo(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now - date) / 1000);
+    
+    if (seconds < 60) return 'Just now';
+    if (seconds < 3600) return `${Math.floor(seconds / 60)} min ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)} hour${Math.floor(seconds / 3600) > 1 ? 's' : ''} ago`;
+    if (seconds < 604800) return `${Math.floor(seconds / 86400)} day${Math.floor(seconds / 86400) > 1 ? 's' : ''} ago`;
+    return date.toLocaleDateString();
+}
+
 // Add CSS animation
 const style = document.createElement('style');
 style.textContent = `
@@ -439,7 +573,6 @@ function setupNavigation() {
                 const linkText = link.querySelector('span')?.textContent || 'Admin Panel';
                 if (pageTitle) pageTitle.textContent = linkText;
                 
-                // CRITICAL: Call the correct initialization function
                 setTimeout(() => loadPageData(pageName), 50);
             }
         });
@@ -455,112 +588,57 @@ function loadPageData(pageName) {
             case 'dashboard':
                 loadDashboardData();
                 break;
-                
-            // Test Management
             case 'test-calendar':
-                if (typeof initTestCalendar === 'function') {
-                    initTestCalendar();
-                } else {
-                    console.warn('⚠️ initTestCalendar not found');
-                }
+                if (typeof initTestCalendar === 'function') initTestCalendar();
+                else console.warn('⚠️ initTestCalendar not found');
                 break;
-                
             case 'scheduled-tests':
-                if (typeof initScheduledTests === 'function') {
-                    initScheduledTests();
-                } else {
-                    console.warn('⚠️ initScheduledTests not found');
-                }
+                if (typeof initScheduledTests === 'function') initScheduledTests();
+                else console.warn('⚠️ initScheduledTests not found');
                 break;
-                
             case 'past-tests':
-                if (typeof initPastTests === 'function') {
-                    initPastTests();
-                } else {
-                    console.warn('⚠️ initPastTests not found');
-                }
+                if (typeof initPastTests === 'function') initPastTests();
+                else console.warn('⚠️ initPastTests not found');
                 break;
-                
             case 'create-test':
-                if (typeof initCreateTest === 'function') {
-                    initCreateTest();
-                } else {
-                    console.warn('⚠️ initCreateTest not found');
-                }
+                if (typeof initCreateTest === 'function') initCreateTest();
+                else console.warn('⚠️ initCreateTest not found');
                 break;
-                
-            // Question Bank
             case 'add-questions':
-                if (typeof initAddQuestions === 'function') {
-                    initAddQuestions();
-                } else {
-                    console.warn('⚠️ initAddQuestions not found');
-                }
+                if (typeof initAddQuestions === 'function') initAddQuestions();
+                else console.warn('⚠️ initAddQuestions not found');
                 break;
-                
             case 'view-questions':
-                if (typeof initViewQuestions === 'function') {
-                    initViewQuestions();
-                } else {
-                    console.warn('⚠️ initViewQuestions not found');
-                }
+                if (typeof initViewQuestions === 'function') initViewQuestions();
+                else console.warn('⚠️ initViewQuestions not found');
                 break;
-                
             case 'upload-pdf':
-                if (typeof initUploadPDF === 'function') {
-                    initUploadPDF();
-                } else {
-                    console.warn('⚠️ initUploadPDF not found');
-                }
+                if (typeof initUploadPDF === 'function') initUploadPDF();
+                else console.warn('⚠️ initUploadPDF not found');
                 break;
-                
             case 'upload-image':
-                if (typeof initImageUploadPage === 'function') {
-                    initImageUploadPage();
-                } else {
-                    console.warn('⚠️ initImageUploadPage not found');
-                }
+                if (typeof initImageUploadPage === 'function') initImageUploadPage();
+                else console.warn('⚠️ initImageUploadPage not found');
                 break;
-                
-            // Students
             case 'all-students':
-                if (typeof initStudents === 'function') {
-                    initStudents();
-                } else {
-                    console.warn('⚠️ initStudents not found');
-                }
+                if (typeof initStudents === 'function') initStudents();
+                else console.warn('⚠️ initStudents not found');
                 break;
-                
             case 'add-student':
-                if (typeof initAddStudent === 'function') {
-                    initAddStudent();
-                } else {
-                    console.warn('⚠️ initAddStudent not found');
-                }
+                if (typeof initAddStudent === 'function') initAddStudent();
+                else console.warn('⚠️ initAddStudent not found');
                 break;
-                
             case 'performance':
                 console.log('ℹ️ Performance analytics - Coming soon');
                 break;
-                
-            // Financial
             case 'transactions':
-                if (typeof initTransactions === 'function') {
-                    initTransactions();
-                } else {
-                    console.warn('⚠️ initTransactions not found');
-                }
+                if (typeof initTransactions === 'function') initTransactions();
+                else console.warn('⚠️ initTransactions not found');
                 break;
-                
-            // Results
             case 'view-results':
-                if (typeof initResults === 'function') {
-                    initResults();
-                } else {
-                    console.warn('⚠️ initResults not found');
-                }
+                if (typeof initResults === 'function') initResults();
+                else console.warn('⚠️ initResults not found');
                 break;
-                
             default:
                 console.log(`ℹ️ No initialization needed for ${pageName}`);
         }
