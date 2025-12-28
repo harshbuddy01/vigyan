@@ -1,6 +1,96 @@
 {
+  "version": 2,
+  "name": "iin-admin-portal",
+  "builds": [
+    {
+      "src": "index.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "admin-dashboard-v2.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "frontend/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/frontend/(.*)",
+      "dest": "/frontend/$1"
+    },
+    {
+      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|json))",
+      "dest": "/$1"
+    },
+    {
+      "src": "/admin-dashboard-v2.html",
+      "dest": "/admin-dashboard-v2.html"
+    },
+    {
+      "src": "/admin-dashboard-v2",
+      "dest": "/admin-dashboard-v2.html"
+    },
+    {
+      "src": "/",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
+    },
+    {
+      "source": "/frontend/css/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/frontend/js/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ],
   "github": {
-    "silent": true
+    "silent": false,
+    "autoJobCancelation": true
   },
-  "cleanUrls": true
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "framework": null,
+  "installCommand": null,
+  "buildCommand": null,
+  "outputDirectory": ".",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./frontend ./admin-dashboard-v2.html ./index.html"
 }
