@@ -55,6 +55,7 @@ import paymentRoutes from './routes/paymentRoutes.js';
 import examRoutes from './routes/examRoutes.js';
 // import testRoutes from './routes/testRoutes.js';  // TODO: File doesn't exist yet
 import questionRoutes from './routes/questionRoutes.js'; // 🔥 NEW OOP Question Routes
+import migrationRoute from './routes/migrationRoute.js'; // 🔧 One-time migration endpoint
 
 // Admin API routes (NEW structure with /admin prefix)
 console.log('🔵 Setting up Admin API routes...');
@@ -62,6 +63,8 @@ app.use('/api/admin', questionRoutes); // 🔥 Mount OOP question routes
 console.log('✅ Question routes mounted (OLD + NEW OOP routes)');
 app.use('/api/admin', adminRoutes);
 console.log('✅ Admin API routes mounted');
+app.use('/api/admin', migrationRoute); // 🔧 Migration endpoint
+console.log('✅ Migration endpoint mounted');
 
 // Mount other API routes
 console.log('🔵 Mounting API routes...');
@@ -88,7 +91,8 @@ app.get('/', (req, res) => {
       health: '/health',
       admin: '/api/admin',
       payment: '/api/payment',
-      exam: '/api/exam'
+      exam: '/api/exam',
+      migration: '/api/admin/run-difficulty-migration (one-time use)'
     }
   });
 });
