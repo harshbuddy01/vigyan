@@ -254,6 +254,63 @@ export class QuestionRepository {
     }
     
     /**
+     * Get statistics about questions
+     */
+    async getStatistics() {
+        try {
+            // Total questions
+            const totalQuery = `SELECT COUNT(*) as total FROM ${this.tableName}`;
+            const totalRows = await db.query(totalQuery);
+            
+            // By section
+            const sectionQuery = `
+                SELECT section, COUNT(*) as count 
+                FROM ${this.tableName} 
+                GROUP BY section
+            `;
+            const sectionRows = await db.query(sectionQuery);
+            
+            // By difficulty
+            const difficultyQuery = `
+                SELECT difficulty, COUNT(*) as count 
+                FROM ${this.tableName} 
+                GROUP BY difficulty
+            `;
+            const difficultyRows = await db.query(difficultyQuery);
+            
+            // By test
+            const testQuery = `
+                SELECT test_id, COUNT(*) as count 
+                FROM ${this.tableName} 
+                GROUP BY test_id 
+                ORDER BY count DESC 
+                LIMIT 10
+            `;
+            const testRows = await db.query(testQuery);
+            
+            return {
+                total: totalRows[0].total,
+                bySection: sectionRows.reduce((acc, row) => {
+                    acc[row.section] = row.count;
+                    return acc;
+                }, {}),
+                byDifficulty: difficultyRows.reduce((acc, row) => {
+                    acc[row.difficulty] = row.count;
+                    return acc;
+                }, {}),
+                topTests: testRows.map(row => ({
+                    testId: row.test_id,
+                    questionCount: row.count
+                }))
+            };
+            
+        } catch (error) {
+            console.error('❌ QuestionRepository.getStatistics error:', error);
+            throw new Error(`Failed to get statistics: ${error.message}`);
+        }
+    }
+    
+    /**
      * Bulk insert questions (useful for importing)
      */
     async bulkCreate(questions) {
