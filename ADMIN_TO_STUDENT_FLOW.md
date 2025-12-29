@@ -1,226 +1,155 @@
-# 🎯 COMPLETE ADMIN TO STUDENT QUESTION FLOW
+# 🎯 Admin to Student Question Flow - Complete Documentation
 
-## 📌 Overview
+## 🚀 Overview
 
-This document explains the **complete end-to-end flow** of how questions move from admin creation to student exam interface in the IIN platform.
+This document explains the **complete end-to-end flow** of how questions move from Admin upload to Student exam interface.
 
 ---
 
-## 🚦 FLOW DIAGRAM
+## 📊 Flow Diagram
 
 ```
-👨‍💻 ADMIN                  💾 DATABASE              🎓 STUDENT
-   │                         │                      │
-   │  1. Opens Admin       │                      │
-   │     Dashboard         │                      │
-   │     (admin-           │                      │
-   │      dashboard-v2.    │                      │
-   │      html)            │                      │
-   │                        │                      │
-   │  2. Clicks "Add       │                      │
-   │     Questions"        │                      │
-   │                        │                      │
-   │  3. Fills Form:       │                      │
-   │     - Exam Type       │                      │
-   │       (IISER/ISI/     │                      │
-   │        NEST)          │                      │
-   │     - Year (2025)     │                      │
-   │     - Subject         │                      │
-   │     - Question #      │                      │
-   │     - Question Text   │                      │
-   │     - Options A-D     │                      │
-   │     - Correct Answer  │                      │
-   │                        │                      │
-   │  4. Clicks "Save      │                      │
-   │     Question"         │                      │
-   │                        │                      │
-   │──POST /api/admin/─────>│                      │
-   │    questions         │                      │
-   │    {                 │                      │
-   │      testId:         │                      │
-   │       "IISER_2025",  │                      │
-   │      examType:       │                      │
-   │       "IISER",       │                      │
-   │      year: "2025",   │                      │
-   │      questionNumber: │                      │
-   │       1,             │                      │
-   │      questionText:   │                      │
-   │       "...",         │                      │
-   │      options: [...], │                      │
-   │      correctAnswer:  │                      │
-   │       "A",           │                      │
-   │      section:        │                      │
-   │       "Physics"      │                      │
-   │    }                 │                      │
-   │                        │                      │
-   │                        │  5. Backend         │
-   │                        │     Validates Data  │
-   │                        │                      │
-   │                        │  6. INSERT INTO     │
-   │                        │     questions       │
-   │                        │     (test_id,       │
-   │                        │      question_      │
-   │                        │      number,        │
-   │                        │      question_text, │
-   │                        │      options,       │
-   │                        │      correct_answer,│
-   │                        │      section,       │
-   │                        │      marks_positive)│
-   │                        │                      │
-   │<───{success: true}──│                      │
-   │                        │                      │
-   │  7. Shows Success    │                      │
-   │     Message          │                      │
-   │     "✅ Question      │                      │
-   │      Added!"         │                      │
-   │                        │                      │
-   │                        │                      │  8. Student Opens
-   │                        │                      │     exam.html
-   │                        │                      │     ?test=iiser
-   │                        │                      │
-   │                        │                      │  9. startExam()
-   │                        │                      │     function runs
-   │                        │                      │
-   │                        │                      │──GET /api/exam/────>
-   │                        │                      │   questions?
-   │                        │                      │   testId=IISER_2025
-   │                        │                      │
-   │                        │  10. SELECT * FROM  │
-   │                        │      questions      │
-   │                        │      WHERE test_id= │
-   │                        │      'IISER_2025'   │
-   │                        │      ORDER BY       │
-   │                        │      question_number│
-   │                        │                      │
-   │                        │                      │<──{questions: [...]}
-   │                        │                      │
-   │                        │                      │  11. Renders
-   │                        │                      │      questions in
-   │                        │                      │      exam interface
-   │                        │                      │
-   │                        │                      │  12. Student sees
-   │                        │                      │      Question 1
-   │                        │                      │      with options
-   │                        │                      │      A, B, C, D
+┌─────────────────┐
+│  ADMIN UPLOADS  │
+│   QUESTION     │
+└───────┬────────┘
+        │
+        │ POST /api/admin/questions
+        │ {
+        │   examType: "IISER",
+        │   year: "2025",
+        │   questionNumber: 1,
+        │   questionText: "...",
+        │   options: [...],
+        │   correctAnswer: "A",
+        │   section: "Physics"
+        │ }
+        │
+        │
+┌───────┴────────┐
+│   BACKEND      │
+│  VALIDATES &   │
+│   SAVES TO     │
+│    MySQL       │
+└───────┬────────┘
+        │
+        │ Generates testId: "IISER_2025"
+        │ Inserts into questions table
+        │
+        │
+┌───────┴────────┐
+│   DATABASE     │
+│  questions    │
+│    table      │
+└───────┬────────┘
+        │
+        │ GET /api/exam/questions?testId=IISER_2025
+        │
+        │
+┌───────┴────────┐
+│   STUDENT      │
+│ SEES QUESTION │
+│  IN EXAM UI   │
+└─────────────────┘
 ```
 
 ---
 
-## 📦 1. ADMIN SIDE - ADDING QUESTIONS
+## 💻 1. Admin Upload Interface
 
-### File: `admin-dashboard-v2.html`
+### File: `frontend/js/add-questions-v2.js`
 
-**Navigation Path:**
-1. Admin logs in → `admin-dashboard-v2.html`
-2. Clicks sidebar: **"Add Questions"**
-3. Loads: `frontend/js/add-questions.js`
+**Admin fills form with:**
 
-### File: `frontend/js/add-questions.js`
+| Field | Type | Example | Required |
+|-------|------|---------|----------|
+| Exam Type | Dropdown | IISER / ISI / NEST | ✅ Yes |
+| Year | Dropdown | 2025, 2024, 2023... | ✅ Yes |
+| Paper Type | Dropdown (ISI only) | A / B | ⚠️ ISI Only |
+| Subject | Dropdown | Physics / Chemistry / Math | ✅ Yes |
+| Question Number | Number | 1, 2, 3... | ✅ Yes |
+| Question Text | Textarea | "What is..." | ✅ Yes |
+| Option A | Text | "First option" | ✅ Yes |
+| Option B | Text | "Second option" | ✅ Yes |
+| Option C | Text | "Third option" | ✅ Yes |
+| Option D | Text | "Fourth option" | ✅ Yes |
+| Correct Answer | Dropdown | A / B / C / D | ✅ Yes |
+| Marks | Number | 4 (default) | ✅ Yes |
 
-**Form Fields:**
-
+**Generated TestId Format:**
 ```javascript
-// EXAM METADATA
-examType: "IISER" | "ISI" | "NEST"
-examYear: "2025" | "2024" | "2023" | ...
-paperType: "A" | "B" | null  // Only for ISI
+// IISER
+testId = "IISER_2025"
 
-// AUTO-GENERATED
-testId: `${examType}_${year}${paperType ? '_' + paperType : ''}`
-// Examples:
-// - "IISER_2025"
-// - "ISI_2025_A"
-// - "NEST_2024"
+// ISI with Paper Type
+testId = "ISI_2025_A"  // Paper A
+testId = "ISI_2025_B"  // Paper B
 
-// QUESTION DETAILS
-questionNumber: 1-120
-subject: "Physics" | "Chemistry" | "Mathematics" | "Biology"
-questionText: "Match the following..." (supports LaTeX)
-optionA: "First option"
-optionB: "Second option"
-optionC: "Third option"
-optionD: "Fourth option"
-correctAnswer: "A" | "B" | "C" | "D"
-marks: 4 (default)
-difficulty: "Easy" | "Medium" | "Hard"
-topic: "Mechanics" (optional)
-explanation: "Solution..." (optional)
+// NEST
+testId = "NEST_2025"
 ```
 
-**Form Submission:**
-
+**Payload sent to backend:**
 ```javascript
-// When admin clicks "Save Question"
 POST https://iin-production.up.railway.app/api/admin/questions
 
-Headers: {
-  'Content-Type': 'application/json'
-}
+Content-Type: application/json
 
-Body: {
+{
   "testId": "IISER_2025",
   "examType": "IISER",
   "year": "2025",
   "paperType": null,
   "questionNumber": 1,
-  "questionText": "Match the entries in column I and column II.",
+  "questionText": "If a particle moves with velocity v = 3t^2 + 2t, what is acceleration at t=2?",
   "options": [
-    "P-iv; Q-ii; R-i; S-iii",
-    "P-iv; Q-i; R-ii; S-iii",
-    "P-iii; Q-i; R-ii; S-iv",
-    "P-i; Q-iii; R-ii; S-iv"
+    "10 m/s²",
+    "12 m/s²",
+    "14 m/s²",
+    "16 m/s²"
   ],
-  "correctAnswer": "D",
-  "section": "Biology",
-  "marks": 4,
-  "difficulty": "Medium",
-  "topic": "Animal Taxonomy",
-  "explanation": "..."
+  "correctAnswer": "C",
+  "section": "Physics",
+  "marks": 4
 }
 ```
 
 ---
 
-## 💾 2. BACKEND - SAVING TO DATABASE
+## 🔧 2. Backend Processing
 
 ### File: `backend/routes/questionRoutes.js`
 
-**API Endpoint:**
-
-```javascript
-POST /api/admin/questions
-```
+**Route:** `POST /api/admin/questions`
 
 **Validation Steps:**
 
-1. ✅ Check required fields: `testId`, `examType`, `year`, `questionNumber`, `questionText`, `section`
-2. ✅ Validate options array: Must have exactly 4 items
-3. ✅ Validate correctAnswer: Must be A, B, C, or D
-4. ✅ Check examType: Must be IISER, ISI, or NEST
-5. ✅ For ISI: Require paperType (A or B)
-6. ✅ Check duplicate: No existing question with same `testId + questionNumber + section`
+1. ✅ Check required fields (testId, examType, year, questionNumber, questionText, section)
+2. ✅ Validate options array (must have exactly 4 items)
+3. ✅ Validate correctAnswer (must be A, B, C, or D)
+4. ✅ Validate examType (must be IISER, ISI, or NEST)
+5. ✅ For ISI, ensure paperType is provided
+6. ✅ Check if question number already exists for this test+section
 
 **Database Insert:**
-
 ```sql
 INSERT INTO questions (
-  test_id,           -- "IISER_2025"
-  question_number,   -- 1
-  question_text,     -- "Match the entries..."
-  options,           -- JSON: ["Option A", "Option B", ...]
-  correct_answer,    -- "D"
-  section,           -- "Biology"
-  marks_positive,    -- 4
-  marks_negative,    -- -1
-  difficulty,        -- "Medium"
-  topic,             -- "Animal Taxonomy"
-  input_method,      -- "manual"
-  created_at         -- NOW()
+    test_id,           -- "IISER_2025"
+    question_number,   -- 1
+    question_text,     -- "If a particle moves..."
+    options,           -- '["10 m/s²", "12 m/s²", "14 m/s²", "16 m/s²"]'
+    correct_answer,    -- "C"
+    section,           -- "Physics"
+    marks_positive,    -- 4
+    marks_negative,    -- -1
+    difficulty,        -- "Medium"
+    topic,             -- NULL
+    input_method,      -- "manual"
+    created_at         -- NOW()
 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
 ```
 
-**Response to Admin:**
-
+**Success Response:**
 ```json
 {
   "success": true,
@@ -230,366 +159,231 @@ INSERT INTO questions (
     "testId": "IISER_2025",
     "examType": "IISER",
     "year": "2025",
+    "paperType": null,
     "questionNumber": 1,
-    "section": "Biology",
+    "section": "Physics",
     "marks": 4,
-    "difficulty": "Medium"
+    "difficulty": "Medium",
+    "topic": null
   }
 }
 ```
 
 ---
 
-## 🎓 3. STUDENT SIDE - VIEWING QUESTIONS
+## 💾 3. Database Schema
+
+### Table: `questions`
+
+```sql
+CREATE TABLE questions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    test_id VARCHAR(50) NOT NULL,           -- "IISER_2025", "ISI_2025_A"
+    question_number INT NOT NULL,            -- 1, 2, 3...
+    question_text TEXT NOT NULL,             -- Question content
+    options JSON NOT NULL,                   -- ["A", "B", "C", "D"]
+    correct_answer CHAR(1) NOT NULL,         -- "A", "B", "C", "D"
+    section VARCHAR(50) NOT NULL,            -- "Physics", "Chemistry", "Mathematics"
+    marks_positive INT DEFAULT 4,            -- Correct answer marks
+    marks_negative INT DEFAULT -1,           -- Wrong answer penalty
+    difficulty VARCHAR(20) DEFAULT 'Medium', -- "Easy", "Medium", "Hard"
+    topic VARCHAR(100),                      -- "Mechanics", "Algebra", etc.
+    input_method VARCHAR(20) DEFAULT 'manual', -- "manual", "pdf", "bulk"
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    -- Indexes for fast retrieval
+    INDEX idx_test_id (test_id),
+    INDEX idx_section (section),
+    INDEX idx_test_section (test_id, section),
+    
+    -- Ensure no duplicate question numbers per test+section
+    UNIQUE KEY unique_question (test_id, question_number, section)
+);
+```
+
+**Sample Data:**
+```sql
+INSERT INTO questions VALUES
+(1, 'IISER_2025', 1, 'What is...?', '["A", "B", "C", "D"]', 'A', 'Physics', 4, -1, 'Medium', 'Mechanics', 'manual', NOW()),
+(2, 'IISER_2025', 2, 'Calculate...', '["A", "B", "C", "D"]', 'B', 'Physics', 4, -1, 'Hard', 'Thermodynamics', 'manual', NOW()),
+(3, 'IISER_2025', 31, 'Find derivative...', '["A", "B", "C", "D"]', 'C', 'Mathematics', 4, -1, 'Easy', 'Calculus', 'manual', NOW());
+```
+
+---
+
+## 🎯 4. Student Exam Interface
 
 ### File: `exam.html`
 
-**How Student Accesses:**
-
-```
-https://iin-theta.vercel.app/exam.html?test=iiser
-```
-
 **Student Flow:**
 
-1. **Page Loads:**
-   - Checks if student is logged in
-   - Checks if student purchased the test series
-   - Maps `?test=iiser` to `testId=IISER_2025` (current year)
+1. Student logs in (`signinpage.html`)
+2. Selects test series (IISER/ISI/NEST)
+3. Clicks "Start Test"
+4. `exam.html` loads with query parameter: `exam.html?test=IISER_2025`
 
-2. **Fetch Questions:**
-
+**Backend Request:**
 ```javascript
-// exam.html - startExam() function
-const testId = "IISER_2025"; // Derived from URL parameter + current year
+GET https://iin-production.up.railway.app/api/exam/questions?testId=IISER_2025
+```
 
-const response = await axios.get(
-  `${API_BASE_URL}/api/exam/questions?testId=${testId}`
-);
-
-// Response:
+**Backend Response:**
+```json
 {
   "success": true,
   "testId": "IISER_2025",
   "count": 90,
   "questions": [
     {
-      "id": 1234,
+      "id": 1,
       "testId": "IISER_2025",
       "questionNumber": 1,
-      "questionText": "Match the entries in column I and column II.",
-      "options": [
-        "P-iv; Q-ii; R-i; S-iii",
-        "P-iv; Q-i; R-ii; S-iii",
-        "P-iii; Q-i; R-ii; S-iv",
-        "P-i; Q-iii; R-ii; S-iv"
-      ],
-      "optionA": "P-iv; Q-ii; R-i; S-iii",
-      "optionB": "P-iv; Q-i; R-ii; S-iii",
-      "optionC": "P-iii; Q-i; R-ii; S-iv",
-      "optionD": "P-i; Q-iii; R-ii; S-iv",
-      "correctAnswer": "D",
-      "section": "Biology",
+      "questionText": "If a particle moves with velocity v = 3t^2 + 2t, what is acceleration at t=2?",
+      "options": ["10 m/s²", "12 m/s²", "14 m/s²", "16 m/s²"],
+      "optionA": "10 m/s²",
+      "optionB": "12 m/s²",
+      "optionC": "14 m/s²",
+      "optionD": "16 m/s²",
+      "correctAnswer": "C",
+      "section": "Physics",
       "marks": 4,
       "negativeMarks": -1,
       "difficulty": "Medium",
-      "topic": "Animal Taxonomy"
+      "topic": "Kinematics"
     },
     // ... 89 more questions
   ]
 }
 ```
 
-3. **Organize by Subject:**
-
-```javascript
-// exam.html organizes questions:
-questionsBySubject = {
-  "Physics": [Q1-Q30],      // questionNumber 1-30
-  "Chemistry": [Q31-Q60],   // questionNumber 31-60
-  "Mathematics": [Q61-Q90]  // questionNumber 61-90
-}
-```
-
-4. **Render Question:**
-
-```javascript
-function loadQuestion() {
-  const q = questionsBySubject[currentSubject][currentQIndex];
-  
-  // Display question number
-  document.getElementById('qNumDisplay').innerText = 
-    `Question No. ${q.questionNumber}`;
-  
-  // Display question text
-  document.getElementById('questionText').innerHTML = q.questionText;
-  
-  // Display options
-  options.forEach((optionText, index) => {
-    // Create option card with radio button
-    // Label: A, B, C, D
-  });
-  
-  // Render LaTeX if present
-  if (window.MathJax) window.MathJax.typesetPromise();
-}
-```
-
-5. **Student Interaction:**
-   - Student selects answer → Stored in `userResponses` object
-   - Click "Save & Next" → Moves to next question
-   - Click "Submit Test" → Sends all responses to backend
+**Question Display:**
+- Questions 1-30: Physics
+- Questions 31-60: Chemistry
+- Questions 61-90: Mathematics
 
 ---
 
-## 📊 DATABASE SCHEMA
+## 🛠️ 5. Testing the Flow
 
-### Table: `questions`
+### Step 1: Admin Uploads Question
 
-```sql
-CREATE TABLE questions (
-  id INT PRIMARY KEY AUTO_INCREMENT,
-  test_id VARCHAR(50) NOT NULL,              -- "IISER_2025", "ISI_2025_A"
-  question_number INT NOT NULL,              -- 1-120
-  question_text TEXT NOT NULL,               -- Question content
-  options JSON NOT NULL,                     -- ["A", "B", "C", "D"]
-  correct_answer CHAR(1) NOT NULL,           -- 'A', 'B', 'C', 'D'
-  section ENUM('Physics', 'Chemistry', 
-               'Mathematics', 'Biology'),    -- Subject
-  marks_positive DECIMAL(5,2) DEFAULT 4.00,  -- Marks for correct answer
-  marks_negative DECIMAL(5,2) DEFAULT -1.00, -- Negative marking
-  difficulty ENUM('Easy', 'Medium', 'Hard'), -- Difficulty level
-  topic VARCHAR(255),                        -- Optional topic name
-  input_method ENUM('pdf', 'manual', 
-                    'image') DEFAULT 'manual',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
-             ON UPDATE CURRENT_TIMESTAMP,
-  
-  INDEX idx_test_id (test_id),
-  INDEX idx_section (section),
-  INDEX idx_question_number (question_number),
-  UNIQUE KEY unique_question (test_id, question_number, section)
-);
-```
-
-**Sample Data:**
-
-```sql
-INSERT INTO questions VALUES (
-  NULL,                           -- id (auto-increment)
-  'IISER_2025',                  -- test_id
-  1,                             -- question_number
-  'Match the entries...',        -- question_text
-  '["P-iv; Q-ii...", ...]',      -- options (JSON)
-  'D',                           -- correct_answer
-  'Biology',                     -- section
-  4.00,                          -- marks_positive
-  -1.00,                         -- marks_negative
-  'Medium',                      -- difficulty
-  'Animal Taxonomy',             -- topic
-  'manual',                      -- input_method
-  NOW(),                         -- created_at
-  NOW()                          -- updated_at
-);
-```
-
----
-
-## 🔑 KEY CONCEPTS
-
-### 1. **Test ID Format**
-
-```
-Format: {EXAM_TYPE}_{YEAR}_{PAPER_TYPE (optional)}
-
-Examples:
-- IISER_2025       (IISER IAT 2025)
-- ISI_2025_A       (ISI 2025 Paper A - MCQ)
-- ISI_2025_B       (ISI 2025 Paper B - Subjective)
-- NEST_2024        (NEST 2024)
-```
-
-### 2. **Question Numbering**
-
-```
-Subject Distribution (Standard):
-- Physics:       Q1  - Q30  (30 questions)
-- Chemistry:     Q31 - Q60  (30 questions)
-- Mathematics:   Q61 - Q90  (30 questions)
-- Biology:       Q91 - Q120 (30 questions) [if applicable]
-
-Total: 90-120 questions per test
-```
-
-### 3. **Options Storage**
-
-```json
-// Stored as JSON array in database:
-{
-  "options": [
-    "First option text",
-    "Second option text",
-    "Third option text",
-    "Fourth option text"
-  ]
-}
-
-// Retrieved as:
-{
-  "options": [...],
-  "optionA": "First option text",
-  "optionB": "Second option text",
-  "optionC": "Third option text",
-  "optionD": "Fourth option text"
-}
-```
-
----
-
-## ✅ SUCCESS CRITERIA
-
-### Admin Successfully Adds Question:
-
-1. ✅ Admin fills all required fields
-2. ✅ Form validates data
-3. ✅ Backend receives POST request
-4. ✅ Backend validates data
-5. ✅ Question saved to MySQL database
-6. ✅ Admin sees success message: "✅ Question added successfully!"
-7. ✅ Question number auto-increments for next entry
-
-### Student Successfully Sees Question:
-
-1. ✅ Student opens exam with URL: `exam.html?test=iiser`
-2. ✅ System maps `iiser` → `IISER_2025`
-3. ✅ Backend fetches all questions for `IISER_2025`
-4. ✅ Questions organized by subject
-5. ✅ First question (Q1) displays with all 4 options
-6. ✅ LaTeX renders correctly (if present)
-7. ✅ Student can select answer and navigate
-
----
-
-## 🛠️ TESTING THE FLOW
-
-### Test Case 1: Add IISER Question
-
-**Admin Steps:**
-1. Open: `https://iin-theta.vercel.app/admin-dashboard-v2.html`
-2. Click: "Add Questions" in sidebar
+1. Open `admin-dashboard-v2.html`
+2. Click "Add Questions" in sidebar
 3. Fill form:
    - Exam Type: **IISER**
    - Year: **2025**
    - Subject: **Physics**
    - Question Number: **1**
-   - Question Text: "A ball is thrown vertically upward..."
-   - Option A: "10 m/s"
-   - Option B: "20 m/s"
-   - Option C: "30 m/s"
-   - Option D: "40 m/s"
-   - Correct Answer: **B**
+   - Question Text: "Test question"
+   - Options A-D: "Option A", "Option B", "Option C", "Option D"
+   - Correct Answer: **A**
    - Marks: **4**
-4. Click: **"Save Question"**
-5. Expect: ✅ Success message
+4. Click "Add Question"
+5. Success message: "✅ Question 1 added successfully for IISER_2025!"
 
-**Student Verification:**
-1. Open: `https://iin-theta.vercel.app/exam.html?test=iiser`
-2. Expect: Question 1 displays with all options
-3. Physics section shows 1 question in palette
+### Step 2: Verify in Database
 
-### Test Case 2: Add ISI Question with Paper Type
+```sql
+SELECT * FROM questions WHERE test_id = 'IISER_2025' ORDER BY question_number;
+```
 
-**Admin Steps:**
-1. Exam Type: **ISI**
-2. Year: **2025**
-3. Paper Type: **A** (MCQ)
-4. Subject: **Mathematics**
-5. Question Number: **1**
-6. Fill remaining fields
-7. Click: **"Save Question"**
+Expected Output:
+```
++----+-----------+------------------+-----------------+--------+------------------+---------+
+| id | test_id   | question_number  | question_text   | ... | section | marks  |
++----+-----------+------------------+-----------------+--------+------------------+---------+
+| 1  | IISER_2025|        1         | Test question   | ... | Physics |   4    |
++----+-----------+------------------+-----------------+--------+------------------+---------+
+```
 
-**Expected testId:** `ISI_2025_A`
+### Step 3: Student Views Question
+
+1. Open `exam.html?test=IISER_2025`
+2. Login as student
+3. Question 1 appears: "Test question"
+4. Options displayed: A, B, C, D
+5. Select answer and submit
 
 ---
 
-## 🐛 TROUBLESHOOTING
+## ⚠️ Common Issues & Solutions
 
-### Problem: Admin sees "Failed to add question"
+### Issue 1: "Question number already exists"
+**Cause:** Admin tried to add question with duplicate number
+**Solution:** Use a different question number OR update the existing question
 
-**Solutions:**
-1. Check browser console for error messages
-2. Verify all required fields are filled
-3. Check if question number already exists
-4. Verify backend is running
-5. Check Railway database connection
+### Issue 2: "No questions found for this test"
+**Cause:** testId mismatch between admin upload and student request
+**Solution:** Ensure testId format matches exactly (case-sensitive)
 
-### Problem: Student sees "No questions found"
-
-**Solutions:**
-1. Verify testId format: `IISER_2025` (not `iiser` or `IISER2025`)
-2. Check if questions exist in database for that testId
-3. Verify student has purchased access to that test series
-4. Check backend logs for SQL errors
-
-### Problem: Options not displaying correctly
-
-**Solutions:**
-1. Verify options are stored as JSON array in database
-2. Check if JSON parsing is successful
-3. Verify all 4 options have text (not empty)
+### Issue 3: "Options not displaying"
+**Cause:** JSON parsing error in options field
+**Solution:** Backend safely parses JSON; check database data format
 
 ---
 
-## 📌 IMPORTANT FILES
+## 📝 Example Test IDs
 
-### Frontend
+| Exam | Year | Paper | TestId |
+|------|------|-------|--------|
+| IISER IAT | 2025 | - | `IISER_2025` |
+| IISER IAT | 2024 | - | `IISER_2024` |
+| ISI B.Stat/B.Math | 2025 | A | `ISI_2025_A` |
+| ISI B.Stat/B.Math | 2025 | B | `ISI_2025_B` |
+| NEST | 2025 | - | `NEST_2025` |
+| NEST | 2024 | - | `NEST_2024` |
+
+---
+
+## 🚀 Quick Start Commands
+
+### 1. Add Question via Admin Panel
 ```
-admin-dashboard-v2.html           // Admin dashboard
-frontend/js/add-questions.js     // Admin question form
-exam.html                         // Student exam interface
-frontend/js/config.js            // API configuration
+1. Navigate to: http://localhost:5173/admin-dashboard-v2.html
+2. Click: "Add Questions"
+3. Fill form and submit
 ```
 
-### Backend
-```
-backend/routes/questionRoutes.js  // Question API routes
-backend/config/mysql.js           // Database connection
-backend/migrations/               // Database schema
+### 2. Test API Directly (cURL)
+```bash
+curl -X POST https://iin-production.up.railway.app/api/admin/questions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "testId": "IISER_2025",
+    "examType": "IISER",
+    "year": "2025",
+    "questionNumber": 1,
+    "questionText": "Test question?",
+    "options": ["A", "B", "C", "D"],
+    "correctAnswer": "A",
+    "section": "Physics",
+    "marks": 4
+  }'
 ```
 
-### Database
-```
-table: questions                  // Main questions table
-table: student_attempts           // Student submissions
-table: scheduled_tests            // Test scheduling
+### 3. Fetch Questions as Student
+```bash
+curl https://iin-production.up.railway.app/api/exam/questions?testId=IISER_2025
 ```
 
 ---
 
-## 🚀 NEXT STEPS
+## ✅ Success Checklist
 
-1. **Test the complete flow:**
-   - Add 3-5 questions as admin
-   - Verify they appear in student exam interface
-   - Test different exam types (IISER, ISI, NEST)
-
-2. **Bulk Import Feature:**
-   - Add CSV/Excel import for multiple questions
-   - PDF extraction improvement
-
-3. **Question Bank Management:**
-   - Edit existing questions
-   - Delete questions
-   - Duplicate questions for different years
-
-4. **Advanced Features:**
-   - Image upload for questions
-   - LaTeX preview in admin form
-   - Question analytics
+- [ ] Admin can upload question via form
+- [ ] Backend validates all fields
+- [ ] Question saved to MySQL database
+- [ ] Student can fetch questions by testId
+- [ ] Questions display correctly in exam interface
+- [ ] Submit exam and calculate score
 
 ---
 
-**Last Updated:** December 30, 2025
-**Version:** 1.0
-**Status:** ✅ Production Ready
+## 📞 Support
+
+For issues or questions:
+- Check backend logs for detailed error messages
+- Verify database connection
+- Ensure API_BASE_URL is correct in config.js
+
+**Last Updated:** December 30, 2025, 3:38 AM IST
