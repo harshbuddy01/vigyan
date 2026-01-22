@@ -1,18 +1,17 @@
 import * as THREE from 'three';
 
 /**
- * MESMERIZING HOMEPAGE VISUALIZATION
+ * STUNNING HOMEPAGE VISUALIZATION
  * 
- * A stunning, love-at-first-sight experience featuring:
- * - Flowing Aurora/Nebula waves
+ * Beautiful, captivating experience with:
+ * - Flowing Lorenz Attractor (mathematical beauty)
  * - Elegant particle constellation
- * - Smooth, hypnotic animations
- * - Deep, rich color palette (dark blues, teals, subtle whites)
+ * - Color palette: Deep blues, purples, soft pinks (matching original design)
  * 
- * Designed to captivate visitors instantly.
+ * Creates instant "WOW" effect while maintaining elegance.
  */
 
-class MesmerizingCanvas {
+class StunningCanvas {
     constructor(canvasId) {
         this.canvas = document.getElementById(canvasId);
         if (!this.canvas) return;
@@ -26,16 +25,16 @@ class MesmerizingCanvas {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-        // Deep, rich background - almost black with subtle blue
-        this.renderer.setClearColor(0x030712, 1);
+        // Deep dark background matching original
+        this.renderer.setClearColor(0x0a0a1a, 1);
 
         this.camera = new THREE.PerspectiveCamera(
-            75,
+            60,
             window.innerWidth / window.innerHeight,
             0.1,
             1000
         );
-        this.camera.position.z = 30;
+        this.camera.position.z = 40;
 
         this.clock = new THREE.Clock();
         this.mouse = new THREE.Vector2(0, 0);
@@ -47,87 +46,78 @@ class MesmerizingCanvas {
     }
 
     init() {
-        // === FLOWING AURORA WAVES ===
-        this.createAuroraWaves();
+        // === LORENZ ATTRACTOR - Mathematical Beauty ===
+        this.createLorenzAttractor();
 
-        // === ELEGANT STAR FIELD ===
-        this.createStarField();
+        // === FLOATING PARTICLES - Ambient Magic ===
+        this.createFloatingParticles();
 
-        // === CENTRAL GLOWING ORB ===
-        this.createCentralOrb();
+        // === CONNECTING LINES - Neural Network Feel ===
+        this.createConnectionNetwork();
 
-        // === FLOWING PARTICLE STREAMS ===
-        this.createParticleStreams();
+        // === AMBIENT GLOW SPHERES ===
+        this.createGlowSpheres();
 
-        // === SUBTLE AMBIENT LIGHTING ===
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
+        // === LIGHTING ===
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
         this.scene.add(ambientLight);
+
+        const pointLight1 = new THREE.PointLight(0x60a5fa, 2, 100);
+        pointLight1.position.set(20, 20, 20);
+        this.scene.add(pointLight1);
+        this.light1 = pointLight1;
+
+        const pointLight2 = new THREE.PointLight(0xa78bfa, 1.5, 100);
+        pointLight2.position.set(-20, -10, 20);
+        this.scene.add(pointLight2);
+        this.light2 = pointLight2;
+
+        const pointLight3 = new THREE.PointLight(0xf472b6, 1, 80);
+        pointLight3.position.set(0, -20, 30);
+        this.scene.add(pointLight3);
     }
 
-    createAuroraWaves() {
-        // Create flowing wave meshes that look like aurora borealis
-        this.auroraWaves = [];
+    createLorenzAttractor() {
+        // Lorenz system parameters
+        const sigma = 10;
+        const rho = 28;
+        const beta = 8 / 3;
+        const dt = 0.005;
+        const numPoints = 15000;
 
-        const waveColors = [
-            { color: 0x0ea5e9, emissive: 0x0284c7, opacity: 0.15 }, // Sky blue
-            { color: 0x06b6d4, emissive: 0x0891b2, opacity: 0.12 }, // Cyan
-            { color: 0x14b8a6, emissive: 0x0d9488, opacity: 0.10 }, // Teal
-        ];
-
-        for (let w = 0; w < 3; w++) {
-            const geometry = new THREE.PlaneGeometry(100, 40, 100, 20);
-            const material = new THREE.MeshBasicMaterial({
-                color: waveColors[w].color,
-                transparent: true,
-                opacity: waveColors[w].opacity,
-                side: THREE.DoubleSide,
-                blending: THREE.AdditiveBlending,
-                wireframe: false
-            });
-
-            const wave = new THREE.Mesh(geometry, material);
-            wave.rotation.x = -Math.PI / 3;
-            wave.position.y = -10 + w * 5;
-            wave.position.z = -30 - w * 10;
-
-            wave.userData = {
-                originalPositions: geometry.attributes.position.array.slice(),
-                speed: 0.3 + w * 0.1,
-                amplitude: 3 - w * 0.5
-            };
-
-            this.auroraWaves.push(wave);
-            this.scene.add(wave);
-        }
-    }
-
-    createStarField() {
-        // Elegant, subtle star field with depth
-        const starCount = 2000;
         const positions = [];
-        const sizes = [];
         const colors = [];
+        let x = 0.1, y = 0, z = 0;
 
-        for (let i = 0; i < starCount; i++) {
-            // Distribute stars in a hemisphere in front of camera
-            const radius = 50 + Math.random() * 100;
-            const theta = Math.random() * Math.PI * 2;
-            const phi = Math.random() * Math.PI * 0.6; // Concentrated toward center
+        for (let i = 0; i < numPoints; i++) {
+            const dx = sigma * (y - x) * dt;
+            const dy = (x * (rho - z) - y) * dt;
+            const dz = (x * y - beta * z) * dt;
+            x += dx;
+            y += dy;
+            z += dz;
 
-            const x = radius * Math.sin(phi) * Math.cos(theta);
-            const y = radius * Math.sin(phi) * Math.sin(theta) - 20;
-            const z = -radius * Math.cos(phi);
+            // Scale and position
+            positions.push(x * 0.6, y * 0.6, (z - 25) * 0.6);
 
-            positions.push(x, y, z);
+            // Beautiful gradient: Blue → Purple → Pink
+            const t = i / numPoints;
+            let r, g, b;
 
-            // Vary star sizes - most small, few larger
-            const size = Math.random() < 0.95 ? Math.random() * 0.3 + 0.1 : Math.random() * 0.8 + 0.5;
-            sizes.push(size);
-
-            // Subtle color variation - mostly white/light blue
-            const brightness = 0.7 + Math.random() * 0.3;
-            const blueShift = Math.random() * 0.1;
-            colors.push(brightness, brightness + blueShift * 0.5, brightness + blueShift);
+            if (t < 0.5) {
+                // Blue to Purple
+                const localT = t * 2;
+                r = 0.37 + localT * 0.28; // 0.37 → 0.65
+                g = 0.65 - localT * 0.1;  // 0.65 → 0.55
+                b = 0.98 - localT * 0.25; // 0.98 → 0.73
+            } else {
+                // Purple to Pink
+                const localT = (t - 0.5) * 2;
+                r = 0.65 + localT * 0.31; // 0.65 → 0.96
+                g = 0.55 - localT * 0.1;  // 0.55 → 0.45
+                b = 0.73 + localT * 0.05; // 0.73 → 0.78
+            }
+            colors.push(r, g, b);
         }
 
         const geometry = new THREE.BufferGeometry();
@@ -135,128 +125,151 @@ class MesmerizingCanvas {
         geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
 
         const material = new THREE.PointsMaterial({
-            size: 0.3,
+            size: 0.12,
             vertexColors: true,
             transparent: true,
-            opacity: 0.8,
+            opacity: 0.85,
             blending: THREE.AdditiveBlending,
             sizeAttenuation: true
         });
 
-        this.starField = new THREE.Points(geometry, material);
-        this.scene.add(this.starField);
+        this.lorenz = new THREE.Points(geometry, material);
+        this.scene.add(this.lorenz);
     }
 
-    createCentralOrb() {
-        // Glowing central orb that pulses gently
-        const geometry = new THREE.SphereGeometry(3, 64, 64);
+    createFloatingParticles() {
+        const particleCount = 800;
+        const positions = [];
+        const colors = [];
+        const sizes = [];
 
-        // Inner glow
-        const innerMaterial = new THREE.MeshBasicMaterial({
-            color: 0x0ea5e9,
-            transparent: true,
-            opacity: 0.6,
-        });
-        this.centralOrb = new THREE.Mesh(geometry, innerMaterial);
-        this.centralOrb.position.set(0, 0, -20);
-        this.scene.add(this.centralOrb);
+        for (let i = 0; i < particleCount; i++) {
+            // Spread particles around the scene
+            const radius = 30 + Math.random() * 50;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
 
-        // Outer glow layers
-        for (let i = 1; i <= 4; i++) {
-            const glowGeometry = new THREE.SphereGeometry(3 + i * 1.5, 32, 32);
-            const glowMaterial = new THREE.MeshBasicMaterial({
-                color: 0x0ea5e9,
-                transparent: true,
-                opacity: 0.15 / i,
-                blending: THREE.AdditiveBlending,
-            });
-            const glow = new THREE.Mesh(glowGeometry, glowMaterial);
-            glow.position.copy(this.centralOrb.position);
-            this.scene.add(glow);
-        }
+            positions.push(
+                radius * Math.sin(phi) * Math.cos(theta),
+                radius * Math.sin(phi) * Math.sin(theta),
+                radius * Math.cos(phi) - 20
+            );
 
-        // Light rays emanating from orb
-        this.createLightRays();
-    }
-
-    createLightRays() {
-        const rayCount = 12;
-        this.lightRays = [];
-
-        for (let i = 0; i < rayCount; i++) {
-            const angle = (i / rayCount) * Math.PI * 2;
-            const length = 15 + Math.random() * 10;
-
-            const geometry = new THREE.BufferGeometry();
-            const positions = new Float32Array([
-                0, 0, 0,
-                Math.cos(angle) * length, Math.sin(angle) * length * 0.3, 0
-            ]);
-            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-
-            const material = new THREE.LineBasicMaterial({
-                color: 0x0ea5e9,
-                transparent: true,
-                opacity: 0.2,
-                blending: THREE.AdditiveBlending
-            });
-
-            const ray = new THREE.Line(geometry, material);
-            ray.position.set(0, 0, -20);
-            ray.userData = { baseOpacity: 0.1 + Math.random() * 0.15, phase: Math.random() * Math.PI * 2 };
-
-            this.lightRays.push(ray);
-            this.scene.add(ray);
-        }
-    }
-
-    createParticleStreams() {
-        // Elegant flowing particles that orbit around
-        const streamCount = 3;
-        this.particleStreams = [];
-
-        const streamColors = [0x0ea5e9, 0x22d3ee, 0x14b8a6];
-
-        for (let s = 0; s < streamCount; s++) {
-            const particleCount = 150;
-            const positions = [];
-            const baseAngles = [];
-
-            for (let i = 0; i < particleCount; i++) {
-                const angle = (i / particleCount) * Math.PI * 2;
-                const radius = 12 + s * 4 + Math.sin(angle * 3) * 2;
-                const height = Math.sin(angle * 2) * 3;
-
-                positions.push(
-                    Math.cos(angle) * radius,
-                    height,
-                    Math.sin(angle) * radius - 20
-                );
-                baseAngles.push(angle);
+            // Color variation: whites, light blues, soft purples
+            const colorChoice = Math.random();
+            if (colorChoice < 0.5) {
+                // White/light blue
+                colors.push(0.9, 0.95, 1.0);
+            } else if (colorChoice < 0.8) {
+                // Soft blue
+                colors.push(0.6, 0.75, 0.98);
+            } else {
+                // Soft purple
+                colors.push(0.75, 0.6, 0.95);
             }
 
-            const geometry = new THREE.BufferGeometry();
-            geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+            sizes.push(Math.random() * 0.5 + 0.1);
+        }
 
-            const material = new THREE.PointsMaterial({
-                size: 0.4 - s * 0.1,
-                color: streamColors[s],
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+        geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+        const material = new THREE.PointsMaterial({
+            size: 0.4,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.6,
+            blending: THREE.AdditiveBlending,
+            sizeAttenuation: true
+        });
+
+        this.particles = new THREE.Points(geometry, material);
+        this.particlePositions = positions.slice();
+        this.scene.add(this.particles);
+    }
+
+    createConnectionNetwork() {
+        // Create elegant connection lines
+        const nodeCount = 50;
+        const nodes = [];
+
+        for (let i = 0; i < nodeCount; i++) {
+            const radius = 15 + Math.random() * 25;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
+
+            nodes.push(new THREE.Vector3(
+                radius * Math.sin(phi) * Math.cos(theta),
+                radius * Math.sin(phi) * Math.sin(theta),
+                radius * Math.cos(phi) - 15
+            ));
+        }
+
+        const linePositions = [];
+        const maxDist = 20;
+
+        for (let i = 0; i < nodes.length; i++) {
+            for (let j = i + 1; j < nodes.length; j++) {
+                if (nodes[i].distanceTo(nodes[j]) < maxDist) {
+                    linePositions.push(
+                        nodes[i].x, nodes[i].y, nodes[i].z,
+                        nodes[j].x, nodes[j].y, nodes[j].z
+                    );
+                }
+            }
+        }
+
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(linePositions, 3));
+
+        const material = new THREE.LineBasicMaterial({
+            color: 0x60a5fa,
+            transparent: true,
+            opacity: 0.08,
+            blending: THREE.AdditiveBlending
+        });
+
+        this.connections = new THREE.LineSegments(geometry, material);
+        this.scene.add(this.connections);
+        this.connectionNodes = nodes;
+    }
+
+    createGlowSpheres() {
+        // Subtle glowing spheres for ambient light effect
+        this.glowSpheres = [];
+        const sphereData = [
+            { pos: [25, 15, -30], color: 0x60a5fa, size: 4 },
+            { pos: [-20, -10, -25], color: 0xa78bfa, size: 3 },
+            { pos: [10, -20, -35], color: 0xf472b6, size: 2.5 },
+        ];
+
+        sphereData.forEach((data, i) => {
+            const geometry = new THREE.SphereGeometry(data.size, 32, 32);
+            const material = new THREE.MeshBasicMaterial({
+                color: data.color,
                 transparent: true,
-                opacity: 0.7 - s * 0.15,
+                opacity: 0.15,
                 blending: THREE.AdditiveBlending
             });
+            const sphere = new THREE.Mesh(geometry, material);
+            sphere.position.set(...data.pos);
+            sphere.userData = { basePos: data.pos.slice(), phase: i * Math.PI * 0.5 };
+            this.glowSpheres.push(sphere);
+            this.scene.add(sphere);
 
-            const stream = new THREE.Points(geometry, material);
-            stream.userData = {
-                baseRadius: 12 + s * 4,
-                speed: 0.2 - s * 0.03,
-                baseAngles: baseAngles,
-                verticalOffset: s
-            };
-
-            this.particleStreams.push(stream);
-            this.scene.add(stream);
-        }
+            // Outer glow
+            const glowGeo = new THREE.SphereGeometry(data.size * 2, 16, 16);
+            const glowMat = new THREE.MeshBasicMaterial({
+                color: data.color,
+                transparent: true,
+                opacity: 0.05,
+                blending: THREE.AdditiveBlending
+            });
+            const glow = new THREE.Mesh(glowGeo, glowMat);
+            glow.position.copy(sphere.position);
+            this.scene.add(glow);
+        });
     }
 
     addListeners() {
@@ -280,87 +293,58 @@ class MesmerizingCanvas {
 
         const time = this.clock.getElapsedTime();
 
-        // Smooth mouse interpolation
+        // Smooth mouse
         this.mouse.x += (this.targetMouse.x - this.mouse.x) * 0.03;
         this.mouse.y += (this.targetMouse.y - this.mouse.y) * 0.03;
 
-        // === ANIMATE AURORA WAVES ===
-        this.auroraWaves.forEach((wave, index) => {
-            const positions = wave.geometry.attributes.position.array;
-            const original = wave.userData.originalPositions;
-            const speed = wave.userData.speed;
-            const amplitude = wave.userData.amplitude;
-
-            for (let i = 0; i < positions.length; i += 3) {
-                const x = original[i];
-                const y = original[i + 1];
-
-                // Create flowing wave motion
-                const waveOffset = Math.sin(x * 0.05 + time * speed) * amplitude;
-                const secondaryWave = Math.sin(x * 0.02 - time * speed * 0.5) * amplitude * 0.5;
-
-                positions[i + 2] = original[i + 2] + waveOffset + secondaryWave;
-            }
-            wave.geometry.attributes.position.needsUpdate = true;
-
-            // Subtle horizontal drift
-            wave.position.x = Math.sin(time * 0.1 + index) * 5;
-        });
-
-        // === ANIMATE STAR FIELD ===
-        if (this.starField) {
-            this.starField.rotation.y = time * 0.01;
-            this.starField.rotation.x = Math.sin(time * 0.05) * 0.02;
+        // === ANIMATE LORENZ ===
+        if (this.lorenz) {
+            this.lorenz.rotation.y = time * 0.08;
+            this.lorenz.rotation.x = Math.sin(time * 0.15) * 0.15;
+            this.lorenz.rotation.z = Math.cos(time * 0.1) * 0.05;
         }
 
-        // === ANIMATE CENTRAL ORB ===
-        if (this.centralOrb) {
-            // Gentle pulsing
-            const pulse = 1 + Math.sin(time * 1.5) * 0.1;
-            this.centralOrb.scale.set(pulse, pulse, pulse);
-
-            // Subtle rotation
-            this.centralOrb.rotation.y = time * 0.2;
+        // === ANIMATE PARTICLES ===
+        if (this.particles) {
+            this.particles.rotation.y = time * 0.015;
+            this.particles.rotation.x = Math.sin(time * 0.08) * 0.03;
         }
 
-        // === ANIMATE LIGHT RAYS ===
-        this.lightRays.forEach((ray, i) => {
-            const phase = ray.userData.phase;
-            ray.material.opacity = ray.userData.baseOpacity * (0.5 + Math.sin(time * 2 + phase) * 0.5);
-            ray.rotation.z = time * 0.1;
+        // === ANIMATE CONNECTIONS ===
+        if (this.connections) {
+            this.connections.rotation.y = time * 0.02;
+            this.connections.rotation.z = Math.sin(time * 0.1) * 0.02;
+        }
+
+        // === ANIMATE GLOW SPHERES ===
+        this.glowSpheres.forEach((sphere, i) => {
+            const phase = sphere.userData.phase;
+            sphere.position.y = sphere.userData.basePos[1] + Math.sin(time * 0.5 + phase) * 3;
+            sphere.scale.setScalar(1 + Math.sin(time + phase) * 0.1);
         });
 
-        // === ANIMATE PARTICLE STREAMS ===
-        this.particleStreams.forEach((stream, index) => {
-            const positions = stream.geometry.attributes.position.array;
-            const baseRadius = stream.userData.baseRadius;
-            const speed = stream.userData.speed;
-            const baseAngles = stream.userData.baseAngles;
-
-            for (let i = 0; i < positions.length / 3; i++) {
-                const angle = baseAngles[i] + time * speed;
-                const radiusVariation = Math.sin(angle * 3 + time) * 2;
-                const radius = baseRadius + radiusVariation;
-
-                positions[i * 3] = Math.cos(angle) * radius;
-                positions[i * 3 + 1] = Math.sin(angle * 2 + time * 0.5) * 3;
-                positions[i * 3 + 2] = Math.sin(angle) * radius - 20;
-            }
-            stream.geometry.attributes.position.needsUpdate = true;
-        });
+        // === ANIMATE LIGHTS ===
+        if (this.light1) {
+            this.light1.position.x = Math.sin(time * 0.3) * 25;
+            this.light1.position.z = Math.cos(time * 0.3) * 25 + 10;
+        }
+        if (this.light2) {
+            this.light2.position.x = Math.sin(time * 0.2 + Math.PI) * 20;
+            this.light2.position.y = Math.cos(time * 0.25) * 15;
+        }
 
         // === CAMERA PARALLAX ===
-        this.camera.position.x += (this.mouse.x * 5 - this.camera.position.x) * 0.02;
-        this.camera.position.y += (this.mouse.y * 3 - this.camera.position.y) * 0.02;
-        this.camera.lookAt(0, 0, -20);
+        this.camera.position.x += (this.mouse.x * 8 - this.camera.position.x) * 0.02;
+        this.camera.position.y += (this.mouse.y * 5 - this.camera.position.y) * 0.02;
+        this.camera.lookAt(0, 0, -10);
 
         this.renderer.render(this.scene, this.camera);
     }
 }
 
-// Initialize when DOM is ready
+// Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    new MesmerizingCanvas('homepage-canvas');
+    new StunningCanvas('homepage-canvas');
 });
 
-export default MesmerizingCanvas;
+export default StunningCanvas;
