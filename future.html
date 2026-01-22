@@ -1,132 +1,391 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Strategic Vanguard | IIN.edu</title>
-    
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    
+
     <script>
         const API_BASE_URL = "https://iin-production.up.railway.app";
         window.API_BASE_URL = API_BASE_URL;
     </script>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <link rel="stylesheet" href="frontend/css/global.css">
     <link rel="stylesheet" href="frontend/css/user-panel.css">
     <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css">
-    
+    <link rel="stylesheet" href="frontend/css/future-hero.css">
+
     <style>
-        :root { --accent: #3b82f6; --purple: #8b5cf6; --pink: #ec4899; --navy: #020617; }
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background-color: var(--navy); color: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
-        
+        :root {
+            --accent: #3b82f6;
+            --purple: #8b5cf6;
+            --pink: #ec4899;
+            --navy: #020617;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--navy);
+            color: #f8fafc;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+        }
+
         /* --- ADVANCED NAVBAR --- */
         .navbar {
-            position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 1.25rem 3rem; background: rgba(2, 6, 23, 0.8);
-            backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 9999;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 3rem;
+            background: rgba(2, 6, 23, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .navbar.hidden-nav { transform: translateY(-100%); }
-        .logo { font-size: 1.5rem; font-weight: 900; color: white; letter-spacing: -1px; }
-        .logo span { color: var(--accent); }
-        .nav-links { display: flex; gap: 2.5rem; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; align-items: center; }
-        .nav-links a { color: #64748b; text-decoration: none; transition: 0.3s; }
-        .nav-links a:hover, .nav-links a.active { color: white; text-shadow: 0 0 20px rgba(59, 130, 246, 0.5); }
-        .btn-login { background: white; color: black; padding: 0.75rem 2rem; border-radius: 4px; font-weight: 800; font-size: 0.75rem; transition: 0.3s; }
-        .btn-login:hover { background: var(--accent); color: white; box-shadow: 0 0 30px var(--accent); }
+
+        .navbar.hidden-nav {
+            transform: translateY(-100%);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: white;
+            letter-spacing: -1px;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #64748b;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: white;
+            text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+        }
+
+        .btn-login {
+            background: white;
+            color: black;
+            padding: 0.75rem 2rem;
+            border-radius: 4px;
+            font-weight: 800;
+            font-size: 0.75rem;
+            transition: 0.3s;
+        }
+
+        .btn-login:hover {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 0 30px var(--accent);
+        }
 
 
         /* --- CYBERPUNK BACKGROUND --- */
-        .grid-bg { position: fixed; inset: 0; background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.03) 1px, transparent 0); background-size: 40px 40px; z-index: -1; }
-        .glow-spot { position: fixed; width: 600px; height: 600px; background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%); filter: blur(80px); z-index: -1; animation: floatBlob 10s infinite alternate; }
-        @keyframes floatBlob { 0% { transform: translate(0, 0); } 100% { transform: translate(100px, 50px); } }
+        .grid-bg {
+            position: fixed;
+            inset: 0;
+            background-image: radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.03) 1px, transparent 0);
+            background-size: 40px 40px;
+            z-index: -1;
+        }
+
+        .glow-spot {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
+            filter: blur(80px);
+            z-index: -1;
+            animation: floatBlob 10s infinite alternate;
+        }
+
+        @keyframes floatBlob {
+            0% {
+                transform: translate(0, 0);
+            }
+
+            100% {
+                transform: translate(100px, 50px);
+            }
+        }
 
 
         /* --- TYPOGRAPHY & HERO --- */
-        .hero-title { font-size: clamp(3.5rem, 10vw, 8rem); font-weight: 900; line-height: 0.85; letter-spacing: -3px; color: white; margin-bottom: 2rem; }
-        .gradient-text { background: linear-gradient(to right, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .hud-text { font-family: 'Courier New', monospace; font-size: 11px; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 1rem; display: flex; align-items: center; gap: 10px; }
-        .hud-text::before { content: ''; width: 20px; height: 1px; background: var(--accent); }
+        .hero-title {
+            font-size: clamp(3.5rem, 10vw, 8rem);
+            font-weight: 900;
+            line-height: 0.85;
+            letter-spacing: -3px;
+            color: white;
+            margin-bottom: 2rem;
+        }
+
+        .gradient-text {
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hud-text {
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            color: var(--accent);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hud-text::before {
+            content: '';
+            width: 20px;
+            height: 1px;
+            background: var(--accent);
+        }
 
 
         /* --- ADVANCED TIMELINE (DRAW ON SCROLL) --- */
-        .timeline-container { position: relative; max-width: 1000px; margin-top: 5rem; }
-        
+        .timeline-container {
+            position: relative;
+            max-width: 1000px;
+            margin-top: 5rem;
+        }
+
         /* The gray background line */
-        .timeline-track { position: absolute; left: 80px; top: 0; bottom: 0; width: 2px; background: rgba(255,255,255,0.05); z-index: 0; }
-        
+        .timeline-track {
+            position: absolute;
+            left: 80px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: rgba(255, 255, 255, 0.05);
+            z-index: 0;
+        }
+
         /* The colored line that fills up */
-        .timeline-progress { position: absolute; left: 80px; top: 0; width: 2px; height: 0%; background: linear-gradient(to bottom, var(--accent), var(--purple), var(--pink)); z-index: 1; box-shadow: 0 0 20px var(--accent); }
-
-
-        .timeline-item { display: grid; grid-template-columns: 160px 1fr; gap: 60px; margin-bottom: 100px; position: relative; z-index: 2; opacity: 0; transform: translateY(50px); }
-        
-        .timeline-dot { 
-            width: 12px; height: 12px; background: #020617; border: 2px solid #334155; border-radius: 50%; 
-            position: absolute; left: 75px; top: 0; transition: 0.3s; z-index: 3;
+        .timeline-progress {
+            position: absolute;
+            left: 80px;
+            top: 0;
+            width: 2px;
+            height: 0%;
+            background: linear-gradient(to bottom, var(--accent), var(--purple), var(--pink));
+            z-index: 1;
+            box-shadow: 0 0 20px var(--accent);
         }
-        
+
+
+        .timeline-item {
+            display: grid;
+            grid-template-columns: 160px 1fr;
+            gap: 60px;
+            margin-bottom: 100px;
+            position: relative;
+            z-index: 2;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+
+        .timeline-dot {
+            width: 12px;
+            height: 12px;
+            background: #020617;
+            border: 2px solid #334155;
+            border-radius: 50%;
+            position: absolute;
+            left: 75px;
+            top: 0;
+            transition: 0.3s;
+            z-index: 3;
+        }
+
         /* Active state for dot when line passes it */
-        .timeline-item.active .timeline-dot { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 30px var(--accent); transform: scale(1.5); }
-
-
-        .timeline-content { 
-            background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); 
-            padding: 2.5rem; border-radius: 1rem; backdrop-filter: blur(10px); transition: 0.3s;
+        .timeline-item.active .timeline-dot {
+            background: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 30px var(--accent);
+            transform: scale(1.5);
         }
-        .timeline-content:hover { border-color: var(--accent); background: rgba(59, 130, 246, 0.05); }
+
+
+        .timeline-content {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 2.5rem;
+            border-radius: 1rem;
+            backdrop-filter: blur(10px);
+            transition: 0.3s;
+        }
+
+        .timeline-content:hover {
+            border-color: var(--accent);
+            background: rgba(59, 130, 246, 0.05);
+        }
 
 
         /* --- 3D TILT CARDS --- */
-        .sector-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; perspective: 1000px; }
-        
-        .tilt-card {
-            background: linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
-            border: 1px solid rgba(255,255,255,0.05); border-radius: 1.5rem; padding: 3rem 2rem;
-            transform-style: preserve-3d; transition: transform 0.1s ease; cursor: pointer;
+        .sector-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            perspective: 1000px;
         }
-        
-        .tilt-content { transform: translateZ(30px); } /* Elements pop out */
-        .tilt-card h3 { font-size: 2.5rem; font-weight: 900; margin-bottom: 1rem; color: white; }
-        .tilt-card p { color: #94a3b8; line-height: 1.6; font-size: 0.9rem; }
-        .tilt-card:hover { border-color: var(--accent); box-shadow: 0 20px 50px -20px rgba(59, 130, 246, 0.3); }
+
+        .tilt-card {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 1.5rem;
+            padding: 3rem 2rem;
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease;
+            cursor: pointer;
+        }
+
+        .tilt-content {
+            transform: translateZ(30px);
+        }
+
+        /* Elements pop out */
+        .tilt-card h3 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .tilt-card p {
+            color: #94a3b8;
+            line-height: 1.6;
+            font-size: 0.9rem;
+        }
+
+        .tilt-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 20px 50px -20px rgba(59, 130, 246, 0.3);
+        }
 
 
         /* --- FEEDBACK FORM --- */
-        .glass-form { background: rgba(10, 10, 20, 0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 2rem; padding: 4rem; backdrop-filter: blur(20px); }
-        .input-field { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid #334155; padding: 1.2rem; color: white; border-radius: 0.5rem; margin-top: 0.5rem; transition: 0.3s; }
-        .input-field:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 20px rgba(59, 130, 246, 0.2); }
-        
-        .rating-stars i { font-size: 1.5rem; color: #334155; cursor: pointer; transition: 0.2s; margin-right: 5px; }
-        .rating-stars i.active { color: #fbbf24; text-shadow: 0 0 10px #fbbf24; }
+        .glass-form {
+            background: rgba(10, 10, 20, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 2rem;
+            padding: 4rem;
+            backdrop-filter: blur(20px);
+        }
+
+        .input-field {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #334155;
+            padding: 1.2rem;
+            color: white;
+            border-radius: 0.5rem;
+            margin-top: 0.5rem;
+            transition: 0.3s;
+        }
+
+        .input-field:focus {
+            border-color: var(--accent);
+            outline: none;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+        }
+
+        .rating-stars i {
+            font-size: 1.5rem;
+            color: #334155;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-right: 5px;
+        }
+
+        .rating-stars i.active {
+            color: #fbbf24;
+            text-shadow: 0 0 10px #fbbf24;
+        }
 
 
         @media (max-width: 768px) {
-            .hero-title { font-size: 3.5rem; }
-            .timeline-track, .timeline-progress { left: 20px; }
-            .timeline-dot { left: 15px; }
-            .timeline-item { grid-template-columns: 1fr; padding-left: 50px; gap: 20px; }
-            .navbar { padding: 1rem 1.5rem; }
-            .nav-links { display: none; } /* Hide on mobile for simplicity or use hamburger */
+            .hero-title {
+                font-size: 3.5rem;
+            }
+
+            .timeline-track,
+            .timeline-progress {
+                left: 20px;
+            }
+
+            .timeline-dot {
+                left: 15px;
+            }
+
+            .timeline-item {
+                grid-template-columns: 1fr;
+                padding-left: 50px;
+                gap: 20px;
+            }
+
+            .navbar {
+                padding: 1rem 1.5rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            /* Hide on mobile for simplicity or use hamburger */
         }
     </style>
 </head>
+
 <body>
 
 
     <div class="grid-bg"></div>
     <div class="glow-spot" style="top: -20%; left: -10%;"></div>
-    <div class="glow-spot" style="bottom: -20%; right: -10%; background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);"></div>
+    <div class="glow-spot"
+        style="bottom: -20%; right: -10%; background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);">
+    </div>
 
 
     <div id="userDashboardContainer"></div>
@@ -154,34 +413,48 @@
 
 
     <main class="max-w-7xl mx-auto px-6 pt-40 pb-40">
-        
-        <section class="mb-40">
-            <div class="hud-text">PIPELINE DIRECTIVE // v2025.1</div>
-            <h1 class="hero-title" id="typewriter"></h1> <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mt-12 opacity-0" id="hero-content">
-                <p class="text-slate-400 text-lg leading-relaxed border-l-2 border-blue-500/50 pl-6">
-                    Engage with the high-performance architecture of Indian science. From IAT qualification to global research leadership.
-                </p>
-                <div class="flex gap-12 items-center">
-                    <div>
-                        <div class="text-4xl font-black text-white">₹4.2B</div>
-                        <div class="text-xs text-blue-400 font-bold uppercase tracking-widest mt-1">Grant Allocation</div>
+
+        <!-- Abstract Hero Canvas Section -->
+        <section class="future-hero-section">
+            <canvas id="future-canvas"></canvas>
+
+            <div class="future-hero-content">
+                <section class="mb-20">
+                    <div class="hud-text">PIPELINE DIRECTIVE // v2025.1</div>
+                    <h1 class="hero-title" id="typewriter"></h1>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mt-12 opacity-0" id="hero-content">
+                        <p class="text-slate-400 text-lg leading-relaxed border-l-2 border-blue-500/50 pl-6">
+                            Engage with the high-performance architecture of Indian science. From IAT qualification to
+                            global
+                            research leadership.
+                        </p>
+                        <div class="flex gap-12 items-center">
+                            <div>
+                                <div class="text-4xl font-black text-white">₹4.2B</div>
+                                <div class="text-xs text-blue-400 font-bold uppercase tracking-widest mt-1">Grant
+                                    Allocation
+                                </div>
+                            </div>
+                            <div>
+                                <div class="text-4xl font-black text-white">2026</div>
+                                <div class="text-xs text-purple-400 font-bold uppercase tracking-widest mt-1">Projection
+                                    Era
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <div class="text-4xl font-black text-white">2026</div>
-                        <div class="text-xs text-purple-400 font-bold uppercase tracking-widest mt-1">Projection Era</div>
-                    </div>
-                </div>
+                </section>
             </div>
         </section>
 
 
         <section class="mb-40">
             <h2 class="text-4xl font-black text-white mb-20 uppercase tracking-tight">The Trajectory</h2>
-            
+
             <div class="timeline-container">
                 <div class="timeline-track"></div>
                 <div class="timeline-progress" id="progressLine"></div>
-                
+
                 <div class="timeline-item">
                     <div class="timeline-dot"></div>
                     <div class="text-right">
@@ -229,7 +502,7 @@
         <section class="mb-40">
             <h2 class="text-4xl font-black text-white mb-12 uppercase tracking-tight">Sector Intel</h2>
             <div class="sector-grid">
-                
+
                 <div class="tilt-card">
                     <div class="tilt-content">
                         <div class="hud-text">SECTOR A</div>
@@ -267,7 +540,8 @@
                 <div class="grid grid-cols-2 gap-6">
                     <div>
                         <label class="text-xs font-bold text-slate-400 uppercase">Email Identity</label>
-                        <input type="email" id="feedbackEmail" class="input-field" placeholder="scientist@iin.edu" required>
+                        <input type="email" id="feedbackEmail" class="input-field" placeholder="scientist@iin.edu"
+                            required>
                     </div>
                     <div>
                         <label class="text-xs font-bold text-slate-400 uppercase">Roll Sequence</label>
@@ -291,13 +565,17 @@
                     <div>
                         <label class="text-xs font-bold text-slate-400 uppercase block mb-2">Login Experience</label>
                         <div class="rating-stars" data-cat="login">
-                            <i class="fas fa-star" data-val="1"></i><i class="fas fa-star" data-val="2"></i><i class="fas fa-star" data-val="3"></i><i class="fas fa-star" data-val="4"></i><i class="fas fa-star" data-val="5"></i>
+                            <i class="fas fa-star" data-val="1"></i><i class="fas fa-star" data-val="2"></i><i
+                                class="fas fa-star" data-val="3"></i><i class="fas fa-star" data-val="4"></i><i
+                                class="fas fa-star" data-val="5"></i>
                         </div>
                     </div>
                     <div>
                         <label class="text-xs font-bold text-slate-400 uppercase block mb-2">Interface Rating</label>
                         <div class="rating-stars" data-cat="interface">
-                            <i class="fas fa-star" data-val="1"></i><i class="fas fa-star" data-val="2"></i><i class="fas fa-star" data-val="3"></i><i class="fas fa-star" data-val="4"></i><i class="fas fa-star" data-val="5"></i>
+                            <i class="fas fa-star" data-val="1"></i><i class="fas fa-star" data-val="2"></i><i
+                                class="fas fa-star" data-val="3"></i><i class="fas fa-star" data-val="4"></i><i
+                                class="fas fa-star" data-val="5"></i>
                         </div>
                     </div>
                 </div>
@@ -306,13 +584,17 @@
                     <div>
                         <label class="text-xs font-bold text-slate-400 uppercase block mb-2">Content Quality</label>
                         <div class="rating-stars" data-cat="quality">
-                            <i class="fas fa-star" data-val="1"></i><i class="fas fa-star" data-val="2"></i><i class="fas fa-star" data-val="3"></i><i class="fas fa-star" data-val="4"></i><i class="fas fa-star" data-val="5"></i>
+                            <i class="fas fa-star" data-val="1"></i><i class="fas fa-star" data-val="2"></i><i
+                                class="fas fa-star" data-val="3"></i><i class="fas fa-star" data-val="4"></i><i
+                                class="fas fa-star" data-val="5"></i>
                         </div>
                     </div>
                     <div>
                         <label class="text-xs font-bold text-slate-400 uppercase block mb-2">Server Latency</label>
                         <div class="rating-stars" data-cat="server">
-                            <i class="fas fa-star" data-val="1"></i><i class="fas fa-star" data-val="2"></i><i class="fas fa-star" data-val="3"></i><i class="fas fa-star" data-val="4"></i><i class="fas fa-star" data-val="5"></i>
+                            <i class="fas fa-star" data-val="1"></i><i class="fas fa-star" data-val="2"></i><i
+                                class="fas fa-star" data-val="3"></i><i class="fas fa-star" data-val="4"></i><i
+                                class="fas fa-star" data-val="5"></i>
                         </div>
                     </div>
                 </div>
@@ -320,11 +602,13 @@
 
                 <div>
                     <label class="text-xs font-bold text-slate-400 uppercase">Log Entry</label>
-                    <textarea id="feedbackComment" class="input-field h-32" placeholder="Enter system analysis..." required></textarea>
+                    <textarea id="feedbackComment" class="input-field h-32" placeholder="Enter system analysis..."
+                        required></textarea>
                 </div>
 
 
-                <button type="submit" class="w-full bg-blue-600 text-white font-black uppercase py-4 rounded hover:bg-blue-500 transition tracking-widest text-sm">
+                <button type="submit"
+                    class="w-full bg-blue-600 text-white font-black uppercase py-4 rounded hover:bg-blue-500 transition tracking-widest text-sm">
                     Upload Feedback Data
                 </button>
             </form>
@@ -338,13 +622,24 @@
     <script src="frontend/js/auth.js"></script>
     <script src="frontend/js/user-panel.js"></script>
 
+    <!-- Three.js Import Map -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+    <script type="module" src="frontend/js/future-canvas.js"></script>
+
 
     <script>
         // 1. TYPEWRITER EFFECT
         const text = "STRATEGIC VANGUARD.";
         const typeEl = document.getElementById('typewriter');
         let i = 0;
-        
+
         function typeWriter() {
             if (i < text.length) {
                 typeEl.innerHTML += text.charAt(i);
@@ -399,10 +694,10 @@
                 const rect = card.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
-                
+
                 const centerX = rect.width / 2;
                 const centerY = rect.height / 2;
-                
+
                 const rotateX = ((y - centerY) / centerY) * -10; // Max 10 deg
                 const rotateY = ((x - centerX) / centerX) * 10;
 
@@ -422,13 +717,13 @@
         document.querySelectorAll('.rating-stars').forEach(wrapper => {
             const cat = wrapper.dataset.cat;
             const stars = wrapper.querySelectorAll('i');
-            
+
             stars.forEach(star => {
                 star.addEventListener('click', () => {
                     const val = parseInt(star.dataset.val);
                     ratings[cat] = val;
                     stars.forEach((s, idx) => {
-                        if(idx < val) s.classList.add('active');
+                        if (idx < val) s.classList.add('active');
                         else s.classList.remove('active');
                     });
                 });
@@ -439,18 +734,18 @@
         // 5. FEEDBACK SUBMISSION
         document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             // Validate all ratings are filled
             if (!ratings.login || !ratings.interface || !ratings.quality || !ratings.server) {
                 alert('⚠️ Please provide all 4 ratings before submitting!');
                 return;
             }
-            
+
             const btn = e.target.querySelector('button');
             const originalText = btn.innerText;
             btn.innerText = "TRANSMITTING...";
             btn.disabled = true;
-            
+
             try {
                 const data = {
                     email: document.getElementById('feedbackEmail').value,
@@ -459,14 +754,14 @@
                     comment: document.getElementById('feedbackComment').value,
                     ratings: ratings
                 };
-                
+
                 console.log('📤 Sending feedback:', data);
-                
+
                 const res = await axios.post(`${API_BASE_URL}/api/feedback`, data);
-                
+
                 console.log('✅ Response:', res.data);
-                
-                if(res.data.success) {
+
+                if (res.data.success) {
                     alert('✅ Feedback transmitted successfully! Check your email for confirmation.');
                     e.target.reset();
                     document.querySelectorAll('.active').forEach(el => el.classList.remove('active'));
@@ -478,7 +773,7 @@
                 } else {
                     alert('❌ Transmission Error: ' + (res.data.message || 'Unknown error'));
                 }
-            } catch(err) {
+            } catch (err) {
                 console.error('❌ Error:', err);
                 if (err.response) {
                     console.error('❌ Response data:', err.response.data);
@@ -497,10 +792,11 @@
 
 
         // 6. INIT DASHBOARD
-        window.onload = function() {
+        window.onload = function () {
             typeWriter(); // Ensure typing starts
-            if(window.refreshUserDashboard) window.refreshUserDashboard();
+            if (window.refreshUserDashboard) window.refreshUserDashboard();
         };
     </script>
 </body>
+
 </html>

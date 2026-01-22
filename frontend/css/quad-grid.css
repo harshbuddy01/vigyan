@@ -1,0 +1,185 @@
+/**
+ * Quad Grid Hero Section
+ * "Sci-Fi Control Center" Layout
+ */
+
+/* Hero Container */
+.hero {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    min-height: 700px;
+    background: #000;
+    overflow: hidden;
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+/* Single Fullscreen Canvas */
+#quad-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+/* Overlay Layer */
+.quad-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    pointer-events: none;
+    /* Let clicks pass to canvas initially */
+}
+
+/* Quadrants */
+.quadrant {
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-sizing: border-box;
+    display: flex;
+    align-items: flex-end;
+    padding: 30px;
+}
+
+/* Quadrant Labels */
+.quad-label {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    padding: 10px 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    pointer-events: auto;
+    text-transform: uppercase;
+}
+
+.scifi-icon {
+    color: #3b82f6;
+    /* Default Blue */
+    font-size: 1.2rem;
+}
+
+/* Load Bar Animation */
+.load-bar {
+    width: 0%;
+    height: 2px;
+    background: #3b82f6;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    transition: width 0.3s ease;
+}
+
+.quadrant:hover .load-bar {
+    width: 100%;
+}
+
+/* Individual Colors */
+#q-physics .scifi-icon,
+#q-physics .load-bar {
+    color: #60a5fa;
+    background: #60a5fa;
+}
+
+#q-chemistry .scifi-icon,
+#q-chemistry .load-bar {
+    color: #34d399;
+    background: #34d399;
+}
+
+/* Green */
+#q-biology .scifi-icon,
+#q-biology .load-bar {
+    color: #f472b6;
+    background: #f472b6;
+}
+
+/* Pink */
+#q-math .scifi-icon,
+#q-math .load-bar {
+    color: #a78bfa;
+    background: #a78bfa;
+}
+
+/* Purple */
+
+/* Central HUD */
+.center-hud {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 10;
+    pointer-events: auto;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    padding: 40px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+}
+
+.hud-title {
+    font-size: 2.5rem;
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: -2px;
+    color: white;
+    margin-bottom: 20px;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+}
+
+.hud-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: white;
+    color: black;
+    padding: 12px 24px;
+    font-weight: 700;
+    border-radius: 30px;
+    text-decoration: none;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+}
+
+.hud-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .quad-overlay {
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(4, 1fr);
+    }
+
+    .center-hud {
+        padding: 20px;
+    }
+
+    .hud-title {
+        font-size: 1.5rem;
+    }
+
+    .quad-label {
+        font-size: 0.7rem;
+        padding: 5px 10px;
+    }
+}

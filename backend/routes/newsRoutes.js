@@ -1,40 +1,43 @@
-// Vercel Serverless Function to fetch NewsAPI data
-// This bypasses CORS restrictions by making requests server-side
+import express from 'express';
+// Native fetch is available in Node 18+
 
-module.exports = async (req, res) => {
-    // Enable CORS for your domain
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+const router = express.Router();
 
-    // Handle preflight
-    if (req.method === 'OPTIONS') {
-        res.status(200).end();
-        return;
-    }
-
+// GET /api/news
+router.get('/', async (req, res) => {
     try {
         const { category = 'science', language = 'en', pageSize = 50, page = 1 } = req.query;
 
         const API_KEY = process.env.NEWS_API_KEY;
         if (!API_KEY) {
-            throw new Error('News API Key is missing in environment variables');
+            console.error('❌ News API Key is missing');
+            return res.status(500).json({
+                status: 'error',
+                message: 'Server configuration error: News API Key missing'
+            });
         }
+
         const url = `https://newsapi.org/v2/top-headlines?category=${category}&language=${language}&pageSize=${pageSize}&page=${page}&apiKey=${API_KEY}`;
+
+        console.log(`fetching news from: ${url.replace(API_KEY, 'HIDDEN')}`);
 
         const response = await fetch(url);
         const data = await response.json();
 
         if (response.ok) {
-            res.status(200).json(data);
+            res.json(data);
         } else {
+            console.error('News API Error:', data);
             res.status(response.status).json(data);
         }
     } catch (error) {
+        console.error('❌ Error fetching news:', error);
         res.status(500).json({
             status: 'error',
             message: 'Failed to fetch news',
             error: error.message
         });
     }
-};
+});
+
+export default router;

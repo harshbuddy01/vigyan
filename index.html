@@ -1,24 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IIN - Institute Network</title>
-    
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <link rel="stylesheet" href="frontend/css/index.css">
     <link rel="stylesheet" href="frontend/css/user-panel.css">
-    
+    <link rel="stylesheet" href="frontend/css/premium-hero.css">
+
     <style>
         /* DROPDOWN MENU STYLES */
         .nav-dropdown {
             position: relative;
             display: inline-block;
         }
-        
+
         .dropdown-trigger {
             display: flex;
             align-items: center;
@@ -26,16 +30,16 @@
             cursor: pointer;
             transition: color 0.3s ease;
         }
-        
+
         .dropdown-trigger i {
             font-size: 0.7rem;
             transition: transform 0.3s ease;
         }
-        
+
         .nav-dropdown:hover .dropdown-trigger i {
             transform: rotate(180deg);
         }
-        
+
         .dropdown-menu {
             position: absolute;
             top: 100%;
@@ -54,13 +58,13 @@
             transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
             z-index: 1000;
         }
-        
+
         .nav-dropdown:hover .dropdown-menu {
             opacity: 1;
             visibility: visible;
             margin-top: 10px;
         }
-        
+
         .dropdown-menu a {
             display: block;
             padding: 12px 16px;
@@ -70,13 +74,13 @@
             transition: all 0.2s ease;
             font-size: 0.95rem;
         }
-        
+
         .dropdown-menu a:hover {
             background: rgba(59, 130, 246, 0.15);
             color: #3b82f6;
             transform: translateX(5px);
         }
-        
+
         .dropdown-menu::before {
             content: '';
             position: absolute;
@@ -90,7 +94,7 @@
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             transform: translateX(-50%) rotate(45deg);
         }
-        
+
         /* Active nav link styling */
         .nav-links a.active-link {
             color: #fff !important;
@@ -99,18 +103,18 @@
             text-decoration-thickness: 2px;
             text-underline-offset: 8px;
         }
-        
+
         /* ===============================================
            MINIMAL ELEGANT FOOTER - CLEAN & COMPACT
            =============================================== */
-        
+
         .minimal-footer {
             position: relative;
             background: linear-gradient(180deg, #000000 0%, #0a0a15 100%);
             overflow: hidden;
             margin-top: 100px;
         }
-        
+
         /* Subtle Wave Separator */
         .wave-divider {
             position: absolute;
@@ -120,19 +124,19 @@
             overflow: hidden;
             line-height: 0;
         }
-        
+
         .wave-divider svg {
             position: relative;
             display: block;
             width: calc(100% + 1.3px);
             height: 60px;
         }
-        
+
         .wave-divider .wave-shape {
             fill: #000000;
             opacity: 0.5;
         }
-        
+
         /* Gentle Grid Background */
         .subtle-grid {
             position: absolute;
@@ -143,7 +147,7 @@
             background-size: 40px 40px;
             opacity: 0.5;
         }
-        
+
         /* Main Container */
         .footer-content {
             position: relative;
@@ -152,7 +156,7 @@
             margin: 0 auto;
             padding: 50px 40px 30px;
         }
-        
+
         /* Top Section: Logo + Social + Contact */
         .footer-main {
             display: grid;
@@ -163,14 +167,14 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             margin-bottom: 25px;
         }
-        
+
         /* Logo Section */
         .footer-brand {
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
-        
+
         .footer-logo {
             font-size: 2rem;
             font-weight: 900;
@@ -183,25 +187,25 @@
             display: inline-block;
             width: fit-content;
         }
-        
+
         .footer-logo:hover {
             transform: translateY(-2px);
             filter: drop-shadow(0 4px 12px rgba(59, 130, 246, 0.4));
         }
-        
+
         .footer-tagline {
             color: #64748b;
             font-size: 0.8rem;
             max-width: 280px;
         }
-        
+
         /* Social Icons */
         .social-icons {
             display: flex;
             gap: 12px;
             justify-content: center;
         }
-        
+
         .social-link {
             width: 44px;
             height: 44px;
@@ -216,20 +220,34 @@
             text-decoration: none;
             transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
         }
-        
+
         .social-link:hover {
             transform: translateY(-5px);
             border-color: currentColor;
             box-shadow: 0 8px 20px currentColor;
             background: rgba(255, 255, 255, 0.05);
         }
-        
-        .social-link.instagram { color: #e1306c; }
-        .social-link.twitter { color: #1da1f2; }
-        .social-link.facebook { color: #1877f2; }
-        .social-link.whatsapp { color: #25d366; }
-        .social-link.linkedin { color: #0a66c2; }
-        
+
+        .social-link.instagram {
+            color: #e1306c;
+        }
+
+        .social-link.twitter {
+            color: #1da1f2;
+        }
+
+        .social-link.facebook {
+            color: #1877f2;
+        }
+
+        .social-link.whatsapp {
+            color: #25d366;
+        }
+
+        .social-link.linkedin {
+            color: #0a66c2;
+        }
+
         /* Contact Section */
         .footer-contact {
             display: flex;
@@ -237,7 +255,7 @@
             gap: 8px;
             align-items: flex-end;
         }
-        
+
         .contact-item {
             display: flex;
             align-items: center;
@@ -246,23 +264,23 @@
             font-size: 0.85rem;
             transition: all 0.3s ease;
         }
-        
+
         .contact-item:hover {
             color: #3b82f6;
             transform: translateX(-5px);
         }
-        
+
         .contact-item i {
             width: 18px;
             text-align: center;
             color: #3b82f6;
         }
-        
+
         .contact-item a {
             color: inherit;
             text-decoration: none;
         }
-        
+
         /* Bottom Section: Copyright + Legal Links */
         .footer-bottom {
             display: flex;
@@ -271,36 +289,48 @@
             font-size: 0.8rem;
             color: #64748b;
         }
-        
+
         .copyright {
             display: flex;
             align-items: center;
             gap: 6px;
         }
-        
+
         .heart-icon {
             color: #ec4899;
             animation: heartbeat 1.5s ease-in-out infinite;
         }
-        
+
         @keyframes heartbeat {
-            0%, 100% { transform: scale(1); }
-            10%, 30% { transform: scale(1.15); }
-            20%, 40% { transform: scale(1); }
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            10%,
+            30% {
+                transform: scale(1.15);
+            }
+
+            20%,
+            40% {
+                transform: scale(1);
+            }
         }
-        
+
         .legal-links {
             display: flex;
             gap: 20px;
         }
-        
+
         .legal-link {
             color: #94a3b8;
             text-decoration: none;
             transition: all 0.3s ease;
             position: relative;
         }
-        
+
         .legal-link::after {
             content: '';
             position: absolute;
@@ -311,15 +341,15 @@
             background: linear-gradient(90deg, #3b82f6, #8b5cf6);
             transition: width 0.3s ease;
         }
-        
+
         .legal-link:hover {
             color: #3b82f6;
         }
-        
+
         .legal-link:hover::after {
             width: 100%;
         }
-        
+
         /* Responsive Design */
         @media (max-width: 1024px) {
             .footer-main {
@@ -327,55 +357,56 @@
                 text-align: center;
                 gap: 30px;
             }
-            
+
             .footer-brand {
                 align-items: center;
             }
-            
+
             .footer-contact {
                 align-items: center;
             }
-            
+
             .footer-tagline {
                 max-width: 100%;
             }
         }
-        
+
         @media (max-width: 768px) {
             .footer-content {
                 padding: 40px 20px 25px;
             }
-            
+
             .footer-logo {
                 font-size: 1.8rem;
             }
-            
+
             .wave-divider svg {
                 height: 40px;
             }
-            
+
             .footer-bottom {
                 flex-direction: column;
                 gap: 15px;
                 text-align: center;
             }
-            
+
             .legal-links {
                 flex-direction: column;
                 gap: 10px;
             }
-            
+
             .social-icons {
                 flex-wrap: wrap;
             }
         }
     </style>
 </head>
+
 <body>
 
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<!-- CRITICAL: Load config.js FIRST to set API_BASE_URL -->
-<script src="frontend/js/config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- CRITICAL: Load config.js FIRST to set API_BASE_URL -->
+    <script src="frontend/js/config.js"></script>
 
     <div class="bg-animation"></div>
 
@@ -383,7 +414,7 @@
         <div class="logo">IIN<span>.edu</span></div>
         <div class="nav-links">
             <a href="index.html" class="active-link">Home</a>
-            
+
             <!-- About Dropdown -->
             <div class="nav-dropdown">
                 <a href="#" class="dropdown-trigger">About <i class="fas fa-chevron-down"></i></a>
@@ -392,10 +423,10 @@
                     <a href="shoutouts.html">Shoutouts</a>
                 </div>
             </div>
-            
+
             <a href="subtittlepyq.html">PYQ</a>
             <a href="testfirstpage.html">Tests</a>
-            
+
             <!-- Future Career Dropdown -->
             <div class="nav-dropdown">
                 <a href="#" class="dropdown-trigger">Future Career <i class="fas fa-chevron-down"></i></a>
@@ -404,21 +435,51 @@
                     <a href="sciencenews.html">Science News</a>
                 </div>
             </div>
-            
+
             <div id="navLoginPlaceholder">
                 <a href="signinpage.html" class="btn-login">Login</a>
             </div>
         </div>
     </nav>
 
-    <section class="hero">
+    <section class="hero" id="hero">
+        <!-- Clean Premium Hero - No Complex 3D -->
         <div class="hero-content">
-            <h1>Gateway to Science.</h1>
-            <p>Unlocking the premier research institutes of India.</p>
+            <h1 class="hero-headline">
+                Gateway to <br><span class="highlight">Future Science</span>
+            </h1>
+            <p class="hero-subheadline">
+                India's premier platform for IISER, NISER, and research institute preparation.
+                Join thousands of students on their journey to scientific excellence.
+            </p>
+            <div class="hero-buttons">
+                <a href="testfirstpage.html" class="btn-primary-hero">
+                    Start Learning
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5">
+                        <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                </a>
+                <a href="#iiser" class="btn-secondary-hero">
+                    Explore Institutes
+                </a>
+            </div>
+            <div class="hero-trust">
+                <div class="trust-item">
+                    <div class="trust-number">10K+</div>
+                    <div class="trust-label">Students</div>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-number">500+</div>
+                    <div class="trust-label">Questions</div>
+                </div>
+                <div class="trust-item">
+                    <div class="trust-number">7</div>
+                    <div class="trust-label">IISERs</div>
+                </div>
+            </div>
         </div>
-        <div class="scroll-indicator">
-            <i class="fas fa-chevron-down"></i>
-        </div>
+        <div class="scroll-hint">Scroll</div>
     </section>
 
     <section class="institute-section" id="iiser">
@@ -429,7 +490,7 @@
 
         <div class="pendulum-container" data-section="iiser">
             <div class="anchor-bar"></div>
-            
+
             <div class="pendulum">
                 <div class="pendulum-string"></div>
                 <div class="pendulum-card">
@@ -440,7 +501,7 @@
                     <p>Maharashtra</p>
                 </div>
             </div>
-            
+
             <div class="pendulum">
                 <div class="pendulum-string"></div>
                 <div class="pendulum-card">
@@ -451,7 +512,7 @@
                     <p>West Bengal</p>
                 </div>
             </div>
-            
+
             <div class="pendulum">
                 <div class="pendulum-string"></div>
                 <div class="pendulum-card">
@@ -462,18 +523,19 @@
                     <p>Punjab</p>
                 </div>
             </div>
-            
+
             <div class="pendulum">
                 <div class="pendulum-string"></div>
                 <div class="pendulum-card">
                     <div class="pendulum-logo">
-                        <img src="frontend/images/Indian_Institute_of_Science_Education_and_Research_Berhampur_Logo.svg" alt="Bhopal">
+                        <img src="frontend/images/Indian_Institute_of_Science_Education_and_Research_Berhampur_Logo.svg"
+                            alt="Bhopal">
                     </div>
                     <h4>Bhopal</h4>
                     <p>Madhya Pradesh</p>
                 </div>
             </div>
-            
+
             <div class="pendulum">
                 <div class="pendulum-string"></div>
                 <div class="pendulum-card">
@@ -484,7 +546,7 @@
                     <p>Kerala</p>
                 </div>
             </div>
-            
+
             <div class="pendulum">
                 <div class="pendulum-string"></div>
                 <div class="pendulum-card">
@@ -495,7 +557,7 @@
                     <p>Andhra Pradesh</p>
                 </div>
             </div>
-            
+
             <div class="pendulum">
                 <div class="pendulum-string"></div>
                 <div class="pendulum-card">
@@ -517,7 +579,7 @@
 
         <div class="pendulum-container" data-section="prestige">
             <div class="anchor-bar"></div>
-            
+
             <div class="pendulum prestige-pendulum">
                 <div class="pendulum-string"></div>
                 <div class="pendulum-card">
@@ -528,7 +590,7 @@
                     <p>Karnataka</p>
                 </div>
             </div>
-            
+
             <div class="pendulum prestige-pendulum">
                 <div class="pendulum-string"></div>
                 <div class="pendulum-card">
@@ -550,7 +612,7 @@
 
         <div class="pendulum-container" data-section="niser">
             <div class="anchor-bar"></div>
-            
+
             <div class="pendulum niser-pendulum">
                 <div class="pendulum-string"></div>
                 <div class="pendulum-card">
@@ -571,13 +633,15 @@
         <!-- Subtle Wave Divider -->
         <div class="wave-divider">
             <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
-                <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" class="wave-shape"></path>
+                <path
+                    d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z"
+                    class="wave-shape"></path>
             </svg>
         </div>
-        
+
         <!-- Subtle Grid Background -->
         <div class="subtle-grid"></div>
-        
+
         <div class="footer-content">
             <!-- Main Section: Logo + Social + Contact -->
             <div class="footer-main">
@@ -586,26 +650,29 @@
                     <div class="footer-logo">IIN.edu</div>
                     <p class="footer-tagline">Empowering future researchers</p>
                 </div>
-                
+
                 <!-- Social Icons -->
                 <div class="social-icons">
-                    <a href="https://instagram.com/iin.edu" target="_blank" class="social-link instagram" title="Instagram">
+                    <a href="https://instagram.com/iin.edu" target="_blank" class="social-link instagram"
+                        title="Instagram">
                         <i class="fab fa-instagram"></i>
                     </a>
                     <a href="https://twitter.com/iin_edu" target="_blank" class="social-link twitter" title="Twitter">
                         <i class="fab fa-twitter"></i>
                     </a>
-                    <a href="https://facebook.com/iin.edu" target="_blank" class="social-link facebook" title="Facebook">
+                    <a href="https://facebook.com/iin.edu" target="_blank" class="social-link facebook"
+                        title="Facebook">
                         <i class="fab fa-facebook-f"></i>
                     </a>
                     <a href="https://wa.me/919876543210" target="_blank" class="social-link whatsapp" title="WhatsApp">
                         <i class="fab fa-whatsapp"></i>
                     </a>
-                    <a href="https://linkedin.com/company/iin-edu" target="_blank" class="social-link linkedin" title="LinkedIn">
+                    <a href="https://linkedin.com/company/iin-edu" target="_blank" class="social-link linkedin"
+                        title="LinkedIn">
                         <i class="fab fa-linkedin-in"></i>
                     </a>
                 </div>
-                
+
                 <!-- Contact -->
                 <div class="footer-contact">
                     <div class="contact-item">
@@ -618,7 +685,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Bottom Section: Copyright + Legal -->
             <div class="footer-bottom">
                 <div class="copyright">
@@ -637,4 +704,5 @@
     <script src="frontend/js/auth.js"></script>
     <script src="frontend/js/index.js"></script>
 </body>
+
 </html>

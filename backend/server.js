@@ -24,7 +24,7 @@ console.log('🔵 Setting up CORS...');
 app.use(cors({
   origin: [
     'http://localhost:5173',
-    'http://localhost:3000', 
+    'http://localhost:3000',
     'https://iinedu.vercel.app',
     'https://api.iinedu.com',
     process.env.FRONTEND_URL
@@ -43,9 +43,9 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 console.log('🔵 Initializing Razorpay...');
 export const instance = process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET
   ? new Razorpay({
-      key_id: process.env.RAZORPAY_KEY_ID,
-      key_secret: process.env.RAZORPAY_KEY_SECRET,
-    })
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
+  })
   : null;
 
 // Import routes - Only import files that exist
@@ -56,6 +56,7 @@ import examRoutes from './routes/examRoutes.js';
 // import testRoutes from './routes/testRoutes.js';  // TODO: File doesn't exist yet
 import questionRoutes from './routes/questionRoutes.js'; // 🔥 NEW OOP Question Routes
 import migrationRoute from './routes/migrationRoute.js'; // 🔧 One-time migration endpoint
+import newsRoutes from './routes/newsRoutes.js'; // 📰 New News Route
 
 // Admin API routes (NEW structure with /admin prefix)
 console.log('🔵 Setting up Admin API routes...');
@@ -71,20 +72,44 @@ console.log('🔵 Mounting API routes...');
 // app.use('/api/auth', authRoutes);  // TODO: Commented out - file doesn't exist
 app.use('/api/payment', paymentRoutes);
 app.use('/api/exam', examRoutes);
+app.use('/api/news', newsRoutes); // 📰 News Endpoint
 // app.use('/api/test', testRoutes);  // TODO: Commented out - file doesn't exist
 
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'ok', 
+  res.json({
+    status: 'ok',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development'
   });
 });
 
-// Root endpoint
+// Serve Static Frontend Files
+// This allows the Node.js app to serve the entire website
+console.log('🔵 Configuring static file serving...');
+
+// 1. Serve 'frontend' folder (CSS, JS, Images)
+app.use('/frontend', express.static(path.join(__dirname, '../frontend')));
+
+// 2. Serve specific HTML files from root (e.g., aboutpage.html)
+app.get('/:page.html', (req, res) => {
+  const filePath = path.join(__dirname, `../${req.params.page}.html`);
+  res.sendFile(filePath, (err) => {
+    if (err) {
+      // If file not found, pass to next handler (404)
+      req.next();
+    }
+  });
+});
+
+// 3. Root endpoint - Serve index.html
 app.get('/', (req, res) => {
-  res.json({ 
+  res.sendFile(path.join(__dirname, '../index.html'));
+});
+
+// 4. API Info endpoint (Moved to /api)
+app.get('/api', (req, res) => {
+  res.json({
     message: 'IIN Education Platform API',
     version: '1.0.0',
     endpoints: {
@@ -92,7 +117,7 @@ app.get('/', (req, res) => {
       admin: '/api/admin',
       payment: '/api/payment',
       exam: '/api/exam',
-      migration: '/api/admin/run-difficulty-migration (one-time use)'
+      news: '/api/news'
     }
   });
 });

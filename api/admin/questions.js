@@ -4,7 +4,7 @@
 
 const express = require('express');
 const router = express.Router();
-const pool = require('../../backend/db');
+// const pool = require('../../backend/db'); // ❌ BROKEN IMPORT: File does not exist
 
 let questions = [
     { id: 1, subject: 'Physics', topic: 'Mechanics', difficulty: 'Easy', marks: 1, question: 'What is the SI unit of force?', type: 'MCQ', options: ['Newton', 'Joule', 'Watt', 'Pascal'], answer: 'Newton' },
@@ -17,11 +17,11 @@ let questions = [
 router.get('-fixed', async (req, res) => {
     try {
         console.log('📥 Fetching questions from database with safe JSON parsing...');
-        
+
         const result = await pool.query(
             'SELECT * FROM questions ORDER BY id'
         );
-        
+
         const questions = result.rows.map(row => {
             // Safe JSON parsing function
             const safeParseJSON = (str) => {
@@ -38,7 +38,7 @@ router.get('-fixed', async (req, res) => {
                     return null;
                 }
             };
-            
+
             return {
                 id: row.id,
                 subject: row.subject,
@@ -52,15 +52,15 @@ router.get('-fixed', async (req, res) => {
                 created_at: row.created_at
             };
         });
-        
+
         console.log(`✅ Successfully fetched ${questions.length} questions`);
         res.json({ questions });
-        
+
     } catch (error) {
         console.error('❌ Database error:', error);
-        res.status(500).json({ 
+        res.status(500).json({
             error: 'Failed to fetch questions',
-            message: error.message 
+            message: error.message
         });
     }
 });
@@ -70,7 +70,7 @@ router.get('/', (req, res) => {
     try {
         const { subject, difficulty, search } = req.query;
         let filtered = questions;
-        
+
         if (subject && subject !== 'all') {
             filtered = filtered.filter(q => q.subject === subject);
         }
@@ -78,12 +78,12 @@ router.get('/', (req, res) => {
             filtered = filtered.filter(q => q.difficulty === difficulty);
         }
         if (search) {
-            filtered = filtered.filter(q => 
+            filtered = filtered.filter(q =>
                 q.question.toLowerCase().includes(search.toLowerCase()) ||
                 q.topic.toLowerCase().includes(search.toLowerCase())
             );
         }
-        
+
         res.json({ questions: filtered });
     } catch (error) {
         res.status(500).json({ error: error.message });

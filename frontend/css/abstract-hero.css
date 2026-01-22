@@ -1,0 +1,135 @@
+/**
+ * Abstract Hero Section
+ * Immersive, High-Art Science Visualization
+ */
+
+/* Hero Container */
+.hero {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    min-height: 700px;
+    background: #000;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Fullscreen Canvas */
+#abstract-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+/* Overlay Layer */
+.hero-overlay {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 40px;
+}
+
+/* Content */
+.hero-content-minimal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+}
+
+/* Typography - Editorial */
+.hero-title-abstract {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.title-line {
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(3rem, 8vw, 7rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -3px;
+    color: white;
+    text-shadow: 0 0 60px rgba(255, 255, 255, 0.1);
+}
+
+.title-gradient {
+    background: linear-gradient(135deg,
+            #60a5fa 0%,
+            #a78bfa 40%,
+            #f472b6 70%,
+            #34d399 100%);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: gradientShift 8s ease infinite;
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* CTA Button */
+.hero-cta-abstract {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 36px;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 50px;
+    color: white;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.hero-cta-abstract:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-3px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.hero-cta-abstract svg {
+    transition: transform 0.3s ease;
+}
+
+.hero-cta-abstract:hover svg {
+    transform: translateX(5px);
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .title-line {
+        letter-spacing: -1px;
+    }
+
+    .hero-cta-abstract {
+        padding: 14px 28px;
+        font-size: 0.85rem;
+    }
+}
