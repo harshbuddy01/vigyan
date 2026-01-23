@@ -1,7 +1,7 @@
 // DISABLED FOR MONGODB: import { pool } from "../config/mysql.js";
 import { StudentPayment } from "../models/StudentPayment.js";
 import { PurchasedTest } from "../models/PurchasedTest.js";
-import { Question } from "../models/Question.js";
+import QuestionModel from "../models/question.js";
 import { StudentAttempt } from "../models/StudentAttempt.js";
 
 // Helper function to safely parse JSON
@@ -142,9 +142,9 @@ export const submitExam = async (req, res) => {
     let unanswered = 0;
     
     // Get correct answers from questions collection
-    const questions = await Question.find({
-      test_id: testId
-    }).sort({ question_number: 1 });
+    const questions = await QuestionModel.find({
+      testId: testId
+    }).sort({ questionNumber: 1 });
     
     if (questions.length === 0) {
       return res.status(404).json({ 
@@ -155,8 +155,8 @@ export const submitExam = async (req, res) => {
     
     // Create a map for easier lookup by question number
     const correctAnswersMap = {};
-    questions.forEach(q => {
-      correctAnswersMap[q.question_number] = q.correct_answer;
+    questions.forEach((q, index) => {
+      correctAnswersMap[index + 1] = q.correctAnswer;
     });
     
     const questionWiseResults = [];
@@ -250,9 +250,9 @@ export const getQuestions = async (req, res) => {
     }
     
     // Get questions from MongoDB
-    const questions = await Question.find({
-      test_id: testId
-    }).sort({ question_number: 1 });
+    const questions = await QuestionModel.find({
+      testId: testId
+    }).sort({ questionNumber: 1 });
     
     if (questions.length === 0) {
       return res.status(404).json({ 
@@ -264,9 +264,9 @@ export const getQuestions = async (req, res) => {
     // Format response
     const formattedQuestions = questions.map(q => ({
       _id: q._id,
-      testId: q.test_id,
-      questionNumber: q.question_number,
-      questionText: q.question_text,
+      testId: q.testId,
+      questionNumber: q.questionNumber || q._id.toString().charCodeAt(0) % 100,
+      questionText: q.questionText,
       options: Array.isArray(q.options) ? q.options : safeJsonParse(q.options, [])
     }));
     
