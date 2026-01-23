@@ -3,7 +3,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs/promises';
 import { spawn } from 'child_process';
-import { pool } from '../config/mysql.js';
+// DISABLED FOR MONGODB: import { pool } from '../config/mysql.js';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -11,7 +11,21 @@ const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
-// Configure multer for file uploads
+/**
+ * DEPRECATED ROUTES - PDF Upload Handler (MySQL Only)
+ * 
+ * These routes were used to:
+ * 1. Upload PDF files
+ * 2. Extract questions using Python OCR
+ * 3. Save to MySQL database
+ * 
+ * Since we've migrated to MongoDB:
+ * - PDF uploads are disabled until MongoDB PDF handling is implemented
+ * - All endpoints return HTTP 410 Gone (Deprecated)
+ * - Contact DevOps to re-enable with MongoDB support
+ */
+
+// Configure multer for file uploads (but disable functionality)
 const storage = multer.diskStorage({
     destination: async (req, file, cb) => {
         const uploadDir = path.join(__dirname, '../../uploads/pdfs');
@@ -42,179 +56,40 @@ const upload = multer({
     }
 });
 
-// Process PDF with Python script
-function processPDFWithPython(pdfPath) {
-    return new Promise((resolve, reject) => {
-        const pythonScript = path.join(__dirname, '../pdf_processor.py');
-        const python = spawn('python3', [pythonScript, pdfPath]);
-        
-        let output = '';
-        let errorOutput = '';
-        
-        python.stdout.on('data', (data) => {
-            output += data.toString();
-        });
-        
-        python.stderr.on('data', (data) => {
-            errorOutput += data.toString();
-        });
-        
-        python.on('close', (code) => {
-            if (code !== 0) {
-                reject(new Error(`Python script failed: ${errorOutput}`));
-            } else {
-                try {
-                    const result = JSON.parse(output);
-                    resolve(result);
-                } catch (e) {
-                    reject(new Error(`Failed to parse Python output: ${e.message}`));
-                }
-            }
-        });
-    });
-}
-
-// Save questions to database
-async function saveQuestionsToDatabase(questions, metadata) {
-    const connection = await pool.getConnection();
-    try {
-        await connection.beginTransaction();
-        
-        const savedQuestions = [];
-        
-        for (const question of questions) {
-            const [result] = await connection.execute(
-                `INSERT INTO questions 
-                (question_text, option_a, option_b, option_c, option_d, 
-                 correct_answer, explanation, difficulty, exam_type, subject, 
-                 topic, year, has_formula, source, section) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [
-                    question.questionText,
-                    question.options[0] || '',
-                    question.options[1] || '',
-                    question.options[2] || '',
-                    question.options[3] || '',
-                    question.correctAnswer,
-                    question.explanation || '',
-                    question.difficulty || 'medium',
-                    metadata.examType,
-                    metadata.subject,
-                    metadata.topic || null,
-                    metadata.year || null,
-                    question.hasFormula ? 1 : 0,
-                    'PDF Upload',
-                    metadata.subject // section field
-                ]
-            );
-            
-            savedQuestions.push({
-                id: result.insertId,
-                questionNumber: question.questionNumber
-            });
-        }
-        
-        await connection.commit();
-        return savedQuestions;
-    } catch (error) {
-        await connection.rollback();
-        throw error;
-    } finally {
-        connection.release();
-    }
-}
-
-// Main upload route
+// Main upload route - DISABLED
 router.post('/upload', upload.single('pdfFile'), async (req, res) => {
     try {
-        if (!req.file) {
-            return res.status(400).json({
-                success: false,
-                error: 'No PDF file uploaded'
-            });
-        }
-        
-        const { examType, subject, topic, year, autoExtract, notes } = req.body;
-        
-        // Validate required fields
-        if (!examType || !subject) {
-            // Clean up uploaded file
-            await fs.unlink(req.file.path);
-            return res.status(400).json({
-                success: false,
-                error: 'Exam type and subject are required'
-            });
-        }
-        
-        const pdfPath = req.file.path;
-        let extractedQuestions = [];
-        
-        // If auto-extract is enabled, process the PDF
-        if (autoExtract === 'true') {
+        // Clean up uploaded file if it was saved
+        if (req.file && req.file.path) {
             try {
-                console.log('Processing PDF with Python...');
-                const result = await processPDFWithPython(pdfPath);
-                
-                if (result.success && result.questions) {
-                    extractedQuestions = result.questions;
-                    console.log(`Extracted ${extractedQuestions.length} questions`);
-                    
-                    // Save questions to database
-                    const metadata = {
-                        examType,
-                        subject,
-                        topic,
-                        year
-                    };
-                    
-                    const savedQuestions = await saveQuestionsToDatabase(
-                        extractedQuestions,
-                        metadata
-                    );
-                    
-                    console.log(`Saved ${savedQuestions.length} questions to database`);
-                } else {
-                    console.error('PDF processing failed:', result.error);
-                }
-            } catch (pythonError) {
-                console.error('Error processing PDF:', pythonError);
-                // Continue even if extraction fails
+                await fs.unlink(req.file.path);
+            } catch (unlinkError) {
+                console.error('Error deleting file:', unlinkError);
             }
         }
         
-        // Save upload record
-        const [uploadResult] = await pool.execute(
-            `INSERT INTO pdf_uploads 
-            (filename, original_name, file_path, file_size, exam_type, subject, 
-             topic, year, notes, questions_extracted, upload_date) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
-            [
-                req.file.filename,
-                req.file.originalname,
-                pdfPath,
-                req.file.size,
-                examType,
-                subject,
-                topic || null,
-                year || null,
-                notes || null,
-                extractedQuestions.length
-            ]
-        );
+        console.log('⚠️ [DEPRECATED] PDF upload attempted but disabled for MongoDB');
         
-        res.json({
-            success: true,
-            message: 'PDF uploaded successfully',
-            uploadId: uploadResult.insertId,
-            fileName: req.file.originalname,
-            questionsExtracted: extractedQuestions.length,
-            autoExtracted: autoExtract === 'true'
+        res.status(410).json({
+            success: false,
+            status: 'deprecated',
+            message: 'PDF upload is temporarily disabled during MongoDB migration',
+            information: {
+                reason: 'MySQL PDF upload handler - requires MongoDB implementation',
+                migration_status: 'In Progress - Contact DevOps',
+                next_steps: [
+                    'MongoDB PDF storage schema pending',
+                    'Python OCR integration needed',
+                    'Question extraction service being updated',
+                    'Expected re-enable: Within 1 week'
+                ]
+            }
         });
         
     } catch (error) {
-        console.error('Upload error:', error);
+        console.error('❌ PDF upload error:', error);
         
-        // Clean up file if it exists
+        // Cleanup
         if (req.file && req.file.path) {
             try {
                 await fs.unlink(req.file.path);
@@ -225,75 +100,52 @@ router.post('/upload', upload.single('pdfFile'), async (req, res) => {
         
         res.status(500).json({
             success: false,
-            error: error.message || 'Failed to upload PDF'
+            error: 'PDF upload is currently unavailable',
+            message: error.message
         });
     }
 });
 
-// Get upload history
+// Get upload history - DISABLED
 router.get('/history', async (req, res) => {
     try {
-        const [uploads] = await pool.execute(
-            `SELECT id, original_name, exam_type, subject, topic, year, 
-                    file_size, questions_extracted, upload_date 
-            FROM pdf_uploads 
-            ORDER BY upload_date DESC 
-            LIMIT 50`
-        );
+        console.log('⚠️ [DEPRECATED] History fetch attempted but disabled');
         
-        res.json({
-            success: true,
-            uploads
+        res.status(410).json({
+            success: false,
+            status: 'deprecated',
+            message: 'PDF upload history is not available during MongoDB migration',
+            uploads: []
         });
+        
     } catch (error) {
-        console.error('Error fetching upload history:', error);
+        console.error('❌ Error fetching upload history:', error);
         res.status(500).json({
             success: false,
-            error: 'Failed to fetch upload history'
+            error: 'PDF history is currently unavailable'
         });
     }
 });
 
-// Delete upload record
+// Delete upload record - DISABLED
 router.delete('/delete/:uploadId', async (req, res) => {
     try {
         const { uploadId } = req.params;
         
-        // Get file path before deleting record
-        const [uploads] = await pool.execute(
-            'SELECT file_path FROM pdf_uploads WHERE id = ?',
-            [uploadId]
-        );
+        console.log('⚠️ [DEPRECATED] Delete attempted but disabled');
         
-        if (uploads.length === 0) {
-            return res.status(404).json({
-                success: false,
-                error: 'Upload not found'
-            });
-        }
-        
-        const filePath = uploads[0].file_path;
-        
-        // Delete from database
-        await pool.execute('DELETE FROM pdf_uploads WHERE id = ?', [uploadId]);
-        
-        // Try to delete file
-        try {
-            await fs.unlink(filePath);
-        } catch (fileError) {
-            console.error('Error deleting file:', fileError);
-            // Continue even if file deletion fails
-        }
-        
-        res.json({
-            success: true,
-            message: 'Upload deleted successfully'
+        res.status(410).json({
+            success: false,
+            status: 'deprecated',
+            message: 'PDF deletion is not available during MongoDB migration',
+            uploadId
         });
+        
     } catch (error) {
-        console.error('Error deleting upload:', error);
+        console.error('❌ Error deleting upload:', error);
         res.status(500).json({
             success: false,
-            error: 'Failed to delete upload'
+            error: 'PDF deletion is currently unavailable'
         });
     }
 });
