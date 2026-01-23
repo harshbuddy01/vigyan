@@ -25,7 +25,9 @@
 
     <script>
         const API_BASE_URL = "https://iin-production.up.railway.app";
+        const PAYMENT_API_URL = "https://backend-vigyanpreap.vigyanprep.com";
         window.API_BASE_URL = API_BASE_URL;
+        window.PAYMENT_API_URL = PAYMENT_API_URL;
     </script>
 
     <style>
@@ -596,50 +598,86 @@
 
         async function startPayment(userEmail, testId, amount) {
             try {
-                const { data: { key } } = await axios.get(`${API_BASE_URL}/api/getkey`);
-                const { data: { order } } = await axios.post(`${API_BASE_URL}/api/checkout`, { amount, testId });
+                // Try new payment API first
+                try {
+                    const configRes = await axios.get(`${PAYMENT_API_URL}/api/config`);
+                    const { RAZORPAY_KEY_ID } = configRes.data;
 
-                const options = {
-                    key,
-                    amount: order.amount,
-                    currency: "INR",
-                    name: "Vigyan.prep",
-                    description: `Activate ${testId.toUpperCase()}`,
-                    order_id: order.id,
-                    prefill: { email: userEmail },
-                    theme: { color: "#3b82f6" },
-                    handler: async function (response) {
-                        const verifyRes = await axios.post(`${API_BASE_URL}/api/paymentverification`, {
-                            razorpay_order_id: response.razorpay_order_id,
-                            razorpay_payment_id: response.razorpay_payment_id,
-                            razorpay_signature: response.razorpay_signature,
-                            email: userEmail,
-                            testId: testId,
-                            amount: amount
-                        });
+                    if (!RAZORPAY_KEY_ID) {
+                        throw new Error('Razorpay key not configured');
+                    }
 
-                        if (verifyRes.data.success) {
-                            const rollNumber = verifyRes.data.rollNumber;
+                    const initiateRes = await axios.post(`${PAYMENT_API_URL}/api/payment/initiate`, {
+                        studentId: 'temp-' + Date.now(),
+                        email: userEmail,
+                        fullName: userEmail.split('@')[0],
+                        amount: amount,
+                        examId: testId
+                    });
 
-                            console.log('💾 PAYMENT SUCCESS - Saving to localStorage...');
+                    const { paymentId } = initiateRes.data;
 
+                    const options = {
+                        key: RAZORPAY_KEY_ID,
+                        amount: amount * 100,
+                        currency: "INR",
+                        name: "Vigyan.prep",
+                        description: `Activate ${testId.toUpperCase()}`,
+                        order_id: paymentId,
+                        prefill: { email: userEmail },
+                        theme: { color: "#3b82f6" },
+                        handler: async function (response) {
+                            // Success handler
                             localStorage.setItem("userEmail", userEmail);
-                            localStorage.setItem("userRollNumber", rollNumber);
-
+                            localStorage.setItem("userRollNumber", "VGN-" + Math.random().toString(36).substr(2, 9).toUpperCase());
                             const purchased = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
                             if (!purchased.includes(testId)) purchased.push(testId);
                             localStorage.setItem("purchasedTests", JSON.stringify(purchased));
-
-                            console.log('✅ localStorage saved successfully!');
-
-                            closeEntryModal();
-
-                            document.getElementById("finalTokenDisplay").innerText = rollNumber;
+                            document.getElementById("finalTokenDisplay").innerText = localStorage.getItem("userRollNumber");
                             document.getElementById("successModal").style.display = "flex";
                         }
-                    }
-                };
-                new Razorpay(options).open();
+                    };
+                    new Razorpay(options).open();
+                } catch (newAPIError) {
+                    console.log('New payment API failed, trying legacy API...');
+                    // Fallback to legacy API
+                    const { data: { key } } = await axios.get(`${API_BASE_URL}/api/getkey`);
+                    const { data: { order } } = await axios.post(`${API_BASE_URL}/api/checkout`, { amount, testId });
+
+                    const options = {
+                        key,
+                        amount: order.amount,
+                        currency: "INR",
+                        name: "Vigyan.prep",
+                        description: `Activate ${testId.toUpperCase()}`,
+                        order_id: order.id,
+                        prefill: { email: userEmail },
+                        theme: { color: "#3b82f6" },
+                        handler: async function (response) {
+                            const verifyRes = await axios.post(`${API_BASE_URL}/api/paymentverification`, {
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature,
+                                email: userEmail,
+                                testId: testId,
+                                amount: amount
+                            });
+
+                            if (verifyRes.data.success) {
+                                const rollNumber = verifyRes.data.rollNumber;
+                                localStorage.setItem("userEmail", userEmail);
+                                localStorage.setItem("userRollNumber", rollNumber);
+                                const purchased = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
+                                if (!purchased.includes(testId)) purchased.push(testId);
+                                localStorage.setItem("purchasedTests", JSON.stringify(purchased));
+                                closeEntryModal();
+                                document.getElementById("finalTokenDisplay").innerText = rollNumber;
+                                document.getElementById("successModal").style.display = "flex";
+                            }
+                        }
+                    };
+                    new Razorpay(options).open();
+                }
             } catch (e) {
                 console.error('Payment error:', e);
                 showModalError("❌ Payment initialization failed. Please try again.");
