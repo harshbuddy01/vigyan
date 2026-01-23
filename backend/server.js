@@ -135,20 +135,28 @@ app.get('/api', (req, res) => {
 });
 
 // Database connection and server start
-import { connectDB } from './config/mysql.js';  // ✅ FIXED: Use connectDB not testConnection
+import { connectDB } from './config/mysql.js';
 import { runMigrations } from './config/runMigrations.js';
 
-console.log('🔗 Connecting to database...');
-await connectDB();  // ✅ FIXED
-
-console.log('🛠️ Running database migrations...');
-await runMigrations();
-
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`✅ Server running on port ${PORT}`);
-  console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🌐 API URL: ${process.env.API_URL || 'http://localhost:' + PORT}`);
-  console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
-});
+// ✅ FIX: Wrap async operations in an async IIFE to avoid top-level await
+(async () => {
+  try {
+    console.log('🔗 Connecting to database...');
+    await connectDB();
+    
+    console.log('🛠️ Running database migrations...');
+    await runMigrations();
+    
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`✅ Server running on port ${PORT}`);
+      console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`🌐 API URL: ${process.env.API_URL || 'http://localhost:' + PORT}`);
+      console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
+    });
+  } catch (error) {
+    console.error('❌ Server startup failed:', error);
+    process.exit(1);
+  }
+})();
 
 export default app;
