@@ -1,21 +1,19 @@
 /**
- * Question Repository
- * Created: Dec 29, 2025
- * Purpose: Handle all database operations for questions
+ * Question Repository - MongoDB Version
+ * Migrated from MySQL to MongoDB/Mongoose
  * 
- * REPOSITORY PATTERN BENEFITS:
- * - Separates business logic from database logic
- * - Easy to test (can mock database)
- * - Easy to switch databases (just change repository)
- * - Reusable query methods
+ * CHANGES:
+ * - Replaced SQL queries with Mongoose queries
+ * - All method signatures remain the same (backward compatible)
+ * - Domain Model (Question.js) unchanged - still works!
  */
 
-import { db } from '../config/DatabaseConnection.js';
+import QuestionModel from '../schemas/QuestionSchema.js';
 import { Question } from '../models/Question.js';
 
 export class QuestionRepository {
     constructor() {
-        this.tableName = 'questions';
+        this.model = QuestionModel;
     }
     
     /**
@@ -23,46 +21,49 @@ export class QuestionRepository {
      */
     async findAll(filters = {}) {
         try {
-            let query = `SELECT * FROM ${this.tableName} WHERE 1=1`;
-            const params = [];
+            const query = {};
             
             // Filter by section (subject)
             if (filters.section || filters.subject) {
-                query += ' AND section = ?';
-                params.push(filters.section || filters.subject);
+                query.section = filters.section || filters.subject;
             }
             
-            // Filter by difficulty (if column exists)
+            // Filter by difficulty
             if (filters.difficulty) {
-                query += ' AND difficulty = ?';
-                params.push(filters.difficulty);
+                query.difficulty = filters.difficulty;
             }
             
             // Filter by test ID
             if (filters.testId || filters.test_id) {
-                query += ' AND test_id = ?';
-                params.push(filters.testId || filters.test_id);
+                query.testId = filters.testId || filters.test_id;
             }
             
             // Search in question text
             if (filters.search) {
-                query += ' AND (question_text LIKE ? OR test_id LIKE ?)';
-                params.push(`%${filters.search}%`, `%${filters.search}%`);
+                query.$or = [
+                    { questionText: { $regex: filters.search, $options: 'i' } },
+                    { testId: { $regex: filters.search, $options: 'i' } }
+                ];
             }
             
             // Ordering
-            const orderBy = filters.orderBy || 'id';
-            const order = filters.order || 'DESC';
-            query += ` ORDER BY ${orderBy} ${order}`;
+            const orderBy = filters.orderBy || '_id';
+            const order = filters.order === 'ASC' ? 1 : -1;
+            const sort = { [orderBy]: order };
             
             // Pagination
             const limit = parseInt(filters.limit) || 100;
             const offset = parseInt(filters.offset) || 0;
-            query += ' LIMIT ? OFFSET ?';
-            params.push(limit, offset);
             
-            const rows = await db.query(query, params);
-            return Question.fromDatabaseRows(rows);
+            const docs = await this.model
+                .find(query)
+                .sort(sort)
+                .skip(offset)
+                .limit(limit)
+                .lean();
+            
+            // Convert MongoDB docs to Domain Models
+            return docs.map(doc => this._toQuestion(doc));
             
         } catch (error) {
             console.error('❌ QuestionRepository.findAll error:', error);
@@ -75,14 +76,13 @@ export class QuestionRepository {
      */
     async findById(id) {
         try {
-            const query = `SELECT * FROM ${this.tableName} WHERE id = ?`;
-            const rows = await db.query(query, [id]);
+            const doc = await this.model.findById(id).lean();
             
-            if (rows.length === 0) {
+            if (!doc) {
                 return null;
             }
             
-            return Question.fromDatabase(rows[0]);
+            return this._toQuestion(doc);
             
         } catch (error) {
             console.error(`❌ QuestionRepository.findById(${id}) error:`, error);
@@ -95,9 +95,12 @@ export class QuestionRepository {
      */
     async findByTestId(testId) {
         try {
-            const query = `SELECT * FROM ${this.tableName} WHERE test_id = ? ORDER BY question_number ASC`;
-            const rows = await db.query(query, [testId]);
-            return Question.fromDatabaseRows(rows);
+            const docs = await this.model
+                .find({ testId })
+                .sort({ questionNumber: 1 })
+                .lean();
+            
+            return docs.map(doc => this._toQuestion(doc));
             
         } catch (error) {
             console.error(`❌ QuestionRepository.findByTestId(${testId}) error:`, error);
@@ -110,26 +113,21 @@ export class QuestionRepository {
      */
     async count(filters = {}) {
         try {
-            let query = `SELECT COUNT(*) as total FROM ${this.tableName} WHERE 1=1`;
-            const params = [];
+            const query = {};
             
             if (filters.section || filters.subject) {
-                query += ' AND section = ?';
-                params.push(filters.section || filters.subject);
+                query.section = filters.section || filters.subject;
             }
             
             if (filters.difficulty) {
-                query += ' AND difficulty = ?';
-                params.push(filters.difficulty);
+                query.difficulty = filters.difficulty;
             }
             
             if (filters.testId) {
-                query += ' AND test_id = ?';
-                params.push(filters.testId);
+                query.testId = filters.testId;
             }
             
-            const rows = await db.query(query, params);
-            return rows[0].total;
+            return await this.model.countDocuments(query);
             
         } catch (error) {
             console.error('❌ QuestionRepository.count error:', error);
@@ -142,30 +140,25 @@ export class QuestionRepository {
      */
     async create(question) {
         try {
-            const data = question.toDatabaseFormat();
+            // Convert Domain Model to MongoDB document
+            const docData = {
+                testId: question.testId,
+                questionNumber: question.questionNumber,
+                questionText: question.text,
+                options: question.options,
+                correctAnswer: question.correctAnswer,
+                section: question.section,
+                topic: question.topic,
+                difficulty: question.difficulty,
+                marksPositive: question.marks,
+                marksNegative: question.negativeMarks,
+                type: question.type
+            };
             
-            const query = `
-                INSERT INTO ${this.tableName} 
-                (test_id, question_number, question_text, options, correct_answer, section, topic, difficulty, marks_positive, marks_negative, type) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            `;
+            const doc = await this.model.create(docData);
             
-            const params = [
-                data.test_id,
-                data.question_number,
-                data.question_text,
-                data.options, // Already JSON.stringify() in model
-                data.correct_answer,
-                data.section,
-                data.topic,
-                data.difficulty,
-                data.marks_positive,
-                data.marks_negative,
-                data.type
-            ];
-            
-            const result = await db.query(query, params);
-            question.id = result.insertId;
+            // Update Question domain model with new ID
+            question.id = doc._id.toString();
             
             console.log(`✅ Question created with ID: ${question.id}`);
             return question;
@@ -181,37 +174,19 @@ export class QuestionRepository {
      */
     async update(id, question) {
         try {
-            const data = question.toDatabaseFormat();
+            const updateData = {
+                questionText: question.text,
+                options: question.options,
+                correctAnswer: question.correctAnswer,
+                section: question.section,
+                topic: question.topic,
+                difficulty: question.difficulty,
+                marksPositive: question.marks,
+                marksNegative: question.negativeMarks,
+                type: question.type
+            };
             
-            const query = `
-                UPDATE ${this.tableName} 
-                SET 
-                    question_text = ?,
-                    options = ?,
-                    correct_answer = ?,
-                    section = ?,
-                    topic = ?,
-                    difficulty = ?,
-                    marks_positive = ?,
-                    marks_negative = ?,
-                    type = ?
-                WHERE id = ?
-            `;
-            
-            const params = [
-                data.question_text,
-                data.options,
-                data.correct_answer,
-                data.section,
-                data.topic,
-                data.difficulty,
-                data.marks_positive,
-                data.marks_negative,
-                data.type,
-                id
-            ];
-            
-            await db.query(query, params);
+            await this.model.findByIdAndUpdate(id, updateData, { new: true });
             console.log(`✅ Question ${id} updated`);
             
             return question;
@@ -227,8 +202,7 @@ export class QuestionRepository {
      */
     async delete(id) {
         try {
-            const query = `DELETE FROM ${this.tableName} WHERE id = ?`;
-            await db.query(query, [id]);
+            await this.model.findByIdAndDelete(id);
             console.log(`✅ Question ${id} deleted`);
             return true;
             
@@ -243,9 +217,13 @@ export class QuestionRepository {
      */
     async getNextQuestionNumber(testId) {
         try {
-            const query = `SELECT MAX(question_number) as max_num FROM ${this.tableName} WHERE test_id = ?`;
-            const rows = await db.query(query, [testId]);
-            return (rows[0]?.max_num || 0) + 1;
+            const result = await this.model
+                .findOne({ testId })
+                .sort({ questionNumber: -1 })
+                .select('questionNumber')
+                .lean();
+            
+            return (result?.questionNumber || 0) + 1;
             
         } catch (error) {
             console.error(`❌ QuestionRepository.getNextQuestionNumber(${testId}) error:`, error);
@@ -254,94 +232,51 @@ export class QuestionRepository {
     }
     
     /**
-     * Check if a column exists in the table
-     */
-    async columnExists(columnName) {
-        try {
-            const query = `
-                SELECT COUNT(*) as count 
-                FROM information_schema.COLUMNS 
-                WHERE TABLE_SCHEMA = DATABASE() 
-                AND TABLE_NAME = ? 
-                AND COLUMN_NAME = ?
-            `;
-            const rows = await db.query(query, [this.tableName, columnName]);
-            return rows[0].count > 0;
-        } catch (error) {
-            console.warn(`⚠️ Could not check if column ${columnName} exists:`, error.message);
-            return false;
-        }
-    }
-    
-    /**
      * Get statistics about questions
-     * Gracefully handles missing columns (difficulty, topic)
      */
     async getStatistics() {
         try {
-            // Check if difficulty column exists
-            const hasDifficulty = await this.columnExists('difficulty');
-            const hasTopic = await this.columnExists('topic');
-            
-            console.log(`📊 Statistics: difficulty=${hasDifficulty}, topic=${hasTopic}`);
-            
             // Total questions
-            const totalQuery = `SELECT COUNT(*) as total FROM ${this.tableName}`;
-            const totalRows = await db.query(totalQuery);
+            const total = await this.model.countDocuments();
             
-            // By section (always exists)
-            const sectionQuery = `
-                SELECT section, COUNT(*) as count 
-                FROM ${this.tableName} 
-                GROUP BY section
-            `;
-            const sectionRows = await db.query(sectionQuery);
+            // By section
+            const bySectionResult = await this.model.aggregate([
+                { $group: { _id: '$section', count: { $sum: 1 } } }
+            ]);
             
-            const statistics = {
-                total: totalRows[0].total,
-                bySection: sectionRows.reduce((acc, row) => {
-                    acc[row.section || 'Unknown'] = row.count;
-                    return acc;
-                }, {})
-            };
+            const bySection = {};
+            bySectionResult.forEach(item => {
+                bySection[item._id || 'Unknown'] = item.count;
+            });
             
-            // By difficulty (only if column exists)
-            if (hasDifficulty) {
-                const difficultyQuery = `
-                    SELECT difficulty, COUNT(*) as count 
-                    FROM ${this.tableName} 
-                    WHERE difficulty IS NOT NULL
-                    GROUP BY difficulty
-                `;
-                const difficultyRows = await db.query(difficultyQuery);
-                
-                statistics.byDifficulty = difficultyRows.reduce((acc, row) => {
-                    acc[row.difficulty || 'Unknown'] = row.count;
-                    return acc;
-                }, {});
-            } else {
-                console.log('⚠️ Difficulty column not found - skipping difficulty statistics');
-                statistics.byDifficulty = {
-                    note: 'Difficulty column not yet added to database'
-                };
-            }
+            // By difficulty
+            const byDifficultyResult = await this.model.aggregate([
+                { $group: { _id: '$difficulty', count: { $sum: 1 } } }
+            ]);
             
-            // By test
-            const testQuery = `
-                SELECT test_id, COUNT(*) as count 
-                FROM ${this.tableName} 
-                GROUP BY test_id 
-                ORDER BY count DESC 
-                LIMIT 10
-            `;
-            const testRows = await db.query(testQuery);
+            const byDifficulty = {};
+            byDifficultyResult.forEach(item => {
+                byDifficulty[item._id || 'Unknown'] = item.count;
+            });
             
-            statistics.topTests = testRows.map(row => ({
-                testId: row.test_id,
-                questionCount: row.count
+            // Top tests
+            const topTestsResult = await this.model.aggregate([
+                { $group: { _id: '$testId', count: { $sum: 1 } } },
+                { $sort: { count: -1 } },
+                { $limit: 10 }
+            ]);
+            
+            const topTests = topTestsResult.map(item => ({
+                testId: item._id,
+                questionCount: item.count
             }));
             
-            return statistics;
+            return {
+                total,
+                bySection,
+                byDifficulty,
+                topTests
+            };
             
         } catch (error) {
             console.error('❌ QuestionRepository.getStatistics error:', error);
@@ -353,49 +288,65 @@ export class QuestionRepository {
      * Bulk insert questions (useful for importing)
      */
     async bulkCreate(questions) {
-        const connection = await db.getConnection();
         try {
-            await connection.beginTransaction();
+            const docsData = questions.map(q => ({
+                testId: q.testId,
+                questionNumber: q.questionNumber,
+                questionText: q.text,
+                options: q.options,
+                correctAnswer: q.correctAnswer,
+                section: q.section,
+                topic: q.topic,
+                difficulty: q.difficulty,
+                marksPositive: q.marks,
+                marksNegative: q.negativeMarks,
+                type: q.type
+            }));
             
-            const insertedQuestions = [];
-            for (const question of questions) {
-                const data = question.toDatabaseFormat();
-                
-                const query = `
-                    INSERT INTO ${this.tableName} 
-                    (test_id, question_number, question_text, options, correct_answer, section, topic, difficulty, marks_positive, marks_negative, type) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                `;
-                
-                const [result] = await connection.query(query, [
-                    data.test_id,
-                    data.question_number,
-                    data.question_text,
-                    data.options,
-                    data.correct_answer,
-                    data.section,
-                    data.topic,
-                    data.difficulty,
-                    data.marks_positive,
-                    data.marks_negative,
-                    data.type
-                ]);
-                
-                question.id = result.insertId;
-                insertedQuestions.push(question);
-            }
+            const docs = await this.model.insertMany(docsData);
             
-            await connection.commit();
-            console.log(`✅ Bulk created ${insertedQuestions.length} questions`);
-            return insertedQuestions;
+            // Update Question domain models with new IDs
+            docs.forEach((doc, index) => {
+                questions[index].id = doc._id.toString();
+            });
+            
+            console.log(`✅ Bulk created ${questions.length} questions`);
+            return questions;
             
         } catch (error) {
-            await connection.rollback();
             console.error('❌ QuestionRepository.bulkCreate error:', error);
             throw new Error(`Failed to bulk create questions: ${error.message}`);
-        } finally {
-            connection.release();
         }
+    }
+    
+    /**
+     * Helper: Convert MongoDB document to Question domain model
+     */
+    _toQuestion(doc) {
+        return new Question({
+            id: doc._id.toString(),
+            test_id: doc.testId,
+            question_number: doc.questionNumber,
+            question_text: doc.questionText,
+            options: doc.options,
+            correct_answer: doc.correctAnswer,
+            section: doc.section,
+            topic: doc.topic,
+            difficulty: doc.difficulty,
+            marks_positive: doc.marksPositive,
+            marks_negative: doc.marksNegative,
+            type: doc.type,
+            created_at: doc.createdAt,
+            updated_at: doc.updatedAt
+        });
+    }
+    
+    /**
+     * Column exists check - Not needed for MongoDB (graceful compatibility)
+     */
+    async columnExists(columnName) {
+        // MongoDB is schemaless - all fields "exist" conceptually
+        return true;
     }
 }
 
