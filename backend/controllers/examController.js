@@ -1,7 +1,7 @@
 // DISABLED FOR MONGODB: import { pool } from "../config/mysql.js";
 import { StudentPayment } from "../models/StudentPayment.js";
 import { PurchasedTest } from "../models/PurchasedTest.js";
-import QuestionModel from "../models/question.js";
+import QuestionModel from "../schemas/QuestionSchema.js";
 import { StudentAttempt } from "../models/StudentAttempt.js";
 
 // Helper function to safely parse JSON
