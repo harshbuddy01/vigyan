@@ -1,13 +1,30 @@
 import crypto from "crypto";
 import { instance } from "../server.js";
 import { pool } from "../config/mysql.js";
-import sgMail from "@sendgrid/mail";
+import nodemailer from "nodemailer";
 
-// Initialize SendGrid
-if (process.env.SENDGRID_API_KEY) {
-  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+// Create Nodemailer transporter with Hostinger SMTP
+const transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST || 'smtp.hostinger.com',
+  port: parseInt(process.env.EMAIL_PORT) || 465,
+  secure: true, // true for 465, false for other ports
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD,
+  },
+});
+
+// Verify transporter configuration
+if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
+  transporter.verify((error, success) => {
+    if (error) {
+      console.error('❌ Email transporter verification failed:', error);
+    } else {
+      console.log('✅ Email server is ready to send messages');
+    }
+  });
 } else {
-  console.warn('⚠️ SENDGRID_API_KEY not set - email functionality disabled');
+  console.warn('⚠️ Email credentials not configured - email functionality disabled');
 }
 
 // Helper function to safely extract first name from email
@@ -60,7 +77,7 @@ export const checkout = async (req, res) => {
   }
 };
 
-// 3. PAYMENT VERIFICATION (USING MYSQL + SENDGRID)
+// 3. PAYMENT VERIFICATION (USING MYSQL + NODEMAILER)
 export const paymentVerification = async (req, res) => {
   console.log("🔹 Verification Started...");
   console.log("📦 Request Body:", JSON.stringify(req.body, null, 2));
@@ -191,10 +208,10 @@ export const paymentVerification = async (req, res) => {
       console.log(`✅ Created new student: ${normalizedEmail}, Roll: ${rollNumber}`);
     }
 
-    // Send email using SendGrid - PREMIUM TEMPLATE
-    console.log("📧 Attempting to send email via SendGrid...");
+    // Send email using Nodemailer
+    console.log("📧 Attempting to send email via Nodemailer...");
 
-    if (process.env.SENDGRID_API_KEY && process.env.SENDGRID_SENDER_EMAIL) {
+    if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
       try {
         // ✅ Safe first name extraction
         const firstName = extractFirstName(normalizedEmail);
@@ -286,7 +303,7 @@ export const paymentVerification = async (req, res) => {
             
             <!-- CTA Button -->
             <div style="text-align: center; margin: 45px 0 20px;">
-                <a href="https://iin-theta.vercel.app" style="display: inline-block; background-color: #1f2937; color: white; padding: 16px 50px; text-decoration: none; border-radius: 6px; font-weight: 700; font-size: 14px; letter-spacing: 0.5px; text-transform: uppercase;">
+                <a href="https://vigyanprep.com" style="display: inline-block; background-color: #1f2937; color: white; padding: 16px 50px; text-decoration: none; border-radius: 6px; font-weight: 700; font-size: 14px; letter-spacing: 0.5px; text-transform: uppercase;">
                     PROCEED TO DASHBOARD →
                 </a>
             </div>
@@ -308,26 +325,23 @@ export const paymentVerification = async (req, res) => {
 </html>
         `;
 
-        // Send email via SendGrid
-        const msg = {
+        // Send email via Nodemailer
+        const mailOptions = {
+          from: `"Vigyan.prep" <${process.env.EMAIL_USER}>`,
           to: normalizedEmail,
-          from: process.env.SENDGRID_SENDER_EMAIL,
           subject: `Registration Confirmed - ${testSeriesName}`,
           html: emailHtml,
         };
 
-        await sgMail.send(msg);
-        console.log(`✅ Email sent successfully to ${normalizedEmail} via SendGrid`);
+        await transporter.sendMail(mailOptions);
+        console.log(`✅ Email sent successfully to ${normalizedEmail} via Nodemailer`);
 
       } catch (emailError) {
-        console.error("❌ SendGrid Email Error:", emailError.message);
-        if (emailError.response) {
-          console.error("❌ SendGrid Response Body:", JSON.stringify(emailError.response.body));
-        }
+        console.error("❌ Nodemailer Email Error:", emailError.message);
         // Don't fail the payment if email fails
       }
     } else {
-      console.warn('⚠️ Email sending skipped - SendGrid credentials not configured');
+      console.warn('⚠️ Email sending skipped - Email credentials not configured');
     }
 
     console.log("✅ Sending success response to frontend...");
