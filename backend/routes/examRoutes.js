@@ -9,19 +9,19 @@ import {
 
 const router = express.Router();
 
-// ✅ NEW: Get user info (email, roll number, purchased tests)
-router.post('/exam/user-info', getUserInfo);
+// ✅ Get user info (email, roll number, purchased tests)
+router.post('/user-info', getUserInfo);
 
-// ✅ NEW: Start exam (verify access)
-router.post('/exam/start', startTest);
+// ✅ Start exam (verify access)
+router.post('/start', startTest);
 
-// ✅ NEW: Get questions for a test
-router.get('/exam/questions', getQuestions);
+// ✅ Get questions for a test
+router.get('/questions', getQuestions);
 
-// ✅ NEW: Submit exam
-router.post('/exam/submit', submitExam);
+// ✅ Submit exam
+router.post('/submit', submitExam);
 
-// ✅ NEW: Get student results/attempts
-router.get('/exam/results', getStudentResults);
+// ✅ Get student results/attempts
+router.get('/results', getStudentResults);
 
 export default router;
