@@ -1,16 +1,14 @@
 /**
  * Centralized Configuration File
- * Created: 2025-12-28
- * Purpose: Easy switching between Railway and Hostinger
- * 
- * IMPORTANT: On January 2, 2025, update API_BASE_URL to Hostinger URL
+ * Updated: 2026-01-23
+ * Purpose: Hostinger deployment with Node.js backend
  */
 
 window.APP_CONFIG = {
     // Environment detection
     ENVIRONMENT: window.location.hostname.includes('localhost') ? 'development' : 'production',
 
-    // API Base URL - CHANGE THIS ON JAN 2 TO HOSTINGER URL
+    // API Base URL - Updated for Hostinger deployment
     API_BASE_URL: (() => {
         const hostname = window.location.hostname;
 
@@ -19,9 +17,8 @@ window.APP_CONFIG = {
             return 'http://localhost:3000';
         }
 
-        // Production - Currently Railway (CHANGE TO HOSTINGER ON JAN 2)
-        // NEW HOSTINGER URL WILL BE: 'https://api.yourdomain.com'
-        return 'https://iin-production.up.railway.app';
+        // Production - Hostinger with Node.js backend on port 3000
+        return 'https://vigyanprep.com:3000';
     })(),
 
     // Feature flags
@@ -45,8 +42,8 @@ window.APP_CONFIG = {
 
     // App metadata
     APP_NAME: 'Vigyan.prep Admin Portal',
-    VERSION: '1.0.0',
-    BUILD_DATE: '2025-12-28',
+    VERSION: '1.0.1',
+    BUILD_DATE: '2026-01-23',
 
     // Logging
     log: function (message, type = 'info') {
