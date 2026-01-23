@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Payment - VigyanPrep</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .payment-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 500px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+        
+        .price-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .price-row.total {
+            font-weight: bold;
+            font-size: 18px;
+            color: #667eea;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102,126,234,0.4);
+        }
+        
+        .btn-secondary {
+            background: #eee;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #ddd;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .error {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #667eea;
+            font-size: 14px;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .security-badges {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .badge {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        #errorMessage.error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: block;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-container">
+        <div class="header">
+            <h1>Exam Payment</h1>
+            <p>Secure payment processing</p>
+        </div>
+        
+        <div id="successMessage" class="success"></div>
+        <div id="errorMessage" class="error"></div>
+        
+        <form id="paymentForm">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input 
+                    type="text" 
+                    id="fullName" 
+                    placeholder="Enter your full name"
+                    required
+                >
+            </div>
+            
+            <div class="form-group">
+                <label>Email Address</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    placeholder="Enter your email"
+                    required
+                >
+            </div>
+            
+            <div class="form-group">
+                <label>Exam Selection</label>
+                <select id="examId" required>
+                    <option value="">Select an exam</option>
+                    <option value="jee-main">JEE Main - ₹299</option>
+                    <option value="jee-advanced">JEE Advanced - ₹399</option>
+                    <option value="neet">NEET - ₹349</option>
+                </select>
+            </div>
+            
+            <div class="price-section">
+                <div class="price-row">
+                    <span>Exam Fee</span>
+                    <span id="examPrice">₹299</span>
+                </div>
+                <div class="price-row">
+                    <span>Tax (18%)</span>
+                    <span id="taxAmount">₹53.82</span>
+                </div>
+                <div class="price-row total">
+                    <span>Total Amount</span>
+                    <span id="totalAmount">₹352.82</span>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button type="button" class="btn btn-secondary" onclick="goBack()">
+                    Cancel
+                </button>
+                <button type="submit" class="btn btn-primary" id="payBtn">
+                    Proceed to Payment
+                </button>
+            </div>
+        </form>
+        
+        <div id="loadingSpinner" class="loading">
+            <span class="spinner"></span>
+            Processing payment...
+        </div>
+        
+        <div class="security-badges">
+            <div class="badge">🔒 Secure Payment</div>
+            <div class="badge">✓ SSL Encrypted</div>
+        </div>
+    </div>
+    
+    <!-- Razorpay Script -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    
+    <script>
+        // API Configuration
+        const API_BASE = 'https://backend-vigyanpreap.vigyanprep.com';
+        
+        const EXAM_PRICES = {
+            'jee-main': 299,
+            'jee-advanced': 399,
+            'neet': 349
+        };
+        
+        // Get student ID from URL or localStorage
+        const studentId = new URLSearchParams(window.location.search).get('studentId') 
+            || localStorage.getItem('studentId');
+        
+        let RAZORPAY_KEY = '';
+        
+        // Initialize config on page load
+        async function initializePaymentConfig() {
+            try {
+                const response = await fetch(`${API_BASE}/api/config`);
+                if (!response.ok) throw new Error('Failed to load payment config');
+                
+                const config = await response.json();
+                RAZORPAY_KEY = config.RAZORPAY_KEY_ID;
+                console.log('✅ Payment config loaded:', config);
+                
+                if (!RAZORPAY_KEY) {
+                    showError('Payment gateway not configured. Please contact support.');
+                }
+            } catch (error) {
+                console.error('❌ Config error:', error);
+                showError('Unable to load payment configuration. Please refresh.');
+            }
+        }
+        
+        // Update price when exam changes
+        document.getElementById('examId').addEventListener('change', function() {
+            const price = EXAM_PRICES[this.value] || 0;
+            const tax = (price * 0.18).toFixed(2);
+            const total = (parseFloat(price) + parseFloat(tax)).toFixed(2);
+            
+            document.getElementById('examPrice').textContent = `₹${price}`;
+            document.getElementById('taxAmount').textContent = `₹${tax}`;
+            document.getElementById('totalAmount').textContent = `₹${total}`;
+        });
+        
+        // Handle form submission
+        document.getElementById('paymentForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const fullName = document.getElementById('fullName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const examId = document.getElementById('examId').value;
+            const amount = parseFloat(
+                document.getElementById('totalAmount').textContent.replace('₹', '')
+            );
+            
+            // Validation
+            if (!fullName || !email || !examId) {
+                showError('Please fill all fields');
+                return;
+            }
+            
+            if (!email.includes('@')) {
+                showError('Please enter a valid email');
+                return;
+            }
+            
+            if (!RAZORPAY_KEY) {
+                showError('Payment gateway not ready. Please refresh the page.');
+                return;
+            }
+            
+            if (!studentId) {
+                showError('Student ID not found. Please login first.');
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                // Step 1: Initiate payment on backend
+                const initiateResponse = await fetch(`${API_BASE}/api/payment/initiate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        studentId,
+                        email,
+                        fullName,
+                        amount,
+                        examId
+                    })
+                });
+                
+                if (!initiateResponse.ok) {
+                    const error = await initiateResponse.json();
+                    throw new Error(error.error || 'Payment initiation failed');
+                }
+                
+                const paymentData = await initiateResponse.json();
+                
+                // Step 2: Open Razorpay checkout
+                const options = {
+                    key: RAZORPAY_KEY,
+                    amount: Math.round(amount * 100), // Amount in paise
+                    currency: 'INR',
+                    name: 'VigyanPrep',
+                    description: `Exam: ${examId}`,
+                    order_id: paymentData.paymentId,
+                    handler: async function(response) {
+                        // Step 3: Verify payment on backend
+                        await verifyPayment(
+                            paymentData.paymentId,
+                            response.razorpay_payment_id,
+                            response.razorpay_signature
+                        );
+                    },
+                    prefill: {
+                        name: fullName,
+                        email: email
+                    },
+                    theme: {
+                        color: '#667eea'
+                    },
+                    modal: {
+                        ondismiss: function() {
+                            showLoading(false);
+                            showError('Payment cancelled by user');
+                        }
+                    }
+                };
+                
+                const rzp = new Razorpay(options);
+                rzp.open();
+                
+            } catch (error) {
+                console.error('Payment error:', error);
+                showError(error.message || 'Payment failed. Please try again.');
+                showLoading(false);
+            }
+        });
+        
+        async function verifyPayment(paymentId, paymentMethod, signature) {
+            try {
+                const verifyResponse = await fetch(`${API_BASE}/api/payment/webhook`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        paymentId,
+                        orderId: paymentId,
+                        status: 'completed',
+                        transactionId: paymentMethod,
+                        signature
+                    })
+                });
+                
+                if (verifyResponse.ok) {
+                    showSuccess('✅ Payment successful! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = '/testfirstpage.html?exam=true';
+                    }, 2000);
+                } else {
+                    throw new Error('Payment verification failed');
+                }
+                
+            } catch (error) {
+                showError('Payment verification failed: ' + error.message);
+                showLoading(false);
+            }
+        }
+        
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+            setTimeout(() => {
+                errorEl.style.display = 'none';
+            }, 5000);
+        }
+        
+        function showSuccess(message) {
+            const successEl = document.getElementById('successMessage');
+            successEl.textContent = message;
+            successEl.style.display = 'block';
+        }
+        
+        function showLoading(show) {
+            document.getElementById('loadingSpinner').style.display = show ? 'block' : 'none';
+            document.getElementById('payBtn').disabled = show;
+        }
+        
+        function goBack() {
+            window.history.back();
+        }
+        
+        // Initialize config when page loads
+        window.addEventListener('DOMContentLoaded', initializePaymentConfig);
+    </script>
+</body>
+</html>
