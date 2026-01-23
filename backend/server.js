@@ -1,4 +1,5 @@
 // 🚀 Vigyan.prep Platform - Backend Server
+// ✅ UPDATED: MongoDB Migration Complete!
 
 import express from 'express';
 import cors from 'cors';
@@ -62,53 +63,48 @@ if (instance) {
 
 // Import routes - Only import files that exist
 import adminRoutes from './routes/adminRoutes.js';
-// import authRoutes from './routes/authRoutes.js';  // TODO: File doesn't exist yet
 import paymentRoutes from './routes/paymentRoutes.js';
 import examRoutes from './routes/examRoutes.js';
-// import testRoutes from './routes/testRoutes.js';  // TODO: File doesn't exist yet
-import questionRoutes from './routes/questionRoutes.js'; // 🔥 NEW OOP Question Routes
-import migrationRoute from './routes/migrationRoute.js'; // 🔧 One-time migration endpoint
-import newsRoutes from './routes/newsRoutes.js'; // 📰 New News Route
+import questionRoutes from './routes/questionRoutes.js';
+import migrationRoute from './routes/migrationRoute.js';
+import newsRoutes from './routes/newsRoutes.js';
 
 // Admin API routes (NEW structure with /admin prefix)
 console.log('🔵 Setting up Admin API routes...');
-app.use('/api/admin', questionRoutes); // 🔥 Mount OOP question routes
+app.use('/api/admin', questionRoutes);
 console.log('✅ Question routes mounted (OLD + NEW OOP routes)');
 app.use('/api/admin', adminRoutes);
 console.log('✅ Admin API routes mounted');
-app.use('/api/admin', migrationRoute); // 🔧 Migration endpoint
+app.use('/api/admin', migrationRoute);
 console.log('✅ Migration endpoint mounted');
 
 // Mount other API routes
 console.log('🔵 Mounting API routes...');
-// app.use('/api/auth', authRoutes);  // TODO: Commented out - file doesn't exist
 app.use('/api/payment', paymentRoutes);
 app.use('/api/exam', examRoutes);
-app.use('/api/news', newsRoutes); // 📰 News Endpoint
-// app.use('/api/test', testRoutes);  // TODO: Commented out - file doesn't exist
+app.use('/api/news', newsRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
   res.json({
     status: 'ok',
+    database: 'MongoDB',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development'
   });
 });
 
 // Serve Static Frontend Files
-// This allows the Node.js app to serve the entire website
 console.log('🔵 Configuring static file serving...');
 
 // 1. Serve 'frontend' folder (CSS, JS, Images)
 app.use('/frontend', express.static(path.join(__dirname, '../frontend')));
 
-// 2. Serve specific HTML files from root (e.g., aboutpage.html)
+// 2. Serve specific HTML files from root
 app.get('/:page.html', (req, res) => {
   const filePath = path.join(__dirname, `../${req.params.page}.html`);
   res.sendFile(filePath, (err) => {
     if (err) {
-      // If file not found, pass to next handler (404)
       req.next();
     }
   });
@@ -119,11 +115,12 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../index.html'));
 });
 
-// 4. API Info endpoint (Moved to /api)
+// 4. API Info endpoint
 app.get('/api', (req, res) => {
   res.json({
     message: 'Vigyan.prep Platform API',
-    version: '1.0.0',
+    version: '2.0.0',
+    database: 'MongoDB',
     endpoints: {
       health: '/health',
       admin: '/api/admin',
@@ -134,21 +131,21 @@ app.get('/api', (req, res) => {
   });
 });
 
-// Database connection and server start
-import { connectDB } from './config/mysql.js';
-import { runMigrations } from './config/runMigrations.js';
+// ✅ MONGODB CONNECTION (Replaced MySQL)
+import { connectDB } from './config/mongodb.js';
 
-// ✅ FIX: Wrap async operations in an async IIFE to avoid top-level await
+// ✅ Wrap async operations in IIFE to avoid top-level await
 (async () => {
   try {
-    console.log('🔗 Connecting to database...');
+    console.log('🔗 Connecting to MongoDB...');
     await connectDB();
     
-    console.log('🛠️ Running database migrations...');
-    await runMigrations();
+    // No migrations needed for MongoDB - schemas handle structure
+    console.log('✅ MongoDB ready - No migrations needed!');
     
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`✅ Server running on port ${PORT}`);
+      console.log(`📊 Database: MongoDB`);
       console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`🌐 API URL: ${process.env.API_URL || 'http://localhost:' + PORT}`);
       console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
