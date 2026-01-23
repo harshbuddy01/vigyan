@@ -68,6 +68,7 @@ import examRoutes from './routes/examRoutes.js';
 import questionRoutes from './routes/questionRoutes.js';
 import migrationRoute from './routes/migrationRoute.js';
 import newsRoutes from './routes/newsRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 
 // 🔧 CONFIG ENDPOINT - CRITICAL FOR PAYMENT GATEWAY
 app.get('/api/config', (req, res) => {
@@ -90,6 +91,8 @@ console.log('✅ Migration endpoint mounted');
 
 // Mount other API routes
 console.log('🔵 Mounting API routes...');
+app.use('/api', authRoutes);
+console.log('✅ Auth routes mounted - /api/verify-user-full');
 app.use('/api/payment', paymentRoutes);
 app.use('/api/exam', examRoutes);
 app.use('/api/news', newsRoutes);
@@ -137,7 +140,8 @@ app.get('/api', (req, res) => {
       admin: '/api/admin',
       payment: '/api/payment',
       exam: '/api/exam',
-      news: '/api/news'
+      news: '/api/news',
+      auth: '/api/verify-user-full'
     }
   });
 });
@@ -157,7 +161,7 @@ import { connectDB } from './config/mongodb.js';
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`✅ Server running on port ${PORT}`);
       console.log(`📊 Database: MongoDB`);
-      console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`📏 Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`🌐 API URL: ${process.env.API_URL || 'http://localhost:' + PORT}`);
       console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
     });
