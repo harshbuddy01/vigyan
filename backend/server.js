@@ -69,6 +69,16 @@ import questionRoutes from './routes/questionRoutes.js';
 import migrationRoute from './routes/migrationRoute.js';
 import newsRoutes from './routes/newsRoutes.js';
 
+// 🔧 CONFIG ENDPOINT - CRITICAL FOR PAYMENT GATEWAY
+app.get('/api/config', (req, res) => {
+  res.json({
+    RAZORPAY_KEY_ID: process.env.RAZORPAY_API_KEY || '',
+    NODE_ENV: process.env.NODE_ENV || 'production',
+    API_URL: process.env.API_URL || 'https://backend-vigyanpreap.vigyanprep.com',
+    FRONTEND_URL: process.env.FRONTEND_URL || 'https://vigyanprep.com'
+  });
+});
+
 // Admin API routes (NEW structure with /admin prefix)
 console.log('🔵 Setting up Admin API routes...');
 app.use('/api/admin', questionRoutes);
@@ -123,6 +133,7 @@ app.get('/api', (req, res) => {
     database: 'MongoDB',
     endpoints: {
       health: '/health',
+      config: '/api/config',
       admin: '/api/admin',
       payment: '/api/payment',
       exam: '/api/exam',
