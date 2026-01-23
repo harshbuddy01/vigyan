@@ -17,7 +17,7 @@ dotenv.config();
 const app = express();
 console.log('🔵 Creating Express app...');
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3000;
 
 // CORS configuration - Updated for Hostinger deployment
 console.log('🔵 Setting up CORS...');
@@ -47,12 +47,18 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Initialize Razorpay and export for controllers
 console.log('🔵 Initializing Razorpay...');
-export const instance = process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET
+export const instance = process.env.RAZORPAY_API_KEY && process.env.RAZORPAY_API_SECRET
   ? new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET,
+    key_id: process.env.RAZORPAY_API_KEY,
+    key_secret: process.env.RAZORPAY_API_SECRET,
   })
   : null;
+
+if (instance) {
+  console.log('✅ Razorpay initialized successfully');
+} else {
+  console.warn('⚠️ Razorpay not initialized - Missing API credentials');
+}
 
 // Import routes - Only import files that exist
 import adminRoutes from './routes/adminRoutes.js';
@@ -141,7 +147,7 @@ await runMigrations();
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`✅ Server running on port ${PORT}`);
   console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🌐 API URL: ${process.env.API_URL || 'http://localhost:8080'}`);
+  console.log(`🌐 API URL: ${process.env.API_URL || 'http://localhost:' + PORT}`);
   console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
 });
 
