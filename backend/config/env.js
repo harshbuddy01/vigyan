@@ -5,31 +5,53 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// 🔧 PRODUCTION FIX: Use Hostinger environment variables instead of .env file
-// In Hostinger: Variables are set in the GUI and automatically injected into process.env
-// We DO NOT need to load .env file - just validate that process.env has the values
+console.log('🔵 Loading environment variables...');
+console.log(`🔍 NODE_ENV from process.env: ${process.env.NODE_ENV || 'undefined'}`);
+console.log(`🔍 Total env vars in process.env: ${Object.keys(process.env).length}`);
 
-// Try to load .env file for LOCAL DEVELOPMENT only
-// In production (Hostinger), this will fail silently and use process.env instead
-try {
-  const localEnvPath = path.join(__dirname, '../../.env');
-  dotenv.config({ path: localEnvPath });
-  console.log('✅ Loaded .env file for local development');
-} catch (err) {
-  // Silently fail - this is expected in production
-  console.log('ℹ️ .env file not found - using Hostinger environment variables instead');
-}
-
-// 🟢 Verify that environment variables are available (from Hostinger GUI or .env file)
-const requiredVars = ['RAZORPAY_API_KEY', 'RAZORPAY_API_SECRET', 'MONGODB_URI', 'NODE_ENV'];
-const missingVars = requiredVars.filter(varName => !process.env[varName]);
-
-if (missingVars.length > 0) {
-  console.warn('⚠️ WARNING: Missing environment variables:', missingVars.join(', '));
-  console.warn('⚠️ Please set these in Hostinger Environment Variables panel');
+// 🔧 HOSTINGER FIX: In production, environment variables should already be in process.env
+// Only try to load .env file if in development (local machine)
+if (process.env.NODE_ENV !== 'production') {
+  console.log('📁 Development mode - attempting to load .env file...');
+  try {
+    const result = dotenv.config({ path: path.join(__dirname, '../../.env') });
+    if (result.error) {
+      console.log('⚠️  No .env file found (this is OK in production)');
+    } else {
+      console.log('✅ Loaded .env file for local development');
+    }
+  } catch (err) {
+    console.log('ℹ️  .env file not accessible:', err.message);
+  }
 } else {
-  console.log('✅ All required environment variables are configured');
-  console.log('📝 Loaded variables from:', process.env.NODE_ENV === 'production' ? 'Hostinger GUI' : 'Local config');
+  console.log('🏭 Production mode - using Hostinger environment variables from process.env');
+  console.log('🔍 Checking if Hostinger variables are injected...');
 }
 
-console.log('🔵 Environment variables ready for use');
+// 🟢 DEBUG: Log which variables are available (without showing values)
+const criticalVars = ['RAZORPAY_API_KEY', 'RAZORPAY_API_SECRET', 'MONGODB_URI', 'NODE_ENV', 'EMAIL_USER', 'EMAIL_PASSWORD'];
+console.log('\n📋 Environment Variable Status:');
+criticalVars.forEach(varName => {
+  const exists = !!process.env[varName];
+  const value = process.env[varName];
+  if (exists) {
+    console.log(`  ✅ ${varName}: ${value.substring(0, 10)}... (length: ${value.length})`);
+  } else {
+    console.log(`  ❌ ${varName}: NOT SET`);
+  }
+});
+
+// Verify that environment variables are available
+const missingCritical = criticalVars.filter(varName => !process.env[varName]);
+
+if (missingCritical.length > 0) {
+  console.error('\n⚠️ WARNING: Missing environment variables:', missingCritical.join(', '));
+  console.error('⚠️ Please set these in Hostinger > Websites > Your Site > Deployments > Settings');
+  console.error('⚠️ After setting them, you MUST click "Redeploy" or "Restart"');
+  console.error('\n📚 The app will continue running but some features will not work.\n');
+} else {
+  console.log('\n✅ All critical environment variables are loaded successfully');
+  console.log(`📝 Source: ${process.env.NODE_ENV === 'production' ? 'Hostinger Environment Variables' : 'Local .env file'}\n`);
+}
+
+export default {};
