@@ -56,6 +56,34 @@ const validateEnvironmentVariables = () => {
 // Validate env vars before starting
 validateEnvironmentVariables();
 
+// 🔧 CORS MUST BE FIRST - Before any other middleware!
+console.log('🔵 Setting up CORS (FIRST)...');
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://vigyanprep.com',
+  'http://vigyanprep.com',
+  'https://www.vigyanprep.com',
+  'http://www.vigyanprep.com',
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
+
+// 🔧 EXPLICIT OPTIONS HANDLER - For preflight requests
+app.options('*', cors({
+  origin: allowedOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+}));
+console.log('✅ CORS configured for:', allowedOrigins.join(', '));
+
 // 🔧 INJECT ENVIRONMENT VARIABLES INTO HTML FILES - MUST BE FIRST MIDDLEWARE
 // This middleware injects environment variables into the browser at runtime
 console.log('🔵 Setting up environment injection middleware...');
@@ -91,26 +119,7 @@ app.use((req, res, next) => {
 });
 console.log('✅ Environment injection middleware ready');
 
-// CORS configuration - Updated for Hostinger deployment
-console.log('🔵 Setting up CORS...');
-app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'http://localhost:3000',
-    'https://vigyanprep.com',
-    'http://vigyanprep.com',
-    'https://www.vigyanprep.com',
-    'http://www.vigyanprep.com',
-    'https://31.97.101.169',
-    'http://31.97.101.169',
-    'https://iinedu.vercel.app',
-    'https://api.iinedu.com',
-    process.env.FRONTEND_URL
-  ].filter(Boolean),
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+// NOTE: CORS is configured at the TOP of this file (before env injection)
 
 // Body parsing middleware
 console.log('🔵 Setting up body parsers...');
