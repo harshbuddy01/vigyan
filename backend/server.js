@@ -5,6 +5,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import Razorpay from 'razorpay';
 
@@ -104,6 +105,31 @@ import questionRoutes from './routes/questionRoutes.js';
 import migrationRoute from './routes/migrationRoute.js';
 import newsRoutes from './routes/newsRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+
+// 🔧 INJECT ENVIRONMENT VARIABLES INTO HTML FILES
+// This middleware injects environment variables into the browser at runtime
+app.get('/*.html', (req, res, next) => {
+  const filePath = path.join(__dirname, `../${req.path}`);
+  
+  try {
+    let html = fs.readFileSync(filePath, 'utf8');
+    
+    const envScript = `
+    <script>
+      window.__ENV__ = {
+        API_URL: "${process.env.API_URL || 'https://vigyanprep.com:3000'}",
+        ENVIRONMENT: "${process.env.NODE_ENV || 'production'}",
+        DEBUG: ${process.env.DEBUG_MODE === 'true' ? 'true' : 'false'}
+      };
+      console.log('🔧 Environment loaded:', window.__ENV__);
+    </script>`;
+    
+    html = html.replace('</head>', envScript + '\n</head>');
+    res.send(html);
+  } catch (err) {
+    next(); // Continue to next handler if file not found
+  }
+});
 
 // 🔧 CONFIG ENDPOINT - CRITICAL FOR PAYMENT GATEWAY
 app.get('/api/config', (req, res) => {
