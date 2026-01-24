@@ -4,12 +4,28 @@
 import './config/env.js'; // 🔵 LOAD ENV VARS FIRST
 import express from 'express';
 import cors from 'cors';
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// 🛠️ STARTUP LOGGING (File-based for Hostinger debugging)
+const LOG_FILE = path.join(__dirname, '../startup_log.txt');
+function logStartup(message) {
+  const timestamp = new Date().toISOString();
+  console.log(message);
+  try {
+    fs.appendFileSync(LOG_FILE, `[${timestamp}] ${message}\n`);
+  } catch (err) {
+    // Ignore logging errors
+  }
+}
+
+logStartup('🚀 STARTING BACKEND SERVER.JS');
+logStartup(`Running on Node ${process.version}`);
+logStartup(`Env PORT: ${process.env.PORT}`);
 
 // Load environment variables
 console.log('🔵 Loading environment variables...');
@@ -232,7 +248,10 @@ import { connectDB, isMongoDBConnected } from './config/mongodb.js';
     }
 
     app.listen(PORT, '0.0.0.0', () => {
-      console.log(`\n✅ Server running on port ${PORT}`);
+      const msg = `✅ Server running on port ${PORT}`;
+      logStartup(msg);
+      logStartup(`Database: ${isMongoDBConnected ? 'Connected' : 'Not Connected'}`);
+      console.log(`\n${msg}`);
       console.log(`📊 Database: MongoDB ${isMongoDBConnected ? '(Connected)' : '(Not Connected)'}`);
       console.log(`📏 Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`🌐 API URL: ${process.env.API_URL || 'http://localhost:' + PORT}`);
