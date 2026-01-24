@@ -20,6 +20,41 @@ console.log('🔵 Creating Express app...');
 
 const PORT = process.env.PORT || 3000;
 
+// 🔴 FIX #4: VALIDATE CRITICAL ENVIRONMENT VARIABLES AT STARTUP
+const validateEnvironmentVariables = () => {
+  const requiredVars = {
+    'RAZORPAY_API_KEY': 'Payment gateway (Razorpay) API Key',
+    'RAZORPAY_API_SECRET': 'Payment gateway (Razorpay) API Secret',
+    'MONGODB_URI': 'MongoDB database connection URI',
+    'NODE_ENV': 'Application environment (development/production)',
+  };
+
+  const missingVars = [];
+  for (const [varName, description] of Object.entries(requiredVars)) {
+    if (!process.env[varName]) {
+      missingVars.push(`${varName} (${description})`);
+    }
+  }
+
+  // Email vars are optional but warn if missing
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+    console.warn('⚠️  Email credentials not configured - email notifications will be disabled');
+  }
+
+  if (missingVars.length > 0) {
+    console.error('\n❌ FATAL: Missing required environment variables:');
+    missingVars.forEach((v, i) => console.error(`   ${i + 1}. ${v}`));
+    console.error('\n📝 Please set these variables in your .env file or hosting environment');
+    console.error('📚 See .env.example for reference\n');
+    process.exit(1); // Stop the server
+  }
+
+  console.log('✅ All required environment variables are configured');
+};
+
+// Validate env vars before starting
+validateEnvironmentVariables();
+
 // CORS configuration - Updated for Hostinger deployment
 console.log('🔵 Setting up CORS...');
 app.use(cors({
@@ -75,7 +110,8 @@ app.get('/api/config', (req, res) => {
   res.json({
     RAZORPAY_KEY_ID: process.env.RAZORPAY_API_KEY || '',
     NODE_ENV: process.env.NODE_ENV || 'production',
-    API_URL: process.env.API_URL || 'https://backend-vigyanpreap.vigyanprep.com',
+    // 🔴 FIX #5: CORRECTED TYPO - "vigyanpreap" -> "vigyanprep"
+    API_URL: process.env.API_URL || 'https://backend-vigyanprep.vigyanprep.com',
     FRONTEND_URL: process.env.FRONTEND_URL || 'https://vigyanprep.com'
   });
 });
@@ -147,26 +183,37 @@ app.get('/api', (req, res) => {
 });
 
 // ✅ MONGODB CONNECTION (Replaced MySQL)
-import { connectDB } from './config/mongodb.js';
+import { connectDB, isMongoDBConnected } from './config/mongodb.js';
 
 // ✅ Wrap async operations in IIFE to avoid top-level await
 (async () => {
   try {
     console.log('🔗 Connecting to MongoDB...');
-    await connectDB();
+    const dbConnected = await connectDB();
     
-    // No migrations needed for MongoDB - schemas handle structure
-    console.log('✅ MongoDB ready - No migrations needed!');
+    if (!dbConnected) {
+      console.warn('⚠️  MongoDB not connected - running in limited mode');
+      console.warn('🔗 Some features will not work without MongoDB');
+    } else {
+      console.log('✅ MongoDB ready - No migrations needed!');
+    }
+
+    // 🔴 FIX #7: VALIDATE ROUTES ARE LOADED
+    if (!app._router || app._router.stack.length < 10) {
+      console.warn('⚠️  Warning: Some routes may not be properly mounted');
+    }
     
     app.listen(PORT, '0.0.0.0', () => {
-      console.log(`✅ Server running on port ${PORT}`);
-      console.log(`📊 Database: MongoDB`);
+      console.log(`\n✅ Server running on port ${PORT}`);
+      console.log(`📊 Database: MongoDB ${isMongoDBConnected ? '(Connected)' : '(Not Connected)'}`);
       console.log(`📏 Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`🌐 API URL: ${process.env.API_URL || 'http://localhost:' + PORT}`);
       console.log(`🔗 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
+      console.log('\n🟢 Server is ready to accept requests\n');
     });
   } catch (error) {
-    console.error('❌ Server startup failed:', error);
+    console.error('❌ Server startup failed:', error.message);
+    console.error('📝 Full error:', error);
     process.exit(1);
   }
 })();
