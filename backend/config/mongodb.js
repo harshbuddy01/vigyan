@@ -10,7 +10,7 @@ if (!MONGODB_URI) {
     console.error('❌ Missing MONGODB_URI environment variable!');
     console.error('🔵 Please set MONGODB_URI in your .env file or hosting environment');
     console.warn('⚠️  Using development fallback (MongoDB not required for testing)');
-    
+
     // Don't crash - just warn. This allows /health endpoint to work
     // In production, you MUST set MONGODB_URI
     MONGODB_URI = null;
@@ -25,6 +25,7 @@ const options = {
 
 // Track connection status
 export let isMongoDBConnected = false;
+export let lastConnectionError = null;
 
 // Connect to MongoDB
 export async function connectDB() {
@@ -33,23 +34,26 @@ export async function connectDB() {
         console.warn('⚠️  MONGODB_URI not configured - running in limited mode');
         console.warn('🔗 Set MONGODB_URI environment variable to enable MongoDB features');
         isMongoDBConnected = false;
+        lastConnectionError = 'MONGODB_URI not configured';
         return false; // Indicate DB is not connected
     }
-    
+
     try {
         await mongoose.connect(MONGODB_URI, options);
-        
+
         console.log('✅ MongoDB Connected Successfully!');
         console.log(`📊 Database: ${mongoose.connection.name}`);
         console.log(`🔗 Host: ${mongoose.connection.host}`);
         isMongoDBConnected = true;
+        lastConnectionError = null;
         return true;
-        
+
     } catch (error) {
         console.error('❌ MongoDB Connection Failed:', error.message);
         console.error('🔍 Check your MONGODB_URI environment variable');
         console.warn('⚠️  App will run without MongoDB - some features may not work');
         isMongoDBConnected = false;
+        lastConnectionError = error.message;
         return false; // Don't throw - allow app to continue
     }
 }

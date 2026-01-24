@@ -99,6 +99,7 @@ router.post('/verify-user-full', async (req, res) => {
 // Enhanced health check for debugging DB connection
 router.get('/auth-health', async (req, res) => {
   const mongoose = await import('mongoose');
+  const { lastConnectionError } = await import('../config/mongodb.js');
   const readyState = mongoose.default.connection.readyState;
   const states = { 0: 'disconnected', 1: 'connected', 2: 'connecting', 3: 'disconnecting' };
 
@@ -106,6 +107,7 @@ router.get('/auth-health', async (req, res) => {
     status: 'ok',
     mongo_var_connected: isMongoDBConnected,
     mongo_uri_configured: !!process.env.MONGODB_URI,
+    last_error: lastConnectionError,
     mongoose_ready_state: readyState,
     mongoose_state_name: states[readyState] || 'unknown',
     host: mongoose.default.connection.host,
