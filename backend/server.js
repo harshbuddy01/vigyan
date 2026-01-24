@@ -26,6 +26,12 @@ function logStartup(message) {
 logStartup('🚀 STARTING BACKEND SERVER.JS');
 logStartup(`Running on Node ${process.version}`);
 logStartup(`Env PORT: ${process.env.PORT}`);
+// 🔍 DEBUG: Log ALL Environment Keys (but not values to avoid leaking secrets)
+const envKeys = Object.keys(process.env).sort();
+logStartup(`Available Env Keys: ${envKeys.join(', ')}`);
+if (envKeys.length < 5) {
+  logStartup('⚠️ WARNING: Environment seems empty! Hostinger vars not injected?');
+}
 
 // Load environment variables
 console.log('🔵 Loading environment variables...');
