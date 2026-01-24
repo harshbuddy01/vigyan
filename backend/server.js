@@ -229,7 +229,8 @@ import { connectDB, isMongoDBConnected } from './config/mongodb.js';
 (async () => {
   try {
     console.log('🔗 Connecting to MongoDB...');
-    const dbConnected = await connectDB();
+    // const dbConnected = await connectDB();
+    const dbConnected = false;
 
     if (!dbConnected) {
       console.warn('⚠️  MongoDB not connected - running in limited mode');
