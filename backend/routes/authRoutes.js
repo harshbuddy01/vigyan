@@ -7,20 +7,16 @@ const router = express.Router();
 // Email verification endpoint - Creates/finds student
 router.post('/verify-user-full', async (req, res) => {
   const { email, rollNumber } = req.body;
-  
+
   try {
-    // Check if MongoDB is connected
+    // Check if MongoDB is connected - Logging only, don't block
     if (!isMongoDBConnected) {
-      console.error('❌ MongoDB not connected');
-      return res.status(503).json({ 
-        error: 'Database connection unavailable',
-        message: 'Service temporarily unavailable. Please try again in a moment.'
-      });
+      console.warn('⚠️ Warning: MongoDB variable says disconnected, but attempting query anyway (Mongoose buffering)');
     }
 
     // Validate email
     if (!email || !email.includes('@')) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         error: 'Invalid email format',
         message: 'Please provide a valid email address'
       });
@@ -75,24 +71,24 @@ router.post('/verify-user-full', async (req, res) => {
 
   } catch (error) {
     console.error('❌ Email verification error:', error);
-    
+
     // Handle timeout errors
     if (error.name === 'MongooseError' && error.message.includes('buffering timed out')) {
-      return res.status(504).json({ 
+      return res.status(504).json({
         error: 'Database timeout',
         message: 'Request took too long. Please try again.'
       });
     }
-    
+
     // Handle duplicate key errors
     if (error.code === 11000) {
-      return res.status(409).json({ 
+      return res.status(409).json({
         error: 'Duplicate entry',
         message: 'This email is already registered'
       });
     }
-    
-    res.status(500).json({ 
+
+    res.status(500).json({
       error: 'Server error during verification',
       message: error.message,
       details: process.env.NODE_ENV === 'development' ? error.stack : undefined
