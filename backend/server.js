@@ -257,9 +257,19 @@ import { connectDB, isMongoDBConnected } from './config/mongodb.js';
       console.log('\n🟢 Server is ready to accept requests\n');
     });
   } catch (error) {
-    console.error('❌ Server startup failed:', error.message);
+    console.error('❌ Server startup issue:', error.message);
     console.error('📝 Full error:', error);
-    process.exit(1);
+    console.warn('⚠️ Server will attempt to continue running...');
+
+    // Try to start the server anyway on a basic port
+    try {
+      app.listen(PORT, '0.0.0.0', () => {
+        console.log(`\n⚠️ Server running on port ${PORT} in degraded mode`);
+        console.log('🔗 Some features may not work correctly\n');
+      });
+    } catch (listenErr) {
+      console.error('❌ Could not start server:', listenErr.message);
+    }
   }
 })();
 
