@@ -1,23 +1,28 @@
 /**
  * Centralized Configuration File
- * Updated: 2026-01-23
- * Purpose: Hostinger deployment with Node.js backend
+ * Updated: 2026-01-24
+ * Purpose: Hostinger deployment with Node.js backend + Dynamic API_URL injection
  */
 
 window.APP_CONFIG = {
     // Environment detection
     ENVIRONMENT: window.location.hostname.includes('localhost') ? 'development' : 'production',
 
-    // API Base URL - Updated for Hostinger deployment
+    // API Base URL - Updated to read from server-injected window.__ENV__
     API_BASE_URL: (() => {
         const hostname = window.location.hostname;
 
-        // Local development
+        // Check for server-injected environment variables (Hostinger production)
+        if (typeof window.__ENV__ !== 'undefined' && window.__ENV__.API_URL) {
+            return window.__ENV__.API_URL;
+        }
+
+        // Local development fallback
         if (hostname === 'localhost' || hostname === '127.0.0.1') {
             return 'http://localhost:3000';
         }
 
-        // Production - Hostinger with Node.js backend on port 3000
+        // Production fallback (if injection fails)
         return 'https://vigyanprep.com:3000';
     })(),
 
@@ -43,7 +48,7 @@ window.APP_CONFIG = {
     // App metadata
     APP_NAME: 'Vigyan.prep Admin Portal',
     VERSION: '1.0.1',
-    BUILD_DATE: '2026-01-23',
+    BUILD_DATE: '2026-01-24',
 
     // Logging
     log: function (message, type = 'info') {
@@ -67,6 +72,9 @@ console.log('🚀 App Configuration Loaded');
 console.log('📍 Environment:', window.APP_CONFIG.ENVIRONMENT);
 console.log('🌐 API URL:', window.APP_CONFIG.API_BASE_URL);
 console.log('🔧 Debug Mode:', window.APP_CONFIG.FEATURES.DEBUG_MODE);
+if (typeof window.__ENV__ !== 'undefined') {
+    console.log('🔌 Server-injected environment:', window.__ENV__);
+}
 
 // Export for module usage
 if (typeof module !== 'undefined' && module.exports) {
