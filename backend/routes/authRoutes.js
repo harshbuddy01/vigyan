@@ -1,6 +1,6 @@
 import express from 'express';
 import Student from '../models/Student.js';
-import { isMongoDBConnected } from '../config/mongodb.js';
+import { isMongoDBConnected, lastConnectionError } from '../config/mongodb.js';
 
 const router = express.Router();
 
@@ -99,7 +99,6 @@ router.post('/verify-user-full', async (req, res) => {
 // Enhanced health check for debugging DB connection
 router.get('/auth-health', async (req, res) => {
   const mongoose = await import('mongoose');
-  const { lastConnectionError } = await import('../config/mongodb.js');
   const readyState = mongoose.default.connection.readyState;
   const states = { 0: 'disconnected', 1: 'connected', 2: 'connecting', 3: 'disconnecting' };
 
