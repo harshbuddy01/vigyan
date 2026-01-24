@@ -567,10 +567,10 @@
             }
 
             try {
-                console.log('🚀 Sending verify request to:', `${API_BASE_URL}/api/verify-user-full`);
+                console.log('🚀 Sending verify request to:', `${API_BASE_URL}/api/verify-email`);
                 console.log('Data:', { email: emailInput, rollNumber: rollInput || null });
 
-                const verifyRes = await axios.post(`${API_BASE_URL}/api/verify-user-full`, {
+                const verifyRes = await axios.post(`${API_BASE_URL}/api/verify-email`, {
                     email: emailInput,
                     rollNumber: rollInput || null
                 }, {

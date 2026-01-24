@@ -6,15 +6,15 @@ const router = express.Router();
 
 // Email verification endpoint - Creates/finds student
 // GET method for debugging availability
-router.get('/verify-user-full', (req, res) => {
+router.get('/verify-email', (req, res) => {
   res.json({
     status: 'ok',
-    message: 'Verify User endpoint is reachable',
+    message: 'Verify Email endpoint is reachable',
     method: 'GET'
   });
 });
 
-router.post('/verify-user-full', async (req, res) => {
+router.post('/verify-email', async (req, res) => {
   const { email, rollNumber } = req.body;
 
   try {
