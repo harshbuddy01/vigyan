@@ -96,11 +96,18 @@ router.post('/verify-user-full', async (req, res) => {
   }
 });
 
-// Quick health check for auth system
-router.get('/auth-health', (req, res) => {
+// Enhanced health check for debugging DB connection
+router.get('/auth-health', async (req, res) => {
+  const mongoose = await import('mongoose');
+  const readyState = mongoose.default.connection.readyState;
+  const states = { 0: 'disconnected', 1: 'connected', 2: 'connecting', 3: 'disconnecting' };
+
   res.json({
     status: 'ok',
-    mongoConnected: isMongoDBConnected,
+    mongo_var_connected: isMongoDBConnected,
+    mongoose_ready_state: readyState,
+    mongoose_state_name: states[readyState] || 'unknown',
+    host: mongoose.default.connection.host,
     timestamp: new Date().toISOString()
   });
 });
