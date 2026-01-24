@@ -5,6 +5,15 @@ import { isMongoDBConnected, lastConnectionError } from '../config/mongodb.js';
 const router = express.Router();
 
 // Email verification endpoint - Creates/finds student
+// GET method for debugging availability
+router.get('/verify-user-full', (req, res) => {
+  res.json({
+    status: 'ok',
+    message: 'Verify User endpoint is reachable',
+    method: 'GET'
+  });
+});
+
 router.post('/verify-user-full', async (req, res) => {
   const { email, rollNumber } = req.body;
 
