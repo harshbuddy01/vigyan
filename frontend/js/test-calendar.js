@@ -14,7 +14,7 @@ function initTestCalendar() {
 function renderCalendarPage() {
     const container = document.getElementById('test-calendar-page');
     if (!container) return;
-    
+
     container.innerHTML = `
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
             <div>
@@ -67,9 +67,9 @@ function renderCalendarPage() {
 async function loadCalendarEvents() {
     try {
         console.log('🔄 Loading tests from database...');
-        const response = await fetch('https://iin-production.up.railway.app/api/admin/tests');
+        const response = await fetch('https://backend-vigyanpreap.vigyanprep.com/api/admin/tests');
         const data = await response.json();
-        
+
         calendarEvents = (data.tests || []).map(test => ({
             id: test.id,
             name: test.test_name,
@@ -78,7 +78,7 @@ async function loadCalendarEvents() {
             duration: test.duration || test.test_duration || 180,
             totalQuestions: test.total_questions || 0
         }));
-        
+
         console.log(`✅ Loaded ${calendarEvents.length} tests from database`);
         renderCalendar();
         renderTestsList();
@@ -91,28 +91,28 @@ async function loadCalendarEvents() {
 function renderCalendar() {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
-    
-    document.getElementById('calendarMonth').textContent = 
+
+    document.getElementById('calendarMonth').textContent =
         currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-    
+
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-    
+
     let html = '<div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px;">';
-    
+
     ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(day => {
         html += `<div style="text-align: center; font-weight: 600; color: #64748b; padding: 8px; font-size: 13px;">${day}</div>`;
     });
-    
+
     for (let i = 0; i < firstDay; i++) {
         html += '<div></div>';
     }
-    
+
     for (let day = 1; day <= daysInMonth; day++) {
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         const dayEvents = calendarEvents.filter(e => e.date === dateStr);
         const isToday = dateStr === new Date().toISOString().split('T')[0];
-        
+
         html += `
             <div style="
                 border: 1px solid #e2e8f0;
@@ -140,7 +140,7 @@ function renderCalendar() {
             </div>
         `;
     }
-    
+
     html += '</div>';
     document.getElementById('calendarGrid').innerHTML = html;
 }
@@ -148,24 +148,24 @@ function renderCalendar() {
 function renderTestsList() {
     const container = document.getElementById('scheduledTestsList');
     if (!container) return;
-    
+
     if (calendarEvents.length === 0) {
         container.innerHTML = '<p style="color: #94a3b8; text-align: center; padding: 40px;">No tests scheduled yet. Click "Schedule Test" to add one.</p>';
         return;
     }
-    
+
     // Sort by date
     const sorted = [...calendarEvents].sort((a, b) => new Date(a.date) - new Date(b.date));
-    
+
     let html = '<div style="display: grid; gap: 12px;">';
-    
+
     sorted.forEach(test => {
         const testDate = new Date(test.date);
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         testDate.setHours(0, 0, 0, 0);
         const daysUntil = Math.ceil((testDate - today) / (1000 * 60 * 60 * 24));
-        
+
         let statusBadge = '';
         if (daysUntil < 0) {
             statusBadge = '<span style="background: #fee2e2; color: #991b1b; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">Completed</span>';
@@ -176,7 +176,7 @@ function renderTestsList() {
         } else {
             statusBadge = `<span style="background: #f1f5f9; color: #475569; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">In ${daysUntil} days</span>`;
         }
-        
+
         html += `
             <div style="background: white; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; display: flex; justify-content: space-between; align-items: center;">
                 <div style="flex: 1;">
@@ -199,7 +199,7 @@ function renderTestsList() {
             </div>
         `;
     });
-    
+
     html += '</div>';
     container.innerHTML = html;
 }
@@ -267,7 +267,7 @@ function openScheduleModal() {
 async function handleScheduleTest(event) {
     event.preventDefault();
     const formData = new FormData(event.target);
-    
+
     const testData = {
         test_name: formData.get('name'),
         test_id: formData.get('type'),
@@ -276,24 +276,24 @@ async function handleScheduleTest(event) {
         total_questions: parseInt(formData.get('totalQuestions')),
         status: 'scheduled'
     };
-    
+
     try {
         console.log('📤 Saving test to database...', testData);
-        
-        const response = await fetch('https://iin-production.up.railway.app/api/admin/tests', {
+
+        const response = await fetch('https://backend-vigyanpreap.vigyanprep.com/api/admin/tests', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(testData)
         });
-        
+
         if (!response.ok) throw new Error('Failed to save test');
-        
+
         console.log('✅ Test saved successfully!');
         if (window.AdminUtils) window.AdminUtils.showToast('Test scheduled successfully! Students can now see it in their calendar.', 'success');
-        
+
         event.target.closest('.modal').remove();
         await loadCalendarEvents();
-        
+
     } catch (error) {
         console.error('❌ Error saving test:', error);
         if (window.AdminUtils) window.AdminUtils.showToast('Failed to schedule test. Please try again.', 'error');
@@ -302,21 +302,21 @@ async function handleScheduleTest(event) {
 
 async function deleteTest(testId) {
     if (!confirm('Are you sure you want to delete this test? Students will no longer see it.')) return;
-    
+
     try {
         console.log(`🗑️ Deleting test #${testId}...`);
-        
-        const response = await fetch(`https://iin-production.up.railway.app/api/admin/tests/${testId}`, {
+
+        const response = await fetch(`https://backend-vigyanpreap.vigyanprep.com/api/admin/tests/${testId}`, {
             method: 'DELETE'
         });
-        
+
         if (!response.ok) throw new Error('Failed to delete test');
-        
+
         console.log('✅ Test deleted successfully!');
         if (window.AdminUtils) window.AdminUtils.showToast('Test deleted successfully', 'success');
-        
+
         await loadCalendarEvents();
-        
+
     } catch (error) {
         console.error('❌ Error deleting test:', error);
         if (window.AdminUtils) window.AdminUtils.showToast('Failed to delete test', 'error');
@@ -325,16 +325,16 @@ async function deleteTest(testId) {
 
 function viewDayEvents(dateStr) {
     const dayEvents = calendarEvents.filter(e => e.date === dateStr);
-    
+
     if (dayEvents.length === 0) {
         alert('No tests scheduled for this day.');
         return;
     }
-    
-    const eventsList = dayEvents.map(e => 
+
+    const eventsList = dayEvents.map(e =>
         `${e.name} (${e.type}) - ${e.duration} minutes - ${e.totalQuestions} questions`
     ).join('\n');
-    
+
     alert(`Tests on ${dateStr}:\n\n${eventsList}`);
 }
 

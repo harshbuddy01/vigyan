@@ -1,7 +1,7 @@
 // API Configuration
 const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
     ? "http://localhost:8080"
-    : "https://iin-production.up.railway.app"; // TODO: Update this URL after migrating to Hostinger
+    : "https://backend-vigyanpreap.vigyanprep.com"; // Updated to Hostinger backend
 
 // Global variables
 let base64Image = "";

@@ -15,10 +15,10 @@
 
 function initAddQuestions() {
     console.log('🎯 Initializing Complete Admin Question System...');
-    
+
     const container = document.getElementById('add-questions-page');
     if (!container) return;
-    
+
     container.innerHTML = `
         <div class="page-header">
             <h2><i class="fas fa-plus-circle"></i> Add New Question</h2>
@@ -321,11 +321,11 @@ Tip: You can use LaTeX for math:
             @keyframes spin { to { transform: rotate(360deg); } }
         </style>
     `;
-    
+
     // ========================================
     // FORM HANDLERS
     // ========================================
-    
+
     const form = document.getElementById('addQuestionForm');
     const examTypeSelect = document.getElementById('examType');
     const examYearSelect = document.getElementById('examYear');
@@ -336,28 +336,28 @@ Tip: You can use LaTeX for math:
     const charCountDisplay = document.getElementById('charCount');
     const resetBtn = document.getElementById('resetBtn');
     const previewBtn = document.getElementById('previewBtn');
-    
+
     // Update Test ID when exam details change
     function updateTestId() {
         const examType = examTypeSelect.value;
         const year = examYearSelect.value;
         const paperType = paperTypeSelect.value;
-        
+
         if (!examType || !year) {
             generatedTestIdDisplay.textContent = 'Select exam details first';
             generatedTestIdDisplay.style.color = '#64748b';
             return;
         }
-        
+
         let testId = `${examType}_${year}`;
         if (examType === 'ISI' && paperType) {
             testId += `_${paperType}`;
         }
-        
+
         generatedTestIdDisplay.textContent = testId;
         generatedTestIdDisplay.style.color = '#059669';
     }
-    
+
     // Show/hide paper type for ISI
     examTypeSelect.addEventListener('change', () => {
         if (examTypeSelect.value === 'ISI') {
@@ -370,16 +370,16 @@ Tip: You can use LaTeX for math:
         }
         updateTestId();
     });
-    
+
     examYearSelect.addEventListener('change', updateTestId);
     paperTypeSelect.addEventListener('change', updateTestId);
-    
+
     // Character counter
     questionTextArea.addEventListener('input', () => {
         const count = questionTextArea.value.length;
         charCountDisplay.textContent = `${count} characters`;
     });
-    
+
     // Reset button
     resetBtn?.addEventListener('click', () => {
         if (confirm('Are you sure you want to reset the form? All data will be lost.')) {
@@ -388,24 +388,24 @@ Tip: You can use LaTeX for math:
             charCountDisplay.textContent = '0 characters';
         }
     });
-    
+
     // Preview button (TODO: Implement modal preview)
     previewBtn?.addEventListener('click', () => {
         alert('Preview feature coming soon!');
     });
-    
+
     // ========================================
     // FORM SUBMISSION
     // ========================================
-    
+
     form?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
         const submitBtn = document.getElementById('submitQuestionBtn');
         const originalBtnText = submitBtn.innerHTML;
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<div class="spinner"></div> Saving Question...';
-        
+
         try {
             // Collect form data
             const examType = examTypeSelect.value.trim();
@@ -423,33 +423,33 @@ Tip: You can use LaTeX for math:
             const optionD = document.getElementById('optionD').value.trim();
             const correctAnswer = document.getElementById('correctAnswer').value;
             const explanation = document.getElementById('explanation').value.trim();
-            
+
             // Generate testId
             let testId = `${examType}_${year}`;
             if (examType === 'ISI' && paperType) {
                 testId += `_${paperType}`;
             }
-            
+
             // Validate
             if (!examType || !year || !subject || !questionNumber || !questionText) {
                 throw new Error('Please fill all required fields');
             }
-            
+
             if (!optionA || !optionB || !optionC || !optionD) {
                 throw new Error('Please fill all four options');
             }
-            
+
             if (!correctAnswer) {
                 throw new Error('Please select the correct answer');
             }
-            
+
             if (examType === 'ISI' && !paperType) {
                 throw new Error('Please select paper type for ISI exam');
             }
-            
+
             // Build options array
             const options = [optionA, optionB, optionC, optionD];
-            
+
             // Prepare payload
             const payload = {
                 testId: testId,
@@ -466,11 +466,11 @@ Tip: You can use LaTeX for math:
                 topic: topic || null,
                 explanation: explanation || null
             };
-            
+
             console.log('📤 Sending question to backend:', payload);
-            
+
             // Send to backend
-            const API_BASE_URL = window.API_BASE_URL || 'https://iin-production.up.railway.app';
+            const API_BASE_URL = window.API_BASE_URL || 'https://backend-vigyanpreap.vigyanprep.com';
             const response = await fetch(`${API_BASE_URL}/api/admin/questions`, {
                 method: 'POST',
                 headers: {
@@ -478,35 +478,35 @@ Tip: You can use LaTeX for math:
                 },
                 body: JSON.stringify(payload)
             });
-            
+
             console.log('📥 Response status:', response.status);
-            
+
             if (!response.ok) {
                 const error = await response.json();
                 throw new Error(error.error || error.message || 'Failed to add question');
             }
-            
+
             const result = await response.json();
             console.log('✅ Question added:', result);
-            
+
             // Show success message
             if (window.AdminUtils && window.AdminUtils.showToast) {
                 window.AdminUtils.showToast(`✅ Question ${questionNumber} added successfully to ${testId}!`, 'success');
             } else {
                 alert(`✅ Question added successfully!\n\nTest ID: ${testId}\nQuestion Number: ${questionNumber}\nSubject: ${subject}`);
             }
-            
+
             // Reset form
             form.reset();
             updateTestId();
             charCountDisplay.textContent = '0 characters';
-            
+
             // Auto-increment question number
             document.getElementById('questionNumber').value = questionNumber + 1;
-            
+
         } catch (error) {
             console.error('❌ Error adding question:', error);
-            
+
             // Show error message
             if (window.AdminUtils && window.AdminUtils.showToast) {
                 window.AdminUtils.showToast(`❌ ${error.message}`, 'error');
@@ -518,7 +518,7 @@ Tip: You can use LaTeX for math:
             submitBtn.innerHTML = originalBtnText;
         }
     });
-    
+
     console.log('✅ Complete Admin Question System initialized');
 }
 

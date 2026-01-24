@@ -6,7 +6,7 @@
  * Expected Fields: testId, testName, testType, examDate, startTime, durationMinutes, description
  */
 
-const RAILWAY_API = 'https://iin-production.up.railway.app/api';
+const RAILWAY_API = 'https://backend-vigyanpreap.vigyanprep.com/api';
 
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', () => {
@@ -17,13 +17,13 @@ document.addEventListener('DOMContentLoaded', () => {
 // Setup the Schedule Test form submission
 function setupScheduleTestForm() {
     // Find the "Schedule Test" button in modal
-    const scheduleButton = document.querySelector('button[onclick*="scheduleTest"]') || 
-                          document.querySelector('.modal-footer .btn-primary');
-    
+    const scheduleButton = document.querySelector('button[onclick*="scheduleTest"]') ||
+        document.querySelector('.modal-footer .btn-primary');
+
     if (scheduleButton && scheduleButton.textContent.includes('Schedule')) {
         // Remove any existing onclick
         scheduleButton.removeAttribute('onclick');
-        
+
         // Add new event listener
         scheduleButton.addEventListener('click', handleScheduleTest);
         console.log('✅ Schedule Test button configured');
@@ -40,15 +40,15 @@ function generateTestId() {
 // Validate form data
 function validateFormData(data) {
     const errors = [];
-    
+
     if (!data.testName || data.testName.trim() === '') {
         errors.push('Test name is required');
     }
-    
+
     if (!data.testType || data.testType === 'Select Type') {
         errors.push('Please select exam type');
     }
-    
+
     if (!data.examDate) {
         errors.push('Exam date is required');
     } else {
@@ -56,29 +56,29 @@ function validateFormData(data) {
         const examDate = new Date(data.examDate);
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        
+
         if (examDate < today) {
             errors.push('Exam date cannot be in the past');
         }
     }
-    
+
     if (!data.startTime) {
         errors.push('Start time is required');
     }
-    
+
     if (!data.durationMinutes || data.durationMinutes < 30) {
         errors.push('Duration must be at least 30 minutes');
     }
-    
+
     return errors;
 }
 
 // Handle Schedule Test form submission
 async function handleScheduleTest(e) {
     if (e) e.preventDefault();
-    
+
     console.log('🔵 Scheduling test...');
-    
+
     try {
         // Get form values with multiple fallback selectors
         const testName = getInputValue([
@@ -87,39 +87,39 @@ async function handleScheduleTest(e) {
             '#test-name',
             'input[type="text"]:first-of-type'
         ]);
-        
+
         const examType = getSelectValue([
             'select#exam-type',
             'select:first-of-type',
             'select[name="type"]'
         ]);
-        
+
         const subject = getInputValue([
             'input[placeholder*="Physics" i]',
             'input[placeholder*="Mathematics" i]',
             'input[placeholder*="subject" i]',
             '#subject'
         ]);
-        
+
         const examDate = getInputValue([
             'input[type="date"]',
             '#test-date',
             '#exam-date'
         ]);
-        
+
         const startTime = getInputValue([
             'input[type="time"]',
             '#test-time',
             '#start-time'
         ]);
-        
+
         const durationMinutes = parseInt(getInputValue([
             'input[type="number"][placeholder*="180" i]',
             'input[type="number"][value="180"]',
             '#duration',
             'input[type="number"]:nth-of-type(1)'
         ])) || 180;
-        
+
         // Prepare data matching EXACTLY what backend expects
         const testData = {
             testId: generateTestId(),
@@ -130,16 +130,16 @@ async function handleScheduleTest(e) {
             durationMinutes: durationMinutes,
             description: subject ? `Subject: ${subject}` : ''
         };
-        
+
         console.log('📋 Form data collected:', testData);
-        
+
         // Validate data
         const errors = validateFormData(testData);
         if (errors.length > 0) {
             showError(errors.join('\n'));
             return;
         }
-        
+
         // Show loading state
         const button = e?.target;
         const originalHTML = button?.innerHTML;
@@ -147,9 +147,9 @@ async function handleScheduleTest(e) {
             button.disabled = true;
             button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Scheduling...';
         }
-        
+
         console.log('📤 Sending to backend:', testData);
-        
+
         // Send to Railway API - CORRECT ENDPOINT
         const response = await fetch(`${RAILWAY_API}/admin/create-test`, {
             method: 'POST',
@@ -158,23 +158,23 @@ async function handleScheduleTest(e) {
             },
             body: JSON.stringify(testData)
         });
-        
+
         const result = await response.json();
-        
+
         if (!response.ok || !result.success) {
             throw new Error(result.message || 'Failed to schedule test');
         }
-        
+
         console.log('✅ Test scheduled successfully:', result);
-        
+
         // Show success message
         showSuccess(`Test "${testData.testName}" scheduled successfully!`);
-        
+
         // Close modal
         setTimeout(() => {
             closeScheduleModal();
         }, 500);
-        
+
         // Reload tests list
         setTimeout(() => {
             if (typeof loadScheduledTests === 'function') {
@@ -183,11 +183,11 @@ async function handleScheduleTest(e) {
                 window.location.reload();
             }
         }, 1000);
-        
+
     } catch (error) {
         console.error('❌ Error scheduling test:', error);
         showError(error.message || 'Failed to schedule test. Please try again.');
-        
+
         // Reset button
         const button = e?.target;
         if (button && originalHTML) {
@@ -222,17 +222,17 @@ function getSelectValue(selectors) {
 // Close schedule modal
 function closeScheduleModal() {
     // Try multiple methods to close modal
-    const closeBtn = document.querySelector('.close-modal') || 
-                    document.querySelector('[class*="close"]') ||
-                    document.querySelector('.modal-header button');
-    
+    const closeBtn = document.querySelector('.close-modal') ||
+        document.querySelector('[class*="close"]') ||
+        document.querySelector('.modal-header button');
+
     if (closeBtn) {
         closeBtn.click();
         return;
     }
-    
-    const modal = document.querySelector('.modal') || 
-                 document.querySelector('[class*="modal"]');
+
+    const modal = document.querySelector('.modal') ||
+        document.querySelector('[class*="modal"]');
     if (modal) {
         modal.style.display = 'none';
         modal.remove();
@@ -246,7 +246,7 @@ function showSuccess(message) {
         window.AdminUtils.showToast(message, 'success');
         return;
     }
-    
+
     // Fallback toast
     const toast = document.createElement('div');
     toast.className = 'custom-toast success';
@@ -273,7 +273,7 @@ function showSuccess(message) {
         <span>${message}</span>
     `;
     document.body.appendChild(toast);
-    
+
     setTimeout(() => {
         toast.style.animation = 'slideOutRight 0.3s ease';
         setTimeout(() => toast.remove(), 300);
@@ -287,7 +287,7 @@ function showError(message) {
         window.AdminUtils.showToast(message, 'error');
         return;
     }
-    
+
     // Fallback toast
     const toast = document.createElement('div');
     toast.className = 'custom-toast error';
@@ -315,7 +315,7 @@ function showError(message) {
         <span>${message}</span>
     `;
     document.body.appendChild(toast);
-    
+
     setTimeout(() => {
         toast.style.animation = 'slideOutRight 0.3s ease';
         setTimeout(() => toast.remove(), 300);

@@ -1,7 +1,7 @@
 // Header Actions - Notifications, Profile, Settings
 console.log('👋 Initializing header actions...');
 
-const API_BASE_URL = 'https://iin-production.up.railway.app';
+const API_BASE_URL = 'https://backend-vigyanpreap.vigyanprep.com';
 
 // Initialize when DOM is loaded
 if (document.readyState === 'loading') {
@@ -12,18 +12,18 @@ if (document.readyState === 'loading') {
 
 function initHeaderActions() {
     console.log('✅ DOM loaded, setting up header actions...');
-    
+
     // Load admin profile
     loadAdminProfile();
-    
+
     // Load notification count
     loadNotificationCount();
-    
+
     // Setup click handlers
     setupNotificationBell();
     setupSettingsIcon();
     setupProfileDropdown();
-    
+
     console.log('✅ Header actions initialized!');
 }
 
@@ -33,18 +33,18 @@ async function loadAdminProfile() {
         console.log('👤 Fetching admin profile...');
         const response = await fetch(`${API_BASE_URL}/api/admin/profile`);
         const profile = await response.json();
-        
+
         console.log('✅ Admin profile loaded:', profile);
-        
+
         // Update header with real data
         const adminName = document.querySelector('.admin-name');
         const adminRole = document.querySelector('.admin-role');
         const adminImg = document.querySelector('.admin-profile img');
-        
+
         if (adminName) adminName.textContent = profile.name || 'Admin User';
         if (adminRole) adminRole.textContent = profile.role || 'Super Admin';
         if (adminImg && profile.avatar) adminImg.src = profile.avatar;
-        
+
     } catch (error) {
         console.warn('⚠️ Could not load admin profile:', error);
     }
@@ -56,9 +56,9 @@ async function loadNotificationCount() {
         console.log('📊 Fetching notification count...');
         const response = await fetch(`${API_BASE_URL}/api/admin/notifications/count`);
         const data = await response.json();
-        
+
         console.log(`✅ Notification count: ${data.count}`);
-        
+
         const badge = document.querySelector('.notification-bell .badge');
         if (badge) {
             if (data.count > 0) {
@@ -80,16 +80,16 @@ function setupNotificationBell() {
         console.warn('⚠️ Notification bell not found in DOM');
         return;
     }
-    
+
     console.log('✅ Notification bell found, adding click handler');
-    
+
     bell.addEventListener('click', async (e) => {
         e.stopPropagation();
         console.log('🔔 Bell clicked!');
-        
+
         // Check if dropdown already exists
         let dropdown = document.querySelector('.notifications-dropdown');
-        
+
         if (dropdown) {
             // Toggle existing dropdown
             dropdown.classList.toggle('show');
@@ -102,7 +102,7 @@ function setupNotificationBell() {
             setTimeout(() => dropdown.classList.add('show'), 10);
         }
     });
-    
+
     // Close dropdown when clicking outside
     document.addEventListener('click', (e) => {
         const dropdown = document.querySelector('.notifications-dropdown');
@@ -116,23 +116,23 @@ async function createNotificationsDropdown() {
     const dropdown = document.createElement('div');
     dropdown.className = 'notifications-dropdown';
     dropdown.innerHTML = '<div class="dropdown-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
-    
+
     try {
         // Fetch notifications from backend
         const response = await fetch(`${API_BASE_URL}/api/admin/notifications`);
         const data = await response.json();
         const notifications = data.notifications || [];
-        
+
         console.log(`✅ Loaded ${notifications.length} notifications`);
-        
+
         if (notifications.length === 0) {
             dropdown.innerHTML = '<div class="dropdown-empty"><i class="fas fa-bell-slash"></i><p>No notifications</p></div>';
             return dropdown;
         }
-        
+
         // Build notifications list
         let html = '<div class="dropdown-header"><h3>Notifications</h3><button class="mark-all-read" onclick="markAllNotificationsRead()">Mark all read</button></div><div class="notifications-list">';
-        
+
         notifications.forEach(notif => {
             const time = formatTimeAgo(notif.createdAt);
             const unreadClass = notif.unread ? 'unread' : '';
@@ -149,15 +149,15 @@ async function createNotificationsDropdown() {
                 </div>
             `;
         });
-        
+
         html += '</div>';
         dropdown.innerHTML = html;
-        
+
     } catch (error) {
         console.error('❌ Error loading notifications:', error);
         dropdown.innerHTML = '<div class="dropdown-error"><i class="fas fa-exclamation-triangle"></i><p>Failed to load notifications</p></div>';
     }
-    
+
     return dropdown;
 }
 
@@ -175,7 +175,7 @@ function formatTimeAgo(dateString) {
     const date = new Date(dateString);
     const now = new Date();
     const seconds = Math.floor((now - date) / 1000);
-    
+
     if (seconds < 60) return 'Just now';
     if (seconds < 3600) return `${Math.floor(seconds / 60)} min ago`;
     if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
@@ -183,19 +183,19 @@ function formatTimeAgo(dateString) {
     return date.toLocaleDateString();
 }
 
-window.markAllNotificationsRead = async function() {
+window.markAllNotificationsRead = async function () {
     try {
         await fetch(`${API_BASE_URL}/api/admin/notifications/mark-all-read`, { method: 'POST' });
         console.log('✅ Marked all notifications as read');
-        
+
         // Reload notifications
         const bell = document.querySelector('.notification-bell');
         const dropdown = bell.querySelector('.notifications-dropdown');
         if (dropdown) dropdown.remove();
-        
+
         // Update count
         loadNotificationCount();
-        
+
         // Recreate dropdown
         const newDropdown = await createNotificationsDropdown();
         bell.appendChild(newDropdown);
@@ -205,7 +205,7 @@ window.markAllNotificationsRead = async function() {
     }
 };
 
-window.markNotificationRead = async function(notifId) {
+window.markNotificationRead = async function (notifId) {
     try {
         await fetch(`${API_BASE_URL}/api/admin/notifications/${notifId}/read`, { method: 'POST' });
         console.log(`✅ Marked notification ${notifId} as read`);
@@ -222,15 +222,15 @@ function setupSettingsIcon() {
         console.warn('⚠️ Settings icon not found in DOM');
         return;
     }
-    
+
     console.log('✅ Settings icon found, adding click handler');
-    
+
     settings.addEventListener('click', (e) => {
         e.stopPropagation();
         console.log('⚙️ Settings clicked!');
-        
+
         let dropdown = document.querySelector('.settings-dropdown');
-        
+
         if (dropdown) {
             dropdown.classList.toggle('show');
         } else {
@@ -239,7 +239,7 @@ function setupSettingsIcon() {
             setTimeout(() => dropdown.classList.add('show'), 10);
         }
     });
-    
+
     document.addEventListener('click', (e) => {
         const dropdown = document.querySelector('.settings-dropdown');
         if (dropdown && !settings.contains(e.target)) {
@@ -283,15 +283,15 @@ function setupProfileDropdown() {
         console.warn('⚠️ Admin profile not found in DOM');
         return;
     }
-    
+
     console.log('✅ Admin profile found, adding click handler');
-    
+
     profile.addEventListener('click', (e) => {
         e.stopPropagation();
         console.log('👤 Profile clicked!');
-        
+
         let dropdown = document.querySelector('.profile-dropdown');
-        
+
         if (dropdown) {
             dropdown.classList.toggle('show');
         } else {
@@ -300,7 +300,7 @@ function setupProfileDropdown() {
             setTimeout(() => dropdown.classList.add('show'), 10);
         }
     });
-    
+
     document.addEventListener('click', (e) => {
         const dropdown = document.querySelector('.profile-dropdown');
         if (dropdown && !profile.contains(e.target)) {

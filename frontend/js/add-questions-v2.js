@@ -6,13 +6,13 @@
 
 function initAddQuestions() {
     console.log('🚀 Initializing Add Questions V2 page...');
-    
+
     const container = document.getElementById('add-questions-page');
     if (!container) {
         console.error('❌ add-questions-page container not found');
         return;
     }
-    
+
     container.innerHTML = `
         <div class="page-header">
             <h2><i class="fas fa-plus-circle"></i> Add New Question</h2>
@@ -270,9 +270,9 @@ function initAddQuestions() {
             }
         </style>
     `;
-    
+
     // Show/hide Paper Type for ISI
-    document.getElementById('examType')?.addEventListener('change', function() {
+    document.getElementById('examType')?.addEventListener('change', function () {
         const paperTypeGroup = document.getElementById('paperTypeGroup');
         if (this.value === 'ISI') {
             paperTypeGroup.style.display = 'block';
@@ -283,7 +283,7 @@ function initAddQuestions() {
             document.getElementById('paperType').value = '';
         }
     });
-    
+
     // Handle reset
     document.getElementById('resetBtn')?.addEventListener('click', () => {
         if (confirm('Are you sure you want to reset the form?')) {
@@ -292,16 +292,16 @@ function initAddQuestions() {
             document.getElementById('paperTypeGroup').style.display = 'none';
         }
     });
-    
+
     // Handle form submit
     document.getElementById('addQuestionForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
+
         const submitBtn = document.getElementById('submitQuestionBtn');
         const originalContent = submitBtn.innerHTML;
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<div class="spinner"></div> Adding Question...';
-        
+
         try {
             // Collect form data
             const examType = document.getElementById('examType').value;
@@ -312,7 +312,7 @@ function initAddQuestions() {
             const marks = parseInt(document.getElementById('marks').value);
             const questionText = document.getElementById('questionText').value.trim();
             const correctAnswer = document.getElementById('correctAnswer').value;
-            
+
             // Build options array
             const options = [
                 document.getElementById('optionA').value.trim(),
@@ -320,22 +320,22 @@ function initAddQuestions() {
                 document.getElementById('optionC').value.trim(),
                 document.getElementById('optionD').value.trim()
             ];
-            
+
             // Validate
             if (!examType || !examYear || !subject || !questionNumber || !questionText || !correctAnswer) {
                 throw new Error('Please fill all required fields');
             }
-            
+
             if (options.some(opt => !opt)) {
                 throw new Error('Please fill all four options');
             }
-            
+
             // Generate testId
             let testId = `${examType}_${examYear}`;
             if (paperType) {
                 testId += `_${paperType}`;
             }
-            
+
             // Prepare payload matching backend expectations
             const payload = {
                 testId: testId,
@@ -346,11 +346,11 @@ function initAddQuestions() {
                 section: subject,
                 marks: marks
             };
-            
+
             console.log('📤 Sending question to backend:', payload);
-            
+
             // Send to backend
-            const API_BASE_URL = window.API_BASE_URL || 'https://iin-production.up.railway.app';
+            const API_BASE_URL = window.API_BASE_URL || 'https://backend-vigyanpreap.vigyanprep.com';
             const response = await fetch(`${API_BASE_URL}/api/admin/questions`, {
                 method: 'POST',
                 headers: {
@@ -358,32 +358,32 @@ function initAddQuestions() {
                 },
                 body: JSON.stringify(payload)
             });
-            
+
             console.log('📥 Response status:', response.status);
-            
+
             if (!response.ok) {
                 const error = await response.json();
                 throw new Error(error.error || error.message || 'Failed to add question');
             }
-            
+
             const result = await response.json();
             console.log('✅ Question added:', result);
-            
+
             // Show success message
             if (window.AdminUtils && window.AdminUtils.showToast) {
                 window.AdminUtils.showToast(`✅ Question ${questionNumber} added successfully for ${testId}!`, 'success');
             } else {
                 alert(`✅ Question ${questionNumber} added successfully for ${testId}!`);
             }
-            
+
             // Reset form
             document.getElementById('addQuestionForm').reset();
             document.getElementById('testIdPreview').textContent = 'Select exam type and year';
             document.getElementById('paperTypeGroup').style.display = 'none';
-            
+
         } catch (error) {
             console.error('❌ Error adding question:', error);
-            
+
             // Show error message
             if (window.AdminUtils && window.AdminUtils.showToast) {
                 window.AdminUtils.showToast(`❌ ${error.message}`, 'error');
@@ -395,30 +395,30 @@ function initAddQuestions() {
             submitBtn.innerHTML = originalContent;
         }
     });
-    
+
     console.log('✅ Add Questions V2 page initialized');
 }
 
 // Update Test ID Preview
-window.updateTestIdPreview = function() {
+window.updateTestIdPreview = function () {
     const examType = document.getElementById('examType')?.value;
     const examYear = document.getElementById('examYear')?.value;
     const paperType = document.getElementById('paperType')?.value;
     const preview = document.getElementById('testIdPreview');
-    
+
     if (!preview) return;
-    
+
     if (!examType || !examYear) {
         preview.textContent = 'Select exam type and year';
         preview.style.color = '#94a3b8';
         return;
     }
-    
+
     let testId = `${examType}_${examYear}`;
     if (paperType) {
         testId += `_${paperType}`;
     }
-    
+
     preview.textContent = testId;
     preview.style.color = '#0284c7';
 };

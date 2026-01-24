@@ -1,5 +1,5 @@
 // API Configuration
-const API_BASE_URL = "https://iin-production.up.railway.app";
+const API_BASE_URL = "https://backend-vigyanpreap.vigyanprep.com";
 
 // Global variables
 let base64Image = "";
@@ -11,7 +11,7 @@ function checkAuth() {
     // Prevent multiple auth checks
     if (authCheckDone) return;
     authCheckDone = true;
-    
+
     const adminKey = localStorage.getItem("adminKey");
     if (adminKey !== "secret_unlocked") {
         // Prevent reload loop by checking current page
@@ -22,7 +22,7 @@ function checkAuth() {
 }
 
 function logout() {
-    if(confirm('Are you sure you want to logout?')) {
+    if (confirm('Are you sure you want to logout?')) {
         localStorage.removeItem("adminKey");
         authCheckDone = false;
         window.location.replace("adminlogin.html");
@@ -33,13 +33,13 @@ function logout() {
 function updateTime() {
     const timeEl = document.getElementById('currentTime');
     const dateEl = document.getElementById('currentDate');
-    
+
     if (!timeEl || !dateEl) return;
-    
+
     const now = new Date();
     timeEl.innerText = now.toLocaleTimeString();
-    dateEl.innerText = now.toLocaleDateString('en-US', { 
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+    dateEl.innerText = now.toLocaleDateString('en-US', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
     });
 }
 
@@ -47,28 +47,28 @@ function updateTime() {
 function switchTab(tabName) {
     document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    
+
     const tabElement = document.getElementById(`tab-${tabName}`);
     if (tabElement) {
         tabElement.classList.add('active');
     }
-    
+
     if (event && event.currentTarget) {
         event.currentTarget.classList.add('active');
     }
-    
-    if(tabName === 'manage') loadAllQuestions();
-    if(tabName === 'students') loadStudents();
-    if(tabName === 'results') loadResults();
-    if(tabName === 'feedbacks') loadFeedbacks();
-    if(tabName === 'overview') updateStats();
+
+    if (tabName === 'manage') loadAllQuestions();
+    if (tabName === 'students') loadStudents();
+    if (tabName === 'results') loadResults();
+    if (tabName === 'feedbacks') loadFeedbacks();
+    if (tabName === 'overview') updateStats();
 }
 
 // ===== IMAGE PREVIEW =====
 function previewImage() {
     const file = document.getElementById("qImage").files[0];
-    if(!file) return;
-    
+    if (!file) return;
+
     const reader = new FileReader();
     reader.onloadend = () => {
         base64Image = reader.result;
@@ -86,12 +86,12 @@ async function uploadQuestion() {
     const opt2 = document.getElementById("opt2").value;
     const opt3 = document.getElementById("opt3").value;
     const opt4 = document.getElementById("opt4").value;
-    
+
     if (!questionText || !correctAnswer || !opt1 || !opt2 || !opt3 || !opt4) {
         alert("⚠️ Please fill all required fields!");
         return;
     }
-    
+
     const data = {
         testId: document.getElementById("testId").value,
         subject: document.getElementById("subject").value,
@@ -105,11 +105,11 @@ async function uploadQuestion() {
         console.log('Uploading question...', data);
         const res = await axios.post(`${API_BASE_URL}/api/upload-question`, data);
         console.log('Upload response:', res.data);
-        
-        if(res.data.success) {
+
+        if (res.data.success) {
             alert("✅ Question successfully deployed to database!");
             resetForm();
-            
+
             // Refresh stats and questions immediately
             await updateStats();
             await loadAllQuestions();
@@ -136,28 +136,28 @@ async function loadAllQuestions() {
         console.error('Questions table not found');
         return;
     }
-    
+
     tbody.innerHTML = "<tr><td colspan='5' class='loading'><div class='spinner'></div>Loading...</td></tr>";
-    
+
     try {
         console.log('Loading questions from:', `${API_BASE_URL}/api/admin/all-questions`);
         const res = await axios.get(`${API_BASE_URL}/api/admin/all-questions`);
         console.log('Questions response:', res.data);
-        
-        if(res.data.success) {
+
+        if (res.data.success) {
             const questions = res.data.questions;
             tbody.innerHTML = "";
-            
-            if(questions.length === 0) {
+
+            if (questions.length === 0) {
                 tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:40px; color: var(--text-secondary);'>No questions found. Upload your first question!</td></tr>";
                 return;
             }
-            
+
             questions.forEach(q => {
-                const badgeClass = q.subject === "Physics" ? "badge-phys" : 
-                                  q.subject === "Chemistry" ? "badge-chem" : 
-                                  q.subject === "Mathematics" ? "badge-math" : "badge-bio";
-                
+                const badgeClass = q.subject === "Physics" ? "badge-phys" :
+                    q.subject === "Chemistry" ? "badge-chem" :
+                        q.subject === "Mathematics" ? "badge-math" : "badge-bio";
+
                 tbody.innerHTML += `
                     <tr>
                         <td><span class="badge ${badgeClass}">${q.subject}</span></td>
@@ -172,29 +172,29 @@ async function loadAllQuestions() {
                     </tr>
                 `;
             });
-            
+
             // Update stats after loading questions
             await updateStats();
-            
-            if(window.MathJax) MathJax.typeset();
+
+            if (window.MathJax) MathJax.typeset();
         } else {
             tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:40px; color: var(--danger);'>" + (res.data.message || 'Failed to load questions') + "</td></tr>";
         }
-    } catch(e) {
+    } catch (e) {
         console.error('Error loading questions:', e);
         tbody.innerHTML = `<tr><td colspan='5' style='text-align:center; color: var(--danger); padding:40px;'>Failed to load questions<br><small>${e.message}</small></td></tr>`;
     }
 }
 
 async function deleteQuestion(id) {
-    if(!confirm("Are you sure you want to delete this question permanently?")) return;
-    
+    if (!confirm("Are you sure you want to delete this question permanently?")) return;
+
     try {
         await axios.delete(`${API_BASE_URL}/api/admin/delete-question/${id}`);
         alert("✅ Question deleted successfully");
         await loadAllQuestions();
         await updateStats();
-    } catch(e) {
+    } catch (e) {
         console.error('Delete error:', e);
         alert("❌ Failed to delete question");
     }
@@ -203,7 +203,7 @@ async function deleteQuestion(id) {
 function filterQuestions() {
     const searchTerm = document.getElementById('searchQuestions').value.toLowerCase();
     const rows = document.querySelectorAll('#questionsTable tr');
-    
+
     rows.forEach(row => {
         const text = row.textContent.toLowerCase();
         row.style.display = text.includes(searchTerm) ? '' : 'none';
@@ -214,25 +214,25 @@ function filterQuestions() {
 async function loadStudents() {
     const tbody = document.getElementById("studentsTable");
     if (!tbody) return;
-    
+
     tbody.innerHTML = "<tr><td colspan='5' class='loading'><div class='spinner'></div>Loading...</td></tr>";
-    
+
     try {
         const res = await axios.get(`${API_BASE_URL}/api/admin/all-students`);
-        if(res.data.success) {
+        if (res.data.success) {
             const students = res.data.students;
             tbody.innerHTML = "";
-            
-            if(students.length === 0) {
+
+            if (students.length === 0) {
                 tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:40px;'>No students found</td></tr>";
                 return;
             }
-            
+
             students.forEach(s => {
-                const tests = s.purchasedTests && s.purchasedTests.length > 0 
+                const tests = s.purchasedTests && s.purchasedTests.length > 0
                     ? s.purchasedTests.map(t => `<span class="badge" style="margin:2px;">${t.toUpperCase()}</span>`).join(' ')
                     : '<span style="color: var(--text-secondary);">None</span>';
-                
+
                 tbody.innerHTML += `
                     <tr>
                         <td style="color: var(--warning); font-weight: 700;">${s.rollNumber || 'N/A'}</td>
@@ -250,11 +250,11 @@ async function loadStudents() {
                     </tr>
                 `;
             });
-            
+
             const statEl = document.getElementById('statStudents');
             if (statEl) statEl.innerText = students.length;
         }
-    } catch(e) {
+    } catch (e) {
         console.error('Error loading students:', e);
         tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; color: var(--danger);'>Failed to load students</td></tr>";
     }
@@ -264,21 +264,21 @@ async function loadStudents() {
  * Delete a student by email
  */
 async function deleteStudent(email) {
-    if(!confirm(`⚠️ Are you sure you want to delete this student?\n\nEmail: ${email}\n\nThis will delete ALL records for this student and CANNOT be undone!`)) {
+    if (!confirm(`⚠️ Are you sure you want to delete this student?\n\nEmail: ${email}\n\nThis will delete ALL records for this student and CANNOT be undone!`)) {
         return;
     }
-    
+
     try {
         const res = await axios.delete(`${API_BASE_URL}/api/admin/students/email/${email}`);
-        
-        if(res.data.success) {
+
+        if (res.data.success) {
             alert(`✅ Success!\n\nDeleted ${res.data.deletedCount} record(s) for ${email}`);
             await loadStudents();
             await updateStats();
         } else {
             alert('❌ Error: ' + res.data.message);
         }
-    } catch(e) {
+    } catch (e) {
         console.error('Delete student error:', e);
         alert('❌ Failed to delete student: ' + (e.response?.data?.message || e.message));
     }
@@ -287,7 +287,7 @@ async function deleteStudent(email) {
 function filterStudents() {
     const searchTerm = document.getElementById('searchStudents').value.toLowerCase();
     const rows = document.querySelectorAll('#studentsTable tr');
-    
+
     rows.forEach(row => {
         const text = row.textContent.toLowerCase();
         row.style.display = text.includes(searchTerm) ? '' : 'none';
@@ -302,21 +302,21 @@ function viewStudentDetails(id) {
 async function loadResults() {
     const tbody = document.getElementById("resultsTable");
     if (!tbody) return;
-    
+
     tbody.innerHTML = "<tr><td colspan='5' class='loading'><div class='spinner'></div>Loading...</td></tr>";
-    
+
     try {
         const res = await axios.get(`${API_BASE_URL}/api/admin/results`);
-        if(res.data.success) {
+        if (res.data.success) {
             const { results, questions } = res.data;
             cachedResultsData = { results, questions };
             tbody.innerHTML = "";
-            
-            if(results.length === 0) {
+
+            if (results.length === 0) {
                 tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:40px;'>No results found</td></tr>";
                 return;
             }
-            
+
             results.forEach((r, idx) => {
                 tbody.innerHTML += `
                     <tr>
@@ -333,11 +333,11 @@ async function loadResults() {
                     </tr>
                 `;
             });
-            
+
             const statEl = document.getElementById('statResults');
             if (statEl) statEl.innerText = results.length;
         }
-    } catch(e) {
+    } catch (e) {
         console.error('Error loading results:', e);
         tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; color: var(--danger);'>Failed to load results</td></tr>";
     }
@@ -346,7 +346,7 @@ async function loadResults() {
 function viewResponseSheet(idx) {
     const r = cachedResultsData.results[idx];
     const testQs = cachedResultsData.questions.filter(q => q.testId === r.testId);
-    
+
     let organized = [];
     ["Physics", "Chemistry", "Mathematics", "Biology"].forEach(subject => {
         organized = organized.concat(testQs.filter(q => q.subject === subject));
@@ -374,26 +374,26 @@ function viewResponseSheet(idx) {
                 </thead>
                 <tbody>
     `;
-    
+
     let counters = { "Physics": 0, "Chemistry": 0, "Mathematics": 0, "Biology": 0 };
     let totalScore = 0;
 
     organized.forEach(q => {
         const key = `${q.subject}-${counters[q.subject]}`;
         counters[q.subject]++;
-        
+
         const userAnswerIndex = r.answers[key];
         const userAnswer = userAnswerIndex !== undefined ? q.options[userAnswerIndex] : "SKIPPED";
         const isCorrect = userAnswer === q.correctAnswer;
         const points = userAnswer === "SKIPPED" ? 0 : isCorrect ? 4 : -1;
         totalScore += points;
-        
+
         const statusColor = userAnswer === "SKIPPED" ? "var(--text-secondary)" : isCorrect ? "var(--success)" : "var(--danger)";
         const statusText = userAnswer === "SKIPPED" ? "0" : isCorrect ? "+4" : "-1";
 
         html += `
             <tr>
-                <td><span class="badge badge-${q.subject.toLowerCase().substring(0,4)}">${q.subject}</span></td>
+                <td><span class="badge badge-${q.subject.toLowerCase().substring(0, 4)}">${q.subject}</span></td>
                 <td style="font-size: 0.85rem;">${q.questionText.substring(0, 80)}...</td>
                 <td>${userAnswer.substring(0, 30)}${userAnswer.length > 30 ? '...' : ''}</td>
                 <td style="color: var(--success);">${q.correctAnswer.substring(0, 30)}${q.correctAnswer.length > 30 ? '...' : ''}</td>
@@ -401,7 +401,7 @@ function viewResponseSheet(idx) {
             </tr>
         `;
     });
-    
+
     html += `
                 </tbody>
             </table>
@@ -411,32 +411,32 @@ function viewResponseSheet(idx) {
             <h2 style="color: var(--accent); font-size: 2rem;">Total Score: ${totalScore}</h2>
         </div>
     `;
-    
+
     document.getElementById("modalStudentName").innerHTML = `<i class="fas fa-file-alt"></i> Response Sheet: ${r.email}`;
     document.getElementById("sheetContent").innerHTML = html;
     document.getElementById("responseModal").style.display = "flex";
-    
-    if(window.MathJax) MathJax.typeset();
+
+    if (window.MathJax) MathJax.typeset();
 }
 
 // ===== LOAD FEEDBACKS =====
 async function loadFeedbacks() {
     const tbody = document.getElementById("feedbackTable");
     if (!tbody) return;
-    
+
     tbody.innerHTML = "<tr><td colspan='5' class='loading'><div class='spinner'></div>Loading...</td></tr>";
-    
+
     try {
         const res = await axios.get(`${API_BASE_URL}/api/admin/feedbacks`);
-        if(res.data.success) {
+        if (res.data.success) {
             const feedbacks = res.data.feedbacks;
             tbody.innerHTML = "";
-            
-            if(feedbacks.length === 0) {
+
+            if (feedbacks.length === 0) {
                 tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding:40px;'>No feedbacks found</td></tr>";
                 return;
             }
-            
+
             feedbacks.forEach(f => {
                 const r = f.ratings || {};
                 tbody.innerHTML += `
@@ -454,11 +454,11 @@ async function loadFeedbacks() {
                     </tr>
                 `;
             });
-            
+
             const statEl = document.getElementById('statFeedbacks');
             if (statEl) statEl.innerText = feedbacks.length;
         }
-    } catch(e) {
+    } catch (e) {
         console.error('Error loading feedbacks:', e);
         tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; color: var(--danger);'>Failed to load feedbacks</td></tr>";
     }
@@ -474,15 +474,15 @@ async function updateStats() {
             axios.get(`${API_BASE_URL}/api/admin/results`),
             axios.get(`${API_BASE_URL}/api/admin/feedbacks`)
         ]);
-        
+
         console.log('Stats data received:', {
             questions: qRes.data.questions?.length || 0,
             students: sRes.data.students?.length || 0,
             results: rRes.data.results?.length || 0,
             feedbacks: fRes.data.feedbacks?.length || 0
         });
-        
-        if(qRes.data.success && qRes.data.questions) {
+
+        if (qRes.data.success && qRes.data.questions) {
             const questions = qRes.data.questions;
             const setStatSafe = (id, value) => {
                 const el = document.getElementById(id);
@@ -493,31 +493,31 @@ async function updateStats() {
                     console.warn(`Element ${id} not found`);
                 }
             };
-            
+
             setStatSafe('statTotal', questions.length);
             setStatSafe('statPhy', questions.filter(q => q.subject === 'Physics').length);
             setStatSafe('statChem', questions.filter(q => q.subject === 'Chemistry').length);
             setStatSafe('statMath', questions.filter(q => q.subject === 'Mathematics').length);
             setStatSafe('statBio', questions.filter(q => q.subject === 'Biology').length);
         }
-        
-        if(sRes.data.success && sRes.data.students) {
+
+        if (sRes.data.success && sRes.data.students) {
             const el = document.getElementById('statStudents');
             if (el) el.innerText = sRes.data.students.length;
         }
-        
-        if(rRes.data.success && rRes.data.results) {
+
+        if (rRes.data.success && rRes.data.results) {
             const el = document.getElementById('statResults');
             if (el) el.innerText = rRes.data.results.length;
         }
-        
-        if(fRes.data.success && fRes.data.feedbacks) {
+
+        if (fRes.data.success && fRes.data.feedbacks) {
             const el = document.getElementById('statFeedbacks');
             if (el) el.innerText = fRes.data.feedbacks.length;
         }
-        
+
         console.log('Statistics updated successfully');
-    } catch(e) {
+    } catch (e) {
         console.error('Failed to update stats:', e);
     }
 }
@@ -532,13 +532,13 @@ function closeModal() {
 function initializeAdmin() {
     console.log('Initializing admin panel...');
     checkAuth();
-    
+
     // Wait a bit for DOM to be fully ready
     setTimeout(async () => {
         await updateStats();
         console.log('Initial stats loaded');
     }, 500);
-    
+
     setInterval(updateTime, 1000);
     updateTime();
 }

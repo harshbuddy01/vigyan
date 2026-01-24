@@ -4,18 +4,18 @@
  */
 
 // Use global API URL from config.js
-const API_BASE_URL = window.API_BASE_URL || 'https://iin-production.up.railway.app';
+const API_BASE_URL = window.API_BASE_URL || 'https://backend-vigyanpreap.vigyanprep.com';
 
-window.initCreateTest = function() {
+window.initCreateTest = function () {
     console.log('🔵 Initializing Create Test page...');
     console.log('🔧 Using API Base URL:', API_BASE_URL);
-    
+
     const container = document.getElementById('create-test-page');
     if (!container) {
         console.error('❌ Create test page element not found');
         return;
     }
-    
+
     container.innerHTML = `
         <div class="page-header" style="margin-bottom: 24px;">
             <h1><i class="fas fa-plus-circle"></i> Create New Test</h1>
@@ -122,17 +122,17 @@ window.initCreateTest = function() {
             }
         </style>
     `;
-    
+
     // Set min date to today
     const today = new Date().toISOString().split('T')[0];
     const dateInput = document.getElementById('testDate');
     if (dateInput) {
         dateInput.setAttribute('min', today);
     }
-    
+
     // Add checkbox interaction handlers
     document.querySelectorAll('.section-checkbox-item').forEach(item => {
-        item.addEventListener('click', function(e) {
+        item.addEventListener('click', function (e) {
             if (e.target.tagName !== 'INPUT') {
                 const checkbox = this.querySelector('input[type="checkbox"]');
                 if (checkbox) {
@@ -141,17 +141,17 @@ window.initCreateTest = function() {
             }
         });
     });
-    
+
     // Add form submit handler
     const form = document.getElementById('createTestForm');
     if (form) {
         form.addEventListener('submit', handleCreateTest);
     }
-    
+
     console.log('✅ Create Test page initialized');
 };
 
-window.resetCreateTestForm = function() {
+window.resetCreateTestForm = function () {
     const form = document.getElementById('createTestForm');
     if (form) {
         form.reset();
@@ -162,15 +162,15 @@ window.resetCreateTestForm = function() {
 
 async function handleCreateTest(e) {
     e.preventDefault();
-    
+
     const submitBtn = document.getElementById('submitTestBtn');
     const originalBtnText = submitBtn.innerHTML;
-    
+
     // Get selected sections
     const selectedSections = Array.from(
         document.querySelectorAll('input[name="sections"]:checked')
     ).map(cb => cb.value);
-    
+
     if (selectedSections.length === 0) {
         if (window.AdminUtils) {
             window.AdminUtils.showToast('Please select at least one section', 'error');
@@ -179,11 +179,11 @@ async function handleCreateTest(e) {
         }
         return;
     }
-    
+
     // Disable button and show loading
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
-    
+
     // Get form values
     const testName = document.getElementById('testName').value;
     const examType = document.getElementById('examType').value.toUpperCase();
@@ -193,7 +193,7 @@ async function handleCreateTest(e) {
     const durationMinutes = parseInt(document.getElementById('testDuration').value);
     const totalMarks = parseInt(document.getElementById('totalMarks').value);
     const sectionsString = selectedSections.join(', ');
-    
+
     // 🔥 CRITICAL FIX: Backend server.js expects snake_case field names
     const testData = {
         test_name: testName,                             // backend expects: test_name (snake_case)
@@ -208,10 +208,10 @@ async function handleCreateTest(e) {
         total_questions: 0,                              // backend expects: total_questions
         status: 'scheduled'                              // backend expects: status
     };
-    
+
     console.log('📤 Sending test data to backend:', testData);
     console.log('🔗 API Endpoint:', `${API_BASE_URL}/api/admin/create-test`);
-    
+
     try {
         // Send to backend API
         const response = await fetch(`${API_BASE_URL}/api/admin/create-test`, {
@@ -221,29 +221,29 @@ async function handleCreateTest(e) {
             },
             body: JSON.stringify(testData)
         });
-        
+
         console.log('📥 Backend response status:', response.status);
-        
+
         const result = await response.json();
         console.log('📦 Backend response data:', result);
-        
+
         if (!response.ok || !result.success) {
             throw new Error(result.message || `HTTP error! status: ${response.status}`);
         }
-        
+
         // Show success message
         if (window.AdminUtils) {
             window.AdminUtils.showToast(
-                `✅ Test "${testName}" created successfully! Test ID: ${testData.test_id}`, 
+                `✅ Test "${testName}" created successfully! Test ID: ${testData.test_id}`,
                 'success'
             );
         } else {
             alert(`✅ Test "${testName}" created successfully!`);
         }
-        
+
         // Reset form
         window.resetCreateTestForm();
-        
+
         // Navigate to scheduled tests page after 2 seconds
         setTimeout(() => {
             const scheduledTestsLink = document.querySelector('[data-page="scheduled-tests"]');
@@ -251,14 +251,14 @@ async function handleCreateTest(e) {
                 scheduledTestsLink.click();
             }
         }, 2000);
-        
+
     } catch (error) {
         console.error('❌ Error creating test:', error);
         console.error('Error details:', error.message);
-        
+
         if (window.AdminUtils) {
             window.AdminUtils.showToast(
-                `❌ Failed to create test: ${error.message}`, 
+                `❌ Failed to create test: ${error.message}`,
                 'error'
             );
         } else {
