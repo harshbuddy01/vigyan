@@ -105,6 +105,7 @@ router.get('/auth-health', async (req, res) => {
   res.json({
     status: 'ok',
     mongo_var_connected: isMongoDBConnected,
+    mongo_uri_configured: !!process.env.MONGODB_URI,
     mongoose_ready_state: readyState,
     mongoose_state_name: states[readyState] || 'unknown',
     host: mongoose.default.connection.host,
