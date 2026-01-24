@@ -138,7 +138,7 @@ if (instance) {
 
 // Import routes - Only import files that exist
 import adminRoutes from './routes/adminRoutes.js';
-import paymentRoutes from './routes/paymentRoutes.js';
+// import paymentRoutes from './routes/paymentRoutes.js';
 import examRoutes from './routes/examRoutes.js';
 import questionRoutes from './routes/questionRoutes.js';
 import migrationRoute from './routes/migrationRoute.js';
@@ -169,7 +169,7 @@ console.log('✅ Migration endpoint mounted');
 console.log('🔵 Mounting API routes...');
 app.use('/api', authRoutes);
 console.log('✅ Auth routes mounted - /api/verify-user-full');
-app.use('/api/payment', paymentRoutes);
+// app.use('/api/payment', paymentRoutes);
 app.use('/api/exam', examRoutes);
 app.use('/api/news', newsRoutes);
 
