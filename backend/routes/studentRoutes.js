@@ -1,13 +1,13 @@
 import express from 'express';
 import Student from '../models/Student.js';
-import StudentAttempt from '../models/StudentAttempt.js';
-import PaymentTransaction from '../models/PaymentTransaction.js';
+import { StudentAttempt } from '../models/StudentAttempt.js'; // ✅ FIXED: Named import
+import { PaymentTransaction } from '../models/PaymentTransaction.js'; // ✅ FIXED: Named import
 
 const router = express.Router();
 
 // ==================== GET ALL STUDENTS ====================
 // GET /api/admin/students?search=xyz
-router.get('/students', async (req, res) => {
+router.get('/', async (req, res) => {
     try {
         const { search = '' } = req.query;
         
@@ -33,12 +33,12 @@ router.get('/students', async (req, res) => {
         const studentsWithStats = await Promise.all(
             students.map(async (student) => {
                 const testsAttempted = await StudentAttempt.countDocuments({ 
-                    studentId: student._id 
+                    email: student.email 
                 });
                 
                 const payments = await PaymentTransaction.find({
-                    orderId: { $regex: student.email, $options: 'i' },
-                    status: 'captured'
+                    email: student.email,
+                    status: 'paid'
                 });
                 
                 const totalPaid = payments.reduce((sum, p) => sum + p.amount, 0);
@@ -72,7 +72,7 @@ router.get('/students', async (req, res) => {
 
 // ==================== GET SINGLE STUDENT ====================
 // GET /api/admin/students/:id
-router.get('/students/:id', async (req, res) => {
+router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         
@@ -88,14 +88,14 @@ router.get('/students/:id', async (req, res) => {
         }
         
         // Get attempts
-        const attempts = await StudentAttempt.find({ studentId: id })
-            .sort({ attemptDate: -1 })
+        const attempts = await StudentAttempt.find({ email: student.email })
+            .sort({ submitted_at: -1 })
             .limit(10);
         
         // Get payments
         const payments = await PaymentTransaction.find({
-            orderId: { $regex: student.email, $options: 'i' }
-        }).sort({ createdAt: -1 });
+            email: student.email
+        }).sort({ created_at: -1 });
         
         res.json({
             success: true,
@@ -118,7 +118,7 @@ router.get('/students/:id', async (req, res) => {
 
 // ==================== ADD NEW STUDENT ====================
 // POST /api/admin/students
-router.post('/students', async (req, res) => {
+router.post('/', async (req, res) => {
     try {
         const { email, fullName, rollNumber } = req.body;
         
@@ -168,7 +168,7 @@ router.post('/students', async (req, res) => {
 
 // ==================== UPDATE STUDENT ====================
 // PUT /api/admin/students/:id
-router.put('/students/:id', async (req, res) => {
+router.put('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const { email, fullName, rollNumber } = req.body;
@@ -203,7 +203,7 @@ router.put('/students/:id', async (req, res) => {
 
 // ==================== DELETE STUDENT ====================
 // DELETE /api/admin/students/:id
-router.delete('/students/:id', async (req, res) => {
+router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         
@@ -219,7 +219,7 @@ router.delete('/students/:id', async (req, res) => {
         }
         
         // Also delete related data
-        await StudentAttempt.deleteMany({ studentId: id });
+        await StudentAttempt.deleteMany({ email: deletedStudent.email });
         
         console.log(`✅ [STUDENTS] Student deleted: ${id}`);
         
@@ -235,14 +235,22 @@ router.delete('/students/:id', async (req, res) => {
 
 // ==================== GET STUDENT RESULTS ====================
 // GET /api/admin/students/:id/results
-router.get('/students/:id/results', async (req, res) => {
+router.get('/:id/results', async (req, res) => {
     try {
         const { id } = req.params;
         
         console.log(`📊 [STUDENTS] Fetching results for student: ${id}`);
         
-        const attempts = await StudentAttempt.find({ studentId: id })
-            .sort({ attemptDate: -1 });
+        const student = await Student.findById(id);
+        if (!student) {
+            return res.status(404).json({
+                success: false,
+                error: 'Student not found'
+            });
+        }
+        
+        const attempts = await StudentAttempt.find({ email: student.email })
+            .sort({ submitted_at: -1 });
         
         res.json({
             success: true,
