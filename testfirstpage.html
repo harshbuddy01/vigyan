@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Series Matrix | Vigyan.prep</title>
-    <!-- CACHE CLEAR: 2026-01-26 02:20 IST - ADDED TEST SERIES ICONS -->
+    <!-- CACHE CLEAR: 2026-01-26 02:30 IST - ADDED VISIBLE EMOJI ICONS -->
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -85,37 +85,13 @@
             box-shadow: 0 20px 40px -20px rgba(59, 130, 246, 0.3);
         }
 
-        /* ========== TEST SERIES ICON HEADER ========== */
-        .series-icon-header {
-            width: 100%;
-            height: 140px;
-            margin: -2.5rem -2.5rem 1.5rem -2.5rem;
-            border-radius: 2rem 2rem 0 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 4rem;
-            font-weight: 900;
-            background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-
-        /* IAT - LIGHTNING BOLT */
-        .series-icon-header.iat {
-            color: #fbbf24;
-            background: linear-gradient(180deg, rgba(251,191,36,0.12) 0%, transparent 100%);
-        }
-
-        /* NEST - MICROSCOPE */
-        .series-icon-header.nest {
-            color: #06b6d4;
-            background: linear-gradient(180deg, rgba(6,182,212,0.12) 0%, transparent 100%);
-        }
-
-        /* ISI - TROPHY */
-        .series-icon-header.isi {
-            color: #f87171;
-            background: linear-gradient(180deg, rgba(248,113,113,0.12) 0%, transparent 100%);
+        /* ========== TEST SERIES EMOJI ICON HEADER ========== */
+        .series-icon-emoji {
+            font-size: 3.5rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            display: block;
+            line-height: 1;
         }
 
         .buy-btn {
@@ -444,11 +420,6 @@
             .action-buttons {
                 flex-direction: column;
             }
-            .series-icon-header {
-                height: 100px;
-                font-size: 3rem;
-                margin: -2.5rem -2.5rem 1rem -2.5rem;
-            }
         }
 
         /* VIGYAN.PREP Premium Logo */
@@ -641,21 +612,21 @@
         const testSeries = [
             { 
                 id: 'iat', 
-                icon: '⚡',
+                emoji: '⚡',
                 name: 'IAT SERIES', 
                 subtitle: 'Speed Mastery',
                 price: 1 
             },
             { 
                 id: 'nest', 
-                icon: '🔬',
+                emoji: '🔬',
                 name: 'NEST SERIES', 
                 subtitle: 'Deep Dive',
                 price: 1 
             },
             { 
                 id: 'isi', 
-                icon: '🏆',
+                emoji: '🏆',
                 name: 'ISI SERIES', 
                 subtitle: 'Proof Academy',
                 price: 1 
@@ -673,7 +644,7 @@
             card.className = 'glass-panel flex flex-col justify-between';
             card.innerHTML = `
                 <div>
-                    <div class="series-icon-header ${test.id}">${test.icon}</div>
+                    <span class="series-icon-emoji">${test.emoji}</span>
                     <div class="flex justify-between items-start mb-8">
                         <span class="font-bold text-blue-500 uppercase tracking-widest text-[10px] border border-blue-500/30 px-3 py-1 rounded-full bg-blue-500/5">${test.id}</span>
                         <div class="text-right leading-none">
