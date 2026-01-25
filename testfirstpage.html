@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Series Matrix | Vigyan.prep</title>
-    <!-- CACHE CLEAR: 2026-01-25 21:10 IST - FIXED REDIRECT BUG -->
+    <!-- CACHE CLEAR: 2026-01-25 21:11 IST - FIXED AUTO-REDIRECT -->
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -17,11 +17,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Cache-busted CSS files -->
-    <link rel="stylesheet" href="frontend/css/global.css?v=20260125-2110">
-    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260125-2110">
-    <link rel="stylesheet" href="frontend/css/pages.css?v=20260125-2110">
-    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260125-2110">
-    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260125-2110">
+    <link rel="stylesheet" href="frontend/css/global.css?v=20260125-2111">
+    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260125-2111">
+    <link rel="stylesheet" href="frontend/css/pages.css?v=20260125-2111">
+    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260125-2111">
+    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260125-2111">
 
     <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="pragma" content="no-cache">
@@ -492,16 +492,16 @@
 
             <!-- Auto-redirect Countdown -->
             <div class="countdown-text">
-                Redirecting to tests in <span id="countdownTimer" class="countdown-number">6</span> seconds...
+                Returning to dashboard in <span id="countdownTimer" class="countdown-number">6</span> seconds...
             </div>
 
             <!-- Action Buttons -->
             <div class="action-buttons">
-                <button onclick="goToTests()" class="primary-btn">
-                    <i class="fas fa-rocket"></i> GO TO TESTS NOW
+                <button onclick="closeSuccessModal()" class="primary-btn">
+                    <i class="fas fa-check"></i> GOT IT!
                 </button>
                 <button onclick="cancelRedirect()" class="secondary-btn">
-                    <i class="fas fa-times"></i> STAY HERE
+                    <i class="fas fa-times"></i> CANCEL AUTO-REDIRECT
                 </button>
             </div>
 
@@ -591,9 +591,9 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-10" id="cardsContainer"></div>
     </main>
 
-    <script src="frontend/js/config.js?v=20260125-2110"></script>
-    <script src="frontend/js/auth.js?v=20260125-2110"></script>
-    <script src="frontend/js/user-panel.js?v=20260125-2110"></script>
+    <script src="frontend/js/config.js?v=20260125-2111"></script>
+    <script src="frontend/js/auth.js?v=20260125-2111"></script>
+    <script src="frontend/js/user-panel.js?v=20260125-2111"></script>
 
     <script>
         // 💰 UPDATED: Changed to ₹1 for testing (was ₹199)
@@ -712,37 +712,9 @@
                 
                 if (secondsRemaining <= 0) {
                     clearInterval(countdownInterval);
-                    goToTests();
+                    closeSuccessModal(); // ✅ Auto-redirect to testfirstpage after 6 seconds
                 }
             }, 1000);
-        }
-
-        // 🔧 CRITICAL FIX: Ensure localStorage is saved before redirect + Force reload
-        function goToTests() {
-            console.log('🚀 Redirecting to tests...');
-            
-            if (countdownInterval) {
-                clearInterval(countdownInterval);
-            }
-            
-            // ✅ FIX 1: Ensure currentTestId is set
-            const testId = localStorage.getItem("tempTestId");
-            console.log('📦 Test ID from localStorage:', testId);
-            
-            if (testId) {
-                localStorage.setItem("currentTestId", testId);
-                console.log('✅ Set currentTestId to:', testId);
-                
-                // ✅ FIX 2: Force localStorage to save with sync delay
-                setTimeout(() => {
-                    console.log('🎯 Redirecting with force reload...');
-                    // Force page reload to clear cache and load fresh data
-                    window.location.href = "instructions.html?test=" + testId + "&t=" + Date.now();
-                }, 100); // 100ms delay to ensure localStorage writes
-            } else {
-                console.error('❌ No testId found in localStorage!');
-                window.location.href = "testfirstpage.html";
-            }
         }
 
         // ❌ Cancel Auto-redirect
@@ -756,23 +728,35 @@
             countdownElement.parentElement.innerHTML = '<i class="fas fa-check-circle"></i> Auto-redirect cancelled';
         }
 
-        // ✨ ENHANCED: Close Success Modal
+        // ✅ FIXED: Close Success Modal - Redirect back to testfirstpage.html
         function closeSuccessModal() {
-            console.log('⚡ Closing success modal...');
+            console.log('⚡ Closing success modal and refreshing page...');
             
             if (countdownInterval) clearInterval(countdownInterval);
             
+            // Hide modal
             document.getElementById("successModal").style.display = "none";
+            
+            // Update UI for purchased test
             const testId = localStorage.getItem("tempTestId");
             if (testId) markAsPurchased(testId);
+            
+            // Show calendar banner
             document.getElementById('calendarBanner').style.display = 'flex';
 
+            // Refresh user panel
             if (window.renderUserPanelDirect) {
                 const email = localStorage.getItem("userEmail");
                 const rollNumber = localStorage.getItem("userRollNumber");
                 const purchasedTests = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
                 window.renderUserPanelDirect({ email, rollNumber, tests: purchasedTests });
             }
+            
+            // ✅ FIX: Force page reload to refresh everything
+            setTimeout(() => {
+                console.log('🔄 Forcing page reload...');
+                window.location.href = "testfirstpage.html?t=" + Date.now();
+            }, 500);
         }
 
         // 🔧 FIXED: Skip email verification, go straight to payment
