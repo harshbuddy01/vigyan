@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Series Matrix | Vigyan.prep</title>
-    <!-- CACHE CLEAR: 2026-01-25 17:19 IST - ENHANCED SUCCESS MODAL -->
+    <!-- CACHE CLEAR: 2026-01-25 21:10 IST - FIXED REDIRECT BUG -->
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -17,11 +17,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Cache-busted CSS files -->
-    <link rel="stylesheet" href="frontend/css/global.css?v=20260125-1719">
-    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260125-1719">
-    <link rel="stylesheet" href="frontend/css/pages.css?v=20260125-1719">
-    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260125-1719">
-    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260125-1719">
+    <link rel="stylesheet" href="frontend/css/global.css?v=20260125-2110">
+    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260125-2110">
+    <link rel="stylesheet" href="frontend/css/pages.css?v=20260125-2110">
+    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260125-2110">
+    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260125-2110">
 
     <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="pragma" content="no-cache">
@@ -591,9 +591,9 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-10" id="cardsContainer"></div>
     </main>
 
-    <script src="frontend/js/config.js?v=20260125-1719"></script>
-    <script src="frontend/js/auth.js?v=20260125-1719"></script>
-    <script src="frontend/js/user-panel.js?v=20260125-1719"></script>
+    <script src="frontend/js/config.js?v=20260125-2110"></script>
+    <script src="frontend/js/auth.js?v=20260125-2110"></script>
+    <script src="frontend/js/user-panel.js?v=20260125-2110"></script>
 
     <script>
         // 💰 UPDATED: Changed to ₹1 for testing (was ₹199)
@@ -717,15 +717,30 @@
             }, 1000);
         }
 
-        // 🚀 Go to Tests Function
+        // 🔧 CRITICAL FIX: Ensure localStorage is saved before redirect + Force reload
         function goToTests() {
-            if (countdownInterval) clearInterval(countdownInterval);
+            console.log('🚀 Redirecting to tests...');
             
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+            
+            // ✅ FIX 1: Ensure currentTestId is set
             const testId = localStorage.getItem("tempTestId");
+            console.log('📦 Test ID from localStorage:', testId);
+            
             if (testId) {
                 localStorage.setItem("currentTestId", testId);
-                window.location.href = "instructions.html?test=" + testId;
+                console.log('✅ Set currentTestId to:', testId);
+                
+                // ✅ FIX 2: Force localStorage to save with sync delay
+                setTimeout(() => {
+                    console.log('🎯 Redirecting with force reload...');
+                    // Force page reload to clear cache and load fresh data
+                    window.location.href = "instructions.html?test=" + testId + "&t=" + Date.now();
+                }, 100); // 100ms delay to ensure localStorage writes
             } else {
+                console.error('❌ No testId found in localStorage!');
                 window.location.href = "testfirstpage.html";
             }
         }
@@ -847,8 +862,11 @@
                             if (verifyRes.data.success) {
                                 // Step 4: Store roll number and show success
                                 const rollNumber = verifyRes.data.rollNumber;
+                                
+                                // 🔧 CRITICAL FIX: Save ALL data synchronously BEFORE showing modal
                                 localStorage.setItem("userEmail", userEmail);
                                 localStorage.setItem("userRollNumber", rollNumber);
+                                localStorage.setItem("currentTestId", testId); // ✅ Set this NOW!
                                 
                                 // Add to purchased tests
                                 const purchased = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
@@ -857,13 +875,23 @@
                                 }
                                 localStorage.setItem("purchasedTests", JSON.stringify(purchased));
                                 
-                                // ✨ Show enhanced success modal with countdown
-                                closeEntryModal();
-                                document.getElementById("finalTokenDisplay").innerText = rollNumber;
-                                document.getElementById("successModal").style.display = "flex";
-                                startCountdown(); // ⏱️ Start 6-second countdown
-                                
-                                console.log('🎉 Payment complete! Roll number:', rollNumber);
+                                // ✅ Wait 200ms to ensure localStorage is written
+                                setTimeout(() => {
+                                    console.log('✅ LocalStorage saved:', {
+                                        email: localStorage.getItem('userEmail'),
+                                        roll: localStorage.getItem('userRollNumber'),
+                                        currentTest: localStorage.getItem('currentTestId'),
+                                        purchased: localStorage.getItem('purchasedTests')
+                                    });
+                                    
+                                    // ✨ Show enhanced success modal with countdown
+                                    closeEntryModal();
+                                    document.getElementById("finalTokenDisplay").innerText = rollNumber;
+                                    document.getElementById("successModal").style.display = "flex";
+                                    startCountdown(); // ⏱️ Start 6-second countdown
+                                    
+                                    console.log('🎉 Payment complete! Roll number:', rollNumber);
+                                }, 200);
                             } else {
                                 throw new Error(verifyRes.data.message || 'Payment verification failed');
                             }
