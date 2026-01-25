@@ -128,6 +128,7 @@ export const validateUserLogin = [
 /**
  * RATE LIMITING HELPER
  * Use with express-rate-limit
+ * 🔥 FIXED: Added skip and validate options for trust proxy compatibility
  */
 export const paymentRateLimit = {
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -135,6 +136,9 @@ export const paymentRateLimit = {
   message: 'Too many payment attempts, please try again later',
   standardHeaders: true,
   legacyHeaders: false,
+  // 🔥 FIX: Skip validation when trust proxy is enabled (Hostinger/proxy setup)
+  skip: (req) => false, // Never skip - apply to all
+  validate: false, // 🔥 CRITICAL: Disable trust proxy validation
 };
 
 export const apiRateLimit = {
@@ -143,4 +147,5 @@ export const apiRateLimit = {
   message: 'Too many API requests, please try again later',
   standardHeaders: true,
   legacyHeaders: false,
+  validate: false, // 🔥 CRITICAL: Disable trust proxy validation
 };
