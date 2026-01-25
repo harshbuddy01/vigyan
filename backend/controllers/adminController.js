@@ -7,6 +7,7 @@
 import { StudentPayment } from '../models/StudentPayment.js';
 import { PaymentTransaction } from '../models/PaymentTransaction.js';
 import { PurchasedTest } from '../models/PurchasedTest.js';
+import { ScheduledTest } from '../models/ScheduledTest.js';
 
 // Helper function to safely parse JSON
 const safeJsonParse = (jsonString, fallback = null) => {
@@ -237,7 +238,171 @@ export const getNotificationsCount = async (req, res) => {
   }
 };
 
-// ========== TEMP: Not implemented functions ==========
+// ========== SCHEDULED TESTS ==========
+
+// Get all scheduled tests
+export const getScheduledTests = async (req, res) => {
+  try {
+    console.log('🔹 Getting scheduled tests...');
+    const { status, type } = req.query;
+    
+    // Build filter
+    const filter = {};
+    if (status) filter.status = status;
+    if (type) filter.test_type = type;
+    
+    const tests = await ScheduledTest.find(filter).sort({ exam_date: 1 });
+    
+    console.log(`✅ Retrieved ${tests.length} scheduled tests`);
+    res.status(200).json({
+      success: true,
+      tests
+    });
+  } catch (error) {
+    console.error('❌ Error getting scheduled tests:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve scheduled tests',
+      error: error.message
+    });
+  }
+};
+
+// Create scheduled test
+export const createScheduledTest = async (req, res) => {
+  try {
+    console.log('🔹 Creating scheduled test...', req.body);
+    
+    const { test_name, test_type, exam_date, duration, total_questions, description, instructions } = req.body;
+    
+    if (!test_name || !test_type || !exam_date) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields: test_name, test_type, exam_date'
+      });
+    }
+    
+    const newTest = new ScheduledTest({
+      test_name,
+      test_type,
+      exam_date,
+      duration: duration || 180,
+      total_questions: total_questions || 60,
+      description,
+      instructions,
+      status: 'scheduled'
+    });
+    
+    await newTest.save();
+    
+    console.log('✅ Scheduled test created:', newTest._id);
+    res.status(201).json({
+      success: true,
+      message: 'Test scheduled successfully',
+      test: newTest
+    });
+  } catch (error) {
+    console.error('❌ Error creating scheduled test:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to create scheduled test',
+      error: error.message
+    });
+  }
+};
+
+// Get specific scheduled test
+export const getTestDetails = async (req, res) => {
+  try {
+    console.log('🔹 Getting test details for:', req.params.testId);
+    const test = await ScheduledTest.findById(req.params.testId);
+    
+    if (!test) {
+      return res.status(404).json({
+        success: false,
+        message: 'Test not found'
+      });
+    }
+    
+    console.log('✅ Test details retrieved');
+    res.status(200).json({
+      success: true,
+      test
+    });
+  } catch (error) {
+    console.error('❌ Error getting test details:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve test details',
+      error: error.message
+    });
+  }
+};
+
+// Update scheduled test
+export const updateTestStatus = async (req, res) => {
+  try {
+    console.log('🔹 Updating test status:', req.params.testId);
+    const { status } = req.body;
+    
+    const test = await ScheduledTest.findByIdAndUpdate(
+      req.params.testId,
+      { status },
+      { new: true }
+    );
+    
+    if (!test) {
+      return res.status(404).json({
+        success: false,
+        message: 'Test not found'
+      });
+    }
+    
+    console.log('✅ Test status updated');
+    res.status(200).json({
+      success: true,
+      message: 'Test updated successfully',
+      test
+    });
+  } catch (error) {
+    console.error('❌ Error updating test:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to update test',
+      error: error.message
+    });
+  }
+};
+
+// Delete scheduled test
+export const deleteTest = async (req, res) => {
+  try {
+    console.log('🔹 Deleting test:', req.params.testId);
+    const test = await ScheduledTest.findByIdAndDelete(req.params.testId);
+    
+    if (!test) {
+      return res.status(404).json({
+        success: false,
+        message: 'Test not found'
+      });
+    }
+    
+    console.log('✅ Test deleted');
+    res.status(200).json({
+      success: true,
+      message: 'Test deleted successfully'
+    });
+  } catch (error) {
+    console.error('❌ Error deleting test:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to delete test',
+      error: error.message
+    });
+  }
+};
+
+// ========== TEMP: Not fully implemented functions ==========
 const notImplemented = (req, res) => {
   res.status(501).json({ 
     success: false, 
@@ -245,13 +410,8 @@ const notImplemented = (req, res) => {
   });
 };
 
-export const createScheduledTest = notImplemented;
-export const getScheduledTests = notImplemented;
 export const addQuestion = notImplemented;
 export const getTestQuestions = notImplemented;
 export const updateQuestion = notImplemented;
 export const deleteQuestion = notImplemented;
-export const deleteTest = notImplemented;
-export const getTestDetails = notImplemented;
 export const getAvailableTests = notImplemented;
-export const updateTestStatus = notImplemented;
