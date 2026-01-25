@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Series Matrix | Vigyan.prep</title>
-    <!-- CACHE CLEAR: 2026-01-25 23:46 IST - PREMIUM VISUAL REDESIGN -->
+    <!-- CACHE CLEAR: 2026-01-25 23:57 IST - CLEAN PROFESSIONAL DESIGN -->
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -17,18 +17,17 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Cache-busted CSS files -->
-    <link rel="stylesheet" href="frontend/css/global.css?v=20260125-2346">
-    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260125-2346">
-    <link rel="stylesheet" href="frontend/css/pages.css?v=20260125-2346">
-    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260125-2346">
-    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260125-2346">
+    <link rel="stylesheet" href="frontend/css/global.css?v=20260125-2357">
+    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260125-2357">
+    <link rel="stylesheet" href="frontend/css/pages.css?v=20260125-2357">
+    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260125-2357">
+    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260125-2357">
 
     <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="pragma" content="no-cache">
     <meta http-equiv="expires" content="0">
 
     <script>
-        // 🔧 CRITICAL FIX: Hostinger Backend Configuration
         const API_BASE_URL = "https://backend-vigyanpreap.vigyanprep.com";
         const PAYMENT_API_URL = "https://backend-vigyanpreap.vigyanprep.com";
         window.API_BASE_URL = API_BASE_URL;
@@ -116,7 +115,7 @@
 
         .glass-panel:hover {
             border-color: var(--card-color);
-            transform: translateY(-12px) scale(1.02);
+            transform: translateY(-12px);
             background: rgba(15, 23, 42, 0.85);
             box-shadow: 
                 0 30px 60px -20px var(--card-glow),
@@ -161,36 +160,11 @@
             box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
         }
 
-        .series-icon {
-            font-size: 4.5rem;
-            margin: 25px 0 15px 0;
-            display: inline-block;
-            filter: drop-shadow(0 0 20px currentColor);
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .glass-panel.iat .series-icon {
-            filter: drop-shadow(0 0 25px rgba(16, 185, 129, 0.6));
-        }
-
-        .glass-panel.nest .series-icon {
-            filter: drop-shadow(0 0 25px rgba(59, 130, 246, 0.6));
-        }
-
-        .glass-panel.isi .series-icon {
-            filter: drop-shadow(0 0 25px rgba(168, 85, 247, 0.6));
-        }
-
         .series-title {
-            font-size: 1.65rem;
+            font-size: 1.85rem;
             font-weight: 900;
             color: white;
-            margin: 18px 0 10px 0;
+            margin: 30px 0 12px 0;
             letter-spacing: -0.5px;
             line-height: 1.2;
         }
@@ -198,7 +172,7 @@
         .series-subtitle {
             font-size: 0.95rem;
             color: #cbd5e1;
-            margin-bottom: 22px;
+            margin-bottom: 24px;
             line-height: 1.6;
             font-weight: 400;
         }
@@ -334,7 +308,6 @@
             box-shadow: 0 0 50px rgba(59, 130, 246, 0.2);
         }
 
-        /* ✨ ENHANCED SUCCESS MODAL */
         .success-modal-content {
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             padding: 3.5rem;
@@ -532,7 +505,6 @@
             display: none !important;
         }
 
-        /* Calendar Banner */
         .calendar-banner {
             background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%);
             border: 2px solid rgba(16, 185, 129, 0.3);
@@ -559,13 +531,8 @@
         }
 
         @keyframes bounce {
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-10px);
-            }
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
 
         .calendar-content {
@@ -620,7 +587,6 @@
             }
         }
 
-        /* VIGYAN.PREP Premium Logo */
         .logo .logo-vigyan {
             font-family: 'Cormorant Garamond', Georgia, serif;
             font-weight: 700;
@@ -638,13 +604,8 @@
         }
 
         @keyframes vigyanShimmer {
-            0%,
-            100% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
         }
 
         .logo .logo-dot {
@@ -670,7 +631,6 @@
 
     <div class="grid-bg"></div>
 
-    <!-- Email / roll capture modal -->
     <div id="emailModal" class="modal-overlay">
         <div class="modal-content">
             <h2 class="text-white font-black text-2xl uppercase" id="modalTitle">Student Identification</h2>
@@ -683,7 +643,6 @@
         </div>
     </div>
 
-    <!-- ✨ ENHANCED SUCCESS MODAL -->
     <div id="successModal" class="modal-overlay">
         <div class="success-modal-content">
             <div class="success-icon">✓</div>
@@ -691,7 +650,6 @@
             <h2 class="text-white font-black text-3xl uppercase mb-2">Payment Successful!</h2>
             <p class="text-gray-400 text-sm mb-4">Your enrollment is confirmed</p>
 
-            <!-- Golden Roll Number Card -->
             <div class="golden-roll-number">
                 <div class="roll-label">⚡ YOUR ROLL NUMBER ⚡</div>
                 <div id="finalTokenDisplay" class="roll-number-display">--------</div>
@@ -700,12 +658,10 @@
                 </button>
             </div>
 
-            <!-- Auto-redirect Countdown -->
             <div class="countdown-text">
                 Returning to dashboard in <span id="countdownTimer" class="countdown-number">6</span> seconds...
             </div>
 
-            <!-- Action Buttons -->
             <div class="action-buttons">
                 <button onclick="closeSuccessModal()" class="primary-btn">
                     <i class="fas fa-check"></i> GOT IT!
@@ -721,7 +677,6 @@
         </div>
     </div>
 
-    <!-- Navbar (login placeholder used by user-panel.js) -->
     <nav class="navbar fixed top-0 w-full z-50 px-12 py-5 flex justify-between items-center bg-[#020617]/90 backdrop-blur-md border-b border-white/5"
         id="navbar">
         <div class="logo text-2xl font-black text-white cursor-pointer" onclick="window.location.href='index.html'"
@@ -732,7 +687,6 @@
         <div class="nav-links flex items-center space-x-8 text-sm font-bold text-gray-400">
             <a href="index.html" class="hover:text-white transition">Home</a>
 
-            <!-- About Dropdown -->
             <div class="nav-dropdown">
                 <a href="#" class="dropdown-trigger hover:text-white transition">About <i
                         class="fas fa-chevron-down"></i></a>
@@ -746,7 +700,6 @@
             <a href="testfirstpage.html"
                 class="text-white transition underline decoration-blue-500 decoration-2 underline-offset-8">Tests</a>
 
-            <!-- Future Career Dropdown -->
             <div class="nav-dropdown">
                 <a href="#" class="dropdown-trigger hover:text-white transition">Future Career <i
                         class="fas fa-chevron-down"></i></a>
@@ -767,7 +720,7 @@
 
     <main class="max-w-7xl mx-auto pt-48 pb-20 px-6">
         <header class="mb-24">
-            <div class="text-blue-500 font-bold tracking-[0.3em] text-[10px] mb-6 uppercase">Assessment Matrix // v3.1 - Premium Redesign</div>
+            <div class="text-blue-500 font-bold tracking-[0.3em] text-[10px] mb-6 uppercase">Assessment Matrix // v4.0</div>
             <h1 class="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-[0.9] text-white">
                 Choose Your <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-indigo-500">Challenge.</span>
             </h1>
@@ -776,7 +729,6 @@
             </p>
         </header>
 
-        <!-- Calendar Banner (shows only if user has purchased tests) -->
         <div id="calendarBanner" class="calendar-banner">
             <div class="calendar-icon">
                 <i class="fas fa-calendar-alt"></i>
@@ -799,18 +751,16 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-10" id="cardsContainer"></div>
     </main>
 
-    <script src="frontend/js/config.js?v=20260125-2346"></script>
-    <script src="frontend/js/auth.js?v=20260125-2346"></script>
-    <script src="frontend/js/user-panel.js?v=20260125-2346"></script>
+    <script src="frontend/js/config.js?v=20260125-2357"></script>
+    <script src="frontend/js/auth.js?v=20260125-2357"></script>
+    <script src="frontend/js/user-panel.js?v=20260125-2357"></script>
 
     <script>
-        // 💰 UPDATED: Changed to ₹1 for testing (was ₹199)
         const testSeries = [
             {
                 id: 'iat',
                 class: 'iat',
                 badge: 'IAT • IISER APTITUDE',
-                icon: '🚀',
                 title: 'IAT Speed Mastery',
                 subtitle: 'Master the 120-minute sprint that separates top 1% from rest',
                 features: [
@@ -827,7 +777,6 @@
                 id: 'nest',
                 class: 'nest',
                 badge: 'NEST • SCIENCE DEEP-DIVE',
-                icon: '🔬',
                 title: 'NEST Deep Dive',
                 subtitle: 'The toughest entrance demands deeper thinking—we\'ll get you there',
                 features: [
@@ -844,7 +793,6 @@
                 id: 'isi',
                 class: 'isi',
                 badge: 'ISI • PROOF ACADEMY',
-                icon: '💎',
                 title: 'ISI Proof Academy',
                 subtitle: 'From solving equations to writing proofs—the leap that matters',
                 features: [
@@ -859,11 +807,9 @@
             }
         ];
 
-        // ⏱️ Auto-redirect countdown variables
         let countdownInterval = null;
         let secondsRemaining = 6;
 
-        // Generate cards
         const cardsContainer = document.getElementById('cardsContainer');
         testSeries.forEach(test => {
             const card = document.createElement('div');
@@ -871,7 +817,6 @@
             card.innerHTML = `
                 <div>
                     <span class="series-badge">${test.badge}</span>
-                    <div class="series-icon">${test.icon}</div>
                     <h3 class="series-title">${test.title}</h3>
                     <p class="series-subtitle">${test.subtitle}</p>
                     <ul class="series-features">
@@ -886,12 +831,10 @@
             cardsContainer.appendChild(card);
         });
 
-        // On load: hydrate purchased state and user panel
         window.onload = function () {
             if (window.refreshUserDashboard) window.refreshUserDashboard();
             const purchased = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
 
-            // Show calendar banner if user has purchased any tests
             if (purchased.length > 0) {
                 document.getElementById('calendarBanner').style.display = 'flex';
             }
@@ -913,7 +856,6 @@
             }
         }
 
-        // Entry modal
         function executePurchase(testId, amount) {
             localStorage.setItem("tempTestId", testId);
             localStorage.setItem("tempAmount", amount);
@@ -934,7 +876,6 @@
             errorDiv.classList.remove("hidden");
         }
 
-        // ✨ ENHANCED: Copy Roll Number Function
         function copyRollNumber() {
             const rollNumber = document.getElementById('finalTokenDisplay').innerText;
             const copyBtn = document.getElementById('copyRollBtn');
@@ -952,7 +893,6 @@
             });
         }
 
-        // ⏱️ Start Auto-redirect Countdown
         function startCountdown() {
             secondsRemaining = 6;
             const countdownElement = document.getElementById('countdownTimer');
@@ -963,12 +903,11 @@
                 
                 if (secondsRemaining <= 0) {
                     clearInterval(countdownInterval);
-                    closeSuccessModal(); // ✅ Auto-redirect to testfirstpage after 6 seconds
+                    closeSuccessModal();
                 }
             }, 1000);
         }
 
-        // ❌ Cancel Auto-redirect
         function cancelRedirect() {
             if (countdownInterval) {
                 clearInterval(countdownInterval);
@@ -979,23 +918,18 @@
             countdownElement.parentElement.innerHTML = '<i class="fas fa-check-circle"></i> Auto-redirect cancelled';
         }
 
-        // ✅ FIXED: Close Success Modal - Redirect back to testfirstpage.html
         function closeSuccessModal() {
             console.log('⚡ Closing success modal and refreshing page...');
             
             if (countdownInterval) clearInterval(countdownInterval);
             
-            // Hide modal
             document.getElementById("successModal").style.display = "none";
             
-            // Update UI for purchased test
             const testId = localStorage.getItem("tempTestId");
             if (testId) markAsPurchased(testId);
             
-            // Show calendar banner
             document.getElementById('calendarBanner').style.display = 'flex';
 
-            // Refresh user panel
             if (window.renderUserPanelDirect) {
                 const email = localStorage.getItem("userEmail");
                 const rollNumber = localStorage.getItem("userRollNumber");
@@ -1003,14 +937,12 @@
                 window.renderUserPanelDirect({ email, rollNumber, tests: purchasedTests });
             }
             
-            // ✅ FIX: Force page reload to refresh everything
             setTimeout(() => {
                 console.log('🔄 Forcing page reload...');
                 window.location.href = "testfirstpage.html?t=" + Date.now();
             }, 500);
         }
 
-        // 🔧 FIXED: Skip email verification, go straight to payment
         async function handleModalSubmit() {
             const emailInput = document.getElementById("modalUserEmail").value.trim().toLowerCase();
             const errorDiv = document.getElementById("modalError");
@@ -1023,7 +955,6 @@
                 return;
             }
 
-            // 🎯 NEW FLOW: Skip verification, go straight to payment!
             console.log('✅ Email captured:', emailInput);
             console.log('🚀 Going directly to payment (no verification needed)...');
             
@@ -1031,7 +962,6 @@
             startPayment(emailInput, null, localStorage.getItem("tempTestId"), localStorage.getItem("tempAmount"));
         }
 
-        // 🔧 FIXED: Corrected API endpoint names to match backend
         async function startPayment(userEmail, studentId, testId, amount) {
             const btn = document.getElementById("modalActionBtn");
             btn.disabled = true;
@@ -1041,7 +971,6 @@
                 console.log('💳 Step 1: Creating Razorpay order...');
                 console.log('Payment details:', { userEmail, testId, amount });
                 
-                // 🔧 FIX: Changed endpoint from /create-order to /checkout
                 const orderRes = await axios.post(`${PAYMENT_API_URL}/api/payment/checkout`, {
                     amount: amount,
                     testId: testId,
@@ -1060,14 +989,13 @@
 
                 btn.innerHTML = '<span class="loading-spinner"></span> Opening Razorpay...';
 
-                // Step 2: Open Razorpay Checkout
                 const options = {
                     key: key,
                     amount: orderAmount,
                     currency: currency,
                     name: "Vigyan.prep",
                     description: `Activate ${testId.toUpperCase()} Test Series`,
-                    order_id: orderId, // ✅ Backend-generated order ID
+                    order_id: orderId,
                     prefill: {
                         email: userEmail,
                         contact: ""
@@ -1078,39 +1006,33 @@
                     handler: async function (response) {
                         console.log('✅ Payment completed! Razorpay response:', response);
                         
-                        // Step 3: Verify payment and get roll number
                         try {
                             btn.innerHTML = '<span class="loading-spinner"></span> Verifying Payment...';
                             
-                            // 🔧 CRITICAL FIX: Added missing 'amount' parameter!
                             const verifyRes = await axios.post(`${PAYMENT_API_URL}/api/payment/paymentverification`, {
                                 razorpay_order_id: response.razorpay_order_id,
                                 razorpay_payment_id: response.razorpay_payment_id,
                                 razorpay_signature: response.razorpay_signature,
                                 testId: testId,
                                 email: userEmail,
-                                amount: amount  // ✅ FIX: Added this missing parameter!
+                                amount: amount
                             }, { timeout: 15000 });
 
                             console.log('✅ Verification response:', verifyRes.data);
 
                             if (verifyRes.data.success) {
-                                // Step 4: Store roll number and show success
                                 const rollNumber = verifyRes.data.rollNumber;
                                 
-                                // 🔧 CRITICAL FIX: Save ALL data synchronously BEFORE showing modal
                                 localStorage.setItem("userEmail", userEmail);
                                 localStorage.setItem("userRollNumber", rollNumber);
-                                localStorage.setItem("currentTestId", testId); // ✅ Set this NOW!
+                                localStorage.setItem("currentTestId", testId);
                                 
-                                // Add to purchased tests
                                 const purchased = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
                                 if (!purchased.includes(testId)) {
                                     purchased.push(testId);
                                 }
                                 localStorage.setItem("purchasedTests", JSON.stringify(purchased));
                                 
-                                // ✅ Wait 200ms to ensure localStorage is written
                                 setTimeout(() => {
                                     console.log('✅ LocalStorage saved:', {
                                         email: localStorage.getItem('userEmail'),
@@ -1119,11 +1041,10 @@
                                         purchased: localStorage.getItem('purchasedTests')
                                     });
                                     
-                                    // ✨ Show enhanced success modal with countdown
                                     closeEntryModal();
                                     document.getElementById("finalTokenDisplay").innerText = rollNumber;
                                     document.getElementById("successModal").style.display = "flex";
-                                    startCountdown(); // ⏱️ Start 6-second countdown
+                                    startCountdown();
                                     
                                     console.log('🎉 Payment complete! Roll number:', rollNumber);
                                 }, 200);
