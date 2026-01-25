@@ -1,127 +1,175 @@
+/**
+ * Authentication Routes for Admin Login
+ * Created: 2026-01-26
+ * Purpose: Handle admin login and authentication
+ */
+
 import express from 'express';
-import Student from '../models/Student.js';
-import { isMongoDBConnected, lastConnectionError } from '../config/mongodb.js';
+import bcrypt from 'bcryptjs';
 
 const router = express.Router();
 
-// Email verification endpoint - Creates/finds student
-// GET method for debugging availability
-router.get('/verify-email', (req, res) => {
-  res.json({
-    status: 'ok',
-    message: 'Verify Email endpoint is reachable',
-    method: 'GET'
-  });
+// Temporary in-memory admin credentials
+// TODO: Move to database in production
+const ADMIN_CREDENTIALS = {
+    username: process.env.ADMIN_USERNAME || 'admin',
+    // Default password: 'admin123' (hashed)
+    passwordHash: process.env.ADMIN_PASSWORD_HASH || '$2a$10$X8h1jBqPqEQxV.6lY7bQz.Yz7e8TwKWVxJvqDkR5YJ0gLZXg1K1LS'
+};
+
+console.log('🔐 Auth routes loaded - Admin username:', ADMIN_CREDENTIALS.username);
+
+/**
+ * POST /api/admin/auth/login
+ * Admin login endpoint
+ */
+router.post('/login', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+
+        console.log('🔐 Login attempt:', { username, timestamp: new Date().toISOString() });
+
+        // Validation
+        if (!username || !password) {
+            return res.status(400).json({
+                success: false,
+                message: 'Username and password are required'
+            });
+        }
+
+        // Check username
+        if (username !== ADMIN_CREDENTIALS.username) {
+            console.warn('❌ Invalid username:', username);
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid username or password'
+            });
+        }
+
+        // Check password
+        const isPasswordValid = await bcrypt.compare(password, ADMIN_CREDENTIALS.passwordHash);
+
+        if (!isPasswordValid) {
+            console.warn('❌ Invalid password for user:', username);
+            return res.status(401).json({
+                success: false,
+                message: 'Invalid username or password'
+            });
+        }
+
+        // Successful login
+        console.log('✅ Login successful:', username);
+
+        return res.status(200).json({
+            success: true,
+            message: 'Login successful',
+            data: {
+                username: username,
+                role: 'admin',
+                loginTime: new Date().toISOString()
+            }
+        });
+
+    } catch (error) {
+        console.error('❌ Login error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Server error during login'
+        });
+    }
 });
 
-router.post('/verify-email', async (req, res) => {
-  const { email, rollNumber } = req.body;
+/**
+ * POST /api/admin/auth/validate-session
+ * Validate if session is still active
+ */
+router.post('/validate-session', (req, res) => {
+    try {
+        const { username } = req.body;
 
-  try {
-    // Check if MongoDB is connected - Logging only, don't block
-    if (!isMongoDBConnected) {
-      console.warn('⚠️ Warning: MongoDB variable says disconnected, but attempting query anyway (Mongoose buffering)');
+        if (!username) {
+            return res.status(400).json({
+                success: false,
+                message: 'Username required'
+            });
+        }
+
+        // In a real app, check session in database/Redis
+        return res.status(200).json({
+            success: true,
+            message: 'Session valid',
+            data: {
+                username: username,
+                sessionActive: true
+            }
+        });
+
+    } catch (error) {
+        console.error('❌ Session validation error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Server error'
+        });
     }
-
-    // Validate email
-    if (!email || !email.includes('@')) {
-      return res.status(400).json({
-        error: 'Invalid email format',
-        message: 'Please provide a valid email address'
-      });
-    }
-
-    const normalizedEmail = email.toLowerCase().trim();
-    console.log(`🔵 Verifying user: ${normalizedEmail}`);
-
-    // Set timeout for database operations
-    const startTime = Date.now();
-
-    // Check if student exists
-    let student = await Student.findOne({ email: normalizedEmail })
-      .maxTimeMS(5000) // 5 second max query time
-      .lean();
-
-    if (student) {
-      // Update last login (fire and forget)
-      Student.updateOne(
-        { _id: student._id },
-        { lastLoginAt: new Date() }
-      ).catch(err => console.error('Failed to update lastLoginAt:', err));
-
-      const duration = Date.now() - startTime;
-      console.log(`✅ Existing user verified: ${normalizedEmail} (${duration}ms)`);
-
-      return res.json({
-        success: true,
-        studentId: student._id,
-        isNewUser: false,
-        email: student.email
-      });
-    }
-
-    // Create new student
-    student = await Student.create({
-      email: normalizedEmail,
-      rollNumber: rollNumber || null,
-      createdAt: new Date(),
-      lastLoginAt: new Date()
-    });
-
-    const duration = Date.now() - startTime;
-    console.log(`✅ New student created: ${normalizedEmail} (${duration}ms)`);
-
-    res.json({
-      success: true,
-      studentId: student._id,
-      isNewUser: true,
-      email: student.email
-    });
-
-  } catch (error) {
-    console.error('❌ Email verification error:', error);
-
-    // Handle timeout errors
-    if (error.name === 'MongooseError' && error.message.includes('buffering timed out')) {
-      return res.status(504).json({
-        error: 'Database timeout',
-        message: 'Request took too long. Please try again.'
-      });
-    }
-
-    // Handle duplicate key errors
-    if (error.code === 11000) {
-      return res.status(409).json({
-        error: 'Duplicate entry',
-        message: 'This email is already registered'
-      });
-    }
-
-    res.status(500).json({
-      error: 'Server error during verification',
-      message: error.message,
-      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
-    });
-  }
 });
 
-// Enhanced health check for debugging DB connection
-router.get('/auth-health', async (req, res) => {
-  const mongoose = await import('mongoose');
-  const readyState = mongoose.default.connection.readyState;
-  const states = { 0: 'disconnected', 1: 'connected', 2: 'connecting', 3: 'disconnecting' };
+/**
+ * POST /api/admin/auth/logout
+ * Handle logout
+ */
+router.post('/logout', (req, res) => {
+    try {
+        const { username } = req.body;
 
-  res.json({
-    status: 'ok',
-    version: 'DEBUG-V1-DEPLOYED', // Check this to confirm code update
-    mongo_var_connected: isMongoDBConnected,
-    mongo_uri_configured: !!process.env.MONGODB_URI,
-    last_error: lastConnectionError,
-    mongoose_ready_state: readyState,
-    mongoose_state_name: states[readyState] || 'unknown',
-    host: mongoose.default.connection.host,
-    timestamp: new Date().toISOString()
-  });
+        console.log('🚪 Logout:', username);
+
+        // In a real app, clear session from database/Redis
+
+        return res.status(200).json({
+            success: true,
+            message: 'Logout successful'
+        });
+
+    } catch (error) {
+        console.error('❌ Logout error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Server error'
+        });
+    }
+});
+
+/**
+ * Utility: Generate password hash
+ * Usage: Call this endpoint to generate hash for new password
+ * Example: POST /api/admin/auth/generate-hash with { password: 'newpassword' }
+ */
+router.post('/generate-hash', async (req, res) => {
+    try {
+        const { password } = req.body;
+
+        if (!password) {
+            return res.status(400).json({
+                success: false,
+                message: 'Password required'
+            });
+        }
+
+        const hash = await bcrypt.hash(password, 10);
+
+        return res.status(200).json({
+            success: true,
+            hash: hash,
+            message: 'Add this hash to your .env file as ADMIN_PASSWORD_HASH'
+        });
+
+    } catch (error) {
+        console.error('❌ Hash generation error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Server error'
+        });
+    }
 });
 
 export default router;
