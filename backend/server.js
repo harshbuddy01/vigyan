@@ -2,6 +2,7 @@
 // ✅ UPDATED: MongoDB Migration Complete!
 // 🔥 HOTFIX: Removed broken OPTIONS handler - Jan 25, 2026 7:18 PM IST
 // 🔥 PAYMENT FIX: Improved CORS for payment endpoint - Jan 26, 2026 1:55 AM IST
+// 🔥 ADMIN AUTH: Added admin authentication routes - Jan 26, 2026 1:59 AM IST
 
 import './config/env.js'; // 🔵 LOAD ENV VARS FIRST
 import express from 'express';
@@ -206,6 +207,7 @@ import questionRoutes from './routes/questionRoutes.js';
 import migrationRoute from './routes/migrationRoute.js';
 import newsRoutes from './routes/newsRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+import adminAuthRoutes from './routes/adminAuthRoutes.js';
 
 // ✅ NEW ADMIN ROUTES - Added Jan 25, 2026
 import adminDashboardRoutes from './routes/adminDashboardRoutes.js';
@@ -246,6 +248,8 @@ console.log('✅ Result routes mounted at /api/admin/results/*');
 console.log('🔵 Mounting API routes...');
 app.use('/api', authRoutes);
 console.log('✅ Auth routes mounted - /api/verify-user-full');
+app.use('/api/admin/auth', adminAuthRoutes);
+console.log('✅ Admin auth routes mounted - /api/admin/auth/*');
 app.use('/api/payment', paymentRoutes);
 console.log('✅ Payment routes mounted - /api/payment/*');
 app.use('/api/exam', examRoutes);
@@ -297,7 +301,8 @@ app.get('/api', (req, res) => {
       payment: '/api/payment',
       exam: '/api/exam',
       news: '/api/news',
-      auth: '/api/verify-user-full'
+      auth: '/api/verify-user-full',
+      adminAuth: '/api/admin/auth'
     }
   });
 });
