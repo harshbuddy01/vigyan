@@ -3,26 +3,46 @@
 
 import mongoose from 'mongoose';
 
-// 🔵 READ DIRECTLY FROM process.env - MUST be uppercase
-const MONGODB_URI = process.env.MONGODB_URI;
+// 🔴 CRITICAL FIX: Read environment variables at RUNTIME, not at module load
+// This ensures Hostinger has had time to inject the variables
 
-console.log('🔍 MongoDB Configuration Loading...');
-console.log(`📝 MONGODB_URI exists: ${!!MONGODB_URI}`);
-console.log(`📝 MONGODB_URI value: ${MONGODB_URI ? MONGODB_URI.substring(0, 50) + '...' : 'NOT SET'}`);
+// Track connection status
+export let isMongoDBConnected = false;
+export let lastConnectionError = null;
 
 // MongoDB Connection Options
 const options = {
     maxPoolSize: 10,
     serverSelectionTimeoutMS: 5000,
     socketTimeoutMS: 45000,
+    retryWrites: true,
+    w: 'majority'
 };
 
-// Track connection status
-export let isMongoDBConnected = false;
-export let lastConnectionError = null;
+// 🔵 GET MONGODB_URI AT RUNTIME (when connectDB is called)
+function getMongoDUri() {
+    const uri = process.env.MONGODB_URI;
+    
+    console.log('🔍 MongoDB URI Check:');
+    console.log(`   process.env.MONGODB_URI exists: ${!!uri}`);
+    
+    if (uri) {
+        console.log(`   URI length: ${uri.length} characters`);
+        console.log(`   URI prefix: ${uri.substring(0, 30)}...`);
+        console.log(`   ✅ MONGODB_URI is SET`);
+    } else {
+        console.log(`   ❌ MONGODB_URI is NOT SET in process.env`);
+        console.log(`   Available env keys: ${Object.keys(process.env).slice(0, 10).join(', ')}...`);
+    }
+    
+    return uri;
+}
 
 // Connect to MongoDB
 export async function connectDB() {
+    // 🔵 READ AT RUNTIME - not at module load time
+    const MONGODB_URI = getMongoDUri();
+    
     // If no URI is set, just log warning and continue
     if (!MONGODB_URI) {
         console.warn('⚠️  MONGODB_URI not configured - running in limited mode');
@@ -33,7 +53,9 @@ export async function connectDB() {
     }
 
     try {
-        console.log('🔗 Attempting MongoDB connection...');
+        console.log('🔗 Attempting to connect to MongoDB...');
+        console.log(`   Connection string starts with: ${MONGODB_URI.substring(0, 20)}...`);
+        
         await mongoose.connect(MONGODB_URI, options);
 
         console.log('✅ MongoDB Connected Successfully!');
@@ -45,7 +67,18 @@ export async function connectDB() {
 
     } catch (error) {
         console.error('❌ MongoDB Connection Failed:', error.message);
-        console.error('🔍 Check your MONGODB_URI environment variable');
+        
+        // 🔴 DETAILED ERROR LOGGING FOR DEBUGGING
+        if (error.message.includes('getaddrinfo ENOTFOUND')) {
+            console.error('⚠️  Error: Cannot resolve MongoDB host - network/DNS issue');
+            console.error('   Check if MONGODB_URI is correctly formatted');
+            console.error('   Example: mongodb+srv://username:password@cluster.mongodb.net/dbname');
+        } else if (error.message.includes('authentication failed')) {
+            console.error('⚠️  Error: Authentication failed - username or password incorrect');
+        } else if (error.message.includes('timeout')) {
+            console.error('⚠️  Error: Connection timeout - MongoDB server may be down');
+        }
+        
         console.warn('⚠️  App will run without MongoDB - some features may not work');
         isMongoDBConnected = false;
         lastConnectionError = error.message;
@@ -60,7 +93,7 @@ mongoose.connection.on('connected', () => {
 });
 
 mongoose.connection.on('error', (err) => {
-    console.error('❌ MongoDB connection error:', err);
+    console.error('❌ MongoDB connection error:', err.message);
     isMongoDBConnected = false;
 });
 
