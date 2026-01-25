@@ -1,6 +1,6 @@
 // 🚀 Vigyan.prep Platform - Backend Server
 // ✅ UPDATED: MongoDB Migration Complete!
-// 🔄 DEPLOYMENT TRIGGER: Fix CORS for vigyanprep.com - Jan 25, 2026 5:04 PM IST
+// 🔄 DEPLOYMENT TRIGGER: Fix admin route paths - Jan 25, 2026 6:45 PM IST
 
 import './config/env.js'; // 🔵 LOAD ENV VARS FIRST
 import express from 'express';
@@ -199,7 +199,7 @@ app.get('/api/config', (req, res) => {
   });
 });
 
-// Admin API routes (NEW structure with /admin prefix)
+// Admin API routes (OLD structure)
 console.log('🔵 Setting up Admin API routes...');
 app.use('/api/admin', questionRoutes);
 console.log('✅ Question routes mounted (OLD + NEW OOP routes)');
@@ -208,15 +208,15 @@ console.log('✅ Admin API routes mounted');
 app.use('/api/admin', migrationRoute);
 console.log('✅ Migration endpoint mounted');
 
-// ✅ NEW ADMIN ROUTES - Full Admin Panel Support
-app.use('/api/admin', adminDashboardRoutes);
-console.log('✅ Admin Dashboard routes mounted (stats, notifications, profile)');
-app.use('/api/admin', studentRoutes);
-console.log('✅ Student routes mounted (CRUD operations)');
-app.use('/api/admin', transactionRoutes);
-console.log('✅ Transaction routes mounted (payment viewing & stats)');
-app.use('/api/admin', resultRoutes);
-console.log('✅ Result routes mounted (results, analytics, top performers)');
+// ✅ NEW ADMIN ROUTES - Full Admin Panel Support (FIXED PATHS)
+app.use('/api/admin/dashboard', adminDashboardRoutes); // ✅ FIXED: Added /dashboard prefix
+console.log('✅ Admin Dashboard routes mounted at /api/admin/dashboard/*');
+app.use('/api/admin/students', studentRoutes); // ✅ FIXED: Added /students prefix
+console.log('✅ Student routes mounted at /api/admin/students/*');
+app.use('/api/admin/transactions', transactionRoutes); // ✅ FIXED: Added /transactions prefix
+console.log('✅ Transaction routes mounted at /api/admin/transactions/*');
+app.use('/api/admin/results', resultRoutes); // ✅ FIXED: Added /results prefix
+console.log('✅ Result routes mounted at /api/admin/results/*');
 
 // Mount other API routes
 console.log('🔵 Mounting API routes...');
