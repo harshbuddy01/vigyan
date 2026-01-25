@@ -1,6 +1,6 @@
 // 🚀 Vigyan.prep Platform - Backend Server
 // ✅ UPDATED: MongoDB Migration Complete!
-// 🔧 CRITICAL FIX: Enhanced CORS + Payment Verification - Jan 25, 2026 7:10 PM IST
+// 🔥 HOTFIX: Removed broken OPTIONS handler - Jan 25, 2026 7:18 PM IST
 
 import './config/env.js'; // 🔵 LOAD ENV VARS FIRST
 import express from 'express';
@@ -108,7 +108,7 @@ const allowedOrigins = [
 ].filter(Boolean);
 
 // 🔧 ENHANCED: More permissive CORS for Hostinger deployment
-app.use(cors({
+const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps, Postman, or same-origin)
     if (!origin) {
@@ -139,10 +139,13 @@ app.use(cors({
   maxAge: 600, // Cache preflight for 10 minutes
   preflightContinue: false,
   optionsSuccessStatus: 204
-}));
+};
 
-// 🔧 ADDITIONAL: Explicit OPTIONS handler for all routes
-app.options('*', cors());
+// Apply CORS middleware
+app.use(cors(corsOptions));
+
+// 🔥 REMOVED: Broken line that caused PathError
+// app.options('*', cors());  // ❌ This breaks Express routing in some versions
 
 console.log('✅ CORS configured for:', allowedOrigins.filter(Boolean).join(', '));
 console.log('✅ CORS: Allowing all vigyanprep.com subdomains');
