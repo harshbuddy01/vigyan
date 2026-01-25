@@ -5,12 +5,19 @@ import * as adminController from '../controllers/adminController.js';
 
 const router = express.Router();
 
-// ========== ADMIN PROFILE ==========
+// ========== ADMIN PROFILE & NOTIFICATIONS ==========
+// All routes here will be prefixed with /api/admin in server.js
+
 // Get admin profile - GET /api/admin/profile
 router.get('/profile', adminController.getAdminProfile);
 
+// Get notifications - GET /api/admin/notifications
+router.get('/notifications', adminController.getNotifications);
+
+// Get notifications count - GET /api/admin/notifications/count
+router.get('/notifications/count', adminController.getNotificationsCount);
+
 // ========== SCHEDULED TESTS MANAGEMENT ==========
-// All routes here will be prefixed with /api/admin in server.js
 
 // Create new scheduled test - POST /api/admin/create-test
 router.post('/create-test', adminController.createScheduledTest);
@@ -63,6 +70,7 @@ router.delete('/delete-question/:questionId', adminController.deleteQuestion);
 router.get('/available-tests', adminController.getAvailableTests);
 
 console.log('✅ Admin routes configured with /admin prefix');
+console.log('✅ Profile & Notifications endpoints added');
 console.log('⚠️ MySQL-based endpoints temporarily disabled for MongoDB migration');
 
 export default router;
