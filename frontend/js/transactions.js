@@ -1,5 +1,6 @@
 /**
  * Transactions Module - REAL DATA ONLY
+ * FIXED: 2026-01-25 - Using window.API_BASE_URL
  */
 
 let allTransactions = [];
@@ -64,7 +65,8 @@ function renderTransactionsPage() {
 async function loadTransactions() {
     try {
         console.log('🔄 Fetching transactions from backend...');
-        const response = await fetch('/api/admin/transactions');
+        // ✅ FIXED: Using window.API_BASE_URL from config
+        const response = await fetch(`${window.API_BASE_URL}/api/admin/transactions`);
         const data = await response.json();
         
         allTransactions = data.transactions || [];
