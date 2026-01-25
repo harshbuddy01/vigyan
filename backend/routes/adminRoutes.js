@@ -5,6 +5,10 @@ import * as adminController from '../controllers/adminController.js';
 
 const router = express.Router();
 
+// ========== ADMIN PROFILE ==========
+// Get admin profile - GET /api/admin/profile
+router.get('/profile', adminController.getAdminProfile);
+
 // ========== SCHEDULED TESTS MANAGEMENT ==========
 // All routes here will be prefixed with /api/admin in server.js
 
