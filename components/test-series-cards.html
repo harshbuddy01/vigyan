@@ -1,0 +1,434 @@
+<!-- VIGYAN TEST SERIES CARDS - READY TO USE COMPONENT -->
+<!-- Replace your current test series section with this code -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vigyan - Test Series Selection</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .test-series-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* HEADER SECTION */
+        .series-header {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .series-header h1 {
+            font-size: 2.5rem;
+            color: #fff;
+            margin-bottom: 15px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .series-header p {
+            font-size: 1.1rem;
+            color: #a0a0b0;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* CARDS GRID */
+        .series-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        /* INDIVIDUAL CARD */
+        .series-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 35px 28px;
+            transition: all 0.3s cubic-bezier(0.23, 1, 0.320, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Gradient overlays for each series */
+        .series-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--card-color);
+        }
+
+        .series-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Series Type Badge */
+        .series-badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid;
+        }
+
+        .series-card.iat .series-badge {
+            --card-color: #10b981;
+            border-color: #10b981;
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .series-card.nest .series-badge {
+            --card-color: #3b82f6;
+            border-color: #3b82f6;
+            color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .series-card.isi .series-badge {
+            --card-color: #a855f7;
+            border-color: #a855f7;
+            color: #a855f7;
+            background: rgba(168, 85, 247, 0.1);
+        }
+
+        /* Series Icon */
+        .series-icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+
+        /* Series Title */
+        .series-card h3 {
+            font-size: 1.6rem;
+            color: #fff;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        /* Series Subtitle */
+        .series-card .subtitle {
+            font-size: 0.9rem;
+            color: #7a7a8a;
+            margin-bottom: 22px;
+            line-height: 1.5;
+        }
+
+        /* Features List */
+        .series-features {
+            margin-bottom: 28px;
+        }
+
+        .series-features li {
+            list-style: none;
+            margin-bottom: 12px;
+            padding-left: 20px;
+            position: relative;
+            font-size: 0.95rem;
+            color: #b0b0c0;
+            line-height: 1.5;
+        }
+
+        .series-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--card-color);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        /* CTA Button */
+        .series-cta {
+            width: 100%;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .series-cta::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .series-cta:hover::before {
+            left: 0;
+        }
+
+        .series-card.iat .series-cta {
+            background: #10b981;
+            color: #fff;
+        }
+
+        .series-card.iat .series-cta:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .series-card.nest .series-cta {
+            background: #3b82f6;
+            color: #fff;
+        }
+
+        .series-card.nest .series-cta:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .series-card.isi .series-cta {
+            background: #a855f7;
+            color: #fff;
+        }
+
+        .series-card.isi .series-cta:hover {
+            background: #9333ea;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(168, 85, 247, 0.3);
+        }
+
+        /* Trust Badge */
+        .trust-badge {
+            font-size: 0.8rem;
+            color: #7a7a8a;
+            text-align: center;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            line-height: 1.4;
+        }
+
+        .trust-badge strong {
+            color: var(--card-color);
+        }
+
+        /* ANIMATIONS */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .series-card {
+            animation: fadeInUp 0.8s ease;
+            animation-fill-mode: both;
+        }
+
+        .series-card:nth-child(1) { animation-delay: 0.1s; }
+        .series-card:nth-child(2) { animation-delay: 0.2s; }
+        .series-card:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .series-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .series-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .series-card h3 {
+                font-size: 1.3rem;
+            }
+        }
+
+        /* Quiz Suggestion Section */
+        .quiz-suggestion {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            margin-top: 40px;
+            animation: fadeInUp 0.8s ease 0.4s both;
+        }
+
+        .quiz-suggestion p {
+            color: #b0b0c0;
+            margin-bottom: 15px;
+        }
+
+        .quiz-suggestion a {
+            display: inline-block;
+            padding: 10px 24px;
+            background: #3b82f6;
+            color: #fff;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .quiz-suggestion a:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+<div class="test-series-container">
+
+    <!-- HEADER -->
+    <div class="series-header">
+        <h1>🎯 Choose Your Challenge. Build Your Success.</h1>
+        <p>Whether you're chasing speed, depth, or proof-writing perfection, we have a series designed for YOUR goal. See what top performers use.</p>
+    </div>
+
+    <!-- CARDS GRID -->
+    <div class="series-grid">
+
+        <!-- ========== IAT CARD ========== -->
+        <div class="series-card iat">
+            <div class="series-badge">IAT • IISER APTITUDE</div>
+            <div class="series-icon">⚡</div>
+            <h3>IAT Speed Mastery</h3>
+            <p class="subtitle">Master the 120-minute sprint that separates top 1% from rest</p>
+
+            <ul class="series-features">
+                <li>Pattern-based logic decoded (real exam patterns)</li>
+                <li>Speed benchmarking vs 99th percentile students</li>
+                <li>Daily 10-question speed trials (5 mins each)</li>
+                <li>Accuracy + Time analytics dashboard</li>
+            </ul>
+
+            <button class="series-cta" onclick="handleSeriesClick('iat')">→ Start Speed Trials Now</button>
+
+            <div class="trust-badge">
+                ✓ <strong>5,000+ IISER toppers</strong> | Avg improvement: +15%
+            </div>
+        </div>
+
+        <!-- ========== NEST CARD ========== -->
+        <div class="series-card nest">
+            <div class="series-badge">NEST • SCIENCE DEEP-DIVE</div>
+            <div class="series-icon">🔬</div>
+            <h3>NEST Deep Dive</h3>
+            <p class="subtitle">The toughest entrance demands deeper thinking—we'll get you there</p>
+
+            <ul class="series-features">
+                <li>Conceptual deep-dives (integrated physics + chemistry)</li>
+                <li>"Why this answer" explanations (not just solutions)</li>
+                <li>1,000+ tricky numerical problem vault</li>
+                <li>Concept-strength analysis (identifies weak zones)</li>
+            </ul>
+
+            <button class="series-cta" onclick="handleSeriesClick('nest')">→ Unlock Concept Mastery</button>
+
+            <div class="trust-badge">
+                ✓ <strong>Recommended by NEST mentors</strong> | 3x explanation depth
+            </div>
+        </div>
+
+        <!-- ========== ISI CARD ========== -->
+        <div class="series-card isi">
+            <div class="series-badge">ISI • PROOF ACADEMY</div>
+            <div class="series-icon">🏆</div>
+            <h3>ISI Proof Academy</h3>
+            <p class="subtitle">From solving equations to writing proofs—the leap that matters</p>
+
+            <ul class="series-features">
+                <li>Proof-writing masterclass (step-by-step methodology)</li>
+                <li>Logic breakdowns for every solution (see the thinking)</li>
+                <li>Percentile-wise question stratification (know your level)</li>
+                <li>Mock exams with detailed score breakdowns</li>
+            </ul>
+
+            <button class="series-cta" onclick="handleSeriesClick('isi')">→ Start Proof Practice</button>
+
+            <div class="trust-badge">
+                ✓ <strong>Designed with ISI alumni</strong> | 98% improve in 4 weeks
+            </div>
+        </div>
+
+    </div>
+
+    <!-- QUIZ SUGGESTION -->
+    <div class="quiz-suggestion">
+        <p>🤔 Still unsure which series is right for you?</p>
+        <a href="#quiz">Take our 2-minute Learning Style Quiz →</a>
+    </div>
+
+</div>
+
+<script>
+    function handleSeriesClick(series) {
+        console.log('User selected:', series);
+        // Track analytics event
+        if (window.gtag) {
+            gtag('event', 'series_selected', {
+                'series_name': series,
+                'timestamp': new Date().toISOString()
+            });
+        }
+        
+        // Add your redirect logic here
+        // window.location.href = `/series/${series}/purchase`;
+    }
+</script>
+
+</body>
+</html>
