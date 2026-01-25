@@ -6,6 +6,7 @@ import * as adminController from '../controllers/adminController.js';
 const router = express.Router();
 
 // ========== DASHBOARD ====================
+// ✅ FIXED: Dashboard stats route MUST be here, not in separate file
 // Get dashboard stats - GET /api/admin/dashboard/stats
 router.get('/dashboard/stats', adminController.getDashboardStats);
 
@@ -74,7 +75,7 @@ router.delete('/delete-question/:questionId', adminController.deleteQuestion);
 router.get('/available-tests', adminController.getAvailableTests);
 
 console.log('✅ Admin routes configured with /admin prefix');
-console.log('✅ Dashboard, Profile, Notifications endpoints added');
+console.log('✅ Dashboard/stats, Profile, Notifications endpoints added');
 console.log('⚠️ MySQL-based endpoints temporarily disabled for MongoDB migration');
 
 export default router;
