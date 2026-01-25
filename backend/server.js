@@ -1,5 +1,6 @@
 // 🚀 Vigyan.prep Platform - Backend Server
 // ✅ UPDATED: MongoDB Migration Complete!
+// 🔄 DEPLOYMENT TRIGGER: Force fresh rebuild - Jan 25, 2026 4:11 PM IST
 
 import './config/env.js'; // 🔵 LOAD ENV VARS FIRST
 import express from 'express';
