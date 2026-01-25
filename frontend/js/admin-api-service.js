@@ -1,7 +1,7 @@
 /**
  * Admin API Service - Complete Backend Integration
  * Backend: Hostinger (https://backend-vigyanpreap.vigyanprep.com)
- * Updated: 2026-01-25 - FIXED PORT TO 3000
+ * Updated: 2026-01-25 - COMPLETE API COVERAGE
  */
 
 const AdminAPI = {
@@ -77,6 +77,46 @@ const AdminAPI = {
         return await this.request('/api/admin/dashboard/recent-activity');
     },
 
+    // ==================== ADMIN PROFILE ====================
+    async getAdminProfile() {
+        return await this.request('/api/admin/profile');
+    },
+
+    async updateAdminProfile(profileData) {
+        return await this.request('/api/admin/profile', {
+            method: 'PUT',
+            body: JSON.stringify(profileData)
+        });
+    },
+
+    async changePassword(passwordData) {
+        return await this.request('/api/admin/profile/password', {
+            method: 'POST',
+            body: JSON.stringify(passwordData)
+        });
+    },
+
+    // ==================== NOTIFICATIONS ====================
+    async getNotifications() {
+        return await this.request('/api/admin/notifications');
+    },
+
+    async getNotificationsCount() {
+        return await this.request('/api/admin/notifications/count');
+    },
+
+    async markNotificationRead(notificationId) {
+        return await this.request(`/api/admin/notifications/${notificationId}/read`, {
+            method: 'POST'
+        });
+    },
+
+    async markAllNotificationsRead() {
+        return await this.request('/api/admin/notifications/mark-all-read', {
+            method: 'POST'
+        });
+    },
+
     // ==================== TESTS ====================
     async createTest(testData) {
         return await this.request('/api/admin/tests', {
@@ -104,6 +144,42 @@ const AdminAPI = {
     async deleteTest(testId) {
         return await this.request(`/api/admin/tests/${testId}`, {
             method: 'DELETE'
+        });
+    },
+
+    // ==================== SCHEDULED TESTS ====================
+    async getScheduledTests() {
+        return await this.request('/api/admin/scheduled-tests');
+    },
+
+    async scheduleTest(scheduleData) {
+        return await this.request('/api/admin/scheduled-tests', {
+            method: 'POST',
+            body: JSON.stringify(scheduleData)
+        });
+    },
+
+    async updateScheduledTest(scheduleId, scheduleData) {
+        return await this.request(`/api/admin/scheduled-tests/${scheduleId}`, {
+            method: 'PUT',
+            body: JSON.stringify(scheduleData)
+        });
+    },
+
+    async deleteScheduledTest(scheduleId) {
+        return await this.request(`/api/admin/scheduled-tests/${scheduleId}`, {
+            method: 'DELETE'
+        });
+    },
+
+    // ==================== PAST TESTS ====================
+    async getPastTests() {
+        return await this.request('/api/admin/past-tests');
+    },
+
+    async archivePastTest(testId) {
+        return await this.request(`/api/admin/past-tests/${testId}/archive`, {
+            method: 'POST'
         });
     },
 
@@ -233,7 +309,7 @@ window.AdminAPI = AdminAPI;
 // Log the backend URL being used
 console.log('🚀 Admin API Service initialized');
 console.log('🔗 Backend URL:', AdminAPI.baseURL);
-console.log('🌐 Environment:', window.location.hostname === 'localhost' ? 'Local' : 'Production');
+console.log('🌍 Environment:', window.location.hostname === 'localhost' ? 'Local' : 'Production');
 
 // Check backend health on load
 AdminAPI.checkHealth().then(healthy => {
