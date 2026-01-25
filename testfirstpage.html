@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Series Matrix | Vigyan.prep</title>
-    <!-- CACHE CLEAR: 2026-01-25 23:40 IST - UPDATED EMOJIS FOR BETTER VIBE -->
+    <!-- CACHE CLEAR: 2026-01-25 23:46 IST - PREMIUM VISUAL REDESIGN -->
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -17,11 +17,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Cache-busted CSS files -->
-    <link rel="stylesheet" href="frontend/css/global.css?v=20260125-2340">
-    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260125-2340">
-    <link rel="stylesheet" href="frontend/css/pages.css?v=20260125-2340">
-    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260125-2340">
-    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260125-2340">
+    <link rel="stylesheet" href="frontend/css/global.css?v=20260125-2346">
+    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260125-2346">
+    <link rel="stylesheet" href="frontend/css/pages.css?v=20260125-2346">
+    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260125-2346">
+    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260125-2346">
 
     <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="pragma" content="no-cache">
@@ -72,7 +72,7 @@
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 2rem;
             padding: 2.5rem;
-            transition: 0.4s;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
         }
@@ -83,138 +83,234 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 3px;
+            height: 4px;
             background: var(--card-color);
+            box-shadow: 0 0 20px var(--card-color);
         }
 
-        .glass-panel.iat { --card-color: var(--green); }
-        .glass-panel.nest { --card-color: var(--blue); }
-        .glass-panel.isi { --card-color: var(--purple); }
+        .glass-panel::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, var(--card-glow) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s;
+            pointer-events: none;
+        }
+
+        .glass-panel.iat { 
+            --card-color: var(--green); 
+            --card-glow: rgba(16, 185, 129, 0.15);
+        }
+        .glass-panel.nest { 
+            --card-color: var(--blue); 
+            --card-glow: rgba(59, 130, 246, 0.15);
+        }
+        .glass-panel.isi { 
+            --card-color: var(--purple); 
+            --card-glow: rgba(168, 85, 247, 0.15);
+        }
 
         .glass-panel:hover {
             border-color: var(--card-color);
-            transform: translateY(-10px);
-            background: rgba(15, 23, 42, 0.8);
-            box-shadow: 0 20px 40px -20px rgba(59, 130, 246, 0.3);
+            transform: translateY(-12px) scale(1.02);
+            background: rgba(15, 23, 42, 0.85);
+            box-shadow: 
+                0 30px 60px -20px var(--card-glow),
+                0 0 0 1px var(--card-color);
+        }
+
+        .glass-panel:hover::after {
+            opacity: 1;
         }
 
         .series-badge {
             display: inline-block;
-            font-size: 0.7rem;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            padding: 6px 12px;
+            font-size: 0.65rem;
+            font-weight: 800;
+            letter-spacing: 2px;
+            padding: 8px 16px;
             border-radius: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1.5px solid rgba(255, 255, 255, 0.2);
             color: #94a3b8;
+            text-transform: uppercase;
         }
 
         .glass-panel.iat .series-badge {
             border-color: var(--green);
             color: var(--green);
-            background: rgba(16, 185, 129, 0.1);
+            background: rgba(16, 185, 129, 0.12);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
         }
 
         .glass-panel.nest .series-badge {
             border-color: var(--blue);
             color: var(--blue);
-            background: rgba(59, 130, 246, 0.1);
+            background: rgba(59, 130, 246, 0.12);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
         }
 
         .glass-panel.isi .series-badge {
             border-color: var(--purple);
             color: var(--purple);
-            background: rgba(168, 85, 247, 0.1);
+            background: rgba(168, 85, 247, 0.12);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
         }
 
         .series-icon {
-            font-size: 3.5rem;
-            margin: 15px 0 10px 0;
+            font-size: 4.5rem;
+            margin: 25px 0 15px 0;
             display: inline-block;
+            filter: drop-shadow(0 0 20px currentColor);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .glass-panel.iat .series-icon {
+            filter: drop-shadow(0 0 25px rgba(16, 185, 129, 0.6));
+        }
+
+        .glass-panel.nest .series-icon {
+            filter: drop-shadow(0 0 25px rgba(59, 130, 246, 0.6));
+        }
+
+        .glass-panel.isi .series-icon {
+            filter: drop-shadow(0 0 25px rgba(168, 85, 247, 0.6));
         }
 
         .series-title {
-            font-size: 1.5rem;
+            font-size: 1.65rem;
             font-weight: 900;
             color: white;
-            margin: 15px 0 8px 0;
+            margin: 18px 0 10px 0;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
         }
 
         .series-subtitle {
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             color: #cbd5e1;
-            margin-bottom: 18px;
-            line-height: 1.5;
+            margin-bottom: 22px;
+            line-height: 1.6;
+            font-weight: 400;
         }
 
         .series-features {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .series-features li {
             list-style: none;
-            margin-bottom: 10px;
-            padding-left: 20px;
+            margin-bottom: 12px;
+            padding-left: 24px;
             position: relative;
             font-size: 0.9rem;
             color: #cbd5e1;
+            line-height: 1.5;
         }
 
         .series-features li::before {
             content: '✓';
             position: absolute;
             left: 0;
-            font-weight: 700;
-            font-size: 1rem;
+            font-weight: 900;
+            font-size: 1.1rem;
         }
 
-        .glass-panel.iat .series-features li::before { color: var(--green); }
-        .glass-panel.nest .series-features li::before { color: var(--blue); }
-        .glass-panel.isi .series-features li::before { color: var(--purple); }
+        .glass-panel.iat .series-features li::before { 
+            color: var(--green);
+            text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+        .glass-panel.nest .series-features li::before { 
+            color: var(--blue); 
+            text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+        .glass-panel.isi .series-features li::before { 
+            color: var(--purple); 
+            text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+        }
 
         .trust-badge {
-            font-size: 0.75rem;
+            font-size: 0.78rem;
             color: #94a3b8;
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
             text-align: center;
+            font-weight: 600;
         }
 
         .buy-btn {
             width: 100%;
-            border-radius: 1rem;
+            border-radius: 1.2rem;
             color: white;
             font-weight: 800;
-            padding: 1.25rem;
+            padding: 1.4rem;
             margin-top: 2rem;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            transition: all 0.3s;
+            letter-spacing: 2.5px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
             border: none;
+            font-size: 0.85rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .buy-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .buy-btn:hover::before {
+            width: 300px;
+            height: 300px;
         }
 
         .glass-panel.iat .buy-btn {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
         }
 
         .glass-panel.nest .buy-btn {
             background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
         }
 
         .glass-panel.isi .buy-btn {
             background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+            box-shadow: 0 10px 30px rgba(168, 85, 247, 0.3);
         }
 
         .buy-btn:hover {
-            transform: scale(1.02);
+            transform: scale(1.03);
         }
 
-        .glass-panel.iat .buy-btn:hover { box-shadow: 0 0 30px rgba(16, 185, 129, 0.6); }
-        .glass-panel.nest .buy-btn:hover { box-shadow: 0 0 30px rgba(59, 130, 246, 0.6); }
-        .glass-panel.isi .buy-btn:hover { box-shadow: 0 0 30px rgba(168, 85, 247, 0.6); }
+        .glass-panel.iat .buy-btn:hover { 
+            box-shadow: 0 0 40px rgba(16, 185, 129, 0.7); 
+        }
+        .glass-panel.nest .buy-btn:hover { 
+            box-shadow: 0 0 40px rgba(59, 130, 246, 0.7); 
+        }
+        .glass-panel.isi .buy-btn:hover { 
+            box-shadow: 0 0 40px rgba(168, 85, 247, 0.7); 
+        }
 
         .modal-overlay {
             display: none;
@@ -671,7 +767,7 @@
 
     <main class="max-w-7xl mx-auto pt-48 pb-20 px-6">
         <header class="mb-24">
-            <div class="text-blue-500 font-bold tracking-[0.3em] text-[10px] mb-6 uppercase">Assessment Matrix // v3.0 - Enhanced Messaging</div>
+            <div class="text-blue-500 font-bold tracking-[0.3em] text-[10px] mb-6 uppercase">Assessment Matrix // v3.1 - Premium Redesign</div>
             <h1 class="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-[0.9] text-white">
                 Choose Your <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-indigo-500">Challenge.</span>
             </h1>
@@ -703,9 +799,9 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-10" id="cardsContainer"></div>
     </main>
 
-    <script src="frontend/js/config.js?v=20260125-2340"></script>
-    <script src="frontend/js/auth.js?v=20260125-2340"></script>
-    <script src="frontend/js/user-panel.js?v=20260125-2340"></script>
+    <script src="frontend/js/config.js?v=20260125-2346"></script>
+    <script src="frontend/js/auth.js?v=20260125-2346"></script>
+    <script src="frontend/js/user-panel.js?v=20260125-2346"></script>
 
     <script>
         // 💰 UPDATED: Changed to ₹1 for testing (was ₹199)
@@ -714,7 +810,7 @@
                 id: 'iat',
                 class: 'iat',
                 badge: 'IAT • IISER APTITUDE',
-                icon: '⚙️',
+                icon: '🚀',
                 title: 'IAT Speed Mastery',
                 subtitle: 'Master the 120-minute sprint that separates top 1% from rest',
                 features: [
@@ -731,7 +827,7 @@
                 id: 'nest',
                 class: 'nest',
                 badge: 'NEST • SCIENCE DEEP-DIVE',
-                icon: '🧠',
+                icon: '🔬',
                 title: 'NEST Deep Dive',
                 subtitle: 'The toughest entrance demands deeper thinking—we\'ll get you there',
                 features: [
@@ -748,7 +844,7 @@
                 id: 'isi',
                 class: 'isi',
                 badge: 'ISI • PROOF ACADEMY',
-                icon: '🎯',
+                icon: '💎',
                 title: 'ISI Proof Academy',
                 subtitle: 'From solving equations to writing proofs—the leap that matters',
                 features: [
