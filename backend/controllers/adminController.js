@@ -268,45 +268,105 @@ export const getScheduledTests = async (req, res) => {
   }
 };
 
-// Create scheduled test
+// 🔥 CREATE SCHEDULED TEST - FIXED to handle frontend field names
 export const createScheduledTest = async (req, res) => {
   try {
-    console.log('🔹 Creating scheduled test...', req.body);
+    console.log('🔹 Creating scheduled test...');
+    console.log('📥 Request body:', req.body);
     
-    const { test_name, test_type, exam_date, duration, total_questions, description, instructions } = req.body;
-    
-    if (!test_name || !test_type || !exam_date) {
-      return res.status(400).json({
-        success: false,
-        message: 'Missing required fields: test_name, test_type, exam_date'
-      });
-    }
-    
-    const newTest = new ScheduledTest({
+    // Extract all possible field names from frontend
+    const {
+      // Frontend sends these (snake_case)
       test_name,
       test_type,
       exam_date,
-      duration: duration || 180,
-      total_questions: total_questions || 60,
+      start_time,
+      duration_minutes,
+      total_marks,
+      subjects,
       description,
-      instructions,
-      status: 'scheduled'
+      total_questions,
+      status = 'scheduled',
+      test_id,
+      // Alternative field names if frontend changes
+      testName,
+      testType,
+      testDate,
+      testTime,
+      testDescription,
+      duration,
+      totalMarks,
+      sections
+    } = req.body;
+
+    // Normalize field names (use whatever was provided)
+    const normalizedTestName = test_name || testName;
+    const normalizedTestType = test_type || testType;
+    const normalizedExamDate = exam_date || testDate;
+    const normalizedStartTime = start_time || testTime;
+    const normalizedDuration = duration_minutes || duration || 180;
+    const normalizedTotalMarks = total_marks || totalMarks || 100;
+    const normalizedSubjects = subjects || sections || '';
+    const normalizedDescription = description || testDescription || '';
+    const normalizedTotalQuestions = total_questions || 0;
+
+    // Validate required fields
+    if (!normalizedTestName || !normalizedTestType || !normalizedExamDate) {
+      console.error('❌ Missing required fields');
+      console.error('Received:', {
+        test_name,
+        test_type,
+        exam_date,
+        testName,
+        testType,
+        testDate
+      });
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required fields: test_name, test_type, exam_date',
+        required: ['test_name', 'test_type', 'exam_date'],
+        received: req.body
+      });
+    }
+
+    // Create new test document
+    const newTest = new ScheduledTest({
+      test_name: normalizedTestName,
+      test_type: normalizedTestType.toUpperCase(),
+      test_id: test_id || `TEST-${normalizedTestType}-${Date.now()}`,
+      exam_date: new Date(normalizedExamDate),
+      start_time: normalizedStartTime,
+      duration: normalizedDuration,
+      total_marks: normalizedTotalMarks,
+      subjects: normalizedSubjects,
+      description: normalizedDescription,
+      total_questions: normalizedTotalQuestions,
+      status: status,
+      created_at: new Date(),
+      updated_at: new Date()
     });
-    
+
+    console.log('💾 Saving test to MongoDB:', newTest);
     await newTest.save();
     
-    console.log('✅ Scheduled test created:', newTest._id);
+    console.log('✅ Scheduled test created successfully!');
+    console.log('   Test ID:', newTest._id);
+    console.log('   Test Type:', newTest.test_type);
+    
     res.status(201).json({
       success: true,
       message: 'Test scheduled successfully',
-      test: newTest
+      test: newTest,
+      _id: newTest._id
     });
   } catch (error) {
     console.error('❌ Error creating scheduled test:', error.message);
+    console.error('   Full error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to create scheduled test',
-      error: error.message
+      error: error.message,
+      details: error.errors || {}
     });
   }
 };
@@ -347,7 +407,7 @@ export const updateTestStatus = async (req, res) => {
     
     const test = await ScheduledTest.findByIdAndUpdate(
       req.params.testId,
-      { status },
+      { status, updated_at: new Date() },
       { new: true }
     );
     
