@@ -567,7 +567,8 @@
     <script>
         window.onload = function () {
             const email = localStorage.getItem("userEmail");
-            const rollNumber = localStorage.getItem("userToken");
+            // 🔧 CRITICAL FIX: Changed from "userToken" to "userRollNumber"
+            const rollNumber = localStorage.getItem("userRollNumber");
             const urlParams = new URLSearchParams(window.location.search);
             const testId = urlParams.get("test") || "iat";
 
