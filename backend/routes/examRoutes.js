@@ -4,10 +4,14 @@ import {
   submitExam, 
   getQuestions, 
   getStudentResults,
-  getUserInfo 
+  getUserInfo,
+  listScheduledTests
 } from '../controllers/examController.js';
 
 const router = express.Router();
+
+// ✅ List all scheduled tests (for admin calendar)
+router.get('/list', listScheduledTests);
 
 // ✅ Get user info (email, roll number, purchased tests)
 router.post('/user-info', getUserInfo);
