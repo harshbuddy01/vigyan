@@ -1,6 +1,6 @@
 // 🚀 Vigyan.prep Platform - Backend Server
 // ✅ UPDATED: MongoDB Migration Complete!
-// 🔄 DEPLOYMENT TRIGGER: Fix CORS and trust proxy - Jan 25, 2026 4:49 PM IST
+// 🔄 DEPLOYMENT TRIGGER: Fix CORS for vigyanprep.com - Jan 25, 2026 5:04 PM IST
 
 import './config/env.js'; // 🔵 LOAD ENV VARS FIRST
 import express from 'express';
@@ -86,12 +86,24 @@ validateEnvironmentVariables();
 // 🔧 CRITICAL FIX #2: CORS Configuration - MUST BE FIRST middleware!
 console.log('🔵 Setting up CORS...');
 const allowedOrigins = [
+  // Local development
   'http://localhost:5173',
   'http://localhost:3000',
+  'http://localhost:5500',
+  'http://127.0.0.1:5500',
+  'http://127.0.0.1:3000',
+  
+  // Production domains - ALL VARIATIONS
   'https://vigyanprep.com',
   'http://vigyanprep.com',
   'https://www.vigyanprep.com',
   'http://www.vigyanprep.com',
+  
+  // Backend domain (for API calls)
+  'https://backend-vigyanpreap.vigyanprep.com',
+  'http://backend-vigyanpreap.vigyanprep.com',
+  
+  // Environment variable
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
@@ -101,6 +113,7 @@ app.use(cors({
     if (!origin) return callback(null, true);
     
     if (allowedOrigins.indexOf(origin) !== -1) {
+      console.log(`✅ CORS: Allowed origin: ${origin}`);
       callback(null, true);
     } else {
       // 🔧 FIX: Allow all origins in production for Hostinger
@@ -115,7 +128,7 @@ app.use(cors({
   maxAge: 600, // Cache preflight for 10 minutes
 }));
 
-console.log('✅ CORS configured for:', allowedOrigins.join(', '));
+console.log('✅ CORS configured for:', allowedOrigins.filter(Boolean).join(', '));
 
 // 🔧 INJECT ENVIRONMENT VARIABLES INTO HTML FILES - MUST BE FIRST MIDDLEWARE
 // This middleware injects environment variables into the browser at runtime
