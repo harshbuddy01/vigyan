@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin API Diagnostic Tool</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+        h1 { color: #667eea; margin-bottom: 30px; }
+        .endpoint { 
+            background: #f8f9fa;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            border-left: 5px solid #ccc;
+        }
+        .endpoint.testing { border-left-color: #ffa500; }
+        .endpoint.success { border-left-color: #10b981; }
+        .endpoint.error { border-left-color: #ef4444; }
+        .endpoint-name { font-weight: bold; color: #333; margin-bottom: 10px; }
+        .endpoint-url { color: #666; font-size: 0.9em; margin-bottom: 10px; }
+        .endpoint-status { 
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        .status-testing { background: #fff3cd; color: #856404; }
+        .status-success { background: #d1fae5; color: #065f46; }
+        .status-error { background: #fee2e2; color: #991b1b; }
+        .response { 
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+        }
+        button {
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        button:hover { background: #5568d3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Admin API Diagnostic Tool</h1>
+        <p style="margin-bottom: 20px; color: #666;">
+            Testing all admin endpoints to verify backend connectivity...
+        </p>
+        
+        <button onclick="testAllEndpoints()">▶️ Run All Tests</button>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const BASE_URL = 'https://backend-vigyanpreap.vigyanprep.com';
+        
+        const endpoints = [
+            { name: 'Health Check', method: 'GET', url: '/health' },
+            { name: 'Dashboard Stats', method: 'GET', url: '/api/admin/dashboard/stats' },
+            { name: 'Dashboard Performance', method: 'GET', url: '/api/admin/dashboard/performance?period=7d' },
+            { name: 'Admin Profile', method: 'GET', url: '/api/admin/profile' },
+            { name: 'Notifications', method: 'GET', url: '/api/admin/notifications' },
+            { name: 'Notifications Count', method: 'GET', url: '/api/admin/notifications/count' },
+            { name: 'Students List', method: 'GET', url: '/api/admin/students' },
+            { name: 'Transactions List', method: 'GET', url: '/api/admin/transactions' },
+            { name: 'Results List', method: 'GET', url: '/api/admin/results' },
+            { name: 'Questions List', method: 'GET', url: '/api/admin/questions' },
+        ];
+
+        async function testEndpoint(endpoint) {
+            const resultDiv = document.getElementById(`endpoint-${endpoint.url.replace(/\//g, '-')}`);
+            
+            try {
+                resultDiv.className = 'endpoint testing';
+                resultDiv.querySelector('.endpoint-status').textContent = 'Testing...';
+                resultDiv.querySelector('.endpoint-status').className = 'endpoint-status status-testing';
+                
+                const response = await fetch(BASE_URL + endpoint.url, {
+                    method: endpoint.method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.className = 'endpoint success';
+                    resultDiv.querySelector('.endpoint-status').textContent = `✅ SUCCESS (${response.status})`;
+                    resultDiv.querySelector('.endpoint-status').className = 'endpoint-status status-success';
+                    resultDiv.querySelector('.response').textContent = JSON.stringify(data, null, 2);
+                } else {
+                    resultDiv.className = 'endpoint error';
+                    resultDiv.querySelector('.endpoint-status').textContent = `❌ ERROR (${response.status})`;
+                    resultDiv.querySelector('.endpoint-status').className = 'endpoint-status status-error';
+                    resultDiv.querySelector('.response').textContent = JSON.stringify(data, null, 2);
+                }
+            } catch (error) {
+                resultDiv.className = 'endpoint error';
+                resultDiv.querySelector('.endpoint-status').textContent = '❌ NETWORK ERROR';
+                resultDiv.querySelector('.endpoint-status').className = 'endpoint-status status-error';
+                resultDiv.querySelector('.response').textContent = error.message;
+            }
+        }
+
+        async function testAllEndpoints() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+            
+            // Create result divs
+            endpoints.forEach(endpoint => {
+                const div = document.createElement('div');
+                div.id = `endpoint-${endpoint.url.replace(/\//g, '-')}`;
+                div.className = 'endpoint';
+                div.innerHTML = `
+                    <div class="endpoint-name">${endpoint.name}</div>
+                    <div class="endpoint-url">${endpoint.method} ${BASE_URL}${endpoint.url}</div>
+                    <span class="endpoint-status">Pending...</span>
+                    <div class="response">Waiting for response...</div>
+                `;
+                resultsDiv.appendChild(div);
+            });
+            
+            // Test all endpoints
+            for (const endpoint of endpoints) {
+                await testEndpoint(endpoint);
+                await new Promise(resolve => setTimeout(resolve, 500)); // Delay between requests
+            }
+        }
+        
+        // Auto-run tests on page load
+        window.addEventListener('load', () => {
+            setTimeout(testAllEndpoints, 1000);
+        });
+    </script>
+</body>
+</html>
