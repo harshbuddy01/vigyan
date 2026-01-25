@@ -1,5 +1,6 @@
 /**
- * Past Tests Module - FIXED EXAM TYPES (IAT, NEST, ISI)
+ * Past Tests Module - Backend Integration
+ * FIXED: 2026-01-25 - Fetching from backend instead of hardcoded data
  */
 
 let pastTests = [];
@@ -65,6 +66,7 @@ function renderPastTestsPage() {
         <div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
             <select id="yearFilter" style="padding: 10px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
                 <option value="all">All Years</option>
+                <option value="2026">2026</option>
                 <option value="2025">2025</option>
                 <option value="2024">2024</option>
             </select>
@@ -83,7 +85,12 @@ function renderPastTestsPage() {
                    style="flex: 1; min-width: 200px; padding: 10px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
         </div>
         
-        <div id="testsContainer" style="display: flex; flex-direction: column; gap: 16px;"></div>
+        <div id="testsContainer" style="display: flex; flex-direction: column; gap: 16px;">
+            <div style="text-align: center; padding: 40px; color: #94a3b8;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 24px;"></i><br>
+                Loading past tests from database...
+            </div>
+        </div>
     `;
     
     document.getElementById('yearFilter').addEventListener('change', applyPastTestsFilters);
@@ -92,52 +99,49 @@ function renderPastTestsPage() {
     document.getElementById('testSearch').addEventListener('input', applyPastTestsFilters);
 }
 
-function loadPastTests() {
-    // FIXED: Real exam types - IAT, NEST, ISI
-    pastTests = [
-        {
-            id: 1,
-            name: 'IAT Physics Mock Test 1',
-            type: 'IAT',
-            date: '15/12/2025',
-            subject: 'Physics',
-            participants: 45,
-            avgScore: 67.5,
-            highestScore: 95,
-            lowestScore: 32
-        },
-        {
-            id: 2,
-            name: 'NEST Mathematics Test',
-            type: 'NEST',
-            date: '10/12/2025',
-            subject: 'Mathematics',
-            participants: 38,
-            avgScore: 72.3,
-            highestScore: 98,
-            lowestScore: 41
-        },
-        {
-            id: 3,
-            name: 'ISI Statistics Practice Test 2',
-            type: 'ISI',
-            date: '08/12/2025',
-            subject: 'Statistics',
-            participants: 52,
-            avgScore: 64.8,
-            highestScore: 89,
-            lowestScore: 28
+async function loadPastTests() {
+    try {
+        console.log('🔄 Fetching past tests from backend...');
+        
+        // ✅ FIXED: Fetch from backend API
+        const response = await fetch(`${window.API_BASE_URL}/api/admin/past-tests`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
-    ];
-    
-    updateStats();
-    displayPastTests(pastTests);
+        
+        const data = await response.json();
+        pastTests = data.tests || [];
+        
+        console.log(`✅ Loaded ${pastTests.length} past tests from database`);
+        
+        updateStats();
+        displayPastTests(pastTests);
+        
+    } catch (error) {
+        console.error('❌ Failed to load past tests:', error);
+        
+        // Show error message
+        const container = document.getElementById('testsContainer');
+        if (container) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 60px 20px; color: #ef4444;">
+                    <i class="fas fa-exclamation-circle" style="font-size: 48px; margin-bottom: 16px;"></i>
+                    <p style="font-size: 18px; margin-bottom: 8px;">Failed to load past tests</p>
+                    <p style="font-size: 14px; color: #94a3b8;">${error.message}</p>
+                    <button onclick="loadPastTests()" class="btn-primary" style="margin-top: 20px;">
+                        <i class="fas fa-sync"></i> Retry
+                    </button>
+                </div>
+            `;
+        }
+    }
 }
 
 function updateStats() {
     const totalTests = pastTests.length;
-    const totalParticipants = pastTests.reduce((sum, t) => sum + t.participants, 0);
-    const avgScore = totalTests > 0 ? (pastTests.reduce((sum, t) => sum + t.avgScore, 0) / totalTests).toFixed(1) : 0;
+    const totalParticipants = pastTests.reduce((sum, t) => sum + (t.participants || 0), 0);
+    const avgScore = totalTests > 0 ? (pastTests.reduce((sum, t) => sum + (t.avgScore || t.avg_score || 0), 0) / totalTests).toFixed(1) : 0;
     
     document.getElementById('totalTests').textContent = totalTests;
     document.getElementById('totalParticipants').textContent = totalParticipants;
@@ -153,16 +157,26 @@ function applyPastTestsFilters() {
     let filtered = pastTests;
     
     if (year !== 'all') {
-        filtered = filtered.filter(t => t.date.endsWith(year));
+        filtered = filtered.filter(t => {
+            const testDate = t.date || t.exam_date || '';
+            return testDate.includes(year);
+        });
     }
     if (month !== 'all') {
-        filtered = filtered.filter(t => t.date.startsWith(month + '/') || t.date.startsWith('0' + month + '/'));
+        filtered = filtered.filter(t => {
+            const testDate = t.date || t.exam_date || '';
+            const testMonth = new Date(testDate).getMonth() + 1;
+            return testMonth == month;
+        });
     }
     if (subject !== 'all') {
-        filtered = filtered.filter(t => t.subject === subject);
+        filtered = filtered.filter(t => (t.subject || t.subjects || '').includes(subject));
     }
     if (search) {
-        filtered = filtered.filter(t => t.name.toLowerCase().includes(search));
+        filtered = filtered.filter(t => {
+            const name = t.name || t.test_name || '';
+            return name.toLowerCase().includes(search);
+        });
     }
     
     displayPastTests(filtered);
@@ -182,51 +196,81 @@ function displayPastTests(tests) {
         return;
     }
     
-    container.innerHTML = tests.map(test => `
-        <div class="card" style="padding: 24px; border-left: 4px solid ${test.type === 'IAT' ? '#3b82f6' : test.type === 'NEST' ? '#10b981' : '#f59e0b'};">
-            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
-                <div style="flex: 1;">
-                    <h3 style="margin: 0 0 8px 0; font-size: 18px; font-weight: 600;">${test.name}</h3>
-                    <div style="display: flex; gap: 16px; color: #64748b; font-size: 14px;">
-                        <span><i class="fas fa-calendar"></i> ${test.date}</span>
-                        <span><i class="fas fa-book"></i> ${test.subject}</span>
-                        <span><i class="fas fa-users"></i> ${test.participants} students</span>
+    container.innerHTML = tests.map(test => {
+        const name = test.name || test.test_name || 'Unnamed Test';
+        const type = test.type || test.test_type || 'TEST';
+        const date = test.date || test.exam_date || '-';
+        const subject = test.subject || test.subjects || 'General';
+        const participants = test.participants || test.total_participants || 0;
+        const avgScore = test.avgScore || test.avg_score || 0;
+        const highestScore = test.highestScore || test.highest_score || 0;
+        const lowestScore = test.lowestScore || test.lowest_score || 0;
+        const testId = test.id || test.test_id;
+        
+        return `
+            <div class="card" style="padding: 24px; border-left: 4px solid ${type === 'IAT' ? '#3b82f6' : type === 'NEST' ? '#10b981' : '#f59e0b'};">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                    <div style="flex: 1;">
+                        <h3 style="margin: 0 0 8px 0; font-size: 18px; font-weight: 600;">${name}</h3>
+                        <div style="display: flex; gap: 16px; color: #64748b; font-size: 14px;">
+                            <span><i class="fas fa-calendar"></i> ${new Date(date).toLocaleDateString('en-IN')}</span>
+                            <span><i class="fas fa-book"></i> ${subject}</span>
+                            <span><i class="fas fa-users"></i> ${participants} students</span>
+                        </div>
+                    </div>
+                    <span class="badge badge-${type.toLowerCase()}">${type}</span>
+                    <button class="action-btn" onclick="archiveTest(${testId})" style="margin-left: 12px;">
+                        <i class="fas fa-archive"></i>
+                    </button>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-top: 16px;">
+                    <div>
+                        <div style="color: #64748b; font-size: 12px; margin-bottom: 4px;">Average Score</div>
+                        <div style="font-size: 20px; font-weight: 600; color: #3b82f6;">${avgScore}%</div>
+                    </div>
+                    <div>
+                        <div style="color: #64748b; font-size: 12px; margin-bottom: 4px;">Highest Score</div>
+                        <div style="font-size: 20px; font-weight: 600; color: #10b981;">${highestScore}%</div>
+                    </div>
+                    <div>
+                        <div style="color: #64748b; font-size: 12px; margin-bottom: 4px;">Lowest Score</div>
+                        <div style="font-size: 20px; font-weight: 600; color: #f59e0b;">${lowestScore}%</div>
                     </div>
                 </div>
-                <span class="badge badge-${test.type.toLowerCase()}">${test.type}</span>
-                <button class="action-btn" onclick="archiveTest(${test.id})" style="margin-left: 12px;">
-                    <i class="fas fa-archive"></i>
-                </button>
             </div>
-            
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-top: 16px;">
-                <div>
-                    <div style="color: #64748b; font-size: 12px; margin-bottom: 4px;">Average Score</div>
-                    <div style="font-size: 20px; font-weight: 600; color: #3b82f6;">${test.avgScore}%</div>
-                </div>
-                <div>
-                    <div style="color: #64748b; font-size: 12px; margin-bottom: 4px;">Highest Score</div>
-                    <div style="font-size: 20px; font-weight: 600; color: #10b981;">${test.highestScore}%</div>
-                </div>
-                <div>
-                    <div style="color: #64748b; font-size: 12px; margin-bottom: 4px;">Lowest Score</div>
-                    <div style="font-size: 20px; font-weight: 600; color: #f59e0b;">${test.lowestScore}%</div>
-                </div>
-            </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 function archiveTest(id) {
     if (confirm('Archive this test?')) {
-        pastTests = pastTests.filter(t => t.id !== id);
-        updateStats();
-        applyPastTestsFilters();
-        if (window.AdminUtils) window.AdminUtils.showToast('Test archived successfully', 'success');
+        // Call backend API to archive
+        fetch(`${window.API_BASE_URL}/api/admin/past-tests/${id}/archive`, {
+            method: 'POST'
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                pastTests = pastTests.filter(t => (t.id || t.test_id) != id);
+                updateStats();
+                applyPastTestsFilters();
+                if (window.AdminUtils) window.AdminUtils.showToast('Test archived successfully', 'success');
+            }
+        })
+        .catch(err => {
+            console.error('Archive error:', err);
+            if (window.AdminUtils) window.AdminUtils.showToast('Failed to archive test', 'error');
+        });
     }
 }
 
 function exportReport() {
+    if (pastTests.length === 0) {
+        alert('No past tests to export');
+        return;
+    }
+    
     alert('Export functionality will generate a detailed Excel/PDF report of all past tests with complete analytics.');
     if (window.AdminUtils) window.AdminUtils.showToast('Preparing export...', 'success');
 }
@@ -234,3 +278,4 @@ function exportReport() {
 window.initPastTests = initPastTests;
 window.archiveTest = archiveTest;
 window.exportReport = exportReport;
+window.loadPastTests = loadPastTests;
