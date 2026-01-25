@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -13,26 +14,41 @@ console.log('='.repeat(80));
 console.log(`\n♾️  NODE_ENV: ${process.env.NODE_ENV || 'undefined'}`);
 console.log(`🔍 Total environment variables available: ${Object.keys(process.env).length}`);
 
-// 🔧 HOSTINGER FIX: In production, environment variables should already be in process.env
-// Only try to load .env file if in development (local machine)
-if (process.env.NODE_ENV !== 'production') {
-  console.log('\n🚧 Development mode detected - attempting to load .env file...');
-  try {
-    const result = dotenv.config({ path: path.join(__dirname, '../../.env') });
+// 🔧 HOSTINGER FIX: ALWAYS try to load .env file regardless of NODE_ENV
+// Hostinger does NOT automatically inject environment variables into process.env
+// So we must manually load the .env file from disk
+console.log('\n🔧 HOSTINGER COMPATIBILITY MODE: Attempting to load .env file...');
+
+const envPath = path.join(__dirname, '../../.env');
+console.log(`   Looking for .env at: ${envPath}`);
+console.log(`   File exists: ${fs.existsSync(envPath)}`);
+
+try {
+  if (fs.existsSync(envPath)) {
+    console.log('   ✅ Found .env file - loading variables...');
+    const result = dotenv.config({ path: envPath });
+    
     if (result.error) {
-      console.log('⚠️  No .env file found (this is OK in production)');
+      console.error('   ❌ Error parsing .env file:', result.error.message);
     } else {
-      console.log('✅ Loaded .env file for local development');
+      console.log(`   ✅ Successfully loaded .env file (${Object.keys(result.parsed || {}).length} variables)`);
+      if (result.parsed) {
+        Object.entries(result.parsed).forEach(([key, value]) => {
+          if (key === 'MONGODB_URI') {
+            console.log(`      • ${key}: ${value.substring(0, 30)}... [set]`);
+          }
+        });
+      }
     }
-  } catch (err) {
-    console.log('ℹ️  .env file not accessible:', err.message);
+  } else {
+    console.warn('   ⚠️  .env file NOT found at root backend directory');
+    console.warn('   📝 FIX: Create .env file in backend/ with your credentials');
   }
-} else {
-  console.log('\n🎧 PRODUCTION MODE - Using Hostinger environment variables');
-  console.log('✨ Variables should be injected by Hostinger into process.env');
+} catch (err) {
+  console.error('   ❌ Error reading .env file:', err.message);
 }
 
-// 🔴 CRITICAL: Verify what Hostinger actually sent us
+// 🔴 CRITICAL: Verify what we have now
 const requiredVars = {
   'MONGODB_URI': 'Database connection string',
   'RAZORPAY_API_KEY': 'Payment API key',
@@ -63,7 +79,7 @@ Object.entries(requiredVars).forEach(([varName, description]) => {
     const displayValue = value.length > 20 
       ? value.substring(0, 20) + '... [' + value.length + ' chars]'
       : value;
-    console.log(`✅ ${varName.padEnd(25)} | ${description.padEnd(30)} | ‘${displayValue}’`);
+    console.log(`✅ ${varName.padEnd(25)} | ${description.padEnd(30)} | '${displayValue}'`);
   } else {
     missingVars.push(varName);
     console.log(`❌ ${varName.padEnd(25)} | ${description.padEnd(30)} | NOT SET`);
@@ -78,16 +94,20 @@ console.log(`✅ Loaded: ${loadedVars.length}/${Object.keys(requiredVars).length
 if (missingVars.length > 0) {
   console.error(`\n⚠️  MISSING CRITICAL VARIABLES: ${missingVars.join(', ')}`);
   console.error('\n😨 FIX INSTRUCTIONS:');
-  console.error('  1. Go to: https://hpanel.hostinger.com');
-  console.error('  2. Click Websites > backend-vigyanpreap');
-  console.error('  3. Click Deployments > Settings');
-  console.error('  4. Add each missing variable');
-  console.error('  5. Click "Save and Redeploy"');
-  console.error('  6. Wait 3-5 minutes for deployment');
+  console.error('  1. Create a file named ".env" in the backend/ directory');
+  console.error('  2. Copy all variables from .env.example');
+  console.error('  3. Replace values with your actual credentials');
+  console.error('  4. Do NOT commit to GitHub (it\'s in .gitignore)');
+  console.error('  5. Deploy to Hostinger with the .env file');
+  console.error('  6. Wait 3-5 minutes for Hostinger to detect and deploy');
+  console.error('\n📝 Required variables:');
+  missingVars.forEach((v) => {
+    console.error(`     - ${v}`);
+  });
   console.error('\n🗑️  App will run with LIMITED FUNCTIONALITY without these variables.\n');
 } else {
   console.log('\n✅ ALL REQUIRED ENVIRONMENT VARIABLES ARE SET!');
-  console.log(`🌟 Source: ${process.env.NODE_ENV === 'production' ? 'Hostinger Environment' : 'Local .env file'}`);
+  console.log(`🌟 Source: .env file loaded successfully`);
   console.log(`🚀 Application ready to start\n`);
 }
 
