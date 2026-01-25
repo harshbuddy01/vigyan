@@ -3,18 +3,12 @@
 
 import mongoose from 'mongoose';
 
-let MONGODB_URI = process.env.MONGODB_URI;
+// 🔵 READ DIRECTLY FROM process.env - MUST be uppercase
+const MONGODB_URI = process.env.MONGODB_URI;
 
-// ⚠️ DEVELOPMENT FALLBACK - Remove for production!
-if (!MONGODB_URI) {
-    console.error('❌ Missing MONGODB_URI environment variable!');
-    console.error('🔵 Please set MONGODB_URI in your .env file or hosting environment');
-    console.warn('⚠️  Using development fallback (MongoDB not required for testing)');
-
-    // Don't crash - just warn. This allows /health endpoint to work
-    // In production, you MUST set MONGODB_URI
-    MONGODB_URI = null;
-}
+console.log('🔍 MongoDB Configuration Loading...');
+console.log(`📝 MONGODB_URI exists: ${!!MONGODB_URI}`);
+console.log(`📝 MONGODB_URI value: ${MONGODB_URI ? MONGODB_URI.substring(0, 50) + '...' : 'NOT SET'}`);
 
 // MongoDB Connection Options
 const options = {
@@ -39,6 +33,7 @@ export async function connectDB() {
     }
 
     try {
+        console.log('🔗 Attempting MongoDB connection...');
         await mongoose.connect(MONGODB_URI, options);
 
         console.log('✅ MongoDB Connected Successfully!');
