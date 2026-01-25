@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Series Matrix | Vigyan.prep</title>
-    <!-- CACHE CLEAR: 2026-01-26 01:14 IST - ULTRA MINIMAL CALENDAR BANNER WITH SVG -->
+    <!-- CACHE CLEAR: 2026-01-26 01:20 IST - COMPACT HORIZONTAL CARDS WITH REAL IMAGES -->
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -15,11 +15,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Cache-busted CSS files -->
-    <link rel="stylesheet" href="frontend/css/global.css?v=20260126-0114">
-    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260126-0114">
-    <link rel="stylesheet" href="frontend/css/pages.css?v=20260126-0114">
-    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260126-0114">
-    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260126-0114">
+    <link rel="stylesheet" href="frontend/css/global.css?v=20260126-0120">
+    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260126-0120">
+    <link rel="stylesheet" href="frontend/css/pages.css?v=20260126-0120">
+    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260126-0120">
+    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260126-0120">
 
     <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="pragma" content="no-cache">
@@ -176,187 +176,175 @@
             transform: translateY(0px) scale(1);
         }
 
-        /* ========== ULTRA PREMIUM CARD DESIGN ========== */
+        /* ========== COMPACT HORIZONTAL CARD DESIGN ========== */
         
-        .glass-panel {
-            border-radius: 28px;
-            padding: 52px;
-            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-            position: relative;
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100%, 1fr));
+            gap: 20px;
+            padding: 0;
+            margin: 0;
+        }
+
+        .glass-card {
+            display: flex;
+            flex-direction: row;
+            height: 280px;
+            border-radius: 20px;
             overflow: hidden;
+            border: 2px solid;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+        }
+
+        /* CARD IMAGE SECTION (LEFT) */
+        .card-image-section {
+            width: 35%;
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .card-image-section img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .card-image-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.1) 100%);
+        }
+
+        /* CARD CONTENT SECTION (RIGHT) */
+        .card-content-section {
+            flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            min-height: 600px;
-            border: 2px solid;
-            box-shadow: 0 30px 100px rgba(0, 0, 0, 0.4);
+            padding: 20px;
+            position: relative;
+            z-index: 2;
         }
 
-        /* IAT - BRIGHT PURPLE TO MAGENTA (NO PINK) */
-        .glass-panel.iat {
-            background: linear-gradient(135deg, 
-                #a855f7 0%,
-                #9333ea 40%,
-                #c026d3 100%);
+        .card-content-top {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* IAT CARD */
+        .glass-card.iat {
+            background: linear-gradient(135deg, #a855f7 0%, #9333ea 40%, #c026d3 100%);
             border-color: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 30px 100px rgba(168, 85, 247, 0.4),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 60px rgba(168, 85, 247, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
         }
 
-        /* NEST - CYAN/TEAL TO BLUE (EXACT MATCH) */
-        .glass-panel.nest {
-            background: linear-gradient(180deg,
-                #14b8a6 0%,
-                #06b6d4 35%,
-                #0891b2 65%,
-                #0284c7 100%);
-            border-color: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 30px 100px rgba(20, 184, 166, 0.4),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.15);
-        }
-
-        /* ISI - PURE RED/CORAL (NO PINK) */
-        .glass-panel.isi {
-            background: linear-gradient(135deg,
-                #ef4444 0%,
-                #f43f5e 50%,
-                #e11d48 100%);
-            border-color: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 30px 100px rgba(239, 68, 68, 0.4),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.15);
-        }
-
-        /* HOVER EFFECTS - LIFT & GLOW */
-        .glass-panel:hover {
-            transform: translateY(-24px) scale(1.03);
+        .glass-card.iat:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 40px 100px rgba(168, 85, 247, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
             border-color: rgba(255, 255, 255, 0.3);
         }
 
-        .glass-panel.iat:hover {
-            box-shadow: 0 50px 150px rgba(168, 85, 247, 0.5),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        /* NEST CARD */
+        .glass-card.nest {
+            background: linear-gradient(180deg, #14b8a6 0%, #06b6d4 35%, #0891b2 65%, #0284c7 100%);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 60px rgba(20, 184, 166, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
         }
 
-        .glass-panel.nest:hover {
-            box-shadow: 0 50px 150px rgba(20, 184, 166, 0.5),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        .glass-card.nest:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 40px 100px rgba(20, 184, 166, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
         }
 
-        .glass-panel.isi:hover {
-            box-shadow: 0 50px 150px rgba(239, 68, 68, 0.5),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        /* ISI CARD */
+        .glass-card.isi {
+            background: linear-gradient(135deg, #ef4444 0%, #f43f5e 50%, #e11d48 100%);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 60px rgba(239, 68, 68, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
         }
 
-        /* BADGE - CLEAN & MODERN */
-        .series-badge {
+        .glass-card.isi:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 40px 100px rgba(239, 68, 68, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* CARD BADGE */
+        .card-badge {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             font-family: 'Outfit', sans-serif;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 800;
-            letter-spacing: 2px;
-            padding: 11px 20px;
-            border-radius: 50px;
+            letter-spacing: 1.5px;
+            padding: 7px 14px;
+            border-radius: 40px;
             background: rgba(255, 255, 255, 0.2);
-            border: 1.5px solid rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             color: #ffffff;
             text-transform: uppercase;
-            margin-bottom: 28px;
+            margin-bottom: 12px;
             width: fit-content;
             backdrop-filter: blur(10px);
         }
 
-        /* TITLE - BOLD & CLEAN */
-        .series-title {
+        /* CARD TITLE */
+        .card-title {
             font-family: 'Outfit', sans-serif;
-            font-size: 3.2rem;
+            font-size: 1.8rem;
             font-weight: 900;
             color: #ffffff;
-            margin: 0 0 16px 0;
-            letter-spacing: -1.2px;
-            line-height: 1.05;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+            margin: 0 0 8px 0;
+            letter-spacing: -0.8px;
+            line-height: 1.1;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
 
-        /* SUBTITLE */
-        .series-subtitle {
-            font-size: 1.15rem;
-            color: rgba(255, 255, 255, 0.98);
-            margin-bottom: 36px;
-            line-height: 1.6;
-            font-weight: 500;
-            font-family: 'Inter', sans-serif;
-        }
-
-        /* FEATURES LIST - CLEAN DOTS */
-        .series-features {
-            margin-bottom: 36px;
-            list-style: none;
-            padding: 0;
-        }
-
-        .series-features li {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            margin-bottom: 18px;
-            font-size: 1.02rem;
-            color: rgba(255, 255, 255, 0.98);
-            font-weight: 500;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .series-features li::before {
-            content: '';
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.85);
-            flex-shrink: 0;
-        }
-
-        /* TRUST BADGE */
-        .trust-badge {
+        /* CARD SUBTITLE */
+        .card-subtitle {
             font-size: 0.95rem;
-            color: rgba(255, 255, 255, 0.97);
-            padding: 18px;
-            background: rgba(255, 255, 255, 0.15);
-            border: 1.5px solid rgba(255, 255, 255, 0.3);
-            border-radius: 16px;
-            text-align: center;
-            font-weight: 700;
-            margin-bottom: 32px;
+            color: rgba(255, 255, 255, 0.95);
+            margin: 0;
+            line-height: 1.4;
+            font-weight: 500;
             font-family: 'Inter', sans-serif;
-            backdrop-filter: blur(10px);
         }
 
-        /* BUTTON - PREMIUM WHITE */
-        .buy-btn {
+        /* CARD BUTTON */
+        .card-btn {
             width: 100%;
-            background: rgba(255, 255, 255, 0.99);
+            background: rgba(255, 255, 255, 0.98);
             border: none;
-            border-radius: 16px;
+            border-radius: 12px;
             color: #1f2937;
             font-family: 'Outfit', sans-serif;
             font-weight: 900;
-            font-size: 0.95rem;
-            padding: 20px;
+            font-size: 0.85rem;
+            padding: 12px 16px;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
+            letter-spacing: 1.2px;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 12px 40px rgba(255, 255, 255, 0.2);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 8px 24px rgba(255, 255, 255, 0.25);
         }
 
-        .buy-btn:hover {
-            transform: translateY(-6px);
-            background: rgba(255, 255, 255, 1);
-            box-shadow: 0 20px 60px rgba(255, 255, 255, 0.35);
-        }
-
-        .buy-btn:active {
+        .card-btn:hover {
             transform: translateY(-3px);
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 12px 36px rgba(255, 255, 255, 0.35);
+        }
+
+        .card-btn:active {
+            transform: translateY(-1px);
         }
 
         /* MODALS */
@@ -602,12 +590,19 @@
             .action-buttons {
                 flex-direction: column;
             }
-            .glass-panel {
-                padding: 36px;
-                min-height: 520px;
+            .glass-card {
+                height: auto;
+                flex-direction: column;
             }
-            .series-title {
-                font-size: 2.5rem;
+            .card-image-section {
+                width: 100%;
+                height: 180px;
+            }
+            .card-content-section {
+                padding: 16px;
+            }
+            .card-title {
+                font-size: 1.5rem;
             }
             header h1 {
                 font-size: 3.5rem;
@@ -663,7 +658,7 @@
             <p class="text-gray-400 text-sm mt-2" id="modalSubtitle">Enter your email to proceed with payment.</p>
             <input type="email" id="modalUserEmail" class="modal-input" placeholder="student@example.com">
             <div id="modalError" class="error-banner hidden"></div>
-            <button id="modalActionBtn" onclick="handleModalSubmit()" class="buy-btn" style="margin-top: 1rem">Proceed to Payment</button>
+            <button id="modalActionBtn" onclick="handleModalSubmit()" class="buy-btn" style="margin-top: 1rem; width: 100%; background: linear-gradient(135deg, #8b3dff 0%, #6d28d9 100%); color: white; padding: 12px 24px; border-radius: 10px; font-weight: 700; text-transform: uppercase; border: none; cursor: pointer;">Proceed to Payment</button>
             <button onclick="closeEntryModal()"
                 class="text-gray-400 text-xs mt-4 block mx-auto uppercase hover:text-white transition">Cancel</button>
         </div>
@@ -784,12 +779,12 @@
             </a>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-10 pb-20" id="cardsContainer"></div>
+        <div class="cards-grid" id="cardsContainer"></div>
     </main>
 
-    <script src="frontend/js/config.js?v=20260126-0114"></script>
-    <script src="frontend/js/auth.js?v=20260126-0114"></script>
-    <script src="frontend/js/user-panel.js?v=20260126-0114"></script>
+    <script src="frontend/js/config.js?v=20260126-0120"></script>
+    <script src="frontend/js/auth.js?v=20260126-0120"></script>
+    <script src="frontend/js/user-panel.js?v=20260126-0120"></script>
 
     <script>
         const testSeries = [
@@ -799,14 +794,8 @@
                 badge: 'IAT • APTITUDE',
                 title: 'Speed Mastery',
                 subtitle: 'Master the 120-minute sprint',
-                features: [
-                    'Real exam patterns',
-                    'Speed benchmarking',
-                    'Daily speed trials',
-                    'Analytics dashboard'
-                ],
+                image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&h=300&fit=crop&q=80',
                 cta: '✓ ACCESS GRANTED',
-                trust: '5,000+ toppers | +15%',
                 price: 1
             },
             {
@@ -815,14 +804,8 @@
                 badge: 'NEST • SCIENCE',
                 title: 'Deep Dive',
                 subtitle: 'Deeper thinking than anyone',
-                features: [
-                    'Physics + Chemistry integrated',
-                    'Why answers explained',
-                    '1,000+ tricky problems',
-                    'Concept mapping'
-                ],
+                image: 'https://images.unsplash.com/photo-1530549387789-4c1017266635?w=800&h=300&fit=crop&q=80',
                 cta: '→ UNLOCK MASTERY',
-                trust: 'NEST mentors recommended',
                 price: 1
             },
             {
@@ -831,14 +814,8 @@
                 badge: 'ISI • PROOF',
                 title: 'Proof Academy',
                 subtitle: 'Equations to proofs',
-                features: [
-                    'Proof methodology',
-                    'Logic breakdowns',
-                    'Question stratification',
-                    'Mock exams'
-                ],
+                image: 'https://images.unsplash.com/photo-1532712917318-a7ad1e47e0c5?w=800&h=300&fit=crop&q=80',
                 cta: '→ START PRACTICE',
-                trust: 'ISI alumni designed',
                 price: 1
             }
         ];
@@ -849,20 +826,22 @@
         const cardsContainer = document.getElementById('cardsContainer');
         testSeries.forEach(test => {
             const card = document.createElement('div');
-            card.className = `glass-panel ${test.class}`;
+            card.className = `glass-card ${test.class}`;
             card.innerHTML = `
-                <div>
-                    <span class="series-badge">${test.badge}</span>
-                    <h3 class="series-title">${test.title}</h3>
-                    <p class="series-subtitle">${test.subtitle}</p>
-                    <ul class="series-features">
-                        ${test.features.map(f => `<li>${f}</li>`).join('')}
-                    </ul>
-                    <div class="trust-badge">${test.trust}</div>
+                <div class="card-image-section">
+                    <img src="${test.image}" alt="${test.title}" loading="lazy">
+                    <div class="card-image-overlay"></div>
                 </div>
-                <button id="btn-${test.id}" onclick="executePurchase('${test.id}', ${test.price})" class="buy-btn">
-                    ${test.cta}
-                </button>
+                <div class="card-content-section">
+                    <div class="card-content-top">
+                        <span class="card-badge">${test.badge}</span>
+                        <h3 class="card-title">${test.title}</h3>
+                        <p class="card-subtitle">${test.subtitle}</p>
+                    </div>
+                    <button id="btn-${test.id}" onclick="executePurchase('${test.id}', ${test.price})" class="card-btn">
+                        ${test.cta}
+                    </button>
+                </div>
             `;
             cardsContainer.appendChild(card);
         });
