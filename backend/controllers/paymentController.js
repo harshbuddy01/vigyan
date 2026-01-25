@@ -308,121 +308,95 @@ export const paymentVerification = async (req, res) => {
       console.log(`✅ Created new student: ${normalizedEmail}, Roll: ${rollNumber}`);
     }
 
-    // Send email
+    // ✨ SEND EMAIL - MINIMAL & CLEAN DESIGN
     console.log("📧 Attempting to send email via Nodemailer...");
 
     if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
       try {
         const firstName = extractFirstName(normalizedEmail);
-        const currentDate = new Date().toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        });
-        const testSeriesName = testId.toUpperCase() + " Test Series";
+        const testSeriesName = testId.toUpperCase();
 
         const emailHtml = `
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registration Confirmed - Vigyan.prep</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600;1,700&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;0,800;1,700&display=swap" rel="stylesheet">
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-    <div style="max-width: 650px; margin: 40px auto; background-color: #0f172a; border-radius: 16px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
-        
-        <!-- Golden Header -->
-        <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 50px 60px 40px; border-bottom: 3px solid #f59e0b; position: relative; overflow: hidden;">
-            <!-- Background Pattern -->
-            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.03; background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 30px 30px;"></div>
-            
-            <div style="position: relative; z-index: 1;">
-                <!-- Vigyan.prep Logo with Golden Effect -->
-                <div style="text-align: center; margin-bottom: 30px;">
-                    <div style="font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 700; font-style: italic; font-size: 48px; letter-spacing: 3px; text-transform: uppercase; background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 15%, #f59e0b 30%, #ffffff 50%, #fcd34d 70%, #f59e0b 85%, #fef3c7 100%); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 8px; animation: shimmer 4s ease-in-out infinite;">
-                        Vigyan
-                    </div>
-                    <div style="font-family: 'Inter', sans-serif; font-weight: 300; font-size: 14px; letter-spacing: 6px; text-transform: lowercase; color: #94a3b8; margin-top: -10px;">.prep</div>
-                    <div style="font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 2px; margin-top: 12px; border-top: 1px solid #334155; padding-top: 12px; display: inline-block; padding-left: 20px; padding-right: 20px;">
-                        EXAMINATION AUTHORITY
-                    </div>
-                </div>
-                
-                <!-- Date Badge -->
-                <div style="text-align: center;">
-                    <div style="display: inline-block; background: rgba(251, 191, 36, 0.1); border: 1px solid #f59e0b; border-radius: 8px; padding: 10px 24px;">
-                        <div style="font-size: 9px; font-weight: 700; color: #fbbf24; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px;">DATE OF REGISTRATION</div>
-                        <div style="font-size: 14px; font-weight: 800; color: #fcd34d; font-family: 'Inter', monospace;">${currentDate}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f5f5f5;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 20px 0;">
+        <tr>
+            <td align="center">
+                <table width="500" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); padding: 30px 40px; text-align: center;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: 1px;">VIGYAN<span style="font-weight: 300; font-size: 18px;">.prep</span></h1>
+                            <p style="margin: 8px 0 0 0; color: #bfdbfe; font-size: 11px; letter-spacing: 2px; text-transform: uppercase;">Examination Authority</p>
+                        </td>
+                    </tr>
 
-        <!-- Main Content -->
-        <div style="padding: 60px 60px 50px; background: #0f172a;">
-            <!-- Success Icon -->
-            <div style="text-align: center; margin-bottom: 35px;">
-                <div style="display: inline-block; width: 80px; height: 80px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 40px rgba(16, 185, 129, 0.4);">
-                    <div style="font-size: 40px; color: white;">✓</div>
-                </div>
-            </div>
+                    <!-- Success Icon -->
+                    <tr>
+                        <td style="padding: 40px 40px 20px; text-align: center;">
+                            <div style="width: 60px; height: 60px; background: #10b981; border-radius: 50%; margin: 0 auto; line-height: 60px; font-size: 32px; color: white;">✓</div>
+                        </td>
+                    </tr>
 
-            <h1 style="font-family: 'Playfair Display', Georgia, serif; font-size: 32px; font-weight: 800; color: #f8fafc; margin: 0 0 35px 0; letter-spacing: -0.5px; text-align: center; line-height: 1.2;">
-                Registration Confirmed
-            </h1>
-            
-            <p style="font-size: 16px; color: #cbd5e1; line-height: 1.8; margin: 0 0 12px 0; text-align: center;">
-                Dear <strong style="color: #fbbf24; font-weight: 700;">${firstName}</strong>,
-            </p>
-            <p style="font-size: 15px; color: #94a3b8; line-height: 1.8; margin: 0 0 45px 0; text-align: center;">
-                You have been successfully enrolled in the <strong style="color: #fcd34d;">${testSeriesName}</strong>.
-            </p>
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 0 40px 30px;">
+                            <h2 style="margin: 0 0 20px 0; color: #1f2937; font-size: 22px; font-weight: 600; text-align: center;">Registration Confirmed!</h2>
+                            
+                            <p style="margin: 0 0 8px 0; color: #6b7280; font-size: 15px; text-align: center;">Hello <strong style="color: #1f2937;">${firstName}</strong>,</p>
+                            <p style="margin: 0 0 30px 0; color: #6b7280; font-size: 14px; text-align: center;">You're enrolled in <strong style="color: #2563eb;">${testSeriesName} Test Series</strong></p>
 
-            <!-- Roll Number Card -->
-            <div style="background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border: 3px solid #f59e0b; border-radius: 16px; padding: 45px 40px; text-align: center; margin-bottom: 40px; box-shadow: 0 20px 60px rgba(245, 158, 11, 0.3);">
-                <div style="font-size: 11px; font-weight: 800; color: #92400e; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 25px;">
-                    ⚡ YOUR ROLL NUMBER ⚡
-                </div>
-                <div style="font-family: 'Courier New', monospace; font-size: 52px; font-weight: 900; color: #1f2937; letter-spacing: 6px; margin-bottom: 25px; text-shadow: 2px 2px 0px rgba(245, 158, 11, 0.2);">
-                    ${rollNumber}
-                </div>
-                <div style="background: #dc2626; color: white; display: inline-block; padding: 8px 20px; border-radius: 6px; font-size: 10px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase;">
-                    ★ CONFIDENTIAL - DO NOT SHARE ★
-                </div>
-            </div>
+                            <!-- Roll Number Box -->
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; margin-bottom: 30px;">
+                                <tr>
+                                    <td style="padding: 25px; text-align: center;">
+                                        <p style="margin: 0 0 12px 0; color: #92400e; font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;">⚡ Your Roll Number</p>
+                                        <p style="margin: 0 0 15px 0; font-family: 'Courier New', monospace; font-size: 36px; font-weight: 900; color: #000000; letter-spacing: 4px;">${rollNumber}</p>
+                                        <div style="background: #dc2626; color: #ffffff; padding: 6px 16px; border-radius: 4px; font-size: 9px; font-weight: 700; letter-spacing: 1px; display: inline-block;">CONFIDENTIAL - DO NOT SHARE</div>
+                                    </td>
+                                </tr>
+                            </table>
 
-            <!-- Warning Box -->
-            <div style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%); border-left: 5px solid #ef4444; border-radius: 12px; padding: 22px 28px; margin-bottom: 45px;">
-                <p style="margin: 0; font-size: 14px; color: #fca5a5; line-height: 1.7; font-weight: 500;">
-                    <strong style="font-weight: 800; color: #fecaca;">⚠️ IMPORTANT NOTICE:</strong><br>
-                    Save this Roll Number in a secure location. You will need it to access all your purchased test series and track your progress.
-                </p>
-            </div>
+                            <!-- Important Notice -->
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background: #fee2e2; border-left: 3px solid #ef4444; border-radius: 4px; margin-bottom: 30px;">
+                                <tr>
+                                    <td style="padding: 15px;">
+                                        <p style="margin: 0; color: #991b1b; font-size: 12px; line-height: 1.6;"><strong>⚠️ Important:</strong> Save this roll number. You'll need it to access your tests.</p>
+                                    </td>
+                                </tr>
+                            </table>
 
-            <!-- CTA Button -->
-            <div style="text-align: center; margin: 50px 0 30px;">
-                <a href="https://vigyanprep.com" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 18px 55px; text-decoration: none; border-radius: 12px; font-weight: 800; font-size: 15px; letter-spacing: 1.5px; text-transform: uppercase; box-shadow: 0 10px 40px rgba(59, 130, 246, 0.4); transition: all 0.3s;">
-                    PROCEED TO DASHBOARD →
-                </a>
-            </div>
+                            <!-- CTA Button -->
+                            <table width="100%" cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td align="center">
+                                        <a href="https://vigyanprep.com/testfirstpage.html" style="display: inline-block; background: #2563eb; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-weight: 600; font-size: 14px; letter-spacing: 0.5px;">GO TO DASHBOARD →</a>
+                                    </td>
+                                </tr>
+                            </table>
 
-            <p style="text-align: center; font-size: 13px; color: #64748b; margin: 35px 0 0 0; line-height: 1.6;">
-                Need help? Reply to this email or visit our support center.
-            </p>
-        </div>
+                            <p style="margin: 30px 0 0 0; text-align: center; font-size: 12px; color: #9ca3af;">Need help? Reply to this email or visit our support center.</p>
+                        </td>
+                    </tr>
 
-        <!-- Footer -->
-        <div style="background: #020617; padding: 40px 60px; text-align: center; border-top: 1px solid #1e293b;">
-            <p style="margin: 0 0 12px 0; font-size: 13px; color: #64748b; line-height: 1.6;">
-                This is an automated confirmation email from Vigyan.prep Examination System.
-            </p>
-            <p style="margin: 0; font-size: 12px; color: #475569; font-weight: 500;">
-                © ${new Date().getFullYear()} <span style="background: linear-gradient(135deg, #fcd34d 0%, #f59e0b 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 700;">Vigyan.prep</span> Exams. All rights reserved.
-            </p>
-        </div>
-    </div>
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background: #f9fafb; padding: 20px 40px; text-align: center; border-top: 1px solid #e5e7eb;">
+                            <p style="margin: 0 0 5px 0; font-size: 11px; color: #9ca3af;">This is an automated email from Vigyan.prep</p>
+                            <p style="margin: 0; font-size: 11px; color: #9ca3af;">© ${new Date().getFullYear()} Vigyan.prep Exams. All rights reserved.</p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
 </body>
 </html>
         `;
@@ -430,7 +404,7 @@ export const paymentVerification = async (req, res) => {
         const mailOptions = {
           from: `"Vigyan.prep Exams" <${process.env.EMAIL_USER}>`,
           to: normalizedEmail,
-          subject: `✅ Registration Confirmed - ${testSeriesName}`,
+          subject: `✅ Registration Confirmed - ${testSeriesName} Test Series`,
           html: emailHtml,
         };
 
