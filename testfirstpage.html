@@ -5,21 +5,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Series Matrix | Vigyan.prep</title>
-    <!-- CACHE CLEAR: 2026-01-26 00:34 IST - CARDS REDESIGN: VIBRANT COLORS + MINIMAL TEXT -->
+    <!-- CACHE CLEAR: 2026-01-26 00:41 IST - ULTRA MODERN: THERMAL GLOW + LIQUID CHROME + DEEP TEAL -->
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Cache-busted CSS files -->
-    <link rel="stylesheet" href="frontend/css/global.css?v=20260126-0034">
-    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260126-0034">
-    <link rel="stylesheet" href="frontend/css/pages.css?v=20260126-0034">
-    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260126-0034">
-    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260126-0034">
+    <link rel="stylesheet" href="frontend/css/global.css?v=20260126-0041">
+    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260126-0041">
+    <link rel="stylesheet" href="frontend/css/pages.css?v=20260126-0041">
+    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260126-0041">
+    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260126-0041">
 
     <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="pragma" content="no-cache">
@@ -34,18 +34,19 @@
 
     <style>
         :root {
-            --blue: #3b82f6;
-            --navy-dark: #020617;
-            --gold: #f59e0b;
-            --green: #10b981;
-            --purple: #a855f7;
+            --thermal-purple: #8b3dff;
+            --thermal-red: #ff1744;
+            --thermal-orange: #ff6b35;
+            --liquid-chrome: #e0e7ff;
+            --deep-teal: #0db4b9;
+            --navy-dark: #0a0e27;
         }
 
         html,
         body {
-            background-color: var(--navy-dark);
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 50%, #0d0d1f 100%);
             color: #f8fafc;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-family: 'Outfit', sans-serif;
             margin: 0;
             scroll-behavior: smooth;
         }
@@ -53,87 +54,119 @@
         .grid-bg {
             position: fixed;
             inset: 0;
-            background-image: radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.03) 1px, transparent 0);
-            background-size: 30px 30px;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(139, 61, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(13, 180, 185, 0.08) 0%, transparent 50%);
             z-index: -1;
             pointer-events: none;
         }
 
-        /* VIBRANT CARD DESIGN */
+        /* ULTRA MODERN CARD - THERMAL GLOW */
         .glass-panel {
-            border-radius: 24px;
+            border-radius: 20px;
             padding: 40px;
-            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             position: relative;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            min-height: 500px;
-            border: none;
-            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+            min-height: 520px;
+            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(20px) saturate(180%);
         }
 
-        /* Card Color Variations */
+        /* THERMAL GLOW GRADIENT BACKGROUNDS */
         .glass-panel.iat {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            background: linear-gradient(135deg, 
+                rgba(139, 61, 255, 0.95) 0%, 
+                rgba(255, 107, 53, 0.9) 100%);
+            box-shadow: 0 20px 60px rgba(139, 61, 255, 0.5), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
         .glass-panel.nest {
-            background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
+            background: linear-gradient(135deg, 
+                rgba(13, 180, 185, 0.95) 0%, 
+                rgba(139, 61, 255, 0.85) 100%);
+            box-shadow: 0 20px 60px rgba(13, 180, 185, 0.4), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
         .glass-panel.isi {
-            background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, 
+                rgba(255, 23, 68, 0.95) 0%, 
+                rgba(139, 61, 255, 0.85) 100%);
+            box-shadow: 0 20px 60px rgba(255, 23, 68, 0.5), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
-        /* Hover Effect */
+        /* HOVER - ULTRA DYNAMIC */
         .glass-panel:hover {
-            transform: translateY(-20px) scale(1.03);
-            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+            transform: translateY(-24px) scale(1.04) rotateX(5deg);
+            border-color: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(30px) saturate(200%);
         }
 
-        /* Badge */
+        .glass-panel.iat:hover {
+            box-shadow: 0 40px 100px rgba(139, 61, 255, 0.7), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .glass-panel.nest:hover {
+            box-shadow: 0 40px 100px rgba(13, 180, 185, 0.6), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .glass-panel.isi:hover {
+            box-shadow: 0 40px 100px rgba(255, 23, 68, 0.7), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        /* BADGE - CHROME EFFECT */
         .series-badge {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 2px;
-            padding: 8px 16px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 2.5px;
+            padding: 10px 18px;
             border-radius: 50px;
-            background: rgba(255, 255, 255, 0.25);
-            border: 1px solid rgba(255, 255, 255, 0.4);
+            background: rgba(224, 231, 255, 0.25);
+            border: 1px solid rgba(224, 231, 255, 0.5);
             color: #ffffff;
             text-transform: uppercase;
             margin-bottom: 20px;
-            backdrop-filter: blur(10px);
             width: fit-content;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
-        /* Title */
+        /* TITLE - BOLD & GEOMETRIC */
         .series-title {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 2.5rem;
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.8rem;
             font-weight: 900;
             color: #ffffff;
             margin: 0 0 12px 0;
-            letter-spacing: -1px;
+            letter-spacing: -1.2px;
             line-height: 1;
+            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
         }
 
-        /* Subtitle */
+        /* SUBTITLE */
         .series-subtitle {
-            font-size: 1rem;
-            color: rgba(255, 255, 255, 0.9);
-            margin-bottom: 30px;
-            line-height: 1.5;
+            font-size: 1.05rem;
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 32px;
+            line-height: 1.4;
             font-weight: 500;
+            font-family: 'Inter', sans-serif;
         }
 
-        /* Features List - Minimal */
+        /* FEATURES - CLEAN DOTS */
         .series-features {
             margin-bottom: 32px;
             list-style: none;
@@ -144,51 +177,56 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 12px;
+            margin-bottom: 14px;
             font-size: 0.95rem;
             color: rgba(255, 255, 255, 0.95);
             font-weight: 500;
+            font-family: 'Inter', sans-serif;
         }
 
         .series-features li::before {
             content: '';
-            width: 6px;
-            height: 6px;
+            width: 7px;
+            height: 7px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.8);
+            background: rgba(224, 231, 255, 0.8);
             flex-shrink: 0;
+            box-shadow: 0 0 8px rgba(224, 231, 255, 0.6);
         }
 
-        /* Trust Badge */
+        /* TRUST BADGE */
         .trust-badge {
             font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.85);
-            padding: 12px;
-            background: rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.9);
+            padding: 14px;
+            background: rgba(224, 231, 255, 0.12);
+            border: 1px solid rgba(224, 231, 255, 0.25);
             border-radius: 12px;
             text-align: center;
             font-weight: 600;
             margin-bottom: 24px;
+            font-family: 'Inter', sans-serif;
         }
 
-        /* Button - Vibrant & Bold */
+        /* BUTTON - CHROME LIQUID */
         .buy-btn {
             width: 100%;
-            background: rgba(255, 255, 255, 0.95);
-            border: none;
-            border-radius: 14px;
-            color: #000000;
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 800;
+            background: rgba(224, 231, 255, 0.95);
+            border: 1px solid rgba(224, 231, 255, 0.4);
+            border-radius: 12px;
+            color: #0a0e27;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
             font-size: 0.9rem;
             padding: 18px;
             text-transform: uppercase;
-            letter-spacing: 1.5px;
+            letter-spacing: 1.8px;
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             position: relative;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 10px 30px rgba(224, 231, 255, 0.3), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.5);
         }
 
         .buy-btn::before {
@@ -206,7 +244,8 @@
 
         .buy-btn:hover {
             transform: translateY(-4px);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 20px 50px rgba(224, 231, 255, 0.5), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.6);
         }
 
         .buy-btn:hover::before {
@@ -214,7 +253,7 @@
             height: 300px;
         }
 
-        /* Modals */
+        /* MODALS */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -227,14 +266,14 @@
         }
 
         .modal-content {
-            background: #0f172a;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             padding: 3rem;
             border-radius: 2rem;
-            border: 1px solid rgba(59, 130, 246, 0.5);
+            border: 1.5px solid rgba(139, 61, 255, 0.5);
             text-align: center;
             max-width: 450px;
             width: 90%;
-            box-shadow: 0 0 50px rgba(59, 130, 246, 0.2);
+            box-shadow: 0 20px 60px rgba(139, 61, 255, 0.3);
         }
 
         .success-modal-content {
@@ -265,7 +304,7 @@
         .success-icon {
             width: 100px;
             height: 100px;
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            background: linear-gradient(135deg, #0db4b9 0%, #059669 100%);
             border-radius: 50%;
             display: inline-flex;
             align-items: center;
@@ -273,7 +312,7 @@
             font-size: 50px;
             color: white;
             margin-bottom: 30px;
-            box-shadow: 0 15px 40px rgba(16, 185, 129, 0.5);
+            box-shadow: 0 15px 40px rgba(13, 180, 185, 0.5);
             animation: successPulse 2s ease-in-out infinite;
         }
 
@@ -312,7 +351,7 @@
         }
 
         .copy-btn {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            background: linear-gradient(135deg, #0db4b9 0%, #0a8a91 100%);
             color: white;
             border: none;
             padding: 12px 30px;
@@ -323,12 +362,12 @@
             text-transform: uppercase;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 10px 30px rgba(13, 180, 185, 0.4);
         }
 
         .copy-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 15px 40px rgba(59, 130, 246, 0.6);
+            box-shadow: 0 15px 40px rgba(13, 180, 185, 0.6);
         }
 
         .copy-btn.copied {
@@ -376,9 +415,9 @@
         }
 
         .secondary-btn {
-            background: rgba(59, 130, 246, 0.1);
-            color: #3b82f6;
-            border: 2px solid #3b82f6;
+            background: rgba(139, 61, 255, 0.1);
+            color: #8b3dff;
+            border: 2px solid #8b3dff;
             padding: 14px 35px;
             border-radius: 12px;
             font-weight: 700;
@@ -390,7 +429,7 @@
         }
 
         .secondary-btn:hover {
-            background: rgba(59, 130, 246, 0.2);
+            background: rgba(139, 61, 255, 0.2);
             transform: translateY(-2px);
         }
 
@@ -399,7 +438,7 @@
             padding: 1rem;
             margin: 1rem 0;
             background: #1e293b;
-            border: 1px solid #334155;
+            border: 1.5px solid #8b3dff;
             border-radius: 0.75rem;
             color: white;
             text-align: center;
@@ -407,12 +446,12 @@
         }
 
         .error-banner {
-            background: rgba(239, 68, 68, 0.1);
-            color: #f87171;
+            background: rgba(255, 23, 68, 0.1);
+            color: #ff6b9d;
             padding: 1rem;
             border-radius: 0.75rem;
             margin-top: 1rem;
-            border: 1px solid rgba(239, 68, 68, 0.3);
+            border: 1px solid rgba(255, 23, 68, 0.3);
             font-size: 0.9rem;
         }
 
@@ -435,8 +474,8 @@
         }
 
         .calendar-banner {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%);
-            border: 2px solid rgba(16, 185, 129, 0.3);
+            background: linear-gradient(135deg, rgba(13, 180, 185, 0.15) 0%, rgba(139, 61, 255, 0.15) 100%);
+            border: 2px solid rgba(13, 180, 185, 0.4);
             border-radius: 1.5rem;
             padding: 2rem;
             margin-bottom: 3rem;
@@ -448,25 +487,20 @@
         }
 
         .calendar-banner:hover {
-            border-color: rgba(16, 185, 129, 0.6);
-            box-shadow: 0 10px 40px rgba(16, 185, 129, 0.2);
+            border-color: rgba(13, 180, 185, 0.6);
+            box-shadow: 0 10px 40px rgba(13, 180, 185, 0.2);
             transform: translateY(-4px);
         }
 
         .calendar-icon {
             font-size: 4rem;
-            color: #10b981;
+            color: #0db4b9;
             animation: bounce 2s infinite;
         }
 
         @keyframes bounce {
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-10px);
-            }
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
 
         .calendar-content {
@@ -480,6 +514,7 @@
             margin-bottom: 0.5rem;
             text-transform: uppercase;
             letter-spacing: 1px;
+            font-family: 'Outfit', sans-serif;
         }
 
         .calendar-subtitle {
@@ -489,7 +524,7 @@
         }
 
         .calendar-btn {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            background: linear-gradient(135deg, #0db4b9 0%, #0a8a91 100%);
             color: white;
             font-weight: 800;
             padding: 1rem 2.5rem;
@@ -504,10 +539,11 @@
             font-size: 0.9rem;
             border: none;
             cursor: pointer;
+            font-family: 'Outfit', sans-serif;
         }
 
         .calendar-btn:hover {
-            box-shadow: 0 0 40px rgba(16, 185, 129, 0.6);
+            box-shadow: 0 0 40px rgba(13, 180, 185, 0.6);
             transform: scale(1.05);
         }
 
@@ -523,7 +559,7 @@
                 padding: 28px;
             }
             .series-title {
-                font-size: 2rem;
+                font-size: 2.2rem;
             }
         }
 
@@ -545,13 +581,8 @@
         }
 
         @keyframes vigyanShimmer {
-            0%,
-            100% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
         }
 
         .logo .logo-dot {
@@ -657,7 +688,7 @@
 
             <div id="navLoginPlaceholder">
                 <a href="signinpage.html"
-                    class="btn-login bg-blue-600 px-6 py-2 rounded-full text-white hover:bg-blue-700 transition shadow-lg shadow-blue-900/40">
+                    class="btn-login bg-gradient-to-r from-[#8b3dff] to-[#0db4b9] px-6 py-2 rounded-full text-white hover:shadow-lg hover:shadow-purple-900/40 transition">
                     Login
                 </a>
             </div>
@@ -666,11 +697,11 @@
 
     <main class="max-w-7xl mx-auto pt-48 pb-20 px-6">
         <header class="mb-24">
-            <div class="text-blue-500 font-bold tracking-[0.3em] text-[10px] mb-6 uppercase">Assessment Matrix // v4.1</div>
+            <div class="text-[#0db4b9] font-bold tracking-[0.3em] text-[10px] mb-6 uppercase">THERMAL GLOW // 2026</div>
             <h1 class="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-[0.9] text-white">
-                Choose Your <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-indigo-500">Challenge.</span>
+                Choose Your <br><span class="bg-gradient-to-r from-[#8b3dff] via-[#ff1744] to-[#ff6b35] bg-clip-text text-transparent">Challenge.</span>
             </h1>
-            <p class="text-gray-400 mt-8 text-lg max-w-2xl border-l-2 border-blue-500/50 pl-8 leading-relaxed">
+            <p class="text-gray-400 mt-8 text-lg max-w-2xl border-l-2 border-[#0db4b9] pl-8 leading-relaxed">
                 Each exam series tells a unique story. Find the one that matches your strength and ambition.
             </p>
         </header>
@@ -684,8 +715,7 @@
                     📅 View Your Upcoming Tests
                 </h2>
                 <p class="calendar-subtitle">
-                    Check your personalized test schedule and prepare for upcoming exams. Only tests from your purchased
-                    series are shown.
+                    Check your personalized test schedule and prepare for upcoming exams. Only tests from your purchased series are shown.
                 </p>
             </div>
             <a href="student-calendar.html" class="calendar-btn">
@@ -697,9 +727,9 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-10" id="cardsContainer"></div>
     </main>
 
-    <script src="frontend/js/config.js?v=20260126-0034"></script>
-    <script src="frontend/js/auth.js?v=20260126-0034"></script>
-    <script src="frontend/js/user-panel.js?v=20260126-0034"></script>
+    <script src="frontend/js/config.js?v=20260126-0041"></script>
+    <script src="frontend/js/auth.js?v=20260126-0041"></script>
+    <script src="frontend/js/user-panel.js?v=20260126-0041"></script>
 
     <script>
         const testSeries = [
@@ -780,11 +810,7 @@
         window.onload = function () {
             if (window.refreshUserDashboard) window.refreshUserDashboard();
             const purchased = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
-
-            if (purchased.length > 0) {
-                document.getElementById('calendarBanner').style.display = 'flex';
-            }
-
+            if (purchased.length > 0) document.getElementById('calendarBanner').style.display = 'flex';
             testSeries.forEach(test => {
                 if (purchased.includes(test.id)) markAsPurchased(test.id);
             });
@@ -794,7 +820,7 @@
             const btn = document.getElementById(`btn-${testId}`);
             if (btn) {
                 btn.innerHTML = "✓ ACCESS GRANTED";
-                btn.style.background = "rgba(255, 255, 255, 0.95)";
+                btn.style.background = "rgba(224, 231, 255, 0.95)";
                 btn.onclick = () => {
                     localStorage.setItem("currentTestId", testId);
                     window.location.href = "instructions.html?test=" + testId;
@@ -825,11 +851,9 @@
         function copyRollNumber() {
             const rollNumber = document.getElementById('finalTokenDisplay').innerText;
             const copyBtn = document.getElementById('copyRollBtn');
-            
             navigator.clipboard.writeText(rollNumber).then(() => {
                 copyBtn.innerHTML = '<i class="fas fa-check"></i> COPIED!';
                 copyBtn.classList.add('copied');
-                
                 setTimeout(() => {
                     copyBtn.innerHTML = '<i class="fas fa-copy"></i> COPY ROLL NUMBER';
                     copyBtn.classList.remove('copied');
@@ -842,11 +866,9 @@
         function startCountdown() {
             secondsRemaining = 6;
             const countdownElement = document.getElementById('countdownTimer');
-            
             countdownInterval = setInterval(() => {
                 secondsRemaining--;
                 countdownElement.textContent = secondsRemaining;
-                
                 if (secondsRemaining <= 0) {
                     clearInterval(countdownInterval);
                     closeSuccessModal();
@@ -859,28 +881,22 @@
                 clearInterval(countdownInterval);
                 countdownInterval = null;
             }
-            
             const countdownElement = document.getElementById('countdownTimer');
             countdownElement.parentElement.innerHTML = '<i class="fas fa-check-circle"></i> Auto-redirect cancelled';
         }
 
         function closeSuccessModal() {
             if (countdownInterval) clearInterval(countdownInterval);
-            
             document.getElementById("successModal").style.display = "none";
-            
             const testId = localStorage.getItem("tempTestId");
             if (testId) markAsPurchased(testId);
-            
             document.getElementById('calendarBanner').style.display = 'flex';
-
             if (window.renderUserPanelDirect) {
                 const email = localStorage.getItem("userEmail");
                 const rollNumber = localStorage.getItem("userRollNumber");
                 const purchasedTests = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
                 window.renderUserPanelDirect({ email, rollNumber, tests: purchasedTests });
             }
-            
             setTimeout(() => {
                 window.location.href = "testfirstpage.html?t=" + Date.now();
             }, 500);
@@ -890,14 +906,11 @@
             const emailInput = document.getElementById("modalUserEmail").value.trim().toLowerCase();
             const errorDiv = document.getElementById("modalError");
             const btn = document.getElementById("modalActionBtn");
-
             errorDiv.classList.add("hidden");
-
             if (!emailInput || !emailInput.includes("@")) {
                 showModalError("✗ Please enter a valid email address");
                 return;
             }
-            
             localStorage.setItem("userEmail", emailInput);
             startPayment(emailInput, null, localStorage.getItem("tempTestId"), localStorage.getItem("tempAmount"));
         }
@@ -906,22 +919,15 @@
             const btn = document.getElementById("modalActionBtn");
             btn.disabled = true;
             btn.innerHTML = '<span class="loading-spinner"></span> Creating Order...';
-            
             try {
                 const orderRes = await axios.post(`${PAYMENT_API_URL}/api/payment/checkout`, {
-                    amount: amount,
-                    testId: testId,
-                    email: userEmail
+                    amount: amount, testId: testId, email: userEmail
                 }, { timeout: 15000 });
-
                 if (!orderRes.data.success || !orderRes.data.orderId) {
                     throw new Error('Failed to create order: ' + (orderRes.data.message || 'Unknown error'));
                 }
-
                 const { orderId, amount: orderAmount, currency, key } = orderRes.data;
-
                 btn.innerHTML = '<span class="loading-spinner"></span> Opening Razorpay...';
-
                 const options = {
                     key: key,
                     amount: orderAmount,
@@ -929,17 +935,11 @@
                     name: "Vigyan.prep",
                     description: `Activate ${testId.toUpperCase()} Test Series`,
                     order_id: orderId,
-                    prefill: {
-                        email: userEmail,
-                        contact: ""
-                    },
-                    theme: {
-                        color: "#3b82f6"
-                    },
+                    prefill: { email: userEmail, contact: "" },
+                    theme: { color: "#8b3dff" },
                     handler: async function (response) {
                         try {
                             btn.innerHTML = '<span class="loading-spinner"></span> Verifying Payment...';
-                            
                             const verifyRes = await axios.post(`${PAYMENT_API_URL}/api/payment/paymentverification`, {
                                 razorpay_order_id: response.razorpay_order_id,
                                 razorpay_payment_id: response.razorpay_payment_id,
@@ -948,20 +948,14 @@
                                 email: userEmail,
                                 amount: amount
                             }, { timeout: 15000 });
-
                             if (verifyRes.data.success) {
                                 const rollNumber = verifyRes.data.rollNumber;
-                                
                                 localStorage.setItem("userEmail", userEmail);
                                 localStorage.setItem("userRollNumber", rollNumber);
                                 localStorage.setItem("currentTestId", testId);
-                                
                                 const purchased = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
-                                if (!purchased.includes(testId)) {
-                                    purchased.push(testId);
-                                }
+                                if (!purchased.includes(testId)) purchased.push(testId);
                                 localStorage.setItem("purchasedTests", JSON.stringify(purchased));
-                                
                                 setTimeout(() => {
                                     closeEntryModal();
                                     document.getElementById("finalTokenDisplay").innerText = rollNumber;
@@ -972,13 +966,7 @@
                                 throw new Error(verifyRes.data.message || 'Payment verification failed');
                             }
                         } catch (verifyErr) {
-                            let errorMessage = "✗ Payment verification failed. ";
-                            if (verifyErr.response?.data?.message) {
-                                errorMessage += verifyErr.response.data.message;
-                            } else {
-                                errorMessage += "Please contact support with payment ID: " + response.razorpay_payment_id;
-                            }
-                            showModalError(errorMessage);
+                            showModalError("✗ Payment verification failed. " + (verifyErr.response?.data?.message || "Please contact support."));
                             btn.innerText = "Proceed to Payment";
                             btn.disabled = false;
                         }
@@ -990,20 +978,10 @@
                         }
                     }
                 };
-
                 const rzp = new Razorpay(options);
                 rzp.open();
-
             } catch (error) {
-                let errorMessage = "✗ Payment failed: ";
-                if (error.code === 'ECONNABORTED') {
-                    errorMessage += "Connection timeout. Please check your internet.";
-                } else if (error.response?.data?.message) {
-                    errorMessage += error.response.data.message;
-                } else {
-                    errorMessage += error.message || "Unknown error occurred.";
-                }
-                showModalError(errorMessage);
+                showModalError("✗ Payment failed: " + (error.response?.data?.message || error.message || "Unknown error occurred."));
                 btn.innerText = "Proceed to Payment";
                 btn.disabled = false;
             }
