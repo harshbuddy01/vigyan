@@ -1,11 +1,12 @@
 /**
- * View Questions Page - BACKEND CONNECTED TO RAILWAY
+ * View Questions Page - BACKEND CONNECTED
+ * FIXED: 2026-01-25 - Correct endpoint and no fake success messages
  */
 
 let allQuestions = [];
 
 function initViewQuestions() {
-    console.log('📝 Initializing View Questions page...');
+    console.log('📋 Initializing View Questions page...');
     renderViewQuestionsPage();
     loadQuestionsFromBackend();
 }
@@ -79,11 +80,11 @@ function renderViewQuestionsPage() {
 
 async function loadQuestionsFromBackend() {
     try {
-        console.log('🔄 Fetching questions from Railway backend...');
+        console.log('🔄 Fetching questions from backend...');
         
-        // ✅ FIXED: Using full Railway backend URL from config
-        const apiUrl = `${window.API_BASE_URL}/api/admin/questions-fixed`;
-        console.log('📍 API URL:', apiUrl);
+        // ✅ FIXED: Use correct endpoint /api/admin/questions (NOT questions-fixed)
+        const apiUrl = `${window.API_BASE_URL}/api/admin/questions`;
+        console.log('📡 API URL:', apiUrl);
         
         const response = await fetch(apiUrl, {
             method: 'GET',
@@ -91,6 +92,14 @@ async function loadQuestionsFromBackend() {
                 'Content-Type': 'application/json'
             }
         });
+        
+        // Handle empty database gracefully
+        if (response.status === 404 || response.status === 204) {
+            console.log('ℹ️ No questions found in database');
+            allQuestions = [];
+            displayQuestions([]);
+            return;
+        }
         
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -104,6 +113,12 @@ async function loadQuestionsFromBackend() {
         
         displayQuestions(allQuestions);
         
+        // ✅ ONLY show success toast on manual refresh (not on initial load)
+        if (window._manualRefresh && window.AdminUtils) {
+            window.AdminUtils.showToast(`Loaded ${allQuestions.length} questions`, 'success');
+            window._manualRefresh = false;
+        }
+        
     } catch (error) {
         console.error('❌ Failed to load questions:', error);
         
@@ -116,7 +131,7 @@ async function loadQuestionsFromBackend() {
                     </div>
                     <h3 style="color: #1e293b; margin-bottom: 8px;">Failed to Load Questions</h3>
                     <p style="color: #64748b; margin-bottom: 16px;">Error: ${error.message}</p>
-                    <button class="btn-primary" onclick="loadQuestionsFromBackend()">
+                    <button class="btn-primary" onclick="refreshQuestionsManually()">
                         <i class="fas fa-sync"></i> Retry
                     </button>
                     <p style="color: #94a3b8; font-size: 12px; margin-top: 16px;">If problem persists, check backend connection</p>
@@ -124,10 +139,17 @@ async function loadQuestionsFromBackend() {
             `;
         }
         
-        if (window.AdminUtils) {
+        // Only show error toast on failures (not on empty database)
+        if (window.AdminUtils && error.message.includes('HTTP')) {
             window.AdminUtils.showToast('Failed to load questions from backend', 'error');
         }
     }
+}
+
+// Manual refresh function to trigger success toast
+function refreshQuestionsManually() {
+    window._manualRefresh = true;
+    loadQuestionsFromBackend();
 }
 
 function applyQuestionFilters() {
@@ -160,7 +182,7 @@ function displayQuestions(questions) {
     if (questions.length === 0) {
         tbody.innerHTML = `
             <tr><td colspan="8" style="text-align: center; padding: 60px; color: #94a3b8;">
-                <i class="fas fa-question-circle" style="font-size: 48px; margin-bottom: 16px;"></i>
+                <i class="fas fa-question-circle" style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;"></i>
                 <p style="font-size: 18px; margin-bottom: 8px;">No questions found</p>
                 <p style="font-size: 14px;">Add questions using the "Add Questions" page</p>
             </td></tr>
@@ -266,7 +288,11 @@ function editQuestionModal(id) {
     const question = allQuestions.find(q => q.id === id);
     if (!question) return;
     
-    alert('Edit functionality: This will update the question in the backend database and immediately reflect to students on their next test attempt.');
+    if (window.AdminUtils) {
+        window.AdminUtils.showToast('Edit functionality coming soon!', 'info');
+    } else {
+        alert('Edit functionality: This will update the question in the backend database.');
+    }
     // TODO: Implement edit modal with form
 }
 
@@ -288,13 +314,21 @@ async function deleteQuestionConfirm(id) {
         }
     } catch (error) {
         console.error('❌ Delete error:', error);
-        alert('Failed to delete question. Please try again.');
+        if (window.AdminUtils) {
+            window.AdminUtils.showToast('Failed to delete question', 'error');
+        } else {
+            alert('Failed to delete question. Please try again.');
+        }
     }
 }
 
 function exportQuestions() {
     if (allQuestions.length === 0) {
-        alert('No questions to export');
+        if (window.AdminUtils) {
+            window.AdminUtils.showToast('No questions to export', 'warning');
+        } else {
+            alert('No questions to export');
+        }
         return;
     }
     
@@ -325,6 +359,7 @@ function exportQuestions() {
 
 window.initViewQuestions = initViewQuestions;
 window.loadQuestionsFromBackend = loadQuestionsFromBackend;
+window.refreshQuestionsManually = refreshQuestionsManually;
 window.viewQuestionDetails = viewQuestionDetails;
 window.editQuestionModal = editQuestionModal;
 window.deleteQuestionConfirm = deleteQuestionConfirm;
