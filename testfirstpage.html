@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Series Matrix | Vigyan.prep</title>
-    <!-- CACHE CLEAR: 2026-01-26 02:30 IST - ADDED VISIBLE EMOJI ICONS -->
+    <!-- CACHE CLEAR: 2026-01-26 02:32 IST - USING IMAGE ICONS INSTEAD OF EMOJI -->
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -85,13 +85,27 @@
             box-shadow: 0 20px 40px -20px rgba(59, 130, 246, 0.3);
         }
 
-        /* ========== TEST SERIES EMOJI ICON HEADER ========== */
-        .series-icon-emoji {
-            font-size: 3.5rem;
+        /* ========== TEST SERIES ICON HEADER (IMAGE-BASED) ========== */
+        .series-icon-header {
             text-align: center;
-            margin-bottom: 1rem;
-            display: block;
-            line-height: 1;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 80px;
+        }
+
+        .series-icon-image {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 12px rgba(59, 130, 246, 0.3));
+            transition: all 0.3s ease;
+        }
+
+        .glass-panel:hover .series-icon-image {
+            transform: scale(1.1);
+            filter: drop-shadow(0 8px 20px rgba(59, 130, 246, 0.5));
         }
 
         .buy-btn {
@@ -608,25 +622,25 @@
     <script src="frontend/js/user-panel.js?v=20260125-2111"></script>
 
     <script>
-        // 💰 UPDATED: Changed to ₹1 for testing (was ₹199)
+        // 🎨 TEST SERIES WITH IMAGE ICONS (NOT EMOJI)
         const testSeries = [
             { 
                 id: 'iat', 
-                emoji: '⚡',
+                iconUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ccircle cx="50" cy="50" r="45" fill="%238B5CF6"/%3E%3Ctext x="50" y="65" font-size="60" font-weight="bold" fill="white" text-anchor="middle"%3E⚡%3C/text%3E%3C/svg%3E',
                 name: 'IAT SERIES', 
                 subtitle: 'Speed Mastery',
                 price: 1 
             },
             { 
                 id: 'nest', 
-                emoji: '🔬',
+                iconUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ccircle cx="50" cy="50" r="45" fill="%2314B8A6"/%3E%3Ctext x="50" y="65" font-size="60" font-weight="bold" fill="white" text-anchor="middle"%3E🔬%3C/text%3E%3C/svg%3E',
                 name: 'NEST SERIES', 
                 subtitle: 'Deep Dive',
                 price: 1 
             },
             { 
                 id: 'isi', 
-                emoji: '🏆',
+                iconUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ccircle cx="50" cy="50" r="45" fill="%23EF4444"/%3E%3Ctext x="50" y="65" font-size="60" font-weight="bold" fill="white" text-anchor="middle"%3E🏆%3C/text%3E%3C/svg%3E',
                 name: 'ISI SERIES', 
                 subtitle: 'Proof Academy',
                 price: 1 
@@ -644,7 +658,9 @@
             card.className = 'glass-panel flex flex-col justify-between';
             card.innerHTML = `
                 <div>
-                    <span class="series-icon-emoji">${test.emoji}</span>
+                    <div class="series-icon-header">
+                        <img src="${test.iconUrl}" alt="${test.id}" class="series-icon-image" />
+                    </div>
                     <div class="flex justify-between items-start mb-8">
                         <span class="font-bold text-blue-500 uppercase tracking-widest text-[10px] border border-blue-500/30 px-3 py-1 rounded-full bg-blue-500/5">${test.id}</span>
                         <div class="text-right leading-none">
@@ -656,8 +672,8 @@
                     <p class="text-gray-400 text-sm mb-6 font-medium">${test.subtitle}</p>
                     <div class="w-full h-px bg-white/10 mb-6"></div>
                     <ul class="text-gray-400 text-sm space-y-3 mb-8 font-medium">
-                        <li class="flex items-center gap-2"><span class="text-blue-500">❖</span> Real exam patterns</li>
-                        <li class="flex items-center gap-2"><span class="text-blue-500">❖</span> Instant access granted</li>
+                        <li class="flex items-center gap-2"><span class="text-blue-500">✦</span> Real exam patterns</li>
+                        <li class="flex items-center gap-2"><span class="text-blue-500">✦</span> Instant access granted</li>
                     </ul>
                 </div>
                 <button id="btn-${test.id}" onclick="executePurchase('${test.id}', ${test.price})" class="buy-btn shadow-lg shadow-blue-900/30">
@@ -749,7 +765,7 @@
             }, 1000);
         }
 
-        // ❌ Cancel Auto-redirect
+        // ✖️ Cancel Auto-redirect
         function cancelRedirect() {
             if (countdownInterval) {
                 clearInterval(countdownInterval);
@@ -800,11 +816,11 @@
             errorDiv.classList.add("hidden");
 
             if (!emailInput || !emailInput.includes("@")) {
-                showModalError("❌ Please enter a valid email address");
+                showModalError("✖ Please enter a valid email address");
                 return;
             }
 
-            // 🎯 NEW FLOW: Skip verification, go straight to payment!
+            // 🏃 NEW FLOW: Skip verification, go straight to payment!
             console.log('✅ Email captured:', emailInput);
             console.log('🚀 Going directly to payment (no verification needed)...');
             
@@ -912,8 +928,8 @@
                                 throw new Error(verifyRes.data.message || 'Payment verification failed');
                             }
                         } catch (verifyErr) {
-                            console.error('❌ Payment verification error:', verifyErr);
-                            let errorMessage = "❌ Payment verification failed. ";
+                            console.error('✖ Payment verification error:', verifyErr);
+                            let errorMessage = "✖ Payment verification failed. ";
                             if (verifyErr.response?.data?.message) {
                                 errorMessage += verifyErr.response.data.message;
                             } else {
@@ -926,7 +942,7 @@
                     },
                     modal: {
                         ondismiss: function () {
-                            console.log('❌ Payment cancelled by user');
+                            console.log('✖ Payment cancelled by user');
                             btn.innerText = "Proceed to Payment";
                             btn.disabled = false;
                         }
@@ -938,8 +954,8 @@
                 rzp.open();
 
             } catch (error) {
-                console.error('❌ Payment initiation error:', error);
-                let errorMessage = "❌ Payment failed: ";
+                console.error('✖ Payment initiation error:', error);
+                let errorMessage = "✖ Payment failed: ";
                 if (error.code === 'ECONNABORTED') {
                     errorMessage += "Connection timeout. Please check your internet.";
                 } else if (error.response?.data?.message) {
