@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Series Matrix | Vigyan.prep</title>
-    <!-- CACHE CLEAR: 2026-01-26 00:41 IST - ULTRA MODERN: THERMAL GLOW + LIQUID CHROME + DEEP TEAL -->
+    <!-- CACHE CLEAR: 2026-01-26 00:46 IST - CARD DESIGN FIX ONLY -->
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -15,11 +15,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Cache-busted CSS files -->
-    <link rel="stylesheet" href="frontend/css/global.css?v=20260126-0041">
-    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260126-0041">
-    <link rel="stylesheet" href="frontend/css/pages.css?v=20260126-0041">
-    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260126-0041">
-    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260126-0041">
+    <link rel="stylesheet" href="frontend/css/global.css?v=20260126-0046">
+    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260126-0046">
+    <link rel="stylesheet" href="frontend/css/pages.css?v=20260126-0046">
+    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260126-0046">
+    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260126-0046">
 
     <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="pragma" content="no-cache">
@@ -33,140 +33,133 @@
     </script>
 
     <style>
-        :root {
-            --thermal-purple: #8b3dff;
-            --thermal-red: #ff1744;
-            --thermal-orange: #ff6b35;
-            --liquid-chrome: #e0e7ff;
-            --deep-teal: #0db4b9;
-            --navy-dark: #0a0e27;
-        }
-
-        html,
-        body {
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 50%, #0d0d1f 100%);
-            color: #f8fafc;
-            font-family: 'Outfit', sans-serif;
+        /* KEEP SAME BACKGROUND AS OTHER PAGES */
+        html, body {
             margin: 0;
-            scroll-behavior: smooth;
+            padding: 0;
         }
 
-        .grid-bg {
-            position: fixed;
-            inset: 0;
-            background-image: 
-                radial-gradient(circle at 20% 50%, rgba(139, 61, 255, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(13, 180, 185, 0.08) 0%, transparent 50%);
-            z-index: -1;
-            pointer-events: none;
+        main {
+            padding-top: 120px;
+            padding-bottom: 80px;
         }
 
-        /* ULTRA MODERN CARD - THERMAL GLOW */
+        /* ========== ULTRA PREMIUM CARD DESIGN ========== */
+        
         .glass-panel {
-            border-radius: 20px;
-            padding: 40px;
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border-radius: 24px;
+            padding: 48px;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
             position: relative;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            min-height: 520px;
-            border: 1.5px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(20px) saturate(180%);
+            min-height: 580px;
+            border: 2px solid;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
         }
 
-        /* THERMAL GLOW GRADIENT BACKGROUNDS */
+        /* IAT - PURPLE TO PINK GRADIENT */
         .glass-panel.iat {
             background: linear-gradient(135deg, 
-                rgba(139, 61, 255, 0.95) 0%, 
-                rgba(255, 107, 53, 0.9) 100%);
-            box-shadow: 0 20px 60px rgba(139, 61, 255, 0.5), 
+                #a855f7 0%,
+                #9333ea 25%,
+                #ec4899 75%,
+                #f43f5e 100%);
+            border-color: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 25px 80px rgba(168, 85, 247, 0.35),
                         inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
+        /* NEST - TEAL TO BLUE GRADIENT */
         .glass-panel.nest {
-            background: linear-gradient(135deg, 
-                rgba(13, 180, 185, 0.95) 0%, 
-                rgba(139, 61, 255, 0.85) 100%);
-            box-shadow: 0 20px 60px rgba(13, 180, 185, 0.4), 
+            background: linear-gradient(135deg,
+                #14b8a6 0%,
+                #0d9488 25%,
+                #0891b2 60%,
+                #3b82f6 100%);
+            border-color: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 25px 80px rgba(20, 184, 166, 0.35),
                         inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
+        /* ISI - RED TO MAGENTA GRADIENT */
         .glass-panel.isi {
-            background: linear-gradient(135deg, 
-                rgba(255, 23, 68, 0.95) 0%, 
-                rgba(139, 61, 255, 0.85) 100%);
-            box-shadow: 0 20px 60px rgba(255, 23, 68, 0.5), 
+            background: linear-gradient(135deg,
+                #ef4444 0%,
+                #f43f5e 30%,
+                #ec4899 70%,
+                #d946ef 100%);
+            border-color: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 25px 80px rgba(239, 68, 68, 0.35),
                         inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
-        /* HOVER - ULTRA DYNAMIC */
+        /* HOVER EFFECTS - LIFT & GLOW */
         .glass-panel:hover {
-            transform: translateY(-24px) scale(1.04) rotateX(5deg);
-            border-color: rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(30px) saturate(200%);
+            transform: translateY(-20px) scale(1.02);
+            border-color: rgba(255, 255, 255, 0.4);
         }
 
         .glass-panel.iat:hover {
-            box-shadow: 0 40px 100px rgba(139, 61, 255, 0.7), 
+            box-shadow: 0 40px 120px rgba(168, 85, 247, 0.5),
                         inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
         .glass-panel.nest:hover {
-            box-shadow: 0 40px 100px rgba(13, 180, 185, 0.6), 
+            box-shadow: 0 40px 120px rgba(20, 184, 166, 0.5),
                         inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
         .glass-panel.isi:hover {
-            box-shadow: 0 40px 100px rgba(255, 23, 68, 0.7), 
+            box-shadow: 0 40px 120px rgba(239, 68, 68, 0.5),
                         inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
-        /* BADGE - CHROME EFFECT */
+        /* BADGE - CLEAN & MODERN */
         .series-badge {
             display: inline-flex;
             align-items: center;
             gap: 8px;
             font-family: 'Outfit', sans-serif;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 800;
-            letter-spacing: 2.5px;
+            letter-spacing: 2px;
             padding: 10px 18px;
             border-radius: 50px;
-            background: rgba(224, 231, 255, 0.25);
-            border: 1px solid rgba(224, 231, 255, 0.5);
+            background: rgba(255, 255, 255, 0.25);
+            border: 1.5px solid rgba(255, 255, 255, 0.4);
             color: #ffffff;
             text-transform: uppercase;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             width: fit-content;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
         }
 
-        /* TITLE - BOLD & GEOMETRIC */
+        /* TITLE - BOLD & CLEAN */
         .series-title {
             font-family: 'Outfit', sans-serif;
-            font-size: 2.8rem;
+            font-size: 3rem;
             font-weight: 900;
             color: #ffffff;
             margin: 0 0 12px 0;
-            letter-spacing: -1.2px;
-            line-height: 1;
-            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+            letter-spacing: -1px;
+            line-height: 1.1;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
 
         /* SUBTITLE */
         .series-subtitle {
-            font-size: 1.05rem;
+            font-size: 1.1rem;
             color: rgba(255, 255, 255, 0.95);
             margin-bottom: 32px;
-            line-height: 1.4;
+            line-height: 1.5;
             font-weight: 500;
             font-family: 'Inter', sans-serif;
         }
 
-        /* FEATURES - CLEAN DOTS */
+        /* FEATURES LIST - CLEAN DOTS */
         .series-features {
             margin-bottom: 32px;
             list-style: none;
@@ -176,9 +169,9 @@
         .series-features li {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 14px;
-            font-size: 0.95rem;
+            gap: 14px;
+            margin-bottom: 16px;
+            font-size: 1rem;
             color: rgba(255, 255, 255, 0.95);
             font-weight: 500;
             font-family: 'Inter', sans-serif;
@@ -186,71 +179,54 @@
 
         .series-features li::before {
             content: '';
-            width: 7px;
-            height: 7px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
-            background: rgba(224, 231, 255, 0.8);
+            background: rgba(255, 255, 255, 0.8);
             flex-shrink: 0;
-            box-shadow: 0 0 8px rgba(224, 231, 255, 0.6);
         }
 
         /* TRUST BADGE */
         .trust-badge {
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.9);
-            padding: 14px;
-            background: rgba(224, 231, 255, 0.12);
-            border: 1px solid rgba(224, 231, 255, 0.25);
-            border-radius: 12px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.95);
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1.5px solid rgba(255, 255, 255, 0.25);
+            border-radius: 14px;
             text-align: center;
-            font-weight: 600;
-            margin-bottom: 24px;
+            font-weight: 700;
+            margin-bottom: 28px;
             font-family: 'Inter', sans-serif;
+            backdrop-filter: blur(10px);
         }
 
-        /* BUTTON - CHROME LIQUID */
+        /* BUTTON - PREMIUM WHITE */
         .buy-btn {
             width: 100%;
-            background: rgba(224, 231, 255, 0.95);
-            border: 1px solid rgba(224, 231, 255, 0.4);
-            border-radius: 12px;
-            color: #0a0e27;
+            background: rgba(255, 255, 255, 0.98);
+            border: 1.5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 14px;
+            color: #1f2937;
             font-family: 'Outfit', sans-serif;
             font-weight: 900;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             padding: 18px;
             text-transform: uppercase;
-            letter-spacing: 1.8px;
+            letter-spacing: 1.5px;
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(224, 231, 255, 0.3), 
-                        inset 0 1px 0 rgba(255, 255, 255, 0.5);
-        }
-
-        .buy-btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(0, 0, 0, 0.1);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.25);
         }
 
         .buy-btn:hover {
             transform: translateY(-4px);
-            box-shadow: 0 20px 50px rgba(224, 231, 255, 0.5), 
-                        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 20px 50px rgba(255, 255, 255, 0.4);
         }
 
-        .buy-btn:hover::before {
-            width: 300px;
-            height: 300px;
+        .buy-btn:active {
+            transform: translateY(-2px);
         }
 
         /* MODALS */
@@ -269,7 +245,7 @@
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             padding: 3rem;
             border-radius: 2rem;
-            border: 1.5px solid rgba(139, 61, 255, 0.5);
+            border: 1.5px solid #8b3dff;
             text-align: center;
             max-width: 450px;
             width: 90%;
@@ -304,7 +280,7 @@
         .success-icon {
             width: 100px;
             height: 100px;
-            background: linear-gradient(135deg, #0db4b9 0%, #059669 100%);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             border-radius: 50%;
             display: inline-flex;
             align-items: center;
@@ -312,7 +288,7 @@
             font-size: 50px;
             color: white;
             margin-bottom: 30px;
-            box-shadow: 0 15px 40px rgba(13, 180, 185, 0.5);
+            box-shadow: 0 15px 40px rgba(16, 185, 129, 0.5);
             animation: successPulse 2s ease-in-out infinite;
         }
 
@@ -351,7 +327,7 @@
         }
 
         .copy-btn {
-            background: linear-gradient(135deg, #0db4b9 0%, #0a8a91 100%);
+            background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
             color: white;
             border: none;
             padding: 12px 30px;
@@ -362,12 +338,12 @@
             text-transform: uppercase;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 10px 30px rgba(13, 180, 185, 0.4);
+            box-shadow: 0 10px 30px rgba(20, 184, 166, 0.4);
         }
 
         .copy-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 15px 40px rgba(13, 180, 185, 0.6);
+            box-shadow: 0 15px 40px rgba(20, 184, 166, 0.6);
         }
 
         .copy-btn.copied {
@@ -474,8 +450,8 @@
         }
 
         .calendar-banner {
-            background: linear-gradient(135deg, rgba(13, 180, 185, 0.15) 0%, rgba(139, 61, 255, 0.15) 100%);
-            border: 2px solid rgba(13, 180, 185, 0.4);
+            background: linear-gradient(135deg, rgba(20, 184, 166, 0.15) 0%, rgba(139, 61, 255, 0.15) 100%);
+            border: 2px solid rgba(20, 184, 166, 0.4);
             border-radius: 1.5rem;
             padding: 2rem;
             margin-bottom: 3rem;
@@ -487,14 +463,14 @@
         }
 
         .calendar-banner:hover {
-            border-color: rgba(13, 180, 185, 0.6);
-            box-shadow: 0 10px 40px rgba(13, 180, 185, 0.2);
+            border-color: rgba(20, 184, 166, 0.6);
+            box-shadow: 0 10px 40px rgba(20, 184, 166, 0.2);
             transform: translateY(-4px);
         }
 
         .calendar-icon {
             font-size: 4rem;
-            color: #0db4b9;
+            color: #14b8a6;
             animation: bounce 2s infinite;
         }
 
@@ -524,7 +500,7 @@
         }
 
         .calendar-btn {
-            background: linear-gradient(135deg, #0db4b9 0%, #0a8a91 100%);
+            background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
             color: white;
             font-weight: 800;
             padding: 1rem 2.5rem;
@@ -543,7 +519,7 @@
         }
 
         .calendar-btn:hover {
-            box-shadow: 0 0 40px rgba(13, 180, 185, 0.6);
+            box-shadow: 0 0 40px rgba(20, 184, 166, 0.6);
             transform: scale(1.05);
         }
 
@@ -556,14 +532,15 @@
                 flex-direction: column;
             }
             .glass-panel {
-                padding: 28px;
+                padding: 32px;
+                min-height: 500px;
             }
             .series-title {
-                font-size: 2.2rem;
+                font-size: 2.4rem;
             }
         }
 
-        /* ORIGINAL VIGYAN.PREP Premium Logo */
+        /* LOGO STYLING */
         .logo .logo-vigyan {
             font-family: 'Cormorant Garamond', Georgia, serif;
             font-weight: 700;
@@ -605,8 +582,6 @@
 </head>
 
 <body>
-
-    <div class="grid-bg"></div>
 
     <div id="emailModal" class="modal-overlay">
         <div class="modal-content">
@@ -695,13 +670,12 @@
         </div>
     </nav>
 
-    <main class="max-w-7xl mx-auto pt-48 pb-20 px-6">
-        <header class="mb-24">
-            <div class="text-[#0db4b9] font-bold tracking-[0.3em] text-[10px] mb-6 uppercase">THERMAL GLOW // 2026</div>
-            <h1 class="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-[0.9] text-white">
-                Choose Your <br><span class="bg-gradient-to-r from-[#8b3dff] via-[#ff1744] to-[#ff6b35] bg-clip-text text-transparent">Challenge.</span>
+    <main class="max-w-7xl mx-auto px-6">
+        <header class="mb-20 pt-32">
+            <h1 class="text-6xl md:text-7xl font-black uppercase tracking-tighter leading-tight text-white mb-6">
+                Choose Your <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500">Challenge.</span>
             </h1>
-            <p class="text-gray-400 mt-8 text-lg max-w-2xl border-l-2 border-[#0db4b9] pl-8 leading-relaxed">
+            <p class="text-gray-400 text-lg max-w-2xl leading-relaxed">
                 Each exam series tells a unique story. Find the one that matches your strength and ambition.
             </p>
         </header>
@@ -724,12 +698,12 @@
             </a>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-10" id="cardsContainer"></div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10 pb-20" id="cardsContainer"></div>
     </main>
 
-    <script src="frontend/js/config.js?v=20260126-0041"></script>
-    <script src="frontend/js/auth.js?v=20260126-0041"></script>
-    <script src="frontend/js/user-panel.js?v=20260126-0041"></script>
+    <script src="frontend/js/config.js?v=20260126-0046"></script>
+    <script src="frontend/js/auth.js?v=20260126-0046"></script>
+    <script src="frontend/js/user-panel.js?v=20260126-0046"></script>
 
     <script>
         const testSeries = [
@@ -745,7 +719,7 @@
                     'Daily speed trials',
                     'Analytics dashboard'
                 ],
-                cta: '→ Start Now',
+                cta: '→ ACCESS GRANTED',
                 trust: '5,000+ toppers | +15%',
                 price: 1
             },
@@ -761,7 +735,7 @@
                     '1,000+ tricky problems',
                     'Concept mapping'
                 ],
-                cta: '→ Unlock Mastery',
+                cta: '→ UNLOCK MASTERY',
                 trust: 'NEST mentors recommended',
                 price: 1
             },
@@ -777,7 +751,7 @@
                     'Question stratification',
                     'Mock exams'
                 ],
-                cta: '→ Start Practice',
+                cta: '→ START PRACTICE',
                 trust: 'ISI alumni designed',
                 price: 1
             }
@@ -820,7 +794,6 @@
             const btn = document.getElementById(`btn-${testId}`);
             if (btn) {
                 btn.innerHTML = "✓ ACCESS GRANTED";
-                btn.style.background = "rgba(224, 231, 255, 0.95)";
                 btn.onclick = () => {
                     localStorage.setItem("currentTestId", testId);
                     window.location.href = "instructions.html?test=" + testId;
@@ -990,3 +963,4 @@
 </body>
 
 </html>
+<sha>80f207746de388d65c04636a708a4a397acf7b1b</sha>
