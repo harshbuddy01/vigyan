@@ -3,8 +3,71 @@
 
 import mongoose from 'mongoose';
 
-// 🔴 CRITICAL FIX: Read environment variables at RUNTIME, not at module load
-// This ensures Hostinger has had time to inject the variables
+// 🔴 CRITICAL: Hostinger might store variable with different name
+// Try all possible variations
+function getMongoDUriFromAnySource() {
+    console.log('\n' + '='.repeat(80));
+    console.log('🔍 FINDING MONGODB_URI FROM HOSTINGER ENVIRONMENT');
+    console.log('='.repeat(80));
+    
+    // List of possible variable names Hostinger might use
+    const possibleNames = [
+        'MONGODB_URI',
+        'mongodb_uri',
+        'MONGO_DB_URI',
+        'MONGO_URI',
+        'DB_URI',
+        'DATABASE_URL',
+    ];
+    
+    console.log('\n🔍 Checking specific variable names:');
+    for (const varName of possibleNames) {
+        const value = process.env[varName];
+        if (value) {
+            console.log(`  ✅ FOUND: ${varName}`);
+            console.log(`     Value: ${value.substring(0, 50)}...`);
+            return value;
+        } else {
+            console.log(`  ❌ Not found: ${varName}`);
+        }
+    }
+    
+    // If not found with specific names, search all process.env keys
+    console.log('\n🔍 Searching all ${Object.keys(process.env).length} environment variables...');
+    const allKeys = Object.keys(process.env).sort();
+    
+    for (const key of allKeys) {
+        const keyLower = key.toLowerCase();
+        if (keyLower.includes('mongo') || keyLower.includes('mongodb') || (keyLower.includes('db') && keyLower.includes('uri'))) {
+            const value = process.env[key];
+            const valueStr = String(value);
+            
+            console.log(`  🔔 Potential match: ${key}`);
+            
+            // If it looks like a connection string, use it
+            if (valueStr.includes('mongodb')) {
+                console.log(`  ✅ USING: ${key}`);
+                console.log(`     Value: ${valueStr.substring(0, 50)}...`);
+                return value;
+            }
+        }
+    }
+    
+    console.log('\n❌ MONGODB_URI NOT FOUND in process.env!');
+    console.log('\n😨 ALL ENVIRONMENT VARIABLES:');
+    allKeys.forEach((key, idx) => {
+        if (idx < 20) {
+            const value = process.env[key];
+            const displayValue = String(value).substring(0, 30);
+            console.log(`   ${key}: ${displayValue}`);
+        }
+    });
+    if (allKeys.length > 20) {
+        console.log(`   ... and ${allKeys.length - 20} more variables`);
+    }
+    
+    return null;
+}
 
 // Track connection status
 export let isMongoDBConnected = false;
@@ -19,70 +82,89 @@ const options = {
     w: 'majority'
 };
 
-// 🔵 GET MONGODB_URI AT RUNTIME (when connectDB is called)
-function getMongoDUri() {
-    const uri = process.env.MONGODB_URI;
-    
-    console.log('🔍 MongoDB URI Check:');
-    console.log(`   process.env.MONGODB_URI exists: ${!!uri}`);
-    
-    if (uri) {
-        console.log(`   URI length: ${uri.length} characters`);
-        console.log(`   URI prefix: ${uri.substring(0, 30)}...`);
-        console.log(`   ✅ MONGODB_URI is SET`);
-    } else {
-        console.log(`   ❌ MONGODB_URI is NOT SET in process.env`);
-        console.log(`   Available env keys: ${Object.keys(process.env).slice(0, 10).join(', ')}...`);
-    }
-    
-    return uri;
-}
-
 // Connect to MongoDB
 export async function connectDB() {
     // 🔵 READ AT RUNTIME - not at module load time
-    const MONGODB_URI = getMongoDUri();
+    const MONGODB_URI = getMongoDUriFromAnySource();
+    
+    console.log('\n' + '='.repeat(80));
+    console.log('🔗 MONGODB CONNECTION ATTEMPT');
+    console.log('='.repeat(80));
     
     // If no URI is set, just log warning and continue
     if (!MONGODB_URI) {
-        console.warn('⚠️  MONGODB_URI not configured - running in limited mode');
-        console.warn('🔗 Set MONGODB_URI environment variable to enable MongoDB features');
+        console.warn('\n⚠️  MONGODB_URI NOT FOUND!');
+        console.warn('\n😨 TO FIX:');
+        console.warn('   1. Go to: https://hpanel.hostinger.com/websites/backend-vigyanpreap.vigyanprep/deployments/settings');
+        console.warn('   2. Find Environment Variables section');
+        console.warn('   3. Add NEW variable:');
+        console.warn('      Key: MONGODB_URI');
+        console.warn('      Value: mongodb+srv://username:password@cluster.mongodb.net/vigyan');
+        console.warn('   4. Click "Save and Redeploy"');
+        console.warn('   5. Wait 3-5 minutes for deployment');
+        console.warn('\n🔗 Running in LIMITED MODE without MongoDB\n');
+        
         isMongoDBConnected = false;
-        lastConnectionError = 'MONGODB_URI not configured';
-        return false; // Indicate DB is not connected
+        lastConnectionError = 'MONGODB_URI not found in Hostinger environment variables';
+        return false;
     }
 
     try {
-        console.log('🔗 Attempting to connect to MongoDB...');
-        console.log(`   Connection string starts with: ${MONGODB_URI.substring(0, 20)}...`);
+        console.log('\n✅ MongoDB URI found in Hostinger environment!');
+        console.log(`   Connecting to: ${MONGODB_URI.substring(0, 50)}...`);
+        console.log('\n🔗 Connecting to MongoDB Atlas...\n');
         
         await mongoose.connect(MONGODB_URI, options);
 
-        console.log('✅ MongoDB Connected Successfully!');
+        console.log('\n' + '='.repeat(80));
+        console.log('🟢 SUCCESS! MONGODB CONNECTED');
+        console.log('='.repeat(80));
         console.log(`📊 Database: ${mongoose.connection.name}`);
         console.log(`🔗 Host: ${mongoose.connection.host}`);
+        console.log(`🔄 Status: Connected and ready\n`);
+        
         isMongoDBConnected = true;
         lastConnectionError = null;
         return true;
 
     } catch (error) {
-        console.error('❌ MongoDB Connection Failed:', error.message);
+        console.error('\n' + '='.repeat(80));
+        console.error('❌ MONGODB CONNECTION FAILED');
+        console.error('='.repeat(80));
+        console.error(`Error Message: ${error.message}\n`);
         
         // 🔴 DETAILED ERROR LOGGING FOR DEBUGGING
         if (error.message.includes('getaddrinfo ENOTFOUND')) {
-            console.error('⚠️  Error: Cannot resolve MongoDB host - network/DNS issue');
-            console.error('   Check if MONGODB_URI is correctly formatted');
-            console.error('   Example: mongodb+srv://username:password@cluster.mongodb.net/dbname');
+            console.error('🔴 Diagnosis: DNS/Network Error');
+            console.error('   MongoDB Atlas cluster not reachable from Hostinger');
+            console.error('\n😨 Possible Solutions:');
+            console.error('   1. Go to MongoDB Atlas > Network Access > IP Whitelist');
+            console.error('   2. Add Hostinger IP or 0.0.0.0/0 to whitelist');
+            console.error('   3. Verify internet connectivity on Hostinger');
         } else if (error.message.includes('authentication failed')) {
-            console.error('⚠️  Error: Authentication failed - username or password incorrect');
+            console.error('🔴 Diagnosis: Authentication Error');
+            console.error('   Username or password in MONGODB_URI is incorrect');
+            console.error('\n😨 Solution:');
+            console.error('   1. Go to MongoDB Atlas > Database Access');
+            console.error('   2. Verify username matches MONGODB_URI');
+            console.error('   3. Reset password if forgotten');
+            console.error('   4. Update MONGODB_URI in Hostinger environment');
         } else if (error.message.includes('timeout')) {
-            console.error('⚠️  Error: Connection timeout - MongoDB server may be down');
+            console.error('🔴 Diagnosis: Connection Timeout');
+            console.error('   MongoDB server not responding');
+            console.error('\n😨 Solution: Wait a few minutes, MongoDB Atlas may be restarting');
+        } else if (error.message.includes('ECONNREFUSED')) {
+            console.error('🔴 Diagnosis: Connection Refused');
+            console.error('   Invalid connection string format');
+            console.error('\n😨 Solution: Verify MONGODB_URI starts with: mongodb+srv://');
         }
         
-        console.warn('⚠️  App will run without MongoDB - some features may not work');
+        console.warn('\n🔗 App will run with LIMITED FUNCTIONALITY');
+        console.warn('   (Some features requiring database will not work)\n');
+        
         isMongoDBConnected = false;
         lastConnectionError = error.message;
-        return false; // Don't throw - allow app to continue
+        return false;
     }
 }
 
