@@ -1,312 +1,178 @@
 import express from 'express';
-import StudentAttempt from '../models/StudentAttempt.js';
-import Student from '../models/Student.js';
+import { StudentAttempt } from '../models/StudentAttempt.js'; // ✅ FIXED: Named import
 
 const router = express.Router();
 
 // ==================== GET ALL RESULTS ====================
-// GET /api/admin/results?testId=xyz&search=student@email.com
-router.get('/results', async (req, res) => {
+router.get('/', async (req, res) => {
     try {
-        const { testId, search = '', page = 1, limit = 50 } = req.query;
+        const { testId, search, page = 1, limit = 20 } = req.query;
         
-        console.log(`📊 [RESULTS] Fetching results... TestID: "${testId || 'all'}" Search: "${search}"`);
-        
-        let query = {};
-        
-        if (testId) {
-            query.testId = testId;
-        }
-        
-        // If searching by email, need to find student first
+        const query = {};
+        if (testId) query.test_id = testId;
         if (search) {
-            const students = await Student.find({
-                $or: [
-                    { email: { $regex: search, $options: 'i' } },
-                    { fullName: { $regex: search, $options: 'i' } }
-                ]
-            });
-            
-            const studentIds = students.map(s => s._id);
-            query.studentId = { $in: studentIds };
+            query.$or = [
+                { email: { $regex: search, $options: 'i' } },
+                { roll_number: { $regex: search, $options: 'i' } }
+            ];
         }
-        
-        const skip = (parseInt(page) - 1) * parseInt(limit);
-        
-        const attempts = await StudentAttempt.find(query)
-            .sort({ attemptDate: -1 })
-            .skip(skip)
-            .limit(parseInt(limit));
-        
-        const totalCount = await StudentAttempt.countDocuments(query);
-        
-        // Populate student details
-        const resultsWithStudents = await Promise.all(
-            attempts.map(async (attempt) => {
-                const student = await Student.findById(attempt.studentId);
-                
-                return {
-                    id: attempt._id,
-                    testId: attempt.testId,
-                    studentId: attempt.studentId,
-                    studentEmail: student?.email || 'Unknown',
-                    studentName: student?.fullName || 'N/A',
-                    score: attempt.score,
-                    totalQuestions: attempt.totalQuestions,
-                    correctAnswers: attempt.correctAnswers,
-                    wrongAnswers: attempt.wrongAnswers,
-                    unattempted: attempt.unattempted,
-                    percentage: ((attempt.correctAnswers / attempt.totalQuestions) * 100).toFixed(2),
-                    timeTaken: attempt.timeTaken,
-                    attemptDate: attempt.attemptDate,
-                    completed: attempt.completed
-                };
-            })
-        );
-        
-        console.log(`✅ [RESULTS] Found ${resultsWithStudents.length} results`);
-        
+
+        const results = await StudentAttempt.find(query)
+            .sort({ submitted_at: -1 })
+            .limit(parseInt(limit))
+            .skip((parseInt(page) - 1) * parseInt(limit));
+
+        const total = await StudentAttempt.countDocuments(query);
+
         res.json({
             success: true,
-            results: resultsWithStudents,
+            results,
             pagination: {
-                total: totalCount,
+                total,
                 page: parseInt(page),
-                limit: parseInt(limit),
-                totalPages: Math.ceil(totalCount / parseInt(limit))
+                pages: Math.ceil(total / parseInt(limit))
             }
         });
     } catch (error) {
-        console.error('❌ [RESULTS] Error fetching results:', error);
+        console.error('Get results error:', error);
         res.status(500).json({ success: false, error: error.message });
     }
 });
 
 // ==================== GET SINGLE RESULT ====================
-// GET /api/admin/results/:id
-router.get('/results/:id', async (req, res) => {
+router.get('/:id', async (req, res) => {
     try {
-        const { id } = req.params;
+        const result = await StudentAttempt.findById(req.params.id);
         
-        console.log(`📊 [RESULTS] Fetching result: ${id}`);
-        
-        const attempt = await StudentAttempt.findById(id);
-        
-        if (!attempt) {
-            return res.status(404).json({
-                success: false,
-                error: 'Result not found'
+        if (!result) {
+            return res.status(404).json({ 
+                success: false, 
+                error: 'Result not found' 
             });
         }
-        
-        const student = await Student.findById(attempt.studentId);
-        
+
         res.json({
             success: true,
-            result: {
-                id: attempt._id,
-                testId: attempt.testId,
-                studentId: attempt.studentId,
-                studentEmail: student?.email || 'Unknown',
-                studentName: student?.fullName || 'N/A',
-                score: attempt.score,
-                totalQuestions: attempt.totalQuestions,
-                correctAnswers: attempt.correctAnswers,
-                wrongAnswers: attempt.wrongAnswers,
-                unattempted: attempt.unattempted,
-                percentage: ((attempt.correctAnswers / attempt.totalQuestions) * 100).toFixed(2),
-                timeTaken: attempt.timeTaken,
-                attemptDate: attempt.attemptDate,
-                completed: attempt.completed,
-                answers: attempt.answers,
-                sectionScores: attempt.sectionScores
-            }
+            result
         });
     } catch (error) {
-        console.error('❌ [RESULTS] Error fetching result:', error);
+        console.error('Get result error:', error);
         res.status(500).json({ success: false, error: error.message });
     }
 });
 
-// ==================== GET RESULTS STATISTICS ====================
-// GET /api/admin/results/stats/overview?testId=xyz
-router.get('/results/stats/overview', async (req, res) => {
+// ==================== RESULT STATISTICS ====================
+router.get('/stats/overview', async (req, res) => {
     try {
         const { testId } = req.query;
-        
-        console.log(`📊 [RESULTS] Fetching statistics... TestID: "${testId || 'all'}"`);
-        
-        let query = {};
-        if (testId) {
-            query.testId = testId;
-        }
-        
-        const totalAttempts = await StudentAttempt.countDocuments(query);
-        const completedAttempts = await StudentAttempt.countDocuments({ ...query, completed: true });
-        
-        // Average score
-        const avgScoreData = await StudentAttempt.aggregate([
-            { $match: query },
-            { $group: { _id: null, avgScore: { $avg: '$score' } } }
-        ]);
-        
-        // Highest score
-        const highestScoreData = await StudentAttempt.find(query)
-            .sort({ score: -1 })
-            .limit(1);
-        
-        // Average percentage
-        const avgPercentageData = await StudentAttempt.aggregate([
+        const query = testId ? { test_id: testId } : {};
+
+        const [stats] = await StudentAttempt.aggregate([
             { $match: query },
             {
-                $project: {
-                    percentage: {
-                        $multiply: [
-                            { $divide: ['$correctAnswers', '$totalQuestions'] },
-                            100
-                        ]
-                    }
+                $facet: {
+                    overall: [
+                        {
+                            $group: {
+                                _id: null,
+                                avgScore: { $avg: '$percentage' },
+                                maxScore: { $max: '$score' },
+                                minScore: { $min: '$score' },
+                                totalAttempts: { $sum: 1 }
+                            }
+                        }
+                    ]
                 }
-            },
-            { $group: { _id: null, avgPercentage: { $avg: '$percentage' } } }
+            }
         ]);
-        
+
         res.json({
             success: true,
-            stats: {
-                totalAttempts,
-                completedAttempts,
-                pendingAttempts: totalAttempts - completedAttempts,
-                averageScore: avgScoreData[0]?.avgScore?.toFixed(2) || 0,
-                highestScore: highestScoreData[0]?.score || 0,
-                averagePercentage: avgPercentageData[0]?.avgPercentage?.toFixed(2) || 0
+            stats: stats.overall[0] || {
+                avgScore: 0,
+                maxScore: 0,
+                minScore: 0,
+                totalAttempts: 0
             }
         });
     } catch (error) {
-        console.error('❌ [RESULTS] Error fetching stats:', error);
+        console.error('Result stats error:', error);
         res.status(500).json({ success: false, error: error.message });
     }
 });
 
-// ==================== GET SCORE DISTRIBUTION ====================
-// GET /api/admin/results/stats/distribution?testId=xyz
-router.get('/results/stats/distribution', async (req, res) => {
+// ==================== SCORE DISTRIBUTION ====================
+router.get('/stats/distribution', async (req, res) => {
     try {
         const { testId } = req.query;
-        
-        console.log(`📈 [RESULTS] Fetching score distribution... TestID: "${testId || 'all'}"`);
-        
-        let query = {};
-        if (testId) {
-            query.testId = testId;
-        }
-        
+        const query = testId ? { test_id: testId } : {};
+
         const distribution = await StudentAttempt.aggregate([
             { $match: query },
             {
                 $bucket: {
-                    groupBy: {
-                        $multiply: [
-                            { $divide: ['$correctAnswers', '$totalQuestions'] },
-                            100
-                        ]
-                    },
-                    boundaries: [0, 20, 40, 60, 80, 100],
-                    default: '100+',
+                    groupBy: '$percentage',
+                    boundaries: [0, 25, 50, 75, 100, 101],
+                    default: 'Other',
                     output: {
-                        count: { $sum: 1 }
+                        count: { $sum: 1 },
+                        students: { $push: '$email' }
                     }
                 }
             }
         ]);
-        
-        const labels = ['0-20%', '20-40%', '40-60%', '60-80%', '80-100%'];
-        const data = distribution.map(d => d.count);
-        
+
         res.json({
             success: true,
-            distribution: {
-                labels,
-                data
-            }
+            distribution
         });
     } catch (error) {
-        console.error('❌ [RESULTS] Error fetching distribution:', error);
+        console.error('Score distribution error:', error);
         res.status(500).json({ success: false, error: error.message });
     }
 });
 
-// ==================== GET TOP PERFORMERS ====================
-// GET /api/admin/results/stats/top-performers?testId=xyz&limit=10
-router.get('/results/stats/top-performers', async (req, res) => {
+// ==================== TOP PERFORMERS ====================
+router.get('/stats/top-performers', async (req, res) => {
     try {
         const { testId, limit = 10 } = req.query;
-        
-        console.log(`🏆 [RESULTS] Fetching top performers... TestID: "${testId || 'all'}"`);
-        
-        let query = { completed: true };
-        if (testId) {
-            query.testId = testId;
-        }
-        
-        const topAttempts = await StudentAttempt.find(query)
-            .sort({ score: -1 })
-            .limit(parseInt(limit));
-        
-        const topPerformers = await Promise.all(
-            topAttempts.map(async (attempt) => {
-                const student = await Student.findById(attempt.studentId);
-                
-                return {
-                    rank: topAttempts.indexOf(attempt) + 1,
-                    studentEmail: student?.email || 'Unknown',
-                    studentName: student?.fullName || 'N/A',
-                    score: attempt.score,
-                    percentage: ((attempt.correctAnswers / attempt.totalQuestions) * 100).toFixed(2),
-                    attemptDate: attempt.attemptDate
-                };
-            })
-        );
-        
+        const query = testId ? { test_id: testId } : {};
+
+        const topPerformers = await StudentAttempt.find(query)
+            .sort({ score: -1, submitted_at: 1 })
+            .limit(parseInt(limit))
+            .select('email roll_number score percentage test_name submitted_at');
+
         res.json({
             success: true,
             topPerformers
         });
     } catch (error) {
-        console.error('❌ [RESULTS] Error fetching top performers:', error);
+        console.error('Top performers error:', error);
         res.status(500).json({ success: false, error: error.message });
     }
 });
 
 // ==================== DELETE RESULT ====================
-// DELETE /api/admin/results/:id
-router.delete('/results/:id', async (req, res) => {
+router.delete('/:id', async (req, res) => {
     try {
-        const { id } = req.params;
+        const result = await StudentAttempt.findByIdAndDelete(req.params.id);
         
-        console.log(`🗑️ [RESULTS] Deleting result: ${id}`);
-        
-        const deletedResult = await StudentAttempt.findByIdAndDelete(id);
-        
-        if (!deletedResult) {
-            return res.status(404).json({
-                success: false,
-                error: 'Result not found'
+        if (!result) {
+            return res.status(404).json({ 
+                success: false, 
+                error: 'Result not found' 
             });
         }
-        
-        console.log(`✅ [RESULTS] Result deleted: ${id}`);
-        
+
         res.json({
             success: true,
             message: 'Result deleted successfully'
         });
     } catch (error) {
-        console.error('❌ [RESULTS] Error deleting result:', error);
+        console.error('Delete result error:', error);
         res.status(500).json({ success: false, error: error.message });
     }
 });
-
-console.log('✅ Result routes loaded');
 
 export default router;
