@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test Series Matrix | Vigyan.prep</title>
-    <!-- CACHE CLEAR: 2026-01-26 00:26 IST - FIXED: REVERTED LOGO/HEADER TO ORIGINAL -->
+    <!-- CACHE CLEAR: 2026-01-26 00:34 IST - CARDS REDESIGN: VIBRANT COLORS + MINIMAL TEXT -->
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -15,11 +15,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Cache-busted CSS files -->
-    <link rel="stylesheet" href="frontend/css/global.css?v=20260126-0026">
-    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260126-0026">
-    <link rel="stylesheet" href="frontend/css/pages.css?v=20260126-0026">
-    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260126-0026">
-    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260126-0026">
+    <link rel="stylesheet" href="frontend/css/global.css?v=20260126-0034">
+    <link rel="stylesheet" href="frontend/css/navbar.css?v=20260126-0034">
+    <link rel="stylesheet" href="frontend/css/pages.css?v=20260126-0034">
+    <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260126-0034">
+    <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260126-0034">
 
     <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="pragma" content="no-cache">
@@ -39,9 +39,6 @@
             --gold: #f59e0b;
             --green: #10b981;
             --purple: #a855f7;
-            --neon-green: #00ff88;
-            --electric-blue: #0066ff;
-            --vibrant-purple: #9333ea;
         }
 
         html,
@@ -62,74 +59,41 @@
             pointer-events: none;
         }
 
-        /* MODERN GLASS CARD - KEEP THIS */
+        /* VIBRANT CARD DESIGN */
         .glass-panel {
-            background: linear-gradient(135deg, 
-                rgba(255, 255, 255, 0.05) 0%, 
-                rgba(255, 255, 255, 0.02) 100%);
-            backdrop-filter: blur(30px) saturate(180%);
-            border: 1.5px solid rgba(255, 255, 255, 0.1);
-            border-radius: 28px;
-            padding: 36px;
+            border-radius: 24px;
+            padding: 40px;
             transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
             position: relative;
             overflow: hidden;
-            box-shadow: 
-                0 8px 32px rgba(0, 0, 0, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 500px;
+            border: none;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
         }
 
-        .glass-panel::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 5px;
-            background: var(--card-gradient);
-            border-radius: 28px 28px 0 0;
-        }
-
-        .glass-panel::after {
-            content: '';
-            position: absolute;
-            inset: -2px;
-            background: var(--card-gradient);
-            border-radius: 28px;
-            opacity: 0;
-            z-index: -1;
-            filter: blur(20px);
-            transition: opacity 0.5s;
-        }
-
+        /* Card Color Variations */
         .glass-panel.iat {
-            --card-gradient: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
-            --card-glow: rgba(0, 255, 136, 0.3);
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         }
 
         .glass-panel.nest {
-            --card-gradient: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
-            --card-glow: rgba(0, 102, 255, 0.3);
+            background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
         }
 
         .glass-panel.isi {
-            --card-gradient: linear-gradient(135deg, #9333ea 0%, #7c3aed 100%);
-            --card-glow: rgba(147, 51, 234, 0.3);
+            background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
         }
 
+        /* Hover Effect */
         .glass-panel:hover {
-            transform: translateY(-16px) scale(1.02);
-            border-color: rgba(255, 255, 255, 0.2);
-            box-shadow: 
-                0 20px 60px var(--card-glow),
-                0 8px 32px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transform: translateY(-20px) scale(1.03);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
         }
 
-        .glass-panel:hover::after {
-            opacity: 0.4;
-        }
-
+        /* Badge */
         .series-badge {
             display: inline-flex;
             align-items: center;
@@ -138,104 +102,93 @@
             font-size: 11px;
             font-weight: 700;
             letter-spacing: 2px;
-            padding: 10px 20px;
+            padding: 8px 16px;
             border-radius: 50px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1.5px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.4);
             color: #ffffff;
             text-transform: uppercase;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             backdrop-filter: blur(10px);
+            width: fit-content;
         }
 
-        .series-badge::before {
-            content: '';
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--card-gradient);
-            box-shadow: 0 0 10px var(--card-glow);
-        }
-
+        /* Title */
         .series-title {
             font-family: 'Space Grotesk', sans-serif;
-            font-size: 2.2rem;
-            font-weight: 800;
+            font-size: 2.5rem;
+            font-weight: 900;
             color: #ffffff;
-            margin: 0 0 16px 0;
-            letter-spacing: -1.5px;
-            line-height: 1.1;
-            background: linear-gradient(135deg, #ffffff 0%, #e0e0e0 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            margin: 0 0 12px 0;
+            letter-spacing: -1px;
+            line-height: 1;
         }
 
+        /* Subtitle */
         .series-subtitle {
             font-size: 1rem;
-            color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 28px;
-            line-height: 1.6;
-            font-weight: 400;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 30px;
+            line-height: 1.5;
+            font-weight: 500;
         }
 
+        /* Features List - Minimal */
         .series-features {
-            margin-bottom: 28px;
+            margin-bottom: 32px;
+            list-style: none;
+            padding: 0;
         }
 
         .series-features li {
-            list-style: none;
-            margin-bottom: 14px;
-            padding-left: 28px;
-            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
             font-size: 0.95rem;
-            color: rgba(255, 255, 255, 0.85);
-            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.95);
             font-weight: 500;
         }
 
         .series-features li::before {
-            content: '✓';
-            position: absolute;
-            left: 0;
-            font-weight: 900;
-            font-size: 16px;
-            background: var(--card-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.8);
+            flex-shrink: 0;
         }
 
+        /* Trust Badge */
         .trust-badge {
             font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.6);
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-            text-align: left;
+            color: rgba(255, 255, 255, 0.85);
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            text-align: center;
             font-weight: 600;
+            margin-bottom: 24px;
         }
 
+        /* Button - Vibrant & Bold */
         .buy-btn {
             width: 100%;
-            background: var(--card-gradient);
+            background: rgba(255, 255, 255, 0.95);
             border: none;
-            border-radius: 16px;
+            border-radius: 14px;
             color: #000000;
             font-family: 'Space Grotesk', sans-serif;
             font-weight: 800;
-            font-size: 0.95rem;
-            padding: 20px;
-            margin-top: 28px;
+            font-size: 0.9rem;
+            padding: 18px;
             text-transform: uppercase;
             letter-spacing: 1.5px;
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             position: relative;
             overflow: hidden;
-            box-shadow: 
-                0 10px 30px var(--card-glow),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
 
         .buy-btn::before {
@@ -246,16 +199,14 @@
             width: 0;
             height: 0;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(0, 0, 0, 0.1);
             transform: translate(-50%, -50%);
             transition: width 0.6s, height 0.6s;
         }
 
         .buy-btn:hover {
-            transform: translateY(-4px) scale(1.02);
-            box-shadow: 
-                0 20px 50px var(--card-glow),
-                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
         }
 
         .buy-btn:hover::before {
@@ -263,6 +214,7 @@
             height: 300px;
         }
 
+        /* Modals */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -567,6 +519,12 @@
             .action-buttons {
                 flex-direction: column;
             }
+            .glass-panel {
+                padding: 28px;
+            }
+            .series-title {
+                font-size: 2rem;
+            }
         }
 
         /* ORIGINAL VIGYAN.PREP Premium Logo */
@@ -739,58 +697,58 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-10" id="cardsContainer"></div>
     </main>
 
-    <script src="frontend/js/config.js?v=20260126-0026"></script>
-    <script src="frontend/js/auth.js?v=20260126-0026"></script>
-    <script src="frontend/js/user-panel.js?v=20260126-0026"></script>
+    <script src="frontend/js/config.js?v=20260126-0034"></script>
+    <script src="frontend/js/auth.js?v=20260126-0034"></script>
+    <script src="frontend/js/user-panel.js?v=20260126-0034"></script>
 
     <script>
         const testSeries = [
             {
                 id: 'iat',
                 class: 'iat',
-                badge: 'IAT • IISER APTITUDE',
-                title: 'IAT Speed Mastery',
-                subtitle: 'Master the 120-minute sprint that separates top 1% from rest',
+                badge: 'IAT • APTITUDE',
+                title: 'Speed Mastery',
+                subtitle: 'Master the 120-minute sprint',
                 features: [
-                    'Pattern-based logic decoded (real exam patterns)',
-                    'Speed benchmarking vs 99th percentile',
-                    'Daily 10-question speed trials (5 mins each)',
-                    'Accuracy + Time analytics dashboard'
+                    'Real exam patterns',
+                    'Speed benchmarking',
+                    'Daily speed trials',
+                    'Analytics dashboard'
                 ],
-                cta: '→ Start Speed Trials Now',
-                trust: '✓ 5,000+ IISER toppers | Avg improvement: +15%',
+                cta: '→ Start Now',
+                trust: '5,000+ toppers | +15%',
                 price: 1
             },
             {
                 id: 'nest',
                 class: 'nest',
-                badge: 'NEST • SCIENCE DEEP-DIVE',
-                title: 'NEST Deep Dive',
-                subtitle: 'The toughest entrance demands deeper thinking—we\'ll get you there',
+                badge: 'NEST • SCIENCE',
+                title: 'Deep Dive',
+                subtitle: 'Deeper thinking than anyone',
                 features: [
-                    'Conceptual deep-dives (integrated physics + chemistry)',
-                    '"Why this answer" explanations (not just solutions)',
-                    '1,000+ tricky numerical problem vault',
-                    'Concept-strength analysis (identifies weak zones)'
+                    'Physics + Chemistry integrated',
+                    'Why answers explained',
+                    '1,000+ tricky problems',
+                    'Concept mapping'
                 ],
-                cta: '→ Unlock Concept Mastery',
-                trust: '✓ Recommended by NEST mentors | 3x explanation depth',
+                cta: '→ Unlock Mastery',
+                trust: 'NEST mentors recommended',
                 price: 1
             },
             {
                 id: 'isi',
                 class: 'isi',
-                badge: 'ISI • PROOF ACADEMY',
-                title: 'ISI Proof Academy',
-                subtitle: 'From solving equations to writing proofs—the leap that matters',
+                badge: 'ISI • PROOF',
+                title: 'Proof Academy',
+                subtitle: 'Equations to proofs',
                 features: [
-                    'Proof-writing masterclass (step-by-step methodology)',
-                    'Logic breakdowns for every solution (see the thinking)',
-                    'Percentile-wise question stratification (know your level)',
-                    'Mock exams with detailed score breakdowns'
+                    'Proof methodology',
+                    'Logic breakdowns',
+                    'Question stratification',
+                    'Mock exams'
                 ],
-                cta: '→ Start Proof Practice',
-                trust: '✓ Designed with ISI alumni | 98% improve in 4 weeks',
+                cta: '→ Start Practice',
+                trust: 'ISI alumni designed',
                 price: 1
             }
         ];
@@ -801,7 +759,7 @@
         const cardsContainer = document.getElementById('cardsContainer');
         testSeries.forEach(test => {
             const card = document.createElement('div');
-            card.className = `glass-panel flex flex-col justify-between ${test.class}`;
+            card.className = `glass-panel ${test.class}`;
             card.innerHTML = `
                 <div>
                     <span class="series-badge">${test.badge}</span>
@@ -835,8 +793,8 @@
         function markAsPurchased(testId) {
             const btn = document.getElementById(`btn-${testId}`);
             if (btn) {
-                btn.innerHTML = "★ ACCESS GRANTED - START TEST";
-                btn.style.background = "linear-gradient(135deg, #10b981 0%, #059669 100%)";
+                btn.innerHTML = "✓ ACCESS GRANTED";
+                btn.style.background = "rgba(255, 255, 255, 0.95)";
                 btn.onclick = () => {
                     localStorage.setItem("currentTestId", testId);
                     window.location.href = "instructions.html?test=" + testId;
@@ -907,8 +865,6 @@
         }
 
         function closeSuccessModal() {
-            console.log('⚡ Closing success modal and refreshing page...');
-            
             if (countdownInterval) clearInterval(countdownInterval);
             
             document.getElementById("successModal").style.display = "none";
@@ -926,7 +882,6 @@
             }
             
             setTimeout(() => {
-                console.log('🔄 Forcing page reload...');
                 window.location.href = "testfirstpage.html?t=" + Date.now();
             }, 500);
         }
@@ -939,12 +894,9 @@
             errorDiv.classList.add("hidden");
 
             if (!emailInput || !emailInput.includes("@")) {
-                showModalError("❌ Please enter a valid email address");
+                showModalError("✗ Please enter a valid email address");
                 return;
             }
-
-            console.log('✅ Email captured:', emailInput);
-            console.log('🚀 Going directly to payment (no verification needed)...');
             
             localStorage.setItem("userEmail", emailInput);
             startPayment(emailInput, null, localStorage.getItem("tempTestId"), localStorage.getItem("tempAmount"));
@@ -956,24 +908,17 @@
             btn.innerHTML = '<span class="loading-spinner"></span> Creating Order...';
             
             try {
-                console.log('💳 Step 1: Creating Razorpay order...');
-                console.log('Payment details:', { userEmail, testId, amount });
-                
                 const orderRes = await axios.post(`${PAYMENT_API_URL}/api/payment/checkout`, {
                     amount: amount,
                     testId: testId,
                     email: userEmail
                 }, { timeout: 15000 });
 
-                console.log('✅ Order created:', orderRes.data);
-
                 if (!orderRes.data.success || !orderRes.data.orderId) {
                     throw new Error('Failed to create order: ' + (orderRes.data.message || 'Unknown error'));
                 }
 
                 const { orderId, amount: orderAmount, currency, key } = orderRes.data;
-                console.log('✅ Razorpay Order ID:', orderId);
-                console.log('✅ Razorpay Key:', key);
 
                 btn.innerHTML = '<span class="loading-spinner"></span> Opening Razorpay...';
 
@@ -992,8 +937,6 @@
                         color: "#3b82f6"
                     },
                     handler: async function (response) {
-                        console.log('✅ Payment completed! Razorpay response:', response);
-                        
                         try {
                             btn.innerHTML = '<span class="loading-spinner"></span> Verifying Payment...';
                             
@@ -1005,8 +948,6 @@
                                 email: userEmail,
                                 amount: amount
                             }, { timeout: 15000 });
-
-                            console.log('✅ Verification response:', verifyRes.data);
 
                             if (verifyRes.data.success) {
                                 const rollNumber = verifyRes.data.rollNumber;
@@ -1022,26 +963,16 @@
                                 localStorage.setItem("purchasedTests", JSON.stringify(purchased));
                                 
                                 setTimeout(() => {
-                                    console.log('✅ LocalStorage saved:', {
-                                        email: localStorage.getItem('userEmail'),
-                                        roll: localStorage.getItem('userRollNumber'),
-                                        currentTest: localStorage.getItem('currentTestId'),
-                                        purchased: localStorage.getItem('purchasedTests')
-                                    });
-                                    
                                     closeEntryModal();
                                     document.getElementById("finalTokenDisplay").innerText = rollNumber;
                                     document.getElementById("successModal").style.display = "flex";
                                     startCountdown();
-                                    
-                                    console.log('🎉 Payment complete! Roll number:', rollNumber);
                                 }, 200);
                             } else {
                                 throw new Error(verifyRes.data.message || 'Payment verification failed');
                             }
                         } catch (verifyErr) {
-                            console.error('❌ Payment verification error:', verifyErr);
-                            let errorMessage = "❌ Payment verification failed. ";
+                            let errorMessage = "✗ Payment verification failed. ";
                             if (verifyErr.response?.data?.message) {
                                 errorMessage += verifyErr.response.data.message;
                             } else {
@@ -1054,20 +985,17 @@
                     },
                     modal: {
                         ondismiss: function () {
-                            console.log('❌ Payment cancelled by user');
                             btn.innerText = "Proceed to Payment";
                             btn.disabled = false;
                         }
                     }
                 };
 
-                console.log('🚀 Opening Razorpay checkout...');
                 const rzp = new Razorpay(options);
                 rzp.open();
 
             } catch (error) {
-                console.error('❌ Payment initiation error:', error);
-                let errorMessage = "❌ Payment failed: ";
+                let errorMessage = "✗ Payment failed: ";
                 if (error.code === 'ECONNABORTED') {
                     errorMessage += "Connection timeout. Please check your internet.";
                 } else if (error.response?.data?.message) {
