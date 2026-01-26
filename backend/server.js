@@ -150,6 +150,7 @@ app.use(cors(corsOptions));
 app.options('/api/payment/checkout', cors(corsOptions));
 app.options('/api/payment/paymentverification', cors(corsOptions));
 app.options('/api/payment/getkey', cors(corsOptions));
+app.options('/api/admin/*', cors(corsOptions)); // 🔥 ADMIN FIX: Allow preflight for all admin routes
 
 console.log('✅ CORS configured for:', allowedOrigins.filter(Boolean).join(', '));
 console.log('✅ CORS: Allowing all vigyanprep.com subdomains');
