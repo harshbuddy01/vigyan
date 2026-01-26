@@ -20,19 +20,53 @@
             padding: 30px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
         }
-        h1 { color: #667eea; margin-bottom: 30px; }
+        h1 { color: #667eea; margin-bottom: 10px; }
+        .subtitle { color: #666; margin-bottom: 30px; }
+        
+        .category-header {
+            margin-top: 30px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+            color: #4a5568;
+            font-size: 1.2em;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        .category-header i { margin-right: 10px; color: #667eea; }
+
         .endpoint { 
             background: #f8f9fa;
             padding: 20px;
             margin-bottom: 15px;
             border-radius: 10px;
             border-left: 5px solid #ccc;
+            transition: transform 0.2s;
         }
+        .endpoint:hover { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .endpoint.testing { border-left-color: #ffa500; }
         .endpoint.success { border-left-color: #10b981; }
         .endpoint.error { border-left-color: #ef4444; }
-        .endpoint-name { font-weight: bold; color: #333; margin-bottom: 10px; }
-        .endpoint-url { color: #666; font-size: 0.9em; margin-bottom: 10px; }
+        
+        .endpoint-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px; }
+        .endpoint-name { font-weight: bold; color: #2d3748; font-size: 1.1em; }
+        .endpoint-meta { display: flex; gap: 10px; align-items: center; }
+        
+        .method-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+            color: white;
+        }
+        .method-GET { background: #3b82f6; }
+        .method-POST { background: #10b981; }
+        .method-PUT { background: #f59e0b; }
+        .method-DELETE { background: #ef4444; }
+        
+        .endpoint-url { color: #718096; font-family: monospace; font-size: 0.9em; margin-top: 5px; }
+        
         .endpoint-status { 
             display: inline-block;
             padding: 5px 15px;
@@ -40,19 +74,25 @@
             font-size: 0.85em;
             font-weight: 600;
         }
+        .status-pending { background: #e2e8f0; color: #64748b; }
         .status-testing { background: #fff3cd; color: #856404; }
         .status-success { background: #d1fae5; color: #065f46; }
         .status-error { background: #fee2e2; color: #991b1b; }
+        
         .response { 
-            background: #fff;
+            background: #1a202c;
+            color: #a0aec0;
             padding: 15px;
             border-radius: 8px;
-            margin-top: 10px;
+            margin-top: 15px;
             max-height: 200px;
             overflow-y: auto;
             font-family: 'Courier New', monospace;
             font-size: 0.85em;
+            display: none;
         }
+        .endpoint.success .response, .endpoint.error .response { display: block; }
+
         button {
             padding: 12px 30px;
             background: #667eea;
@@ -62,101 +102,202 @@
             font-size: 1em;
             font-weight: 600;
             cursor: pointer;
-            margin-bottom: 20px;
+            transition: background 0.2s;
+            box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);
         }
-        button:hover { background: #5568d3; }
+        button:hover { background: #5568d3; transform: translateY(-1px); }
+        button:disabled { background: #cbd5e1; cursor: not-allowed; transform: none; box-shadow: none; }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
         <h1>🔧 Admin API Diagnostic Tool</h1>
-        <p style="margin-bottom: 20px; color: #666;">
-            Testing all admin endpoints to verify backend connectivity...
+        <p class="subtitle">
+            Testing all admin endpoints to verify backend connectivity and response formats.
+            <br><strong>Backend URL:</strong> <span id="baseUrlDisplay">...</span>
         </p>
         
-        <button onclick="testAllEndpoints()">▶️ Run All Tests</button>
+        <button id="runBtn" onclick="testAllEndpoints()">
+            <i class="fas fa-play"></i> Run All Tests
+        </button>
         
         <div id="results"></div>
     </div>
 
     <script>
         const BASE_URL = 'https://backend-vigyanpreap.vigyanprep.com';
+        document.getElementById('baseUrlDisplay').textContent = BASE_URL;
         
-        const endpoints = [
-            { name: 'Health Check', method: 'GET', url: '/health' },
-            { name: 'Dashboard Stats', method: 'GET', url: '/api/admin/dashboard/stats' },
-            { name: 'Dashboard Performance', method: 'GET', url: '/api/admin/dashboard/performance?period=7d' },
-            { name: 'Admin Profile', method: 'GET', url: '/api/admin/profile' },
-            { name: 'Students List', method: 'GET', url: '/api/admin/students' },
-            { name: 'Transactions List', method: 'GET', url: '/api/admin/transactions' },
-            { name: 'Results List', method: 'GET', url: '/api/admin/results' },
-            { name: 'Questions List', method: 'GET', url: '/api/admin/questions' },
+        // Defined categories and their endpoints
+        const apiStructure = [
+            {
+                category: 'System',
+                icon: 'fa-server',
+                endpoints: [
+                    { name: 'Health Check', method: 'GET', url: '/health' }
+                ]
+            },
+            {
+                category: 'Dashboard',
+                icon: 'fa-chart-line',
+                endpoints: [
+                    { name: 'Dashboard Stats', method: 'GET', url: '/api/admin/dashboard/stats' },
+                    { name: 'Upcoming Tests', method: 'GET', url: '/api/admin/dashboard/upcoming-tests' },
+                    { name: 'Recent Activity', method: 'GET', url: '/api/admin/dashboard/recent-activity' },
+                    { name: 'Performance Data', method: 'GET', url: '/api/admin/dashboard/performance?period=7d' }
+                ]
+            },
+            {
+                category: 'Tests & Exams',
+                icon: 'fa-file-alt',
+                endpoints: [
+                    { name: 'All Tests', method: 'GET', url: '/api/admin/tests' },
+                    { name: 'Scheduled Tests', method: 'GET', url: '/api/admin/scheduled-tests' },
+                    { name: 'Past Tests', method: 'GET', url: '/api/admin/past-tests' }
+                ]
+            },
+            {
+                category: 'Question Bank',
+                icon: 'fa-question-circle',
+                endpoints: [
+                    { name: 'All Questions', method: 'GET', url: '/api/admin/questions' },
+                    { name: 'PDF Upload History', method: 'GET', url: '/api/pdf/history' }
+                ]
+            },
+            {
+                category: 'User Management',
+                icon: 'fa-users',
+                endpoints: [
+                    { name: 'Students List', method: 'GET', url: '/api/admin/students' },
+                    { name: 'Admin Profile', method: 'GET', url: '/api/admin/profile' }
+                ]
+            },
+            {
+                category: 'Data & Analytics',
+                icon: 'fa-database',
+                endpoints: [
+                    { name: 'Transactions', method: 'GET', url: '/api/admin/transactions' },
+                    { name: 'Results', method: 'GET', url: '/api/admin/results' },
+                    { name: 'Notifications', method: 'GET', url: '/api/admin/notifications' }
+                ]
+            }
         ];
 
-        async function testEndpoint(endpoint) {
-            const resultDiv = document.getElementById(`endpoint-${endpoint.url.replace(/\//g, '-')}`);
+        async function testEndpoint(endpoint, elementId) {
+            const resultDiv = document.getElementById(elementId);
             
             try {
+                // Set Testing State
                 resultDiv.className = 'endpoint testing';
-                resultDiv.querySelector('.endpoint-status').textContent = 'Testing...';
-                resultDiv.querySelector('.endpoint-status').className = 'endpoint-status status-testing';
+                const statusSpan = resultDiv.querySelector('.endpoint-status');
+                statusSpan.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
+                statusSpan.className = 'endpoint-status status-testing';
+                
+                const startTime = performance.now();
                 
                 const response = await fetch(BASE_URL + endpoint.url, {
                     method: endpoint.method,
                     headers: {
                         'Content-Type': 'application/json'
+                        // Note: Authorization header might be needed for some endpoints
+                        // 'Authorization': 'Bearer ' + token
                     }
                 });
                 
-                const data = await response.json();
+                const endTime = performance.now();
+                const duration = Math.round(endTime - startTime);
+                
+                let data;
+                const contentType = response.headers.get("content-type");
+                if (contentType && contentType.indexOf("application/json") !== -1) {
+                    data = await response.json();
+                } else {
+                    data = await response.text();
+                }
                 
                 if (response.ok) {
                     resultDiv.className = 'endpoint success';
-                    resultDiv.querySelector('.endpoint-status').textContent = `✅ SUCCESS (${response.status})`;
-                    resultDiv.querySelector('.endpoint-status').className = 'endpoint-status status-success';
-                    resultDiv.querySelector('.response').textContent = JSON.stringify(data, null, 2);
+                    statusSpan.innerHTML = `<i class="fas fa-check-circle"></i> ${response.status} OK (${duration}ms)`;
+                    statusSpan.className = 'endpoint-status status-success';
+                    
+                    const responsePre = resultDiv.querySelector('.response');
+                    responsePre.textContent = typeof data === 'object' ? JSON.stringify(data, null, 2) : data;
                 } else {
                     resultDiv.className = 'endpoint error';
-                    resultDiv.querySelector('.endpoint-status').textContent = `❌ ERROR (${response.status})`;
-                    resultDiv.querySelector('.endpoint-status').className = 'endpoint-status status-error';
-                    resultDiv.querySelector('.response').textContent = JSON.stringify(data, null, 2);
+                    statusSpan.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${response.status} Error`;
+                    statusSpan.className = 'endpoint-status status-error';
+                    
+                    const responsePre = resultDiv.querySelector('.response');
+                    responsePre.textContent = typeof data === 'object' ? JSON.stringify(data, null, 2) : data;
                 }
             } catch (error) {
                 resultDiv.className = 'endpoint error';
-                resultDiv.querySelector('.endpoint-status').textContent = '❌ NETWORK ERROR';
-                resultDiv.querySelector('.endpoint-status').className = 'endpoint-status status-error';
+                const statusSpan = resultDiv.querySelector('.endpoint-status');
+                statusSpan.innerHTML = '<i class="fas fa-times-circle"></i> Network Error';
+                statusSpan.className = 'endpoint-status status-error';
+                
                 resultDiv.querySelector('.response').textContent = error.message;
             }
         }
 
         async function testAllEndpoints() {
+            const btn = document.getElementById('runBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running Tests...';
+            
             const resultsDiv = document.getElementById('results');
             resultsDiv.innerHTML = '';
             
-            // Create result divs
-            endpoints.forEach(endpoint => {
-                const div = document.createElement('div');
-                div.id = `endpoint-${endpoint.url.replace(/\//g, '-')}`;
-                div.className = 'endpoint';
-                div.innerHTML = `
-                    <div class="endpoint-name">${endpoint.name}</div>
-                    <div class="endpoint-url">${endpoint.method} ${BASE_URL}${endpoint.url}</div>
-                    <span class="endpoint-status">Pending...</span>
-                    <div class="response">Waiting for response...</div>
-                `;
-                resultsDiv.appendChild(div);
-            });
-            
-            // Test all endpoints
-            for (const endpoint of endpoints) {
-                await testEndpoint(endpoint);
-                await new Promise(resolve => setTimeout(resolve, 500)); // Delay between requests
+            // Generate UI first
+            for (const category of apiStructure) {
+                // Category Header
+                const header = document.createElement('div');
+                header.className = 'category-header';
+                header.innerHTML = `<i class="fas ${category.icon}"></i> ${category.category}`;
+                resultsDiv.appendChild(header);
+
+                // Endpoints
+                for (const endpoint of category.endpoints) {
+                    const id = `endpoint-${Math.random().toString(36).substr(2, 9)}`;
+                    endpoint._elementId = id;
+                    
+                    const div = document.createElement('div');
+                    div.id = id;
+                    div.className = 'endpoint';
+                    div.innerHTML = `
+                        <div class="endpoint-header">
+                            <div>
+                                <div class="endpoint-name">${endpoint.name}</div>
+                                <div class="endpoint-url">
+                                    <span class="method-badge method-${endpoint.method}">${endpoint.method}</span>
+                                    ${endpoint.url}
+                                </div>
+                            </div>
+                            <span class="endpoint-status status-pending">Pending</span>
+                        </div>
+                        <pre class="response">Waiting...</pre>
+                    `;
+                    resultsDiv.appendChild(div);
+                }
             }
+            
+            // Run tests sequentially
+            for (const category of apiStructure) {
+                for (const endpoint of category.endpoints) {
+                    await testEndpoint(endpoint, endpoint._elementId);
+                    await new Promise(resolve => setTimeout(resolve, 300)); // Small delay to prevent rate limiting
+                }
+            }
+            
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-play"></i> Run All Tests';
         }
         
         // Auto-run tests on page load
         window.addEventListener('load', () => {
-            setTimeout(testAllEndpoints, 1000);
+             // Optional: Uncomment to auto-run
+             // setTimeout(testAllEndpoints, 500);
         });
     </script>
 </body>
