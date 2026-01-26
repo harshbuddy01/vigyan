@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vigyan.prep Admin API Tester</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text: #1e293b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --error: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            margin-top: 5px;
+        }
+
+        .api-section {
+            background: var(--surface);
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 20px;
+            background: #f1f5f9;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .section-title {
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .endpoint-list {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+
+        .endpoint-item {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+            display: grid;
+            grid-template-columns: 80px 1fr auto;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .endpoint-item:last-child {
+            border-bottom: none;
+        }
+
+        .method {
+            font-weight: 700;
+            font-size: 14px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .GET {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .POST {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .PUT {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .DELETE {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .path {
+            font-family: monospace;
+            font-size: 15px;
+            color: #334155;
+        }
+
+        .desc {
+            font-size: 13px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: white;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+
+        .btn-test {
+            background: var(--primary);
+            color: white;
+            border: none;
+        }
+
+        .btn-test:hover {
+            background: #4338ca;
+        }
+
+        .response-box {
+            grid-column: 1 / -1;
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 13px;
+            margin-top: 15px;
+            max-height: 300px;
+            overflow: auto;
+            white-space: pre-wrap;
+            display: none;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-ok {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-fail {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .env-badge {
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1>Current API List & Health Status</h1>
+                <div class="subtitle">Complete documentation of backend endpoints found in server.js</div>
+            </div>
+            <div class="env-badge">
+                ENV: <span id="env-display">Checking...</span>
+            </div>
+        </header>
+
+        <!-- DASHBOARD SECTION -->
+        <div class="api-section">
+            <div class="section-header">
+                <div class="section-title"><i class="fas fa-chart-line"></i> Dashboard APIs</div>
+                <div class="base-path">/api/admin/dashboard</div>
+            </div>
+            <ul class="endpoint-list">
+                <li class="endpoint-item">
+                    <span class="method GET">GET</span>
+                    <div>
+                        <div class="path">/stats</div>
+                        <div class="desc">Main dashboard statistics</div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn-test" onclick="testApi(this, '/api/admin/dashboard/stats')">Test
+                            Endpoint</button>
+                    </div>
+                    <div class="response-box"></div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="method GET">GET</span>
+                    <div>
+                        <div class="path">/performance</div>
+                        <div class="desc">Performance chart data (default 7d)</div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn-test"
+                            onclick="testApi(this, '/api/admin/dashboard/performance?period=7d')">Test Endpoint</button>
+                    </div>
+                    <div class="response-box"></div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="method GET">GET</span>
+                    <div>
+                        <div class="path">/notifications</div>
+                        <div class="desc">Get recent notifications</div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn-test" onclick="testApi(this, '/api/admin/dashboard/notifications')">Test
+                            Endpoint</button>
+                    </div>
+                    <div class="response-box"></div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- STUDENTS SECTION -->
+        <div class="api-section">
+            <div class="section-header">
+                <div class="section-title"><i class="fas fa-user-graduate"></i> Student APIs</div>
+                <div class="base-path">/api/admin/students</div>
+            </div>
+            <ul class="endpoint-list">
+                <li class="endpoint-item">
+                    <span class="method GET">GET</span>
+                    <div>
+                        <div class="path">/</div>
+                        <div class="desc">List all students (supports search)</div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn-test" onclick="testApi(this, '/api/admin/students')">Test Endpoint</button>
+                    </div>
+                    <div class="response-box"></div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="method POST">POST</span>
+                    <div>
+                        <div class="path">/</div>
+                        <div class="desc">Register new student</div>
+                    </div>
+                    <div class="actions">
+                        <button disabled>Requires Body</button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- TRANSACTIONS SECTION -->
+        <div class="api-section">
+            <div class="section-header">
+                <div class="section-title"><i class="fas fa-credit-card"></i> Transaction APIs</div>
+                <div class="base-path">/api/admin/transactions</div>
+            </div>
+            <ul class="endpoint-list">
+                <li class="endpoint-item">
+                    <span class="method GET">GET</span>
+                    <div>
+                        <div class="path">/</div>
+                        <div class="desc">List payment transactions</div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn-test" onclick="testApi(this, '/api/admin/transactions')">Test
+                            Endpoint</button>
+                    </div>
+                    <div class="response-box"></div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="method GET">GET</span>
+                    <div>
+                        <div class="path">/stats/overview</div>
+                        <div class="desc">Revenue statistics</div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn-test" onclick="testApi(this, '/api/admin/transactions/stats/overview')">Test
+                            Endpoint</button>
+                    </div>
+                    <div class="response-box"></div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- QUESTIONS SECTION -->
+        <div class="api-section">
+            <div class="section-header">
+                <div class="section-title"><i class="fas fa-question-circle"></i> Question APIs</div>
+                <div class="base-path">/api/admin/questions</div>
+            </div>
+            <ul class="endpoint-list">
+                <li class="endpoint-item">
+                    <span class="method GET">GET</span>
+                    <div>
+                        <div class="path">/questions</div>
+                        <div class="desc">List questions (MongoDB)</div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn-test" onclick="testApi(this, '/api/admin/questions/questions')">Test
+                            Endpoint</button>
+                    </div>
+                    <div class="response-box"></div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="method POST">POST</span>
+                    <div>
+                        <div class="path">/questions</div>
+                        <div class="desc">Add new question (Unified flow)</div>
+                    </div>
+                    <div class="actions">
+                        <button disabled>Requires Body</button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- PDF UTILITIES -->
+        <div class="api-section">
+            <div class="section-header">
+                <div class="section-title"><i class="fas fa-file-pdf"></i> PDF & System APIs</div>
+                <div class="base-path">/api/pdf</div>
+            </div>
+            <ul class="endpoint-list">
+                <li class="endpoint-item">
+                    <span class="method GET">GET</span>
+                    <div>
+                        <div class="path">/test-python</div>
+                        <div class="desc">Debug Python/PyPDF2 environment</div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn-test" onclick="testApi(this, '/api/pdf/test-python')">Test Endpoint</button>
+                    </div>
+                    <div class="response-box"></div>
+                </li>
+                <li class="endpoint-item">
+                    <span class="method GET">GET</span>
+                    <div>
+                        <div class="path">/history</div>
+                        <div class="desc">Upload history</div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn-test" onclick="testApi(this, '/api/pdf/history')">Test Endpoint</button>
+                    </div>
+                    <div class="response-box"></div>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+
+    <!-- Core Script -->
+    <script src="js/admin-api-service.js?v=700"></script>
+    <script>
+        // Update Env Display
+        const baseURL = window.API_BASE_URL || 'https://backend-vigyanpreap.vigyanprep.com';
+        document.getElementById('env-display').textContent = baseURL.includes('localhost') ? 'Local Development' : 'Production (Hostinger)';
+
+        // API Test Function
+        async function testApi(btn, endpoint) {
+            const responseBox = btn.closest('.endpoint-item').querySelector('.response-box');
+            const originalText = btn.textContent;
+
+            btn.textContent = 'Testing...';
+            btn.disabled = true;
+            responseBox.style.display = 'block';
+            responseBox.textContent = 'Sending request...';
+
+            try {
+                const startTime = performance.now();
+                // Use the configured base URL
+                const fullUrl = `${baseURL}${endpoint}`;
+
+                // Get auth token if available
+                const token = sessionStorage.getItem('adminAuth') ? JSON.parse(sessionStorage.getItem('adminAuth')).token : null;
+                const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+
+                const response = await fetch(fullUrl, { headers });
+                const endTime = performance.now();
+                const duration = Math.round(endTime - startTime);
+
+                const data = await response.json();
+
+                const statusHtml = response.ok
+                    ? `<span class="status-badge status-ok">200 OK (${duration}ms)</span>`
+                    : `<span class="status-badge status-fail">${response.status} Error</span>`;
+
+                responseBox.innerHTML = `${statusHtml}\n\n${JSON.stringify(data, null, 2)}`;
+            } catch (error) {
+                responseBox.innerHTML = `<span class="status-badge status-fail">Network Error</span>\n\n${error.message}`;
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+
+</html>
