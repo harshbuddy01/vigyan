@@ -32,9 +32,9 @@ const pendulumObserver = new IntersectionObserver((entries) => {
         if (entry.isIntersecting && !entry.target.classList.contains('active')) {
             // Mark as active immediately
             entry.target.classList.add('active');
-            
+
             const pendulums = entry.target.querySelectorAll('.pendulum');
-            
+
             // Start animation INSTANTLY with very short stagger
             pendulums.forEach((pendulum, index) => {
                 // Immediate start with minimal delay between pendulums
@@ -54,14 +54,14 @@ document.querySelectorAll('.pendulum-container').forEach(container => {
 // Pre-activate pendulums that are already visible on page load
 document.addEventListener('DOMContentLoaded', () => {
     const containers = document.querySelectorAll('.pendulum-container');
-    
+
     containers.forEach(container => {
         const rect = container.getBoundingClientRect();
         const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
-        
+
         if (isVisible && !container.classList.contains('active')) {
             container.classList.add('active');
-            
+
             const pendulums = container.querySelectorAll('.pendulum');
             pendulums.forEach((pendulum, index) => {
                 setTimeout(() => {
@@ -87,15 +87,37 @@ document.addEventListener('DOMContentLoaded', () => {
             hamburger.classList.toggle('active');
         });
 
+        // Dropdown Toggle Logic for Mobile
+        const dropdowns = document.querySelectorAll('.dropdown-trigger');
+        dropdowns.forEach(trigger => {
+            trigger.addEventListener('click', (e) => {
+                if (window.innerWidth <= 768 || navLinks.classList.contains('nav-active')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const menu = trigger.nextElementSibling;
+                    const icon = trigger.querySelector('.fa-chevron-down');
+
+                    if (menu) {
+                        menu.classList.toggle('active');
+                        if (icon) {
+                            icon.style.transform = menu.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0deg)';
+                            icon.style.transition = 'transform 0.3s ease';
+                        }
+                    }
+                }
+            });
+        });
+
         // Close menu when a link is clicked
-        const links = navLinks.querySelectorAll('a');
+        const links = navLinks.querySelectorAll('a:not(.dropdown-trigger)');
         links.forEach(link => {
             link.addEventListener('click', () => {
-                 // Only if we are in mobile mode and menu is open
-                 if (navLinks.classList.contains('nav-active')) {
-                     navLinks.classList.remove('nav-active');
-                     hamburger.classList.remove('active');
-                 }
+                // Only if we are in mobile mode and menu is open
+                if (navLinks.classList.contains('nav-active')) {
+                    navLinks.classList.remove('nav-active');
+                    hamburger.classList.remove('active');
+                }
             });
         });
     }
