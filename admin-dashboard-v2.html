@@ -200,7 +200,7 @@
             align-items: center; 
         }
 
-        /* Premium Flip Clock - Clean & Beautiful */
+        /* Premium Flip Clock - Hours:Minutes Only */
         .flip-clock-widget {
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             padding: 20px 24px;
@@ -599,7 +599,7 @@
         <header class="top-header">
             <h1 class="page-title">Dashboard</h1>
             <div class="header-actions">
-                <!-- Premium Flip Clock -->
+                <!-- Premium Flip Clock - Hours:Minutes Only -->
                 <div class="flip-clock-widget">
                     <div class="flip-clock">
                         <div class="flip-digit" id="h1"><div class="flip-digit-inner"><div class="flip-digit-front">0</div><div class="flip-digit-back">0</div></div></div>
@@ -607,9 +607,6 @@
                         <span class="flip-separator">:</span>
                         <div class="flip-digit" id="m1"><div class="flip-digit-inner"><div class="flip-digit-front">0</div><div class="flip-digit-back">0</div></div></div>
                         <div class="flip-digit" id="m2"><div class="flip-digit-inner"><div class="flip-digit-front">0</div><div class="flip-digit-back">0</div></div></div>
-                        <span class="flip-separator">:</span>
-                        <div class="flip-digit" id="s1"><div class="flip-digit-inner"><div class="flip-digit-front">0</div><div class="flip-digit-back">0</div></div></div>
-                        <div class="flip-digit" id="s2"><div class="flip-digit-inner"><div class="flip-digit-front">0</div><div class="flip-digit-back">0</div></div></div>
                     </div>
                     <div class="clock-meta">
                         <span class="clock-day" id="clockDay">MONDAY</span>
@@ -695,8 +692,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="frontend/js/config.js"></script>
     <script>
-        // Premium Flip Clock Engine
-        let prev = { h1: -1, h2: -1, m1: -1, m2: -1, s1: -1, s2: -1 };
+        // Premium Flip Clock Engine - Hours:Minutes Only
+        let prev = { h1: -1, h2: -1, m1: -1, m2: -1 };
 
         function flipDigit(id, newVal) {
             const digit = document.getElementById(id);
@@ -716,20 +713,16 @@
             const now = new Date();
             const h = String(now.getHours()).padStart(2, '0');
             const m = String(now.getMinutes()).padStart(2, '0');
-            const s = String(now.getSeconds()).padStart(2, '0');
             
             const curr = {
                 h1: parseInt(h[0]), h2: parseInt(h[1]),
-                m1: parseInt(m[0]), m2: parseInt(m[1]),
-                s1: parseInt(s[0]), s2: parseInt(s[1])
+                m1: parseInt(m[0]), m2: parseInt(m[1])
             };
             
             if (curr.h1 !== prev.h1) flipDigit('h1', curr.h1);
             if (curr.h2 !== prev.h2) flipDigit('h2', curr.h2);
             if (curr.m1 !== prev.m1) flipDigit('m1', curr.m1);
             if (curr.m2 !== prev.m2) flipDigit('m2', curr.m2);
-            if (curr.s1 !== prev.s1) flipDigit('s1', curr.s1);
-            if (curr.s2 !== prev.s2) flipDigit('s2', curr.s2);
             
             prev = curr;
             
@@ -743,7 +736,7 @@
         updateClock();
         setInterval(updateClock, 1000);
 
-        console.log('🎯 Premium Flip Clock - Beautiful & Clean');
+        console.log('⏰ Premium Flip Clock - Hours:Minutes + Day & Date');
         window.AdminUtils = {
             showToast(msg, type = 'info') {
                 const toast = document.createElement('div');
