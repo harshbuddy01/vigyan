@@ -358,10 +358,9 @@
                         name: 'Create New Test', 
                         method: 'POST', 
                         url: '/api/admin/tests',
-                        expectValidation: true,
                         testData: {
                             test_name: 'Diagnostic Test',
-                            test_type: 'Mock',
+                            test_type: 'iat',  // 🔥 FIXED: lowercase to match backend enum ['iat', 'nest', 'isi']
                             exam_date: '2026-02-01'
                         }
                     },
