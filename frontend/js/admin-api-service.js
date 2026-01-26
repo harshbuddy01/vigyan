@@ -7,12 +7,15 @@
 const AdminAPI = {
     // 🚀 PRODUCTION Hostinger Backend URL
     get baseURL() {
-        // If running locally, use local backend
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            return 'http://localhost:3000'; // ✅ FIXED: Changed from 8080 to 3000
+        // Use global configuration or fallback to local
+        if (window.APP_CONFIG && window.APP_CONFIG.API_BASE_URL) {
+            return window.APP_CONFIG.API_BASE_URL;
+        }
+        if (window.API_BASE_URL) {
+            return window.API_BASE_URL;
         }
 
-        // ✅ HOSTINGER BACKEND URL (subdomain)
+        // Fallback (should not happen if config.js is loaded)
         return 'https://backend-vigyanpreap.vigyanprep.com';
     },
 
@@ -288,6 +291,35 @@ const AdminAPI = {
             method: 'POST',
             body: formData,
             headers: {} // Let browser set Content-Type for FormData
+        });
+    },
+
+    // ==================== SPECIFIC PDF MODULE ENDPOINTS ====================
+    // Matches upload-pdf.js requirements
+    async uploadPdf(formData) {
+        return await this.request('/api/pdf/upload', {
+            method: 'POST',
+            body: formData,
+            headers: {} // Let browser set Content-Type
+        });
+    },
+
+    async getPdfHistory() {
+        return await this.request('/api/pdf/history');
+    },
+
+    async deletePdf(uploadId) {
+        return await this.request(`/api/pdf/delete/${uploadId}`, {
+            method: 'DELETE'
+        });
+    },
+
+    // ==================== QUESTION IMAGE LINKING ====================
+    // Matches upload-image.js requirements
+    async uploadQuestionImage(questionId, linkData) {
+        return await this.request(`/api/admin/questions/${questionId}/image`, {
+            method: 'POST',
+            body: JSON.stringify(linkData)
         });
     },
 

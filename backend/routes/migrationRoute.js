@@ -20,7 +20,7 @@ const router = express.Router();
 router.get('/run-difficulty-migration', async (req, res) => {
   try {
     console.log('⚠️ [DEPRECATED] Migration route called but disabled for MongoDB');
-    
+
     res.status(410).json({
       success: false,
       status: 'deprecated',
@@ -43,6 +43,81 @@ router.get('/run-difficulty-migration', async (req, res) => {
       error: 'This endpoint is deprecated and no longer functional',
       message: error.message
     });
+  }
+});
+
+
+// ==================== SYNC STUDENTS (One-time Fix) ====================
+import Student from '../models/Student.js';
+import { StudentPayment } from '../models/StudentPayment.js';
+
+const extractFirstName = (email) => {
+  try {
+    if (!email || typeof email !== 'string') return 'User';
+    const emailParts = email.split('@');
+    if (emailParts.length < 2) return 'User';
+    const username = emailParts[0];
+    const nameParts = username.split('.');
+    const firstName = nameParts[0] || 'User';
+    return firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
+  } catch (error) {
+    return 'User';
+  }
+};
+
+router.post('/sync-students', async (req, res) => {
+  try {
+    console.log('🔄 [MIGRATION] Starting Student Sync...');
+
+    // 1. Fetch all student payments (source of truth for roll numbers)
+    const payments = await StudentPayment.find({});
+    console.log(`Found ${payments.length} student payment records`);
+
+    let syncedCount = 0;
+    let errors = 0;
+
+    for (const p of payments) {
+      try {
+        const firstName = extractFirstName(p.email);
+
+        // Upsert to Student collection
+        await Student.findOneAndUpdate(
+          { email: p.email },
+          {
+            $set: {
+              email: p.email,
+              rollNumber: p.roll_number,
+              fullName: firstName,
+              lastLoginAt: p.updated_at || new Date()
+            },
+            $setOnInsert: {
+              createdAt: p.created_at || new Date()
+            }
+          },
+          { upsert: true, new: true }
+        );
+        syncedCount++;
+      } catch (err) {
+        console.error(`Failed to sync ${p.email}:`, err.message);
+        errors++;
+      }
+    }
+
+    console.log(`✅ [MIGRATION] Sync Complete. Synced: ${syncedCount}, Errors: ${errors}`);
+
+    res.json({
+      success: true,
+      message: 'Student sync completed',
+      stats: {
+        total: payments.length,
+        synced: syncedCount,
+        errors
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Sync error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 

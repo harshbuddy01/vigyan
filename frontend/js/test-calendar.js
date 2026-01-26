@@ -68,40 +68,26 @@ function renderCalendarPage() {
 async function loadCalendarEvents() {
     try {
         console.log('🔄 Loading tests from database...');
-        
-        // ✅ FIXED: Try multiple endpoints to find tests
-        let endpoint = `${window.API_BASE_URL}/api/exam/list`;
-        console.log('📡 Fetching from:', endpoint);
-        
-        let response = await fetch(endpoint);
-        console.log('📥 Response status:', response.status);
-        
-        // If exam/list doesn't work, try alternative
-        if (response.status === 404) {
-            console.log('⚠️ /api/exam/list not found, trying alternative...');
-            endpoint = `${window.API_BASE_URL}/api/admin/scheduled-tests`;
-            response = await fetch(endpoint);
-            console.log('📥 Alternative response status:', response.status);
+
+        // Ensure AdminAPI is available
+        if (!window.AdminAPI) {
+            throw new Error('AdminAPI service not found');
         }
-        
+
+        const data = await window.AdminAPI.getTests();
+
         // Handle empty data gracefully
-        if (response.status === 404 || response.status === 204) {
+        if (!data || (data.success && (!data.tests && !data.exams))) {
             console.log('ℹ️ No tests found in database');
             calendarEvents = [];
             renderCalendar();
             renderTestsList();
             return;
         }
-        
-        if (!response.ok) {
-            throw new Error(`Server error: ${response.status}`);
-        }
-        
-        const data = await response.json();
 
         // Handle different response formats
         const tests = data.tests || data.exams || [];
-        
+
         calendarEvents = tests.map(test => ({
             id: test.id || test.test_id || test.exam_id,
             name: test.test_name || test.testName || test.exam_name || 'Unnamed Test',
@@ -114,13 +100,13 @@ async function loadCalendarEvents() {
         console.log(`✅ Loaded ${calendarEvents.length} tests from database`);
         renderCalendar();
         renderTestsList();
-        
+
     } catch (error) {
         console.error('❌ Error loading tests:', error);
         if (window.AdminUtils) {
             window.AdminUtils.showToast('Unable to load tests. Please check your connection.', 'error');
         }
-        
+
         // Show empty calendar on error
         calendarEvents = [];
         renderCalendar();
@@ -132,8 +118,10 @@ function renderCalendar() {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
 
-    document.getElementById('calendarMonth').textContent =
-        currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    const calendarMonthEl = document.getElementById('calendarMonth');
+    if (calendarMonthEl) {
+        calendarMonthEl.textContent = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    }
 
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -182,7 +170,11 @@ function renderCalendar() {
     }
 
     html += '</div>';
-    document.getElementById('calendarGrid').innerHTML = html;
+
+    const calendarGridEl = document.getElementById('calendarGrid');
+    if (calendarGridEl) {
+        calendarGridEl.innerHTML = html;
+    }
 }
 
 function renderTestsList() {
@@ -317,6 +309,12 @@ async function handleScheduleTest(event) {
     event.preventDefault();
     const formData = new FormData(event.target);
 
+    // Ensure AdminAPI is available
+    if (!window.AdminAPI) {
+        alert('AdminAPI service not found');
+        return;
+    }
+
     const testData = {
         test_name: formData.get('name'),
         test_type: formData.get('type'),
@@ -329,26 +327,8 @@ async function handleScheduleTest(event) {
     try {
         console.log('📤 Saving test to database...', testData);
 
-        // ✅ FIXED: Try to create test via exam endpoint
-        let endpoint = `${window.API_BASE_URL}/api/exam/create`;
-        let response = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(testData)
-        });
-        
-        // If exam/create doesn't work, try admin endpoint
-        if (response.status === 404) {
-            console.log('⚠️ /api/exam/create not found, trying alternative...');
-            endpoint = `${window.API_BASE_URL}/api/admin/scheduled-tests`;
-            response = await fetch(endpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(testData)
-            });
-        }
-
-        if (!response.ok) throw new Error('Failed to save test');
+        // ✅ FIXED: Use AdminAPI.createTest
+        await window.AdminAPI.createTest(testData);
 
         console.log('✅ Test saved successfully!');
         if (window.AdminUtils) {
@@ -374,21 +354,8 @@ async function deleteCalendarTest(testId) {
     try {
         console.log(`🗑️ Deleting test #${testId}...`);
 
-        // ✅ FIXED: Try exam endpoint first
-        let endpoint = `${window.API_BASE_URL}/api/exam/${testId}`;
-        let response = await fetch(endpoint, {
-            method: 'DELETE'
-        });
-        
-        // If exam endpoint doesn't work, try admin endpoint
-        if (response.status === 404) {
-            endpoint = `${window.API_BASE_URL}/api/admin/scheduled-tests/${testId}`;
-            response = await fetch(endpoint, {
-                method: 'DELETE'
-            });
-        }
-
-        if (!response.ok) throw new Error('Failed to delete test');
+        // ✅ FIXED: Use AdminAPI.deleteTest
+        await window.AdminAPI.deleteTest(testId);
 
         console.log('✅ Test deleted successfully!');
         if (window.AdminUtils) {

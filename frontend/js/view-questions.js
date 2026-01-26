@@ -14,7 +14,7 @@ function initViewQuestions() {
 function renderViewQuestionsPage() {
     const container = document.getElementById('view-questions-page');
     if (!container) return;
-    
+
     container.innerHTML = `
         <div class="page-header">
             <h1><i class="fas fa-list"></i> View & Edit Questions</h1>
@@ -72,7 +72,7 @@ function renderViewQuestionsPage() {
             </table>
         </div>
     `;
-    
+
     document.getElementById('subjectFilter').addEventListener('change', applyQuestionFilters);
     document.getElementById('difficultyFilter').addEventListener('change', applyQuestionFilters);
     document.getElementById('searchQuestions').addEventListener('input', applyQuestionFilters);
@@ -81,47 +81,39 @@ function renderViewQuestionsPage() {
 async function loadQuestionsFromBackend() {
     try {
         console.log('🔄 Fetching questions from backend...');
-        
-        // ✅ FIXED: Use correct endpoint /api/admin/questions (NOT questions-fixed)
-        const apiUrl = `${window.API_BASE_URL}/api/admin/questions`;
-        console.log('📡 API URL:', apiUrl);
-        
-        const response = await fetch(apiUrl, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        
+
+        // Ensure AdminAPI is available
+        if (!window.AdminAPI) {
+            throw new Error('AdminAPI service not found');
+        }
+
+        // ✅ FIXED: Use AdminAPI service
+        const data = await window.AdminAPI.getQuestions();
+
+        console.log('✅ Backend response:', data);
+
         // Handle empty database gracefully
-        if (response.status === 404 || response.status === 204) {
+        if (!data || (data.success && !data.questions)) {
             console.log('ℹ️ No questions found in database');
             allQuestions = [];
             displayQuestions([]);
             return;
         }
-        
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        
-        const data = await response.json();
-        console.log('✅ Backend response:', data);
-        
+
         allQuestions = data.questions || [];
         console.log(`✅ Loaded ${allQuestions.length} questions from backend`);
-        
+
         displayQuestions(allQuestions);
-        
+
         // ✅ ONLY show success toast on manual refresh (not on initial load)
         if (window._manualRefresh && window.AdminUtils) {
             window.AdminUtils.showToast(`Loaded ${allQuestions.length} questions`, 'success');
             window._manualRefresh = false;
         }
-        
+
     } catch (error) {
         console.error('❌ Failed to load questions:', error);
-        
+
         const tbody = document.getElementById('questionsTableBody');
         if (tbody) {
             tbody.innerHTML = `
@@ -138,7 +130,7 @@ async function loadQuestionsFromBackend() {
                 </td></tr>
             `;
         }
-        
+
         // Only show error toast on failures (not on empty database)
         if (window.AdminUtils && error.message.includes('HTTP')) {
             window.AdminUtils.showToast('Failed to load questions from backend', 'error');
@@ -156,9 +148,9 @@ function applyQuestionFilters() {
     const subject = document.getElementById('subjectFilter').value;
     const difficulty = document.getElementById('difficultyFilter').value;
     const search = document.getElementById('searchQuestions').value.toLowerCase();
-    
+
     let filtered = allQuestions;
-    
+
     if (subject !== 'all') {
         filtered = filtered.filter(q => q.subject === subject);
     }
@@ -166,19 +158,19 @@ function applyQuestionFilters() {
         filtered = filtered.filter(q => q.difficulty === difficulty);
     }
     if (search) {
-        filtered = filtered.filter(q => 
+        filtered = filtered.filter(q =>
             q.question.toLowerCase().includes(search) ||
             q.topic.toLowerCase().includes(search)
         );
     }
-    
+
     displayQuestions(filtered);
 }
 
 function displayQuestions(questions) {
     const tbody = document.getElementById('questionsTableBody');
     if (!tbody) return;
-    
+
     if (questions.length === 0) {
         tbody.innerHTML = `
             <tr><td colspan="8" style="text-align: center; padding: 60px; color: #94a3b8;">
@@ -189,7 +181,7 @@ function displayQuestions(questions) {
         `;
         return;
     }
-    
+
     tbody.innerHTML = questions.map(q => `
         <tr>
             <td><strong>#${q.id}</strong></td>
@@ -221,7 +213,7 @@ function displayQuestions(questions) {
 function viewQuestionDetails(id) {
     const question = allQuestions.find(q => q.id === id);
     if (!question) return;
-    
+
     const modal = document.createElement('div');
     modal.className = 'modal';
     modal.style.display = 'flex';
@@ -287,7 +279,7 @@ function viewQuestionDetails(id) {
 function editQuestionModal(id) {
     const question = allQuestions.find(q => q.id === id);
     if (!question) return;
-    
+
     if (window.AdminUtils) {
         window.AdminUtils.showToast('Edit functionality coming soon!', 'info');
     } else {
@@ -298,20 +290,16 @@ function editQuestionModal(id) {
 
 async function deleteQuestionConfirm(id) {
     if (!confirm('Are you sure you want to delete this question? This action cannot be undone.')) return;
-    
+
     try {
         console.log(`🗑️ Deleting question #${id}...`);
-        const response = await fetch(`${window.API_BASE_URL}/api/admin/questions/${id}`, {
-            method: 'DELETE'
-        });
-        
-        if (response.ok) {
-            console.log('✅ Question deleted successfully');
-            if (window.AdminUtils) window.AdminUtils.showToast('Question deleted successfully', 'success');
-            loadQuestionsFromBackend();
-        } else {
-            throw new Error('Delete failed');
-        }
+
+        await window.AdminAPI.deleteQuestion(id);
+
+        console.log('✅ Question deleted successfully');
+        if (window.AdminUtils) window.AdminUtils.showToast('Question deleted successfully', 'success');
+        loadQuestionsFromBackend();
+
     } catch (error) {
         console.error('❌ Delete error:', error);
         if (window.AdminUtils) {
@@ -331,7 +319,7 @@ function exportQuestions() {
         }
         return;
     }
-    
+
     const csv = [
         ['ID', 'Subject', 'Topic', 'Difficulty', 'Marks', 'Question', 'Type', 'Answer'],
         ...allQuestions.map(q => [
@@ -345,7 +333,7 @@ function exportQuestions() {
             q.answer
         ])
     ].map(row => row.join(',')).join('\n');
-    
+
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -353,7 +341,7 @@ function exportQuestions() {
     a.download = `questions_${new Date().toISOString().split('T')[0]}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    
+
     if (window.AdminUtils) window.AdminUtils.showToast('Questions exported successfully', 'success');
 }
 

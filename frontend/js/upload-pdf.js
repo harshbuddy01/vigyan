@@ -1,11 +1,17 @@
 // Upload PDF Module with Backend Integration
-// FIXED: 2026-01-25 - Using window.API_BASE_URL
-(function() {
+// FIXED: 2026-01-26 - Using AdminAPI
+(function () {
     'use strict';
 
-    window.initUploadPDF = function() {
+    window.initUploadPDF = function () {
         console.log('📝 Initializing PDF Upload...');
-        
+
+        // Ensure AdminAPI is available
+        if (!window.AdminAPI) {
+            console.error('AdminAPI service not found');
+            return;
+        }
+
         const uploadPDFHTML = `
             <div class="page-header">
                 <h1><i class="fas fa-file-pdf"></i> Upload PDF Questions</h1>
@@ -155,40 +161,41 @@
 
     let selectedFile = null;
 
-    function loadUploadHistory() {
-        // ✅ FIXED: Using window.API_BASE_URL from config
-        fetch(`${window.API_BASE_URL}/api/pdf/history`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    window.uploadHistoryData = data.uploads;
-                }
-            })
-            .catch(err => console.error('Error loading history:', err));
+    async function loadUploadHistory() {
+        try {
+            // ✅ FIXED: Using AdminAPI
+            const data = await window.AdminAPI.getPdfHistory();
+
+            if (data.success) {
+                window.uploadHistoryData = data.uploads;
+            }
+        } catch (err) {
+            console.error('Error loading history:', err);
+        }
     }
 
-    window.handleDragOver = function(e) {
+    window.handleDragOver = function (e) {
         e.preventDefault();
         e.stopPropagation();
         document.getElementById('dropZone').style.borderColor = '#3b82f6';
         document.getElementById('dropZone').style.background = '#eff6ff';
     };
 
-    window.handleDragLeave = function(e) {
+    window.handleDragLeave = function (e) {
         e.preventDefault();
         e.stopPropagation();
         document.getElementById('dropZone').style.borderColor = '#cbd5e1';
         document.getElementById('dropZone').style.background = 'transparent';
     };
 
-    window.handleDrop = function(e) {
+    window.handleDrop = function (e) {
         e.preventDefault();
         e.stopPropagation();
-        
+
         const dropZone = document.getElementById('dropZone');
         dropZone.style.borderColor = '#cbd5e1';
         dropZone.style.background = 'transparent';
-        
+
         const files = e.dataTransfer.files;
         if (files.length > 0) {
             const file = files[0];
@@ -202,7 +209,7 @@
         }
     };
 
-    window.handleFileSelect = function(e) {
+    window.handleFileSelect = function (e) {
         const file = e.target.files[0];
         if (file) {
             if (file.size > 10 * 1024 * 1024) {
@@ -218,7 +225,7 @@
     function displayFileInfo(file) {
         const fileInfo = document.getElementById('fileInfo');
         const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
-        
+
         fileInfo.style.display = 'block';
         fileInfo.innerHTML = `
             <div style="background: #f0fdf4; border: 1px solid #86efac; padding: 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
@@ -234,15 +241,15 @@
         `;
     }
 
-    window.clearFile = function() {
+    window.clearFile = function () {
         selectedFile = null;
         document.getElementById('pdfFile').value = '';
         document.getElementById('fileInfo').style.display = 'none';
     };
 
-    window.handlePDFUpload = async function(e) {
+    window.handlePDFUpload = async function (e) {
         e.preventDefault();
-        
+
         if (!selectedFile) {
             alert('Please select a PDF file.');
             return;
@@ -263,7 +270,7 @@
         const progressBar = document.getElementById('progressBar');
         const progressText = document.getElementById('progressText');
         const uploadBtn = document.getElementById('uploadBtn');
-        
+
         modal.style.display = 'flex';
         progressDiv.style.display = 'block';
         uploadBtn.disabled = true;
@@ -279,17 +286,12 @@
                 }
             }, 200);
 
-            // ✅ FIXED: Using window.API_BASE_URL from config
-            const response = await fetch(`${window.API_BASE_URL}/api/pdf/upload`, {
-                method: 'POST',
-                body: formData
-            });
+            // ✅ FIXED: Using AdminAPI
+            const result = await window.AdminAPI.uploadPdf(formData);
 
             clearInterval(progressInterval);
             progressBar.style.width = '100%';
             progressText.textContent = 'Complete! 100%';
-
-            const result = await response.json();
 
             modal.style.display = 'none';
             progressDiv.style.display = 'none';
@@ -297,23 +299,23 @@
             uploadBtn.disabled = false;
 
             if (result.success) {
-                const message = result.questionsExtracted > 0 
-                    ? `PDF uploaded successfully! ${result.questionsExtracted} questions extracted and saved.` 
+                const message = result.questionsExtracted > 0
+                    ? `PDF uploaded successfully! ${result.questionsExtracted} questions extracted and saved.`
                     : 'PDF uploaded successfully!';
-                
+
                 if (window.AdminUtils) {
                     window.AdminUtils.showToast(message, 'success');
                 } else {
                     alert(message);
                 }
-                
+
                 // Reset form
                 document.getElementById('pdfUploadForm').reset();
                 clearFile();
-                
+
                 // Reload history
                 loadUploadHistory();
-                
+
                 // If questions were extracted, show option to view them
                 if (result.questionsExtracted > 0) {
                     setTimeout(() => {
@@ -336,7 +338,7 @@
             progressDiv.style.display = 'none';
             progressBar.style.width = '0%';
             uploadBtn.disabled = false;
-            
+
             if (window.AdminUtils) {
                 window.AdminUtils.showToast('Upload failed: ' + error.message, 'error');
             } else {
@@ -345,20 +347,20 @@
         }
     };
 
-    window.viewUploadHistory = function() {
+    window.viewUploadHistory = function () {
         const section = document.getElementById('uploadHistorySection');
         section.style.display = 'block';
         renderUploadHistory();
     };
 
-    window.hideUploadHistory = function() {
+    window.hideUploadHistory = function () {
         document.getElementById('uploadHistorySection').style.display = 'none';
     };
 
     function renderUploadHistory() {
         const container = document.getElementById('uploadHistoryContent');
         const history = window.uploadHistoryData || [];
-        
+
         if (history.length === 0) {
             container.innerHTML = `
                 <div style="text-align: center; padding: 40px; color: #94a3b8;">
@@ -399,21 +401,17 @@
                 </tbody>
             </table>
         `;
-        
+
         container.innerHTML = html;
     }
 
-    window.deleteUpload = async function(uploadId) {
+    window.deleteUpload = async function (uploadId) {
         if (!confirm('Delete this upload record?')) return;
-        
+
         try {
-            // ✅ FIXED: Using window.API_BASE_URL from config
-            const response = await fetch(`${window.API_BASE_URL}/api/pdf/delete/${uploadId}`, {
-                method: 'DELETE'
-            });
-            
-            const result = await response.json();
-            
+            // ✅ FIXED: Using AdminAPI
+            const result = await window.AdminAPI.deletePdf(uploadId);
+
             if (result.success) {
                 if (window.AdminUtils) {
                     window.AdminUtils.showToast('Upload deleted!', 'success');

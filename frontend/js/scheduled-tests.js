@@ -1,28 +1,32 @@
 /**
  * Scheduled Tests Page - Complete Backend Integration
- * FIXED: 2026-01-25 - Proper endpoints, empty states, and error handling
+ * FIXED: 2026-01-26 - Integrated with AdminAPI service
  */
 
 console.log('🔵 scheduled-tests.js loading...');
-console.log('🔧 API_BASE_URL:', window.API_BASE_URL);
 
 let allTests = [];
 let filteredTests = [];
 
 // Initialize page when called from dashboard
-window.initScheduledTests = async function() {
+window.initScheduledTests = async function () {
     console.log('🔥 ✅ initScheduledTests CALLED!');
     console.log('🔵 Initializing Scheduled Tests page...');
-    console.log('🔧 Using API Base URL:', window.API_BASE_URL);
-    
+
+    // Ensure AdminAPI is available
+    if (!window.AdminAPI) {
+        console.error('❌ AdminAPI service not found');
+        return;
+    }
+
     const page = document.getElementById('scheduled-tests-page');
     if (!page) {
         console.error('❌ Scheduled tests page element not found');
         return;
     }
-    
+
     console.log('✅ Page container found');
-    
+
     // Render page HTML
     page.innerHTML = `
         <div class="page-header">
@@ -67,20 +71,20 @@ window.initScheduledTests = async function() {
             </div>
         </div>
     `;
-    
+
     console.log('✅ HTML rendered');
-    
+
     // Load tests from backend
     await loadScheduledTests();
     setupEventListeners();
-    
+
     console.log('✅ Scheduled Tests page initialized');
 };
 
 console.log('🔍 Verifying initScheduledTests function:', typeof window.initScheduledTests);
 
 // Navigate to create test page
-window.navigateToCreateTest = function() {
+window.navigateToCreateTest = function () {
     const createTestLink = document.querySelector('[data-page="create-test"]');
     if (createTestLink) {
         createTestLink.click();
@@ -96,7 +100,7 @@ function setupEventListeners() {
     if (typeFilter) typeFilter.addEventListener('change', applyFilters);
     if (statusFilter) statusFilter.addEventListener('change', applyFilters);
     if (searchInput) searchInput.addEventListener('input', applyFilters);
-    
+
     console.log('✅ Event listeners attached');
 }
 
@@ -104,47 +108,47 @@ function setupEventListeners() {
 async function loadScheduledTests() {
     try {
         showLoading(true);
-        
-        // ✅ FIXED: Try multiple endpoints to find scheduled tests
-        let endpoint = `${window.API_BASE_URL}/api/exam/list`;
-        console.log('📡 Fetching tests from:', endpoint);
-        
-        let response = await fetch(endpoint, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
+
+        console.log('📡 Fetching tests via AdminAPI...');
+
+        let data;
+        try {
+            data = await window.AdminAPI.getTests(); // Calls /api/admin/tests
+        } catch (err) {
+            console.warn('Primary endpoint failed, trying scheduled tests endpoint...');
+            try {
+                data = await window.AdminAPI.getScheduledTests(); // Calls /api/admin/scheduled-tests
+            } catch (innerErr) {
+                // Try exam list route as last resort
+                console.warn('Secondary endpoint failed, trying exam list...');
+                const response = await fetch(`${window.AdminAPI.baseURL}/api/exam/list`);
+                data = await response.json();
             }
-        });
-        
-        console.log('📥 Response status:', response.status);
-        
-        // If exam/list doesn't work, try admin endpoint
-        if (response.status === 404) {
-            console.log('⚠️ /api/exam/list not found, trying alternative...');
-            endpoint = `${window.API_BASE_URL}/api/admin/scheduled-tests`;
-            response = await fetch(endpoint);
-            console.log('📥 Alternative response status:', response.status);
         }
-        
-        // Handle empty data (not an error)
-        if (response.status === 404 || response.status === 204) {
-            console.log('ℹ️ No scheduled tests found (empty database)');
+
+        console.log('📦 Loaded tests data:', data);
+
+        // Handle various response/empty structures
+        if (!data || (!data.tests && !data.exams && !Array.isArray(data))) {
+            console.log('ℹ️ No scheduled tests found (empty/invalid data)');
             allTests = [];
             filteredTests = [];
             showEmptyState();
             showLoading(false);
             return;
         }
-        
-        if (!response.ok) {
-            throw new Error(`Server error: ${response.status} ${response.statusText}`);
+
+        // Normalize data
+        let tests = [];
+        if (Array.isArray(data)) {
+            tests = data;
+        } else if (data.tests) {
+            tests = data.tests;
+        } else if (data.exams) {
+            tests = data.exams;
         }
-        
-        const data = await response.json();
-        console.log('📦 Loaded tests data:', data);
-        
-        // Handle successful response with empty results
-        if (data.success && (!data.tests || data.tests.length === 0)) {
+
+        if (tests.length === 0) {
             console.log('ℹ️ Database returned empty test list');
             allTests = [];
             filteredTests = [];
@@ -152,21 +156,21 @@ async function loadScheduledTests() {
             showLoading(false);
             return;
         }
-        
-        allTests = data.tests || data.exams || [];
+
+        allTests = tests;
         filteredTests = [...allTests];
-        
+
         console.log(`✅ Loaded ${allTests.length} tests`);
-        
+
         displayTests(filteredTests);
         showLoading(false);
-        
+
     } catch (error) {
         console.error('❌ Error loading tests:', error);
         console.error('Error details:', error.message);
-        
+
         showErrorState(error);
-        
+
         allTests = [];
         filteredTests = [];
         showLoading(false);
@@ -176,7 +180,7 @@ async function loadScheduledTests() {
 function showEmptyState() {
     const container = document.getElementById('tests-container');
     if (!container) return;
-    
+
     container.innerHTML = `
         <div class="no-tests" style="text-align: center; padding: 80px 20px; color: #94a3b8; background: white; border-radius: 12px;">
             <i class="fas fa-calendar-times" style="font-size: 64px; margin-bottom: 20px; opacity: 0.3;"></i>
@@ -192,7 +196,7 @@ function showEmptyState() {
 function showErrorState(error) {
     const container = document.getElementById('tests-container');
     if (!container) return;
-    
+
     container.innerHTML = `
         <div style="text-align: center; padding: 60px 20px; color: #ef4444; background: white; border-radius: 12px;">
             <i class="fas fa-exclamation-circle" style="font-size: 48px; margin-bottom: 16px;"></i>
@@ -218,7 +222,7 @@ function applyFilters() {
         const testStatus = test.status || 'scheduled';
         const testName = test.test_name || test.testName || test.exam_name || '';
         const subjects = test.subjects || '';
-        
+
         if (typeFilter !== 'all' && testType.toUpperCase() !== typeFilter.toUpperCase()) return false;
         if (statusFilter !== 'all' && testStatus !== statusFilter) return false;
         if (searchQuery) {
@@ -237,7 +241,7 @@ function applyFilters() {
 function displayTests(tests) {
     const container = document.getElementById('tests-container');
     if (!container) return;
-    
+
     if (tests.length === 0) {
         container.innerHTML = `
             <div style="text-align: center; padding: 60px 20px; color: #94a3b8; background: white; border-radius: 12px;">
@@ -274,7 +278,7 @@ function createTestCard(test) {
         'completed': { bg: '#e0e7ff', color: '#4338ca' },
         'cancelled': { bg: '#fee2e2', color: '#991b1b' }
     };
-    
+
     const statusStyle = statusColors[status] || statusColors.scheduled;
 
     return `
@@ -333,7 +337,7 @@ function createTestCard(test) {
 }
 
 // Edit test
-window.editTest = function(testId) {
+window.editTest = function (testId) {
     console.log('✏️ Edit test:', testId);
     if (window.AdminUtils) {
         window.AdminUtils.showToast('Edit functionality coming soon!', 'info');
@@ -343,41 +347,25 @@ window.editTest = function(testId) {
 };
 
 // Delete test
-window.deleteTest = async function(testId) {
+window.deleteTest = async function (testId) {
     if (!confirm('⚠️ Are you sure you want to delete this test? This action cannot be undone.')) return;
-    
+
     try {
         console.log('🗑️ Deleting test with ID:', testId);
-        
-        const endpoint = `${window.API_BASE_URL}/api/exam/${testId}`;
-        console.log('📡 DELETE request to:', endpoint);
-        
-        const response = await fetch(endpoint, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
 
-        console.log('📥 Delete response status:', response.status);
+        await window.AdminAPI.deleteTest(testId);
 
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.message || error.error || 'Failed to delete test');
-        }
-
-        const result = await response.json();
-        console.log('✅ Delete result:', result);
+        console.log('✅ Delete success');
 
         if (window.AdminUtils) {
             window.AdminUtils.showToast('✅ Test deleted successfully!', 'success');
         } else {
             alert('Test deleted successfully!');
         }
-        
+
         // Reload tests
         await loadScheduledTests();
-        
+
     } catch (error) {
         console.error('❌ Error deleting test:', error);
         if (window.AdminUtils) {
@@ -404,5 +392,4 @@ function showLoading(show) {
 }
 
 console.log('✅ Scheduled Tests module loaded');
-console.log('🔧 API Configuration:', window.API_BASE_URL);
 console.log('🔍 initScheduledTests available:', typeof window.initScheduledTests === 'function');

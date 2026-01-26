@@ -349,25 +349,10 @@ function initAddQuestions() {
 
             console.log('📤 Sending question to backend:', payload);
 
-            // Send to backend
-            const API_BASE_URL = window.API_BASE_URL || 'https://backend-vigyanpreap.vigyanprep.com';
-            const response = await fetch(`${API_BASE_URL}/api/admin/questions`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            });
+            // Send to backend via AdminAPI
+            const response = await window.AdminAPI.addQuestion(payload);
 
-            console.log('📥 Response status:', response.status);
-
-            if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.error || error.message || 'Failed to add question');
-            }
-
-            const result = await response.json();
-            console.log('✅ Question added:', result);
+            console.log('✅ Question added:', response);
 
             // Show success message
             if (window.AdminUtils && window.AdminUtils.showToast) {

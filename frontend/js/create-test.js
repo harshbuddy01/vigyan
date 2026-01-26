@@ -1,14 +1,12 @@
-/**
- * Create Test Page - Complete Implementation with Backend Integration
- * Last Updated: 2025-12-28 19:07 IST - FINAL FIX: snake_case to match backend
- */
-
-// Use global API URL from config.js
-const API_BASE_URL = window.API_BASE_URL || 'https://backend-vigyanpreap.vigyanprep.com';
-
+// Use AdminAPI service for all backend interactions
 window.initCreateTest = function () {
     console.log('🔵 Initializing Create Test page...');
-    console.log('🔧 Using API Base URL:', API_BASE_URL);
+
+    // Ensure AdminAPI is available
+    if (!window.AdminAPI) {
+        console.error('❌ AdminAPI service not found');
+        return;
+    }
 
     const container = document.getElementById('create-test-page');
     if (!container) {
@@ -210,25 +208,15 @@ async function handleCreateTest(e) {
     };
 
     console.log('📤 Sending test data to backend:', testData);
-    console.log('🔗 API Endpoint:', `${API_BASE_URL}/api/admin/create-test`);
 
     try {
-        // Send to backend API
-        const response = await fetch(`${API_BASE_URL}/api/admin/create-test`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(testData)
-        });
+        // Send to backend API using AdminAPI service
+        const response = await window.AdminAPI.createTest(testData);
 
-        console.log('📥 Backend response status:', response.status);
+        console.log('📦 Backend response data:', response);
 
-        const result = await response.json();
-        console.log('📦 Backend response data:', result);
-
-        if (!response.ok || !result.success) {
-            throw new Error(result.message || `HTTP error! status: ${response.status}`);
+        if (!response.success && !response.test) { // Check for common success indicators
+            throw new Error(response.message || 'Unknown error occurred');
         }
 
         // Show success message
@@ -272,4 +260,4 @@ async function handleCreateTest(e) {
 }
 
 console.log('✅ Create Test module loaded');
-console.log('🔧 API Configuration:', API_BASE_URL);
+console.log('🔧 Initializing Create Test Page');

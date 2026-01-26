@@ -4,6 +4,7 @@ import nodemailer from "nodemailer";
 import { StudentPayment } from "../models/StudentPayment.js";
 import { PurchasedTest } from "../models/PurchasedTest.js";
 import { PaymentTransaction } from "../models/PaymentTransaction.js";
+import Student from "../models/Student.js";
 import mongoose from "mongoose";
 
 // Create Nodemailer transporter with Hostinger SMTP
@@ -54,7 +55,7 @@ const checkDatabaseConnection = async () => {
   try {
     const isConnected = mongoose.connection.readyState === 1;
     console.log(`🔍 Database Status: ${isConnected ? '✅ CONNECTED' : '❌ DISCONNECTED'}`);
-    
+
     if (!isConnected) {
       console.error('❌ MongoDB is NOT connected! Cannot save student records.');
       console.error('   Connection state:', mongoose.connection.readyState);
@@ -77,18 +78,18 @@ export const getApiKey = (req, res) => {
 export const checkout = async (req, res) => {
   console.log('🔵 ========== CHECKOUT ENDPOINT CALLED ==========');
   console.log('📦 Request body:', JSON.stringify(req.body, null, 2));
-  
+
   try {
     // CHECK 1: Is Razorpay configured?
     console.log('🔍 Check 1: Razorpay instance exists?', razorpayInstance ? '✅ YES' : '❌ NO');
-    
+
     if (!razorpayInstance) {
       console.error('❌ CRITICAL: Razorpay instance is NULL!');
       console.error('   Possible reasons:');
       console.error('   1. RAZORPAY_API_KEY not set in environment variables');
       console.error('   2. RAZORPAY_API_SECRET not set in environment variables');
       console.error('   3. Razorpay initialization failed in config/razorpay.js');
-      
+
       return res.status(500).json({
         success: false,
         message: "Payment gateway not configured. Missing Razorpay credentials.",
@@ -150,15 +151,15 @@ export const checkout = async (req, res) => {
     console.log('📤 Sending to Razorpay:', JSON.stringify(options, null, 2));
 
     const order = await razorpayInstance.orders.create(options);
-    
+
     console.log('✅ Razorpay order created successfully!');
     console.log('   Order ID:', order.id);
     console.log('   Amount:', order.amount);
     console.log('   Currency:', order.currency);
 
     // CHECK 4: Prepare response
-    const responseData = { 
-      success: true, 
+    const responseData = {
+      success: true,
       orderId: order.id,
       amount: order.amount,
       currency: order.currency,
@@ -167,22 +168,22 @@ export const checkout = async (req, res) => {
 
     console.log('📤 Sending response:', JSON.stringify(responseData, null, 2));
     console.log('🔵 ========== CHECKOUT SUCCESS ==========');
-    
+
     res.status(200).json(responseData);
-    
+
   } catch (error) {
     console.error('🔴 ========== CHECKOUT ERROR ==========');
     console.error('❌ Error name:', error.name);
     console.error('❌ Error message:', error.message);
     console.error('❌ Error stack:', error.stack);
-    
+
     // Check if it's a Razorpay API error
     if (error.error) {
       console.error('❌ Razorpay API error details:', JSON.stringify(error.error, null, 2));
     }
-    
-    res.status(500).json({ 
-      success: false, 
+
+    res.status(500).json({
+      success: false,
       message: error.message || 'Internal server error',
       debug: {
         errorName: error.name,
@@ -215,7 +216,7 @@ export const paymentVerification = async (req, res) => {
 
   // Start a session for transaction support
   let session = null;
-  
+
   try {
     if (!razorpayInstance) {
       console.error('❌ Razorpay instance not configured for payment verification');
@@ -324,45 +325,45 @@ export const paymentVerification = async (req, res) => {
     } else {
       // 🆕 NEW STUDENT - Generate roll number with retry logic
       console.log("🆕 NEW STUDENT REGISTRATION STARTING...");
-      
+
       let rollCreated = false;
       let attempts = 0;
       const maxAttempts = 5;
-      
+
       while (!rollCreated && attempts < maxAttempts) {
         attempts++;
         rollNumber = Math.floor(10000000 + Math.random() * 90000000).toString();
         console.log(`🎲 Generated Roll Number Attempt ${attempts}: ${rollNumber}`);
-        
+
         try {
           // Check if roll number already exists
           const duplicateRoll = await StudentPayment.findOne({ roll_number: rollNumber }).session(session);
-          
+
           if (duplicateRoll) {
             console.warn(`⚠️ Roll number ${rollNumber} already exists, retrying...`);
             continue;
           }
-          
+
           // 🆕 CREATE STUDENT RECORD WITH EXPLICIT ERROR HANDLING
           console.log("💾 CREATING STUDENT RECORD IN DATABASE...");
           console.log("   Email:", normalizedEmail);
           console.log("   Roll:", rollNumber);
           console.log("   Session:", session ? "Active" : "None");
-          
+
           const newStudent = await StudentPayment.create([{
             email: normalizedEmail,
             roll_number: rollNumber,
             created_at: new Date()
           }], { session });
-          
+
           console.log("✅ STUDENT RECORD CREATED SUCCESSFULLY!");
           console.log("   ID:", newStudent[0]._id);
           console.log("   Email:", newStudent[0].email);
           console.log("   Roll:", newStudent[0].roll_number);
-          
+
           rollCreated = true;
           isNewStudent = true;
-          
+
         } catch (rollError) {
           console.error(`❌ Error creating student record (attempt ${attempts}):`, rollError.message);
           if (attempts >= maxAttempts) {
@@ -401,22 +402,42 @@ export const paymentVerification = async (req, res) => {
       purchasedTests = [testId];
 
       console.log(`✅ NEW STUDENT CREATED SUCCESSFULLY: ${normalizedEmail}, Roll: ${rollNumber}`);
+
+      // 🆕 SYNC WITH DASHBOARD STUDENT MODEL
+      // This ensures the student appears in the Admin Dashboard "All Students" list
+      console.log("🔄 Syncing with Dashboard Student Model...");
+      try {
+        await Student.findOneAndUpdate(
+          { email: normalizedEmail },
+          {
+            email: normalizedEmail,
+            rollNumber: rollNumber,
+            fullName: extractFirstName(normalizedEmail),
+            lastLoginAt: new Date()
+          },
+          { upsert: true, new: true, session }
+        );
+        console.log("✅ Dashboard Student record synced");
+      } catch (syncError) {
+        console.error("❌ Error syncing Dashboard Student record:", syncError.message);
+        // Don't fail the transaction for this, but log it critical
+      }
     }
 
     // 🆕 STEP 4: Commit transaction to database
     console.log("💾 COMMITTING ALL CHANGES TO DATABASE...");
     await session.commitTransaction();
     console.log("✅ DATABASE TRANSACTION COMMITTED SUCCESSFULLY!");
-    
+
     // 🆕 STEP 5: Verify student was actually saved
     console.log("🔍 VERIFYING STUDENT RECORD IN DATABASE...");
     const verifyStudent = await StudentPayment.findOne({ email: normalizedEmail });
-    
+
     if (!verifyStudent) {
       console.error("❌ CRITICAL ERROR: Student record not found after commit!");
       throw new Error("Student record verification failed");
     }
-    
+
     console.log("✅ VERIFIED: Student record exists in database");
     console.log("   Email:", verifyStudent.email);
     console.log("   Roll:", verifyStudent.roll_number);
@@ -559,7 +580,7 @@ export const paymentVerification = async (req, res) => {
     console.error("🔴 ========== PAYMENT VERIFICATION ERROR ==========");
     console.error("❌ Error:", error.message);
     console.error("❌ Stack:", error.stack);
-    
+
     // 🆕 Rollback transaction on error
     if (session) {
       try {
@@ -569,9 +590,9 @@ export const paymentVerification = async (req, res) => {
         console.error("❌ Error aborting transaction:", abortError.message);
       }
     }
-    
-    res.status(500).json({ 
-      success: false, 
+
+    res.status(500).json({
+      success: false,
       message: "Internal Server Error: " + error.message,
       debug: {
         errorName: error.name,

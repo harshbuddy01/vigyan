@@ -8,17 +8,22 @@ window.APP_CONFIG = {
     // Environment detection
     ENVIRONMENT: window.location.hostname.includes('localhost') ? 'development' : 'production',
 
-    // API Base URL - FIXED: Direct Hostinger URL (2026-01-24)
+    // API Base URL - FIXED: Direct Hostinger URL (2026-01-26)
     // DO NOT CHANGE - This is the production backend on Hostinger VPS
     API_BASE_URL: (() => {
         const hostname = window.location.hostname;
+        
+        // 1. Check for server-injected environment variable first
+        if (window.__ENV__ && window.__ENV__.API_URL) {
+            return window.__ENV__.API_URL;
+        }
 
-        // Local development
+        // 2. Local development
         if (hostname === 'localhost' || hostname === '127.0.0.1') {
             return 'http://localhost:3000';
         }
 
-        // PRODUCTION: Always use Hostinger backend
+        // 3. PRODUCTION: Always use Hostinger backend
         return 'https://backend-vigyanpreap.vigyanprep.com';
     })(),
 

@@ -9,7 +9,7 @@ let uploadedImages = []; // Store uploaded images
 function showToast(message, type = 'success') {
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
-    toast.style.cssText = `position:fixed;top:20px;right:20px;background:${type==='success'?'#10b981':'#ef4444'};color:white;padding:16px 24px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:10000;animation:slideIn 0.3s ease;`;
+    toast.style.cssText = `position:fixed;top:20px;right:20px;background:${type === 'success' ? '#10b981' : '#ef4444'};color:white;padding:16px 24px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:10000;animation:slideIn 0.3s ease;`;
     toast.textContent = message;
     document.body.appendChild(toast);
     setTimeout(() => {
@@ -122,6 +122,13 @@ const PAGE_CONTENT = `
 
 // Initialize page
 function initImageUploadPage() {
+    // Ensure AdminAPI is available
+    if (!window.AdminAPI) {
+        console.error('AdminAPI service not found');
+        showToast('AdminAPI service not found', 'error');
+        return;
+    }
+
     const container = document.getElementById('upload-image-page');
     if (container) {
         container.innerHTML = PAGE_CONTENT;
@@ -172,9 +179,8 @@ function setupEventListeners() {
 
 async function loadQuestions() {
     try {
-        const response = await fetch(`${window.API_BASE_URL}/api/admin/questions`);
-        const data = await response.json();
-        
+        const data = await window.AdminAPI.getQuestions();
+
         const selector = document.getElementById('questionSelector');
         if (selector) {
             selector.innerHTML = '<option value="">Select a question...</option>';
@@ -187,6 +193,7 @@ async function loadQuestions() {
         }
         showToast('Questions loaded successfully');
     } catch (error) {
+        console.error('Error loading questions:', error);
         showToast('Failed to load questions', 'error');
     }
 }
@@ -194,7 +201,7 @@ async function loadQuestions() {
 function showQuestionPreview(questionId) {
     const preview = document.getElementById('selectedQuestionPreview');
     const questionText = document.getElementById('questionText');
-    
+
     if (!questionId) {
         preview.style.display = 'none';
         return;
@@ -203,7 +210,7 @@ function showQuestionPreview(questionId) {
     // Find question from selector
     const selector = document.getElementById('questionSelector');
     const selectedOption = selector?.options[selector.selectedIndex];
-    
+
     if (selectedOption) {
         questionText.textContent = selectedOption.textContent;
         preview.style.display = 'block';
@@ -230,7 +237,7 @@ function handleFileSelect(file) {
     reader.onload = (e) => {
         const preview = document.getElementById('imagePreview');
         const container = document.getElementById('imagePreviewContainer');
-        
+
         if (preview && container) {
             preview.src = e.target.result;
             container.style.display = 'block';
@@ -245,11 +252,11 @@ function removeImage() {
     const container = document.getElementById('imagePreviewContainer');
     const preview = document.getElementById('imagePreview');
     const caption = document.getElementById('imageCaption');
-    
+
     if (container) container.style.display = 'none';
     if (preview) preview.src = '';
     if (caption) caption.value = '';
-    
+
     document.getElementById('imageInput').value = '';
     updateLinkButton();
 }
@@ -257,7 +264,7 @@ function removeImage() {
 function updateLinkButton() {
     const btn = document.getElementById('linkImageBtn');
     const preview = document.getElementById('imagePreview');
-    
+
     if (btn) {
         const hasQuestion = selectedQuestionId !== null && selectedQuestionId !== '';
         const hasImage = preview?.src && preview.src !== '';
@@ -268,7 +275,7 @@ function updateLinkButton() {
 async function linkImageToQuestion() {
     const preview = document.getElementById('imagePreview');
     const caption = document.getElementById('imageCaption');
-    
+
     if (!selectedQuestionId || !preview?.dataset.imageData) {
         showToast('Please select a question and upload an image', 'error');
         return;
@@ -282,22 +289,16 @@ async function linkImageToQuestion() {
     };
 
     try {
-        // Save to backend
-        const response = await fetch(`${window.API_BASE_URL}/api/admin/questions/${selectedQuestionId}/image`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(linkData)
-        });
+        // Save to backend using AdminAPI
+        await window.AdminAPI.uploadQuestionImage(selectedQuestionId, linkData);
 
-        if (response.ok) {
-            uploadedImages.push(linkData);
-            showToast('✅ Image linked successfully!');
-            loadLinkedImages();
-            clearForm();
-        } else {
-            showToast('Failed to link image', 'error');
-        }
+        uploadedImages.push(linkData);
+        showToast('✅ Image linked successfully!');
+        loadLinkedImages();
+        clearForm();
+
     } catch (error) {
+        console.error('Upload Error:', error);
         // Save locally if backend fails
         uploadedImages.push(linkData);
         localStorage.setItem('linkedImages', JSON.stringify(uploadedImages));
@@ -349,7 +350,7 @@ function loadLinkedImages() {
 function getQuestionText(questionId) {
     const selector = document.getElementById('questionSelector');
     if (!selector) return 'Question #' + questionId;
-    
+
     for (let option of selector.options) {
         if (option.value == questionId) {
             return option.textContent.substring(0, 50) + '...';
@@ -378,7 +379,7 @@ function viewImage(imageData) {
 
 function deleteLinkedImage(index) {
     if (!confirm('Delete this image link?')) return;
-    
+
     uploadedImages.splice(index, 1);
     localStorage.setItem('linkedImages', JSON.stringify(uploadedImages));
     showToast('Image link deleted');
@@ -393,12 +394,12 @@ function clearForm() {
 }
 
 function exportLinkedImages() {
-    const csv = 'Question ID,Question,Caption,Upload Date\n' + 
-        uploadedImages.map(img => 
+    const csv = 'Question ID,Question,Caption,Upload Date\n' +
+        uploadedImages.map(img =>
             `${img.questionId},"${getQuestionText(img.questionId)}","${img.caption}",${new Date(img.uploadedAt).toLocaleDateString()}`
         ).join('\n');
-    
-    const blob = new Blob([csv], {type: 'text/csv'});
+
+    const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
