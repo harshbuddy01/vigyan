@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,13 +8,16 @@
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="frontend/css/global.css?v=20260126-0250">
     <link rel="stylesheet" href="frontend/css/navbar.css?v=20260126-0250">
     <link rel="stylesheet" href="frontend/css/pages.css?v=20260126-0250">
     <link rel="stylesheet" href="frontend/css/user-panel.css?v=20260126-0250">
     <link rel="stylesheet" href="frontend/css/shared-nav-dropdown.css?v=20260126-0250">
+    <link rel="stylesheet" href="frontend/css/mobile-nav.css">
     <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="pragma" content="no-cache">
     <meta http-equiv="expires" content="0">
@@ -186,8 +190,15 @@
         }
 
         @keyframes successPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
         }
 
         .golden-roll-number {
@@ -335,7 +346,9 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .hidden {
@@ -395,8 +408,15 @@
         }
 
         @keyframes vigyanShimmer {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
         }
 
         .logo .logo-dot {
@@ -417,6 +437,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="grid-bg"></div>
 
@@ -426,8 +447,10 @@
             <p class="text-gray-400 text-sm mt-2">Enter your email to proceed with payment.</p>
             <input type="email" id="modalUserEmail" class="modal-input" placeholder="student@example.com">
             <div id="modalError" class="error-banner hidden"></div>
-            <button id="modalActionBtn" onclick="handleModalSubmit()" class="buy-btn" style="margin-top: 1rem">Proceed to Payment</button>
-            <button onclick="closeEntryModal()" class="text-gray-400 text-xs mt-4 block mx-auto uppercase hover:text-white transition">Cancel</button>
+            <button id="modalActionBtn" onclick="handleModalSubmit()" class="buy-btn" style="margin-top: 1rem">Proceed
+                to Payment</button>
+            <button onclick="closeEntryModal()"
+                class="text-gray-400 text-xs mt-4 block mx-auto uppercase hover:text-white transition">Cancel</button>
         </div>
     </div>
 
@@ -443,48 +466,64 @@
                     <i class="fas fa-copy"></i> COPY ROLL NUMBER
                 </button>
             </div>
-            <div class="countdown-text">Returning to dashboard in <span id="countdownTimer" class="countdown-number">6</span> seconds...</div>
+            <div class="countdown-text">Returning to dashboard in <span id="countdownTimer"
+                    class="countdown-number">6</span> seconds...</div>
             <div class="action-buttons">
                 <button onclick="closeSuccessModal()" class="primary-btn"><i class="fas fa-check"></i> GOT IT!</button>
-                <button onclick="cancelRedirect()" class="secondary-btn"><i class="fas fa-times"></i> CANCEL AUTO-REDIRECT</button>
+                <button onclick="cancelRedirect()" class="secondary-btn"><i class="fas fa-times"></i> CANCEL
+                    AUTO-REDIRECT</button>
             </div>
             <p class="text-xs text-gray-500 mt-6"><i class="fas fa-envelope"></i> Roll number sent to your email</p>
         </div>
     </div>
 
-    <nav class="navbar fixed top-0 w-full z-50 px-12 py-5 flex justify-between items-center bg-[#020617]/90 backdrop-blur-md border-b border-white/5" id="navbar">
-        <div class="logo text-2xl font-black text-white cursor-pointer" onclick="window.location.href='index.html'" style="display:inline-flex;align-items:baseline;">
+    <nav class="navbar fixed top-0 w-full z-50 px-12 py-5 flex justify-between items-center bg-[#020617]/90 backdrop-blur-md border-b border-white/5"
+        id="navbar">
+        <div class="logo text-2xl font-black text-white cursor-pointer" onclick="window.location.href='index.html'"
+            style="display:inline-flex;align-items:baseline;">
             <span class="logo-vigyan">Vigyan</span><span class="logo-dot">.</span><span class="logo-prep">prep</span>
         </div>
         <div class="nav-links flex items-center space-x-8 text-sm font-bold text-gray-400">
             <a href="index.html" class="hover:text-white transition">Home</a>
             <div class="nav-dropdown">
-                <a href="#" class="dropdown-trigger hover:text-white transition">About <i class="fas fa-chevron-down"></i></a>
+                <a href="#" class="dropdown-trigger hover:text-white transition">About <i
+                        class="fas fa-chevron-down"></i></a>
                 <div class="dropdown-menu">
                     <a href="aboutpage.html">About Us</a>
                     <a href="shoutouts.html">Shoutouts</a>
                 </div>
             </div>
             <a href="subtittlepyq.html" class="hover:text-white transition">PYQ</a>
-            <a href="testfirstpage.html" class="text-white transition underline decoration-blue-500 decoration-2 underline-offset-8">Tests</a>
+            <a href="testfirstpage.html"
+                class="text-white transition underline decoration-blue-500 decoration-2 underline-offset-8">Tests</a>
             <div class="nav-dropdown">
-                <a href="#" class="dropdown-trigger hover:text-white transition">Future Career <i class="fas fa-chevron-down"></i></a>
+                <a href="#" class="dropdown-trigger hover:text-white transition">Future Career <i
+                        class="fas fa-chevron-down"></i></a>
                 <div class="dropdown-menu">
                     <a href="future.html">Future Career</a>
                     <a href="sciencenews.html">Science News</a>
                 </div>
             </div>
             <div id="navLoginPlaceholder">
-                <a href="signinpage.html" class="btn-login bg-blue-600 px-6 py-2 rounded-full text-white hover:bg-blue-700 transition shadow-lg shadow-blue-900/40">Login</a>
+                <a href="signinpage.html"
+                    class="btn-login bg-blue-600 px-6 py-2 rounded-full text-white hover:bg-blue-700 transition shadow-lg shadow-blue-900/40">Login</a>
             </div>
+        </div>
+
+        <div class="hamburger">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
         </div>
     </nav>
 
     <main class="max-w-7xl mx-auto pt-48 pb-20 px-6">
         <header class="mb-24">
-            <div class="text-blue-500 font-bold tracking-[0.3em] text-[10px] mb-6 uppercase">Assessment Matrix // v2.1</div>
+            <div class="text-blue-500 font-bold tracking-[0.3em] text-[10px] mb-6 uppercase">Assessment Matrix // v2.1
+            </div>
             <h1 class="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-[0.9] text-white">
-                Elite <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-indigo-500">Exam Protocols.</span>
+                Elite <br><span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-indigo-500">Exam
+                    Protocols.</span>
             </h1>
             <p class="text-gray-400 mt-8 text-lg max-w-2xl border-l-2 border-blue-500/50 pl-8 leading-relaxed">
                 Each test series is uniquely designed for your exam. Pick the challenge that matches your ambition.
@@ -494,10 +533,14 @@
         <div id="calendarBanner" class="calendar-banner">
             <div style="font-size: 3rem; color: #10b981;"><i class="fas fa-calendar-alt"></i></div>
             <div style="flex: 1;">
-                <h2 style="font-size: 1.8rem; font-weight: 900; color: white; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">📅 View Your Upcoming Tests</h2>
-                <p style="color: #94a3b8; font-size: 1rem; line-height: 1.6;">Check your personalized test schedule and prepare for upcoming exams. Only tests from your purchased series are shown.</p>
+                <h2
+                    style="font-size: 1.8rem; font-weight: 900; color: white; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">
+                    📅 View Your Upcoming Tests</h2>
+                <p style="color: #94a3b8; font-size: 1rem; line-height: 1.6;">Check your personalized test schedule and
+                    prepare for upcoming exams. Only tests from your purchased series are shown.</p>
             </div>
-            <a href="student-calendar.html" class="calendar-btn"><i class="fas fa-calendar-check"></i> My Test Calendar</a>
+            <a href="student-calendar.html" class="calendar-btn"><i class="fas fa-calendar-check"></i> My Test
+                Calendar</a>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-10" id="cardsContainer"></div>
@@ -506,6 +549,7 @@
     <script src="frontend/js/config.js?v=20260126-0250"></script>
     <script src="frontend/js/auth.js?v=20260126-0250"></script>
     <script src="frontend/js/user-panel.js?v=20260126-0250"></script>
+    <script src="frontend/js/mobile-nav.js"></script>
 
     <script>
         const testSeries = [
@@ -745,4 +789,5 @@
         }
     </script>
 </body>
+
 </html>
