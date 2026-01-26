@@ -65,7 +65,7 @@ const extractFirstName = (email) => {
   }
 };
 
-router.post('/sync-students', async (req, res) => {
+router.get('/sync-students', async (req, res) => {
   try {
     console.log('🔄 [MIGRATION] Starting Student Sync...');
 

@@ -231,7 +231,7 @@ app.use('/api/admin', questionRoutes);
 console.log('✅ Question routes mounted (OLD + NEW OOP routes)');
 app.use('/api/admin', adminRoutes);
 console.log('✅ Admin API routes mounted');
-app.use('/api/admin', migrationRoute);
+app.use('/api/admin/migration', migrationRoute);
 console.log('✅ Migration endpoint mounted');
 
 // ✅ NEW ADMIN ROUTES - Full Admin Panel Support (FIXED PATHS)
