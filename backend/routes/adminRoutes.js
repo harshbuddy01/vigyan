@@ -29,13 +29,13 @@ router.get('/notifications', getNotifications);
 router.get('/notifications-count', getNotificationsCount);
 
 // ========== SCHEDULED TESTS ENDPOINTS ==========
-router.post('/create-test', createScheduledTest);  // ✅ FIXED: Create test endpoint
+router.post('/tests', createScheduledTest);        // ✅ FIXED: POST /api/admin/tests
 router.get('/scheduled-tests', getScheduledTests);  // ✅ Get all scheduled tests
-router.get('/tests', getScheduledTests);            // ✅ Alias for /tests (Fixes 404)
+router.get('/tests', getScheduledTests);            // ✅ GET /api/admin/tests
 router.get('/past-tests', getPastTests);            // ✅ Get past tests (Fixes 404)
-router.get('/test/:testId', getTestDetails);       // ✅ Get specific test
-router.put('/test/:testId', updateTestStatus);     // ✅ Update test status
-router.delete('/test/:testId', deleteTest);        // ✅ Delete test
+router.get('/tests/:testId', getTestDetails);      // ✅ Get specific test
+router.put('/tests/:testId', updateTestStatus);    // ✅ FIXED: PUT /api/admin/tests/:id
+router.delete('/tests/:testId', deleteTest);       // ✅ FIXED: DELETE /api/admin/tests/:id
 
 // ========== QUESTIONS ENDPOINTS ==========
 router.post('/questions/add', addQuestion);
