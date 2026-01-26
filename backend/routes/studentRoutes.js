@@ -46,13 +46,15 @@ router.get('/', async (req, res) => {
                 return {
                     id: student._id,
                     email: student.email,
-                    fullName: student.fullName || 'N/A',
+                    name: student.fullName || 'N/A', // Frontend expects 'name'
                     rollNumber: student.rollNumber || 'N/A',
-                    course: student.course || 'IAT', // ✅ ADDED: Include course
+                    course: student.course || 'IAT',
                     testsAttempted,
-                    totalPaid: totalPaid / 100, // Convert paise to rupees
+                    totalPaid: totalPaid / 100,
                     lastLogin: student.lastLoginAt,
-                    registeredOn: student.createdAt,
+                    joinDate: new Date(student.createdAt).toLocaleDateString('en-IN', {
+                        day: 'numeric', month: 'short', year: 'numeric'
+                    }), // Frontend expects 'joinDate' formatted
                     status: 'active'
                 };
             })
