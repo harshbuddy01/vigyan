@@ -361,7 +361,15 @@
                         testData: {
                             test_name: 'Diagnostic Test',
                             test_type: 'iat',  // 🔥 FIXED: lowercase to match backend enum ['iat', 'nest', 'isi']
-                            exam_date: '2026-02-01'
+                            test_id: 'TEST-IAT-' + Date.now(),
+                            exam_date: '2026-02-01',
+                            start_time: '10:00:00',
+                            duration_minutes: 180,
+                            total_marks: 100,
+                            subjects: 'Physics, Chemistry, Mathematics',
+                            description: 'Diagnostic test for IAT preparation',
+                            total_questions: 0,
+                            status: 'scheduled'
                         }
                     },
                     { name: 'Update Test', method: 'PUT', url: '/api/admin/tests/1', expectValidation: true },
