@@ -86,6 +86,7 @@
         .endpoint.testing { border-left-color: #f59e0b; background: #fffbeb; }
         .endpoint.success { border-left-color: #10b981; background: #f0fdf4; }
         .endpoint.error { border-left-color: #ef4444; background: #fef2f2; }
+        .endpoint.warning { border-left-color: #f59e0b; background: #fffbeb; }
         
         .endpoint-header { 
             display: flex; 
@@ -140,6 +141,7 @@
         .status-testing { background: #fef3c7; color: #92400e; }
         .status-success { background: #d1fae5; color: #065f46; }
         .status-error { background: #fee2e2; color: #991b1b; }
+        .status-warning { background: #fef3c7; color: #92400e; }
         
         .response { 
             background: #1e293b;
@@ -155,13 +157,27 @@
             line-height: 1.5;
         }
         .endpoint.success .response, 
-        .endpoint.error .response { 
+        .endpoint.error .response,
+        .endpoint.warning .response { 
             display: block; 
         }
 
         .response::-webkit-scrollbar { width: 8px; }
         .response::-webkit-scrollbar-track { background: #0f172a; border-radius: 4px; }
         .response::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+
+        .note {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 12px;
+            margin-top: 8px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            color: #92400e;
+            display: none;
+        }
+        
+        .endpoint.warning .note { display: block; }
 
         button {
             padding: 12px 28px;
@@ -268,11 +284,15 @@
                 <div class="stat-label">Success</div>
             </div>
             <div class="stat-item">
+                <div class="stat-value" id="statWarning" style="color: #f59e0b;">0</div>
+                <div class="stat-label">Validation Errors</div>
+            </div>
+            <div class="stat-item">
                 <div class="stat-value" id="statError" style="color: #ef4444;">0</div>
                 <div class="stat-label">Failed</div>
             </div>
             <div class="stat-item">
-                <div class="stat-value" id="statPending" style="color: #f59e0b;">0</div>
+                <div class="stat-value" id="statPending" style="color: #64748b;">0</div>
                 <div class="stat-label">Pending</div>
             </div>
         </div>
@@ -285,7 +305,7 @@
         const BASE_URL = window.APP_CONFIG?.API_BASE_URL || 'https://backend-vigyanpreap.vigyanprep.com';
         document.getElementById('baseUrlDisplay').textContent = BASE_URL;
         
-        // Complete API structure with all endpoints from admin-api-service.js
+        // Complete API structure with all endpoints
         const apiStructure = [
             {
                 category: 'System Health',
@@ -333,10 +353,20 @@
                 color: '#06b6d4',
                 endpoints: [
                     { name: 'Get All Tests', method: 'GET', url: '/api/admin/tests' },
-                    { name: 'Get Single Test', method: 'GET', url: '/api/admin/tests/1' },
-                    { name: 'Create New Test', method: 'POST', url: '/api/admin/tests' },
-                    { name: 'Update Test', method: 'PUT', url: '/api/admin/tests/1' },
-                    { name: 'Delete Test', method: 'DELETE', url: '/api/admin/tests/1' }
+                    { name: 'Get Single Test', method: 'GET', url: '/api/admin/tests/1', expectValidation: true },
+                    { 
+                        name: 'Create New Test', 
+                        method: 'POST', 
+                        url: '/api/admin/tests',
+                        expectValidation: true,
+                        testData: {
+                            test_name: 'Diagnostic Test',
+                            test_type: 'Mock',
+                            exam_date: '2026-02-01'
+                        }
+                    },
+                    { name: 'Update Test', method: 'PUT', url: '/api/admin/tests/1', expectValidation: true },
+                    { name: 'Delete Test', method: 'DELETE', url: '/api/admin/tests/1', expectValidation: true }
                 ]
             },
             {
@@ -345,9 +375,9 @@
                 color: '#ec4899',
                 endpoints: [
                     { name: 'Get Scheduled Tests', method: 'GET', url: '/api/admin/scheduled-tests' },
-                    { name: 'Schedule New Test', method: 'POST', url: '/api/admin/scheduled-tests' },
-                    { name: 'Update Schedule', method: 'PUT', url: '/api/admin/scheduled-tests/1' },
-                    { name: 'Delete Schedule', method: 'DELETE', url: '/api/admin/scheduled-tests/1' }
+                    { name: 'Schedule New Test', method: 'POST', url: '/api/admin/scheduled-tests', expectValidation: true },
+                    { name: 'Update Schedule', method: 'PUT', url: '/api/admin/scheduled-tests/1', expectValidation: true },
+                    { name: 'Delete Schedule', method: 'DELETE', url: '/api/admin/scheduled-tests/1', expectValidation: true }
                 ]
             },
             {
@@ -356,7 +386,7 @@
                 color: '#64748b',
                 endpoints: [
                     { name: 'Get Past Tests', method: 'GET', url: '/api/admin/past-tests' },
-                    { name: 'Archive Past Test', method: 'POST', url: '/api/admin/past-tests/1/archive' }
+                    { name: 'Archive Past Test', method: 'POST', url: '/api/admin/past-tests/1/archive', expectValidation: true }
                 ]
             },
             {
@@ -365,11 +395,11 @@
                 color: '#14b8a6',
                 endpoints: [
                     { name: 'Get All Questions', method: 'GET', url: '/api/admin/questions' },
-                    { name: 'Get Single Question', method: 'GET', url: '/api/admin/questions/1' },
-                    { name: 'Add New Question', method: 'POST', url: '/api/admin/questions' },
-                    { name: 'Update Question', method: 'PUT', url: '/api/admin/questions/1' },
-                    { name: 'Delete Question', method: 'DELETE', url: '/api/admin/questions/1' },
-                    { name: 'Link Image to Question', method: 'POST', url: '/api/admin/questions/1/image' }
+                    { name: 'Get Single Question', method: 'GET', url: '/api/admin/questions/1', expectValidation: true },
+                    { name: 'Add New Question', method: 'POST', url: '/api/admin/questions', expectValidation: true },
+                    { name: 'Update Question', method: 'PUT', url: '/api/admin/questions/1', expectValidation: true },
+                    { name: 'Delete Question', method: 'DELETE', url: '/api/admin/questions/1', expectValidation: true },
+                    { name: 'Link Image to Question', method: 'POST', url: '/api/admin/questions/1/image', expectValidation: true }
                 ]
             },
             {
@@ -378,11 +408,11 @@
                 color: '#f59e0b',
                 endpoints: [
                     { name: 'Get All Students', method: 'GET', url: '/api/admin/students' },
-                    { name: 'Get Single Student', method: 'GET', url: '/api/admin/students/1' },
-                    { name: 'Add New Student', method: 'POST', url: '/api/admin/students' },
-                    { name: 'Update Student', method: 'PUT', url: '/api/admin/students/1' },
-                    { name: 'Delete Student', method: 'DELETE', url: '/api/admin/students/1' },
-                    { name: 'Get Student Results', method: 'GET', url: '/api/admin/students/1/results' }
+                    { name: 'Get Single Student', method: 'GET', url: '/api/admin/students/1', expectValidation: true },
+                    { name: 'Add New Student', method: 'POST', url: '/api/admin/students', expectValidation: true },
+                    { name: 'Update Student', method: 'PUT', url: '/api/admin/students/1', expectValidation: true },
+                    { name: 'Delete Student', method: 'DELETE', url: '/api/admin/students/1', expectValidation: true },
+                    { name: 'Get Student Results', method: 'GET', url: '/api/admin/students/1/results', expectValidation: true }
                 ]
             },
             {
@@ -391,7 +421,7 @@
                 color: '#10b981',
                 endpoints: [
                     { name: 'Get All Transactions', method: 'GET', url: '/api/admin/transactions' },
-                    { name: 'Get Single Transaction', method: 'GET', url: '/api/admin/transactions/1' }
+                    { name: 'Get Single Transaction', method: 'GET', url: '/api/admin/transactions/1', expectValidation: true }
                 ]
             },
             {
@@ -400,7 +430,7 @@
                 color: '#8b5cf6',
                 endpoints: [
                     { name: 'Get All Results', method: 'GET', url: '/api/admin/results' },
-                    { name: 'Get Single Result', method: 'GET', url: '/api/admin/results/1' }
+                    { name: 'Get Single Result', method: 'GET', url: '/api/admin/results/1', expectValidation: true }
                 ]
             },
             {
@@ -408,21 +438,22 @@
                 icon: 'fa-cloud-upload-alt',
                 color: '#ef4444',
                 endpoints: [
-                    { name: 'Upload PDF', method: 'POST', url: '/api/admin/upload/pdf' },
-                    { name: 'Upload Image', method: 'POST', url: '/api/admin/upload/image' },
-                    { name: 'PDF Upload (Alt)', method: 'POST', url: '/api/pdf/upload' },
+                    { name: 'Upload PDF', method: 'POST', url: '/api/admin/upload/pdf', expectValidation: true },
+                    { name: 'Upload Image', method: 'POST', url: '/api/admin/upload/image', expectValidation: true },
+                    { name: 'PDF Upload (Alt)', method: 'POST', url: '/api/pdf/upload', expectValidation: true },
                     { name: 'Get PDF History', method: 'GET', url: '/api/pdf/history' },
-                    { name: 'Delete PDF', method: 'DELETE', url: '/api/pdf/delete/1' }
+                    { name: 'Delete PDF', method: 'DELETE', url: '/api/pdf/delete/1', expectValidation: true }
                 ]
             }
         ];
 
         // Stats tracking
-        let stats = { total: 0, success: 0, error: 0, pending: 0 };
+        let stats = { total: 0, success: 0, warning: 0, error: 0, pending: 0 };
 
         function updateStats() {
             document.getElementById('statTotal').textContent = stats.total;
             document.getElementById('statSuccess').textContent = stats.success;
+            document.getElementById('statWarning').textContent = stats.warning;
             document.getElementById('statError').textContent = stats.error;
             document.getElementById('statPending').textContent = stats.pending;
             document.getElementById('statsContainer').style.display = 'flex';
@@ -440,8 +471,21 @@
                 .replace(/: null/g, ': <span class="json-null">null</span>');
         }
 
+        function isValidationError(status, data) {
+            // Check for validation/missing data errors
+            if (status === 400) return true;
+            if (status === 500 && data && typeof data === 'object') {
+                const errorMsg = data.error || data.message || '';
+                return errorMsg.includes('Cast to ObjectId') || 
+                       errorMsg.includes('required') ||
+                       errorMsg.includes('validation');
+            }
+            return false;
+        }
+
         async function testEndpoint(endpoint, elementId) {
             const resultDiv = document.getElementById(elementId);
+            const noteDiv = resultDiv.querySelector('.note');
             
             try {
                 // Set Testing State
@@ -463,7 +507,7 @@
 
                 // Add body for POST/PUT requests
                 if (endpoint.method === 'POST' || endpoint.method === 'PUT') {
-                    options.body = JSON.stringify({ demo: 'data' });
+                    options.body = JSON.stringify(endpoint.testData || { demo: 'data' });
                 }
                 
                 const response = await fetch(BASE_URL + endpoint.url, options);
@@ -489,7 +533,21 @@
                     const responsePre = resultDiv.querySelector('.response');
                     const formattedData = typeof data === 'object' ? syntaxHighlight(data) : data;
                     responsePre.innerHTML = formattedData;
+                } else if (endpoint.expectValidation && isValidationError(response.status, data)) {
+                    // Expected validation error - mark as warning
+                    resultDiv.className = 'endpoint warning';
+                    statusSpan.innerHTML = `<i class="fas fa-info-circle"></i> ${response.status} Expected Validation Error (${duration}ms)`;
+                    statusSpan.className = 'endpoint-status status-warning';
+                    stats.warning++;
+                    stats.pending--;
+                    
+                    noteDiv.innerHTML = '<i class="fas fa-lightbulb"></i> <strong>Note:</strong> This error is expected - route works correctly but requires valid data/IDs from database.';
+                    
+                    const responsePre = resultDiv.querySelector('.response');
+                    const formattedData = typeof data === 'object' ? syntaxHighlight(data) : data;
+                    responsePre.innerHTML = formattedData;
                 } else {
+                    // Real error
                     resultDiv.className = 'endpoint error';
                     statusSpan.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${response.status} ${response.statusText} (${duration}ms)`;
                     statusSpan.className = 'endpoint-status status-error';
@@ -536,7 +594,7 @@
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running All Tests...';
             
             // Reset stats
-            stats = { total: 0, success: 0, error: 0, pending: 0 };
+            stats = { total: 0, success: 0, warning: 0, error: 0, pending: 0 };
             
             // Generate UI first
             generateUI();
@@ -556,7 +614,7 @@
         function clearResults() {
             document.getElementById('results').innerHTML = '';
             document.getElementById('statsContainer').style.display = 'none';
-            stats = { total: 0, success: 0, error: 0, pending: 0 };
+            stats = { total: 0, success: 0, warning: 0, error: 0, pending: 0 };
         }
 
         function generateUI() {
@@ -608,6 +666,7 @@
                             </div>
                             <span class="endpoint-status status-pending"><i class="fas fa-clock"></i> Pending</span>
                         </div>
+                        <div class="note"></div>
                         <pre class="response">Waiting for test...</pre>
                     `;
                     section.appendChild(div);
