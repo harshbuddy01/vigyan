@@ -360,7 +360,7 @@ export const createScheduledTest = async (req, res) => {
     // Create new test document
     const newTest = new ScheduledTest({
       test_name: normalizedTestName,
-      test_type: normalizedTestType.toUpperCase(),
+      test_type: normalizedTestType.toLowerCase(),
       test_id: test_id || `TEST-${normalizedTestType}-${Date.now()}`,
       exam_date: new Date(normalizedExamDate),
       start_time: normalizedStartTime,
