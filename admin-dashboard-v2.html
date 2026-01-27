@@ -7,28 +7,34 @@
     <title>Vigyan.prep Admin Portal - Dashboard</title>
     <!-- Dark Theme + Premium Flip Clock -->
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto+Mono:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         :root {
             --bg-primary: #0f1419;
             --bg-secondary: #1a1f2e;
             --bg-card: #1e293b;
             --border-color: #2d3748;
-            
+
             --text-primary: #f1f5f9;
             --text-secondary: #94a3b8;
             --text-muted: #64748b;
-            
+
             --blue: #3b82f6;
             --green: #10b981;
             --orange: #f59e0b;
             --purple: #8b5cf6;
             --red: #ef4444;
-            
+
             --hover-bg: #2d3748;
         }
 
@@ -44,9 +50,11 @@
         body::before {
             content: '';
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: 
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
                 radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
                 radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.06) 0%, transparent 40%),
                 radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.04) 0%, transparent 50%);
@@ -56,15 +64,23 @@
         }
 
         @keyframes subtleGlow {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.6;
+            }
         }
 
         body::after {
             content: '';
             position: fixed;
-            width: 100%; height: 100%;
-            background-image: 
+            width: 100%;
+            height: 100%;
+            background-image:
                 radial-gradient(1px 1px at 20% 30%, rgba(255, 255, 255, 0.1), transparent),
                 radial-gradient(1px 1px at 60% 70%, rgba(59, 130, 246, 0.1), transparent),
                 radial-gradient(1px 1px at 80% 20%, rgba(139, 92, 246, 0.08), transparent);
@@ -75,13 +91,21 @@
         }
 
         @keyframes particleFloat {
-            0%, 100% { background-position: 0% 0%; }
-            50% { background-position: 100% 100%; }
+
+            0%,
+            100% {
+                background-position: 0% 0%;
+            }
+
+            50% {
+                background-position: 100% 100%;
+            }
         }
 
         .sidebar {
             position: fixed;
-            left: 0; top: 0;
+            left: 0;
+            top: 0;
             width: 260px;
             height: 100vh;
             background: rgba(26, 31, 46, 0.95);
@@ -92,8 +116,14 @@
             overflow-y: auto;
         }
 
-        .sidebar::-webkit-scrollbar { width: 4px; }
-        .sidebar::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+        .sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 10px;
+        }
 
         .sidebar-header {
             padding: 24px 20px;
@@ -109,18 +139,30 @@
             color: var(--blue);
         }
 
-        .logo i { 
+        .logo i {
             font-size: 24px;
             animation: logoFloat 3s ease-in-out infinite;
         }
 
         @keyframes logoFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-3px); }
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-3px);
+            }
         }
 
-        .sidebar-nav { padding: 16px 12px; }
-        .nav-section { margin-bottom: 24px; }
+        .sidebar-nav {
+            padding: 16px 12px;
+        }
+
+        .nav-section {
+            margin-bottom: 24px;
+        }
 
         .nav-section-title {
             padding: 8px 12px;
@@ -159,13 +201,15 @@
             font-weight: 600;
         }
 
-        .nav-link i { 
-            font-size: 16px; 
+        .nav-link i {
+            font-size: 16px;
             width: 20px;
             transition: transform 0.3s;
         }
 
-        .nav-link:hover i { transform: scale(1.1); }
+        .nav-link:hover i {
+            transform: scale(1.1);
+        }
 
         .main-content {
             margin-left: 260px;
@@ -194,10 +238,10 @@
             color: var(--text-primary);
         }
 
-        .header-actions { 
-            display: flex; 
-            gap: 20px; 
-            align-items: center; 
+        .header-actions {
+            display: flex;
+            gap: 20px;
+            align-items: center;
         }
 
         /* Premium Flip Clock - Hours:Minutes Only */
@@ -250,7 +294,7 @@
             color: #ffffff;
             background: linear-gradient(180deg, #334155 0%, #1e293b 50%, #0f172a 100%);
             border-radius: 10px;
-            box-shadow: 
+            box-shadow:
                 0 4px 12px rgba(0, 0, 0, 0.5),
                 inset 0 2px 4px rgba(255, 255, 255, 0.1),
                 inset 0 -2px 4px rgba(0, 0, 0, 0.3);
@@ -295,8 +339,15 @@
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
         }
 
         .clock-meta {
@@ -330,7 +381,8 @@
         }
 
         .settings-icon {
-            width: 40px; height: 40px;
+            width: 40px;
+            height: 40px;
             border-radius: 8px;
             background: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -341,18 +393,20 @@
             transition: all 0.3s;
         }
 
-        .settings-icon:hover { 
+        .settings-icon:hover {
             background: var(--hover-bg);
             transform: rotate(90deg);
         }
 
-        .settings-icon i { 
-            color: var(--text-secondary); 
+        .settings-icon i {
+            color: var(--text-secondary);
             font-size: 18px;
             transition: color 0.3s;
         }
 
-        .settings-icon:hover i { color: var(--blue); }
+        .settings-icon:hover i {
+            color: var(--blue);
+        }
 
         .admin-profile {
             display: flex;
@@ -366,21 +420,36 @@
             border: 1px solid var(--border-color);
         }
 
-        .admin-profile:hover { 
+        .admin-profile:hover {
             background: var(--hover-bg);
             transform: translateY(-2px);
         }
 
         .admin-profile img {
-            width: 36px; height: 36px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
         }
 
-        .admin-info { display: flex; flex-direction: column; }
-        .admin-name { font-weight: 600; color: var(--text-primary); font-size: 14px; }
-        .admin-role { font-size: 12px; color: var(--text-secondary); }
+        .admin-info {
+            display: flex;
+            flex-direction: column;
+        }
 
-        .content-area { padding: 32px; }
+        .admin-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .admin-role {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .content-area {
+            padding: 32px;
+        }
 
         .stats-grid {
             display: grid;
@@ -404,14 +473,18 @@
         .stat-card::before {
             content: '';
             position: absolute;
-            top: -50%; left: -50%;
-            width: 200%; height: 200%;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
             background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
             opacity: 0;
             transition: opacity 0.4s;
         }
 
-        .stat-card:hover::before { opacity: 1; }
+        .stat-card:hover::before {
+            opacity: 1;
+        }
 
         .stat-card:hover {
             border-color: var(--hover-bg);
@@ -427,7 +500,8 @@
         }
 
         .stat-icon {
-            width: 48px; height: 48px;
+            width: 48px;
+            height: 48px;
             border-radius: 10px;
             display: flex;
             align-items: center;
@@ -437,12 +511,25 @@
             transition: all 0.4s;
         }
 
-        .stat-card.blue .stat-icon { background: var(--blue); }
-        .stat-card.green .stat-icon { background: var(--green); }
-        .stat-card.orange .stat-icon { background: var(--orange); }
-        .stat-card.purple .stat-icon { background: var(--purple); }
+        .stat-card.blue .stat-icon {
+            background: var(--blue);
+        }
 
-        .stat-card:hover .stat-icon { transform: scale(1.15) rotate(5deg); }
+        .stat-card.green .stat-icon {
+            background: var(--green);
+        }
+
+        .stat-card.orange .stat-icon {
+            background: var(--orange);
+        }
+
+        .stat-card.purple .stat-icon {
+            background: var(--purple);
+        }
+
+        .stat-card:hover .stat-icon {
+            transform: scale(1.15) rotate(5deg);
+        }
 
         .stat-value {
             font-size: 32px;
@@ -452,7 +539,9 @@
             transition: transform 0.3s;
         }
 
-        .stat-card:hover .stat-value { transform: scale(1.05); }
+        .stat-card:hover .stat-value {
+            transform: scale(1.05);
+        }
 
         .stat-label {
             font-size: 14px;
@@ -472,9 +561,19 @@
             transition: all 0.3s;
         }
 
-        .stat-trend.up { background: rgba(16, 185, 129, 0.15); color: var(--green); }
-        .stat-trend.neutral { background: rgba(245, 158, 11, 0.15); color: var(--orange); }
-        .stat-card:hover .stat-trend { transform: scale(1.05); }
+        .stat-trend.up {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--green);
+        }
+
+        .stat-trend.neutral {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--orange);
+        }
+
+        .stat-card:hover .stat-trend {
+            transform: scale(1.05);
+        }
 
         .chart-card {
             background: rgba(30, 41, 59, 0.8);
@@ -504,7 +603,10 @@
             color: var(--text-primary);
         }
 
-        .chart-controls { display: flex; gap: 8px; }
+        .chart-controls {
+            display: flex;
+            gap: 8px;
+        }
 
         .time-btn {
             padding: 8px 16px;
@@ -539,21 +641,57 @@
         }
 
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .stats-grid > * { animation: fadeInUp 0.6s ease backwards; }
-        .stat-card:nth-child(1) { animation-delay: 0.1s; }
-        .stat-card:nth-child(2) { animation-delay: 0.2s; }
-        .stat-card:nth-child(3) { animation-delay: 0.3s; }
-        .stat-card:nth-child(4) { animation-delay: 0.4s; }
-        .chart-card { animation: fadeInUp 0.6s ease 0.5s backwards; }
+        .stats-grid>* {
+            animation: fadeInUp 0.6s ease backwards;
+        }
 
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
-        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--hover-bg); }
+        .stat-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .stat-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .stat-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .stat-card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        .chart-card {
+            animation: fadeInUp 0.6s ease 0.5s backwards;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--hover-bg);
+        }
     </style>
 </head>
 
@@ -563,34 +701,48 @@
             <div class="logo"><i class="fas fa-graduation-cap"></i><span>VIGYAN.PREP</span></div>
         </div>
         <nav class="sidebar-nav">
-            <a href="#" class="nav-link active" data-page="dashboard"><i class="fas fa-home"></i><span>Dashboard</span></a>
+            <a href="#" class="nav-link active" data-page="dashboard"><i
+                    class="fas fa-home"></i><span>Dashboard</span></a>
             <div class="nav-section">
                 <div class="nav-section-title">Test Management</div>
-                <a href="#" class="nav-link" data-page="test-calendar"><i class="fas fa-calendar-alt"></i><span>Test Calendar</span></a>
-                <a href="#" class="nav-link" data-page="create-test"><i class="fas fa-plus-circle"></i><span>Create Test</span></a>
-                <a href="#" class="nav-link" data-page="scheduled-tests"><i class="fas fa-clock"></i><span>Scheduled Tests</span></a>
-                <a href="#" class="nav-link" data-page="past-tests"><i class="fas fa-history"></i><span>Past Tests</span></a>
+                <a href="#" class="nav-link" data-page="test-calendar"><i class="fas fa-calendar-alt"></i><span>Test
+                        Calendar</span></a>
+                <a href="#" class="nav-link" data-page="create-test"><i class="fas fa-plus-circle"></i><span>Create
+                        Test</span></a>
+                <a href="#" class="nav-link" data-page="scheduled-tests"><i class="fas fa-clock"></i><span>Scheduled
+                        Tests</span></a>
+                <a href="#" class="nav-link" data-page="past-tests"><i class="fas fa-history"></i><span>Past
+                        Tests</span></a>
             </div>
             <div class="nav-section">
                 <div class="nav-section-title">Question Bank</div>
-                <a href="#" class="nav-link" data-page="add-questions"><i class="fas fa-file-medical"></i><span>Add Questions</span></a>
-                <a href="#" class="nav-link" data-page="view-questions"><i class="fas fa-list"></i><span>View/Edit</span></a>
-                <a href="#" class="nav-link" data-page="upload-pdf"><i class="fas fa-file-pdf"></i><span>Upload PDF</span></a>
-                <a href="#" class="nav-link" data-page="upload-image"><i class="fas fa-image"></i><span>Image Upload</span></a>
+                <a href="#" class="nav-link" data-page="add-questions"><i class="fas fa-file-medical"></i><span>Add
+                        Questions</span></a>
+                <a href="#" class="nav-link" data-page="view-questions"><i
+                        class="fas fa-list"></i><span>View/Edit</span></a>
+                <a href="#" class="nav-link" data-page="upload-pdf"><i class="fas fa-file-pdf"></i><span>Upload
+                        PDF</span></a>
+                <a href="#" class="nav-link" data-page="upload-image"><i class="fas fa-image"></i><span>Image
+                        Upload</span></a>
             </div>
             <div class="nav-section">
                 <div class="nav-section-title">Students</div>
-                <a href="#" class="nav-link" data-page="all-students"><i class="fas fa-users"></i><span>All Students</span></a>
-                <a href="#" class="nav-link" data-page="add-student"><i class="fas fa-user-plus"></i><span>Add Student</span></a>
-                <a href="#" class="nav-link" data-page="performance"><i class="fas fa-chart-line"></i><span>Performance</span></a>
+                <a href="#" class="nav-link" data-page="all-students"><i class="fas fa-users"></i><span>All
+                        Students</span></a>
+                <a href="#" class="nav-link" data-page="add-student"><i class="fas fa-user-plus"></i><span>Add
+                        Student</span></a>
+                <a href="#" class="nav-link" data-page="performance"><i
+                        class="fas fa-chart-line"></i><span>Performance</span></a>
             </div>
             <div class="nav-section">
                 <div class="nav-section-title">Financial</div>
-                <a href="#" class="nav-link" data-page="transactions"><i class="fas fa-receipt"></i><span>Transactions</span></a>
+                <a href="#" class="nav-link" data-page="transactions"><i
+                        class="fas fa-receipt"></i><span>Transactions</span></a>
             </div>
             <div class="nav-section">
                 <div class="nav-section-title">Results</div>
-                <a href="#" class="nav-link" data-page="view-results"><i class="fas fa-poll"></i><span>View Results</span></a>
+                <a href="#" class="nav-link" data-page="view-results"><i class="fas fa-poll"></i><span>View
+                        Results</span></a>
             </div>
         </nav>
     </aside>
@@ -602,11 +754,31 @@
                 <!-- Premium Flip Clock - Hours:Minutes Only -->
                 <div class="flip-clock-widget">
                     <div class="flip-clock">
-                        <div class="flip-digit" id="h1"><div class="flip-digit-inner"><div class="flip-digit-front">0</div><div class="flip-digit-back">0</div></div></div>
-                        <div class="flip-digit" id="h2"><div class="flip-digit-inner"><div class="flip-digit-front">0</div><div class="flip-digit-back">0</div></div></div>
+                        <div class="flip-digit" id="h1">
+                            <div class="flip-digit-inner">
+                                <div class="flip-digit-front">0</div>
+                                <div class="flip-digit-back">0</div>
+                            </div>
+                        </div>
+                        <div class="flip-digit" id="h2">
+                            <div class="flip-digit-inner">
+                                <div class="flip-digit-front">0</div>
+                                <div class="flip-digit-back">0</div>
+                            </div>
+                        </div>
                         <span class="flip-separator">:</span>
-                        <div class="flip-digit" id="m1"><div class="flip-digit-inner"><div class="flip-digit-front">0</div><div class="flip-digit-back">0</div></div></div>
-                        <div class="flip-digit" id="m2"><div class="flip-digit-inner"><div class="flip-digit-front">0</div><div class="flip-digit-back">0</div></div></div>
+                        <div class="flip-digit" id="m1">
+                            <div class="flip-digit-inner">
+                                <div class="flip-digit-front">0</div>
+                                <div class="flip-digit-back">0</div>
+                            </div>
+                        </div>
+                        <div class="flip-digit" id="m2">
+                            <div class="flip-digit-inner">
+                                <div class="flip-digit-front">0</div>
+                                <div class="flip-digit-back">0</div>
+                            </div>
+                        </div>
                     </div>
                     <div class="clock-meta">
                         <span class="clock-day" id="clockDay">MONDAY</span>
@@ -614,11 +786,12 @@
                         <span class="clock-date" id="clockDate">26 Jan 2026</span>
                     </div>
                 </div>
-                
+
                 <div class="settings-icon"><i class="fas fa-cog"></i></div>
                 <div class="admin-profile">
                     <img src="https://ui-avatars.com/api/?name=Admin+User&background=3b82f6&color=fff" alt="Admin">
-                    <div class="admin-info"><span class="admin-name">Admin User</span><span class="admin-role">Super Admin</span></div>
+                    <div class="admin-info"><span class="admin-name">Admin User</span><span class="admin-role">Super
+                            Admin</span></div>
                 </div>
             </div>
         </header>
@@ -699,10 +872,10 @@
             const digit = document.getElementById(id);
             const front = digit.querySelector('.flip-digit-front');
             const back = digit.querySelector('.flip-digit-back');
-            
+
             back.textContent = newVal;
             digit.classList.add('flipping');
-            
+
             setTimeout(() => {
                 front.textContent = newVal;
                 digit.classList.remove('flipping');
@@ -713,26 +886,26 @@
             const now = new Date();
             const h = String(now.getHours()).padStart(2, '0');
             const m = String(now.getMinutes()).padStart(2, '0');
-            
+
             const curr = {
                 h1: parseInt(h[0]), h2: parseInt(h[1]),
                 m1: parseInt(m[0]), m2: parseInt(m[1])
             };
-            
+
             if (curr.h1 !== prev.h1) flipDigit('h1', curr.h1);
             if (curr.h2 !== prev.h2) flipDigit('h2', curr.h2);
             if (curr.m1 !== prev.m1) flipDigit('m1', curr.m1);
             if (curr.m2 !== prev.m2) flipDigit('m2', curr.m2);
-            
+
             prev = curr;
-            
+
             // Date & Day
             const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
             const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
             document.getElementById('clockDate').textContent = `${String(now.getDate()).padStart(2, '0')} ${months[now.getMonth()]} ${now.getFullYear()}`;
             document.getElementById('clockDay').textContent = days[now.getDay()];
         }
-        
+
         updateClock();
         setInterval(updateClock, 1000);
 
@@ -751,7 +924,7 @@
     </script>
     <script src="frontend/js/admin-api-service.js"></script>
     <script src="frontend/js/admin-utils.js"></script>
-    <script src="frontend/js/create-test.js?v=20260126"></script>
+    <script src="frontend/js/create-test.js?v=20260127_FIX"></script>
     <script src="frontend/js/add-questions-v2.js"></script>
     <script src="frontend/js/view-questions.js"></script>
     <script src="frontend/js/students.js"></script>
@@ -764,4 +937,5 @@
     <script src="frontend/js/upload-pdf.js"></script>
     <script src="frontend/js/admin-dashboard-v2.js"></script>
 </body>
+
 </html>

@@ -36,7 +36,6 @@ window.initCreateTest = function () {
                         <select id="examType" required class="form-input">
                             <option value="">Select Exam Type</option>
                             <option value="IAT">IAT (IISER Aptitude Test)</option>
-                            <option value="ISI">ISI (Indian Statistical Institute)</option>
                             <option value="NEST">NEST (National Entrance Screening Test)</option>
                         </select>
                     </div>
@@ -184,7 +183,7 @@ async function handleCreateTest(e) {
 
     // Get form values
     const testName = document.getElementById('testName').value;
-    const examType = document.getElementById('examType').value.toLowerCase(); // 🔥 FIXED: Convert to lowercase for backend
+    const examType = document.getElementById('examType').value.toLowerCase(); // 🔥 FIXED: Convert to lowest case for backend enum validation
     const testDate = document.getElementById('testDate').value;
     const testTime = document.getElementById('testTime').value;
     const testDescription = document.getElementById('testDescription').value;
