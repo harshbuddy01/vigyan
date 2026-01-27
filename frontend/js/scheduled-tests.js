@@ -149,11 +149,18 @@ async function loadScheduledTests() {
         }
 
         if (tests.length === 0) {
-            console.log('ℹ️ Database returned empty test list');
+            console.log('ℹ️ Database returned empty test list - Rendering Empty State');
             allTests = [];
             filteredTests = [];
-            showEmptyState();
-            showLoading(false);
+
+            const container = document.getElementById('tests-container');
+            if (container) {
+                console.log('✅ Clearing loader and showing empty state');
+                container.innerHTML = ''; // Explicitly clear loader
+                showEmptyState();
+            } else {
+                console.error('❌ tests-container not found when trying to show empty state');
+            }
             return;
         }
 
