@@ -1,5 +1,6 @@
 /**
  * Students Management Module - REAL DATA ONLY
+ * FIXED: Handle both data.students and data.users formats
  */
 
 let allStudents = [];
@@ -17,8 +18,11 @@ function initAddStudent() {
 }
 
 function renderStudentsPage() {
-    const container = document.getElementById('students-page');
-    if (!container) return;
+    const container = document.getElementById('all-students-page');
+    if (!container) {
+        console.error('❌ Container #all-students-page not found!');
+        return;
+    }
 
     container.innerHTML = `
         <div class="page-header">
@@ -67,43 +71,61 @@ function renderStudentsPage() {
     });
 }
 
-// 🔥 FIXED: Use AdminAPI.getStudents() instead of direct fetch
+// 🔥 FIXED: Handle both data.students and data.users formats
 async function loadStudents() {
     try {
         console.log('🔄 Fetching students from backend...');
 
         // ✅ Use AdminAPI service (automatically handles Railway URL)
         const data = await window.AdminAPI.getStudents();
+        
+        console.log('📦 Raw API response:', data);
 
-        allStudents = data.students || [];
+        // 🔥 Handle BOTH formats: data.students OR data.users OR direct array
+        if (Array.isArray(data)) {
+            allStudents = data;
+        } else if (data.students && Array.isArray(data.students)) {
+            allStudents = data.students;
+        } else if (data.users && Array.isArray(data.users)) {
+            allStudents = data.users;
+        } else {
+            allStudents = [];
+        }
+
         console.log(`✅ Loaded ${allStudents.length} students from database`);
         displayStudents(allStudents);
     } catch (error) {
         console.error('❌ Failed to load students:', error);
-        document.getElementById('studentsTableBody').innerHTML = `
-            <tr><td colspan="8" style="text-align: center; padding: 40px; color: #ef4444;">
-                <i class="fas fa-exclamation-circle" style="font-size: 24px;"></i><br>
-                Failed to load students. Check backend connection.
-            </td></tr>
-        `;
+        const tbody = document.getElementById('studentsTableBody');
+        if (tbody) {
+            tbody.innerHTML = `
+                <tr><td colspan="8" style="text-align: center; padding: 40px; color: #ef4444;">
+                    <i class="fas fa-exclamation-circle" style="font-size: 24px;"></i><br>
+                    Failed to load students. Check backend connection.
+                </td></tr>
+            `;
+        }
     }
 }
 
 function filterStudents(search) {
     const filtered = allStudents.filter(s =>
-        s.name.toLowerCase().includes(search) ||
-        s.email.toLowerCase().includes(search) ||
+        (s.name && s.name.toLowerCase().includes(search)) ||
+        (s.email && s.email.toLowerCase().includes(search)) ||
         (s.rollNumber && s.rollNumber.toLowerCase().includes(search)) ||
-        s.course.toLowerCase().includes(search)
+        (s.course && s.course.toLowerCase().includes(search))
     );
     displayStudents(filtered);
 }
 
 function displayStudents(students) {
     const tbody = document.getElementById('studentsTableBody');
-    if (!tbody) return;
+    if (!tbody) {
+        console.error('❌ studentsTableBody not found!');
+        return;
+    }
 
-    if (students.length === 0) {
+    if (!students || students.length === 0) {
         tbody.innerHTML = `
             <tr><td colspan="8" style="text-align: center; padding: 40px; color: #94a3b8;">
                 <i class="fas fa-user-slash" style="font-size: 24px;"></i><br>
@@ -113,15 +135,17 @@ function displayStudents(students) {
         return;
     }
 
+    console.log(`📋 Displaying ${students.length} students...`);
+
     tbody.innerHTML = students.map(student => `
         <tr>
-            <td><strong>#${student.id}</strong></td>
+            <td><strong>#${student.id || 'N/A'}</strong></td>
             <td>${student.name || 'N/A'}</td>
-            <td>${student.email}</td>
+            <td>${student.email || 'N/A'}</td>
             <td><strong>${student.rollNumber || 'Not Assigned'}</strong></td>
             <td><span class="badge badge-${(student.course || 'IAT').toLowerCase()}">${student.course || 'IAT'}</span></td>
-            <td>${student.joinDate}</td>
-            <td><span class="status-active">${student.status}</span></td>
+            <td>${student.joinDate || student.createdAt || 'N/A'}</td>
+            <td><span class="status-active">${student.status || 'Active'}</span></td>
             <td>
                 <button class="action-btn" onclick="viewStudent(${student.id})" title="View Details">
                     <i class="fas fa-eye"></i>
@@ -135,13 +159,15 @@ function displayStudents(students) {
             </td>
         </tr>
     `).join('');
+
+    console.log('✅ Students table rendered successfully');
 }
 
 function viewStudent(id) {
     const student = allStudents.find(s => s.id === id);
     if (!student) return;
 
-    alert(`Student Details:\n\nName: ${student.name}\nEmail: ${student.email}\nRoll Number: ${student.rollNumber || 'Not Assigned'}\nCourse: ${student.course}\nJoin Date: ${student.joinDate}\nStatus: ${student.status}`);
+    alert(`Student Details:\n\nName: ${student.name}\nEmail: ${student.email}\nRoll Number: ${student.rollNumber || 'Not Assigned'}\nCourse: ${student.course}\nJoin Date: ${student.joinDate || student.createdAt}\nStatus: ${student.status || 'Active'}`);
 }
 
 function editStudent(id) {
@@ -161,7 +187,7 @@ function editStudent(id) {
     const course = prompt('Course (IAT/NEST/ISI):', student.course);
     if (!course) return;
 
-    updateStudent(id, { name, email, rollNumber, course, status: student.status });
+    updateStudent(id, { name, email, rollNumber, course, status: student.status || 'Active' });
 }
 
 // 🔥 FIXED: Use AdminAPI.updateStudent()
@@ -202,7 +228,10 @@ async function deleteStudent(id) {
 
 function renderAddStudentPage() {
     const container = document.getElementById('add-student-page');
-    if (!container) return;
+    if (!container) {
+        console.error('❌ Container #add-student-page not found!');
+        return;
+    }
 
     container.innerHTML = `
         <div class="page-header">
@@ -302,4 +331,4 @@ window.deleteStudent = deleteStudent;
 window.handleAddStudent = handleAddStudent;
 window.loadStudents = loadStudents;
 
-console.log('✅ Students module loaded - using AdminAPI service');
+console.log('✅ Students module loaded - FIXED to handle both data.students and data.users formats');
