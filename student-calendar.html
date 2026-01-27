@@ -517,9 +517,17 @@
 
                 // Filter to show only tests from purchased series
                 const myTests = allScheduledTests.filter(test => {
+                    // ✅ FIXED: Use test_type explicitly for matching
+                    const testType = test.test_type || test.testType || '';
                     const testSeries = test.test_id || test.testId || '';
-                    const matched = purchasedTests.some(pt => testSeries.toLowerCase().includes(pt.toLowerCase()));
-                    console.log(`Test: ${test.test_name}, Series: ${testSeries}, Matched: ${matched}`);
+
+                    // Match against test_type OR test_id (fallback)
+                    const matched = purchasedTests.some(pt => {
+                        const ptLower = pt.toLowerCase();
+                        return testType.toLowerCase() === ptLower || testSeries.toLowerCase().includes(ptLower);
+                    });
+
+                    console.log(`Test: ${test.test_name}, Type: ${testType}, Series: ${testSeries}, Matched: ${matched}`);
                     return matched;
                 });
 
@@ -549,11 +557,18 @@
 
             // Filter and render
             const myTests = allScheduledTests.filter(test => {
+                const testType = test.test_type || test.testType || '';
                 const testSeries = test.test_id || test.testId || '';
-                const matchesPurchased = purchasedTests.some(pt => testSeries.toLowerCase().includes(pt.toLowerCase()));
+
+                const matchesPurchased = purchasedTests.some(pt => {
+                    const ptLower = pt.toLowerCase();
+                    return testType.toLowerCase() === ptLower || testSeries.toLowerCase().includes(ptLower);
+                });
 
                 if (filter === 'all') return matchesPurchased;
-                return matchesPurchased && testSeries.toLowerCase().includes(filter.toLowerCase());
+
+                // Filter by specific series
+                return matchesPurchased && (testType.toLowerCase() === filter.toLowerCase() || testSeries.toLowerCase().includes(filter.toLowerCase()));
             });
 
             renderCalendar(myTests);
@@ -574,7 +589,8 @@
             let html = '<div class="calendar-grid">';
 
             tests.forEach(test => {
-                const testSeries = (test.test_id || test.testId || '').toLowerCase();
+                // Use test_type for badging
+                const testSeries = (test.test_type || test.testType || 'generic').toLowerCase();
                 const badgeClass = `badge-${testSeries}`;
                 const examDate = test.exam_date || test.examDate || 'TBA';
                 const duration = test.duration || test.test_duration || 'N/A';
