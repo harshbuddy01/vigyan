@@ -4,6 +4,7 @@
 // 🔥 HOTFIX: Removed broken OPTIONS handler - Jan 25, 2026 7:18 PM IST
 // 🔥 PAYMENT FIX: Improved CORS for payment endpoint - Jan 26, 2026 1:55 AM IST
 // 🔥 ADMIN AUTH: Added admin authentication routes - Jan 26, 2026 1:59 AM IST
+// 📄 PDF AI: Added AI-powered PDF to quiz converter - Jan 28, 2026 4:12 AM IST
 
 import './config/env.js'; // 🔵 LOAD ENV VARS FIRST
 import express from 'express';
@@ -218,6 +219,9 @@ import studentRoutes from './routes/studentRoutes.js';
 import transactionRoutes from './routes/transactionRoutes.js';
 import resultRoutes from './routes/resultRoutes.js';
 
+// 📄 PDF AI ROUTES - Added Jan 28, 2026
+import pdfAiRoutes from './routes/pdfAiRoutes.js';
+
 // 🔧 CONFIG ENDPOINT - CRITICAL FOR PAYMENT GATEWAY
 app.get('/api/config', (req, res) => {
   res.json({
@@ -257,6 +261,9 @@ console.log('✅ Result routes mounted at /api/admin/results/*');
 app.use('/api/pdf', pdfRoutes);
 console.log('✅ PDF routes mounted at /api/pdf/*');
 
+// 📄 PDF AI Routes - AI-powered PDF to Quiz Generator
+app.use('/api/admin/pdf-ai', pdfAiRoutes);
+console.log('✅ PDF AI routes mounted at /api/admin/pdf-ai/*');
 
 // Mount other API routes
 console.log('🔵 Mounting API routes...');
@@ -318,7 +325,8 @@ app.get('/api', (req, res) => {
       exam: '/api/exam',
       news: '/api/news',
       auth: '/api/verify-user-full',
-      adminAuth: '/api/admin/auth'
+      adminAuth: '/api/admin/auth',
+      pdfAi: '/api/admin/pdf-ai'
     }
   });
 });
