@@ -450,27 +450,39 @@
                 color: '#06b6d4',
                 endpoints: [
                     { name: 'Get All Tests', method: 'GET', url: '/api/admin/tests' },
-                    { name: 'Get Single Test', method: 'GET', url: '/api/admin/tests/1', expectValidation: true },
                     {
-                        name: 'Create New Test',
+                        name: 'Create New Test (For Testing)',
                         method: 'POST',
                         url: '/api/admin/tests',
+                        captureId: 'newTestId', // Capture this ID
                         testData: {
-                            test_name: 'Diagnostic Test',
+                            test_name: 'API Diagnostic Test',
                             test_type: 'iat',
-                            test_id: 'TEST-IAT-' + Date.now(),
-                            exam_date: '2026-02-01',
-                            start_time: '10:00:00',
-                            duration_minutes: 180,
+                            test_id: 'API-TEST-' + Date.now(),
+                            exam_date: '2026-12-31',
+                            start_time: '12:00',
+                            duration_minutes: 60,
                             total_marks: 100,
-                            subjects: 'Physics, Chemistry, Mathematics',
-                            description: 'Diagnostic test for IAT preparation',
+                            subjects: 'Debugging',
+                            description: 'Temporary test created by API diagnostic tool',
                             total_questions: 0,
                             status: 'scheduled'
                         }
                     },
-                    { name: 'Update Test', method: 'PUT', url: '/api/admin/tests/1', expectValidation: true },
-                    { name: 'Delete Test', method: 'DELETE', url: '/api/admin/tests/1', expectValidation: true }
+                    {
+                        name: 'Update Test (Using Created ID)',
+                        method: 'PUT',
+                        url: '/api/admin/tests/1',
+                        useRuntimeId: 'newTestId', // Use the captured ID
+                        testData: { status: 'cancelled' }
+                    },
+                    {
+                        name: 'Delete Test (Using Created ID)',
+                        method: 'DELETE',
+                        url: '/api/admin/tests/1',
+                        useRuntimeId: 'newTestId' // Use the captured ID
+                    },
+                    { name: 'Get Single Test (Invalid ID Check)', method: 'GET', url: '/api/admin/tests/invalid-id', expectValidation: true }
                 ]
             },
             {
@@ -624,6 +636,42 @@
 
                 const startTime = performance.now();
 
+                        <div class="note"></div>
+                        <pre class="response">Waiting for test...</pre>
+                `;
+                    section.appendChild(div);
+                }
+
+                resultsDiv.appendChild(section);
+            }
+
+            updateStats();
+        }
+
+        // Global store for runtime data (like captured IDs)
+        let runtimeData = {};
+
+        async function testEndpoint(endpoint, elementId) {
+            const resultDiv = document.getElementById(elementId);
+            const noteDiv = resultDiv.querySelector('.note');
+
+            try {
+                // Set Testing State
+                resultDiv.className = 'endpoint testing';
+                const statusSpan = resultDiv.querySelector('.endpoint-status');
+                statusSpan.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing...';
+                statusSpan.className = 'endpoint-status status-testing';
+
+                const startTime = performance.now();
+
+                // Dynamic URL replacement (e.g. replacing '1' with real ID)
+                let finalUrl = endpoint.url;
+                if (endpoint.useRuntimeId && runtimeData[endpoint.useRuntimeId]) {
+                    // Replace the last segment if it's '1' or similar placeholder
+                    finalUrl = finalUrl.replace(/\/([^\/]+)$/, '/' + runtimeData[endpoint.useRuntimeId]);
+                    console.log(`🔗 Chained ID for ${ endpoint.name }: ${ finalUrl } `);
+                }
+
                 // Build request options
                 const options = {
                     method: endpoint.method,
@@ -638,7 +686,7 @@
                     options.body = JSON.stringify(endpoint.testData || { demo: 'data' });
                 }
 
-                const response = await fetch(BASE_URL + endpoint.url, options);
+                const response = await fetch(BASE_URL + finalUrl, options);
 
                 const endTime = performance.now();
                 const duration = Math.round(endTime - startTime);
@@ -651,9 +699,20 @@
                     data = await response.text();
                 }
 
+                // CAPTURE ID logic
+                if (endpoint.captureId && data && data._id) {
+                    runtimeData[endpoint.captureId] = data._id;
+                    console.log(`💾 Captured ID[${ endpoint.captureId }]: ${ data._id } `);
+                }
+                // Fallback for some APIs that return { test: { _id: ... } }
+                if (endpoint.captureId && data && data.test && data.test._id) {
+                    runtimeData[endpoint.captureId] = data.test._id;
+                    console.log(`💾 Captured ID[${ endpoint.captureId }]: ${ data.test._id } `);
+                }
+
                 if (response.ok) {
                     resultDiv.className = 'endpoint success';
-                    statusSpan.innerHTML = `<i class="fas fa-check-circle"></i> ${response.status} OK (${duration}ms)`;
+                    statusSpan.innerHTML = `< i class="fas fa-check-circle" ></i > ${ response.status } OK(${ duration }ms)`;
                     statusSpan.className = 'endpoint-status status-success';
                     stats.success++;
                     stats.pending--;
@@ -664,20 +723,21 @@
                 } else if (endpoint.expectValidation && isValidationError(response.status, data)) {
                     // Expected validation error - mark as warning
                     resultDiv.className = 'endpoint warning';
-                    statusSpan.innerHTML = `<i class="fas fa-info-circle"></i> ${response.status} Expected Validation Error (${duration}ms)`;
+                    statusSpan.innerHTML = `< i class="fas fa-info-circle" ></i > ${ response.status } Validated Error(${ duration }ms)`;
                     statusSpan.className = 'endpoint-status status-warning';
                     stats.warning++;
                     stats.pending--;
 
-                    noteDiv.innerHTML = '<i class="fas fa-lightbulb"></i> <strong>Note:</strong> This error is expected - route works correctly but requires valid data/IDs from database.';
+                    noteDiv.innerHTML = '<i class="fas fa-lightbulb"></i> <strong>Note:</strong> Endpoint actively rejected invalid data (Correct Behavior).';
 
                     const responsePre = resultDiv.querySelector('.response');
                     const formattedData = typeof data === 'object' ? syntaxHighlight(data) : data;
                     responsePre.innerHTML = formattedData;
                 } else {
+                    // ... (rest of error handling)
                     // Real error
                     resultDiv.className = 'endpoint error';
-                    statusSpan.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${response.status} ${response.statusText} (${duration}ms)`;
+                    statusSpan.innerHTML = `< i class="fas fa-exclamation-circle" ></i > ${ response.status } ${ response.statusText } (${ duration }ms)`;
                     statusSpan.className = 'endpoint-status status-error';
                     stats.error++;
                     stats.pending--;
@@ -702,7 +762,7 @@
 
         async function testSection(categoryIndex) {
             const category = apiStructure[categoryIndex];
-            const btn = document.querySelector(`[data-section="${categoryIndex}"]`);
+            const btn = document.querySelector(`[data - section= "${categoryIndex}"]`);
 
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running...';
@@ -762,11 +822,11 @@
                 const header = document.createElement('div');
                 header.className = 'category-header';
                 header.innerHTML = `
-                    <div class="category-title">
+                    < div class="category-title" >
                         <i class="fas ${category.icon}" style="color: ${category.color};"></i>
-                        ${category.category}
-                        <span class="category-count">${category.endpoints.length} APIs</span>
-                    </div>
+                        ${ category.category }
+                <span class="category-count">${category.endpoints.length} APIs</span>
+                    </div >
                     <button class="btn-section" data-section="${catIndex}" onclick="testSection(${catIndex})">
                         <i class="fas fa-play"></i> Run Section
                     </button>
@@ -775,7 +835,7 @@
 
                 // Endpoints
                 for (const endpoint of category.endpoints) {
-                    const id = `endpoint-${Math.random().toString(36).substr(2, 9)}`;
+                    const id = `endpoint - ${ Math.random().toString(36).substr(2, 9) } `;
                     endpoint._elementId = id;
                     stats.total++;
                     stats.pending++;
@@ -784,7 +844,7 @@
                     div.id = id;
                     div.className = 'endpoint';
                     div.innerHTML = `
-                        <div class="endpoint-header">
+                    < div class="endpoint-header" >
                             <div style="flex: 1;">
                                 <div class="endpoint-name">${endpoint.name}</div>
                                 <div class="endpoint-url">
@@ -793,7 +853,7 @@
                                 </div>
                             </div>
                             <span class="endpoint-status status-pending"><i class="fas fa-clock"></i> Pending</span>
-                        </div>
+                        </div >
                         <div class="note"></div>
                         <pre class="response">Waiting for test...</pre>
                     `;
