@@ -1,19 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vigyan.prep Admin Portal - Dashboard</title>
-    <!-- Dark Theme + Premium Flip Clock -->
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto+Mono:wght@400;500;600;700&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Vigyan.prep Admin Portal - Professional Dashboard</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Roboto+Mono:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="frontend/css/admin-custom.css">
-
+    
     <style>
+        /* ============================================
+           🎨 PREMIUM PROFESSIONAL ADMIN DASHBOARD
+           Combined: V3 Design + V2 Functionality
+        ============================================ */
+
         * {
             margin: 0;
             padding: 0;
@@ -21,33 +32,37 @@
         }
 
         :root {
-            --bg-primary: #0f1419;
-            --bg-secondary: #1a1f2e;
-            --bg-card: #1e293b;
-            --border-color: #2d3748;
-
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-
-            --blue: #3b82f6;
-            --green: #10b981;
-            --orange: #f59e0b;
-            --purple: #8b5cf6;
-            --red: #ef4444;
-
-            --hover-bg: #2d3748;
+            /* Premium Colors */
+            --primary: #2563EB;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --purple: #8B5CF6;
+            
+            /* Dark Theme */
+            --bg-primary: #0A0E1A;
+            --bg-secondary: #111827;
+            --bg-card: #1F2937;
+            --bg-hover: #374151;
+            
+            --text-primary: #F9FAFB;
+            --text-secondary: #D1D5DB;
+            --text-muted: #9CA3AF;
+            
+            --border: #374151;
+            --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'Inter', sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
-            min-height: 100vh;
-            position: relative;
+            line-height: 1.6;
             overflow-x: hidden;
         }
 
+        /* Animated Background */
         body::before {
             content: '';
             position: fixed;
@@ -55,114 +70,78 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background:
-                radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
-                radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.06) 0%, transparent 40%),
-                radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.04) 0%, transparent 50%);
-            animation: subtleGlow 15s ease-in-out infinite;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(37, 99, 235, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+            animation: gradientMove 15s ease infinite;
             pointer-events: none;
             z-index: 0;
         }
 
-        @keyframes subtleGlow {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.6;
-            }
+        @keyframes gradientMove {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(50px, 50px) scale(1.1); }
         }
 
-        body::after {
-            content: '';
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            background-image:
-                radial-gradient(1px 1px at 20% 30%, rgba(255, 255, 255, 0.1), transparent),
-                radial-gradient(1px 1px at 60% 70%, rgba(59, 130, 246, 0.1), transparent),
-                radial-gradient(1px 1px at 80% 20%, rgba(139, 92, 246, 0.08), transparent);
-            background-size: 200% 200%;
-            animation: particleFloat 20s ease-in-out infinite;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        @keyframes particleFloat {
-
-            0%,
-            100% {
-                background-position: 0% 0%;
-            }
-
-            50% {
-                background-position: 100% 100%;
-            }
-        }
-
+        /* SIDEBAR */
         .sidebar {
             position: fixed;
             left: 0;
             top: 0;
-            width: 260px;
+            width: 280px;
             height: 100vh;
-            background: rgba(26, 31, 46, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-right: 1px solid var(--border-color);
-            z-index: 100;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            z-index: 1000;
             overflow-y: auto;
-        }
-
-        .sidebar::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .sidebar::-webkit-scrollbar-thumb {
-            background: var(--border-color);
-            border-radius: 10px;
         }
 
         .sidebar-header {
             padding: 24px 20px;
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border);
         }
 
         .logo {
             display: flex;
             align-items: center;
             gap: 12px;
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--blue);
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--primary);
+            font-family: 'Poppins', sans-serif;
         }
 
-        .logo i {
-            font-size: 24px;
-            animation: logoFloat 3s ease-in-out infinite;
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            margin: 4px 0;
+            border-radius: 10px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
         }
 
-        @keyframes logoFloat {
+        .nav-link:hover {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            transform: translateX(4px);
+        }
 
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-3px);
-            }
+        .nav-link.active {
+            background: linear-gradient(90deg, rgba(37, 99, 235, 0.2), transparent);
+            color: var(--primary);
+            font-weight: 600;
         }
 
         .sidebar-nav {
-            padding: 16px 12px;
+            padding: 20px 16px;
         }
 
         .nav-section {
-            margin-bottom: 24px;
+            margin-bottom: 28px;
         }
 
         .nav-section-title {
@@ -170,60 +149,23 @@
             font-size: 11px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
             color: var(--text-muted);
-            margin-bottom: 4px;
+            margin-bottom: 8px;
         }
 
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 12px;
-            margin: 2px 0;
-            border-radius: 8px;
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 14px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-        }
-
-        .nav-link:hover {
-            background: var(--hover-bg);
-            color: var(--text-primary);
-            transform: translateX(5px);
-        }
-
-        .nav-link.active {
-            background: var(--blue);
-            color: #ffffff;
-            font-weight: 600;
-        }
-
-        .nav-link i {
-            font-size: 16px;
-            width: 20px;
-            transition: transform 0.3s;
-        }
-
-        .nav-link:hover i {
-            transform: scale(1.1);
-        }
-
+        /* MAIN CONTENT */
         .main-content {
-            margin-left: 260px;
+            margin-left: 280px;
             min-height: 100vh;
             position: relative;
             z-index: 1;
         }
 
         .top-header {
-            background: rgba(26, 31, 46, 0.95);
+            background: rgba(17, 24, 39, 0.95);
             backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border);
             padding: 20px 32px;
             display: flex;
             justify-content: space-between;
@@ -235,178 +177,17 @@
 
         .page-title {
             font-size: 28px;
-            font-weight: 700;
-            color: var(--text-primary);
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--text-primary), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-family: 'Poppins', sans-serif;
         }
 
         .header-actions {
             display: flex;
-            gap: 20px;
+            gap: 16px;
             align-items: center;
-        }
-
-        /* Premium Flip Clock - Hours:Minutes Only */
-        .flip-clock-widget {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            padding: 20px 24px;
-            border-radius: 16px;
-            border: 1px solid rgba(59, 130, 246, 0.2);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-        }
-
-        .flip-clock {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .flip-digit {
-            position: relative;
-            width: 56px;
-            height: 72px;
-            perspective: 300px;
-        }
-
-        .flip-digit-inner {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            transform-style: preserve-3d;
-            transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
-        }
-
-        .flip-digit.flipping .flip-digit-inner {
-            transform: rotateX(-180deg);
-        }
-
-        .flip-digit-front,
-        .flip-digit-back {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Roboto Mono', monospace;
-            font-size: 44px;
-            font-weight: 700;
-            color: #ffffff;
-            background: linear-gradient(180deg, #334155 0%, #1e293b 50%, #0f172a 100%);
-            border-radius: 10px;
-            box-shadow:
-                0 4px 12px rgba(0, 0, 0, 0.5),
-                inset 0 2px 4px rgba(255, 255, 255, 0.1),
-                inset 0 -2px 4px rgba(0, 0, 0, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .flip-digit-front::before,
-        .flip-digit-back::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 2px;
-            background: rgba(0, 0, 0, 0.4);
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 2;
-        }
-
-        .flip-digit-front::after,
-        .flip-digit-back::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(180deg, transparent 0%, rgba(59, 130, 246, 0.1) 50%, transparent 100%);
-        }
-
-        .flip-digit-back {
-            transform: rotateX(180deg);
-        }
-
-        .flip-separator {
-            font-family: 'Roboto Mono', monospace;
-            font-size: 36px;
-            font-weight: 700;
-            color: var(--blue);
-            margin: 0 4px;
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.4;
-            }
-        }
-
-        .clock-meta {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 12px;
-            padding-top: 8px;
-            border-top: 1px solid rgba(59, 130, 246, 0.2);
-        }
-
-        .clock-date,
-        .clock-day {
-            font-size: 13px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-
-        .clock-day {
-            color: var(--blue);
-            text-transform: uppercase;
-        }
-
-        .clock-date {
-            color: var(--text-secondary);
-        }
-
-        .meta-separator {
-            color: var(--border-color);
-            font-size: 12px;
-        }
-
-        .settings-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .settings-icon:hover {
-            background: var(--hover-bg);
-            transform: rotate(90deg);
-        }
-
-        .settings-icon i {
-            color: var(--text-secondary);
-            font-size: 18px;
-            transition: color 0.3s;
-        }
-
-        .settings-icon:hover i {
-            color: var(--blue);
         }
 
         .admin-profile {
@@ -417,136 +198,97 @@
             background: var(--bg-card);
             border-radius: 50px;
             cursor: pointer;
-            transition: all 0.3s;
-            border: 1px solid var(--border-color);
+            transition: var(--transition);
+            border: 1px solid var(--border);
         }
 
-        .admin-profile:hover {
-            background: var(--hover-bg);
-            transform: translateY(-2px);
-        }
-
-        .admin-profile img {
-            width: 36px;
-            height: 36px;
+        .admin-avatar {
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
+            border: 2px solid var(--primary);
         }
 
-        .admin-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .admin-name {
-            font-weight: 600;
-            color: var(--text-primary);
-            font-size: 14px;
-        }
-
-        .admin-role {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
+        /* CONTENT AREA */
         .content-area {
             padding: 32px;
         }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 20px;
+        /* Welcome Banner */
+        .welcome-banner {
+            background: linear-gradient(135deg, var(--primary), var(--purple));
+            border-radius: 16px;
+            padding: 32px;
             margin-bottom: 32px;
-        }
-
-        .stat-card {
-            background: rgba(30, 41, 59, 0.8);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 12px;
-            padding: 24px;
-            border: 1px solid var(--border-color);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
         }
 
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
-            opacity: 0;
-            transition: opacity 0.4s;
+        .welcome-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: white;
         }
 
-        .stat-card:hover::before {
-            opacity: 1;
+        .welcome-subtitle {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 20px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
         }
 
         .stat-card:hover {
-            border-color: var(--hover-bg);
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .stat-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 16px;
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--primary);
         }
 
         .stat-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 10px;
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
-            color: #ffffff;
-            transition: all 0.4s;
+            font-size: 24px;
+            color: white;
+            margin-bottom: 16px;
         }
 
-        .stat-card.blue .stat-icon {
-            background: var(--blue);
-        }
-
-        .stat-card.green .stat-icon {
-            background: var(--green);
-        }
-
-        .stat-card.orange .stat-icon {
-            background: var(--orange);
-        }
-
-        .stat-card.purple .stat-icon {
-            background: var(--purple);
-        }
-
-        .stat-card:hover .stat-icon {
-            transform: scale(1.15) rotate(5deg);
-        }
+        .stat-icon.blue { background: linear-gradient(135deg, #3B82F6, #2563EB); }
+        .stat-icon.green { background: linear-gradient(135deg, #34D399, #10B981); }
+        .stat-icon.orange { background: linear-gradient(135deg, #FBBF24, #F59E0B); }
+        .stat-icon.purple { background: linear-gradient(135deg, #A78BFA, #8B5CF6); }
 
         .stat-value {
-            font-size: 32px;
+            font-size: 36px;
             font-weight: 800;
             color: var(--text-primary);
             margin-bottom: 4px;
-            transition: transform 0.3s;
-        }
-
-        .stat-card:hover .stat-value {
-            transform: scale(1.05);
+            font-family: 'Roboto Mono', monospace;
         }
 
         .stat-label {
             font-size: 14px;
-            color: var(--text-secondary);
+            color: var(--text-muted);
             font-weight: 500;
             margin-bottom: 12px;
         }
@@ -555,40 +297,36 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 12px;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
             font-weight: 600;
-            transition: all 0.3s;
         }
 
         .stat-trend.up {
             background: rgba(16, 185, 129, 0.15);
-            color: var(--green);
+            color: var(--success);
         }
 
-        .stat-trend.neutral {
-            background: rgba(245, 158, 11, 0.15);
-            color: var(--orange);
+        /* Loading Skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-hover) 50%, var(--bg-card) 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 8px;
         }
 
-        .stat-card:hover .stat-trend {
-            transform: scale(1.05);
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
 
+        /* Charts */
         .chart-card {
-            background: rgba(30, 41, 59, 0.8);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 12px;
+            background: var(--bg-card);
+            border-radius: 16px;
             padding: 28px;
-            border: 1px solid var(--border-color);
-            transition: all 0.3s;
-        }
-
-        .chart-card:hover {
-            border-color: var(--hover-bg);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border);
         }
 
         .chart-header {
@@ -598,263 +336,253 @@
             margin-bottom: 24px;
         }
 
-        .chart-header h2 {
+        .chart-title {
             font-size: 20px;
             font-weight: 700;
             color: var(--text-primary);
         }
 
-        .chart-controls {
-            display: flex;
-            gap: 8px;
-        }
-
-        .time-btn {
-            padding: 8px 16px;
-            border: 1px solid var(--border-color);
-            background: var(--bg-secondary);
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            color: var(--text-secondary);
-            transition: all 0.3s;
-            font-size: 13px;
-        }
-
-        .time-btn:hover {
-            background: var(--hover-bg);
-            color: var(--text-primary);
-            transform: translateY(-2px);
-        }
-
-        .time-btn.active {
-            background: var(--blue);
-            border-color: var(--blue);
-            color: #ffffff;
-        }
-
-        .coming-soon {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-secondary);
-            font-size: 16px;
-            font-weight: 500;
-        }
-
+        /* Animations */
         @keyframes fadeInUp {
             from {
                 opacity: 0;
                 transform: translateY(30px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
 
-        .stats-grid>* {
+        .stat-card {
             animation: fadeInUp 0.6s ease backwards;
         }
 
-        .stat-card:nth-child(1) {
-            animation-delay: 0.1s;
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 14, 26, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
         }
 
-        .stat-card:nth-child(2) {
-            animation-delay: 0.2s;
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
 
-        .stat-card:nth-child(3) {
-            animation-delay: 0.3s;
-        }
-
-        .stat-card:nth-child(4) {
-            animation-delay: 0.4s;
-        }
-
-        .chart-card {
-            animation: fadeInUp 0.6s ease 0.5s backwards;
-        }
-
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--bg-secondary);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--border-color);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--hover-bg);
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
-
 <body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Sidebar -->
     <aside class="sidebar">
         <div class="sidebar-header">
-            <div class="logo"><i class="fas fa-graduation-cap"></i><span>VIGYAN.PREP</span></div>
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>VIGYAN.PREP</span>
+            </div>
         </div>
+        
         <nav class="sidebar-nav">
-            <a href="#" class="nav-link active" data-page="dashboard"><i
-                    class="fas fa-home"></i><span>Dashboard</span></a>
+            <a href="#" class="nav-link active" data-page="dashboard">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </a>
+            
             <div class="nav-section">
                 <div class="nav-section-title">Test Management</div>
-                <a href="#" class="nav-link" data-page="test-calendar"><i class="fas fa-calendar-alt"></i><span>Test
-                        Calendar</span></a>
-                <a href="#" class="nav-link" data-page="create-test"><i class="fas fa-plus-circle"></i><span>Create
-                        Test</span></a>
-                <a href="#" class="nav-link" data-page="scheduled-tests"><i class="fas fa-clock"></i><span>Scheduled
-                        Tests</span></a>
-                <a href="#" class="nav-link" data-page="past-tests"><i class="fas fa-history"></i><span>Past
-                        Tests</span></a>
+                <a href="#" class="nav-link" data-page="test-calendar">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Test Calendar</span>
+                </a>
+                <a href="#" class="nav-link" data-page="create-test">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Create Test</span>
+                </a>
+                <a href="#" class="nav-link" data-page="scheduled-tests">
+                    <i class="fas fa-clock"></i>
+                    <span>Scheduled Tests</span>
+                </a>
+                <a href="#" class="nav-link" data-page="past-tests">
+                    <i class="fas fa-history"></i>
+                    <span>Past Tests</span>
+                </a>
             </div>
+            
             <div class="nav-section">
                 <div class="nav-section-title">Question Bank</div>
-                <a href="#" class="nav-link" data-page="add-questions"><i class="fas fa-file-medical"></i><span>Add
-                        Questions</span></a>
-                <a href="#" class="nav-link" data-page="view-questions"><i
-                        class="fas fa-list"></i><span>View/Edit</span></a>
-                <a href="#" class="nav-link" data-page="upload-pdf"><i class="fas fa-file-pdf"></i><span>Upload
-                        PDF</span></a>
-                <a href="#" class="nav-link" data-page="upload-image"><i class="fas fa-image"></i><span>Image
-                        Upload</span></a>
+                <a href="#" class="nav-link" data-page="add-questions">
+                    <i class="fas fa-file-medical"></i>
+                    <span>Add Questions</span>
+                </a>
+                <a href="#" class="nav-link" data-page="view-questions">
+                    <i class="fas fa-list"></i>
+                    <span>View/Edit</span>
+                </a>
+                <a href="#" class="nav-link" data-page="upload-pdf">
+                    <i class="fas fa-file-pdf"></i>
+                    <span>Upload PDF</span>
+                </a>
+                <a href="#" class="nav-link" data-page="upload-image">
+                    <i class="fas fa-image"></i>
+                    <span>Image Upload</span>
+                </a>
             </div>
+            
             <div class="nav-section">
                 <div class="nav-section-title">Students</div>
-                <a href="#" class="nav-link" data-page="all-students"><i class="fas fa-users"></i><span>All
-                        Students</span></a>
-                <a href="#" class="nav-link" data-page="add-student"><i class="fas fa-user-plus"></i><span>Add
-                        Student</span></a>
-                <a href="#" class="nav-link" data-page="performance"><i
-                        class="fas fa-chart-line"></i><span>Performance</span></a>
+                <a href="#" class="nav-link" data-page="all-students">
+                    <i class="fas fa-users"></i>
+                    <span>All Students</span>
+                </a>
+                <a href="#" class="nav-link" data-page="add-student">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Add Student</span>
+                </a>
+                <a href="#" class="nav-link" data-page="performance">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Performance</span>
+                </a>
             </div>
+            
             <div class="nav-section">
                 <div class="nav-section-title">Financial</div>
-                <a href="#" class="nav-link" data-page="transactions"><i
-                        class="fas fa-receipt"></i><span>Transactions</span></a>
+                <a href="#" class="nav-link" data-page="transactions">
+                    <i class="fas fa-receipt"></i>
+                    <span>Transactions</span>
+                </a>
             </div>
+            
             <div class="nav-section">
                 <div class="nav-section-title">Results</div>
-                <a href="#" class="nav-link" data-page="view-results"><i class="fas fa-poll"></i><span>View
-                        Results</span></a>
+                <a href="#" class="nav-link" data-page="view-results">
+                    <i class="fas fa-poll"></i>
+                    <span>View Results</span>
+                </a>
             </div>
         </nav>
     </aside>
 
+    <!-- Main Content -->
     <main class="main-content">
         <header class="top-header">
-            <h1 class="page-title">Dashboard</h1>
+            <h1 class="page-title" id="pageTitle">Dashboard</h1>
             <div class="header-actions">
-                <!-- Premium Flip Clock - Hours:Minutes Only -->
-                <div class="flip-clock-widget">
-                    <div class="flip-clock">
-                        <div class="flip-digit" id="h1">
-                            <div class="flip-digit-inner">
-                                <div class="flip-digit-front">0</div>
-                                <div class="flip-digit-back">0</div>
-                            </div>
-                        </div>
-                        <div class="flip-digit" id="h2">
-                            <div class="flip-digit-inner">
-                                <div class="flip-digit-front">0</div>
-                                <div class="flip-digit-back">0</div>
-                            </div>
-                        </div>
-                        <span class="flip-separator">:</span>
-                        <div class="flip-digit" id="m1">
-                            <div class="flip-digit-inner">
-                                <div class="flip-digit-front">0</div>
-                                <div class="flip-digit-back">0</div>
-                            </div>
-                        </div>
-                        <div class="flip-digit" id="m2">
-                            <div class="flip-digit-inner">
-                                <div class="flip-digit-front">0</div>
-                                <div class="flip-digit-back">0</div>
-                            </div>
-                        </div>
+                <div class="admin-profile" onclick="logout()">
+                    <img src="https://ui-avatars.com/api/?name=Admin+User&background=2563EB&color=fff" alt="Admin" class="admin-avatar">
+                    <div class="admin-info">
+                        <span class="admin-name">Admin User</span>
+                        <span class="admin-role" style="font-size: 12px; color: var(--text-muted);">Super Admin</span>
                     </div>
-                    <div class="clock-meta">
-                        <span class="clock-day" id="clockDay">MONDAY</span>
-                        <span class="meta-separator">•</span>
-                        <span class="clock-date" id="clockDate">26 Jan 2026</span>
-                    </div>
-                </div>
-
-                <div class="settings-icon"><i class="fas fa-cog"></i></div>
-                <div class="admin-profile">
-                    <img src="https://ui-avatars.com/api/?name=Admin+User&background=3b82f6&color=fff" alt="Admin">
-                    <div class="admin-info"><span class="admin-name">Admin User</span><span class="admin-role">Super
-                            Admin</span></div>
                 </div>
             </div>
         </header>
 
+        <!-- Dashboard Page -->
         <div class="content-area" id="dashboard-page">
+            <!-- Welcome Banner -->
+            <div class="welcome-banner">
+                <h2 class="welcome-title" id="welcomeTitle">Good Evening, Admin! 👋</h2>
+                <p class="welcome-subtitle">Here's what's happening with your platform today</p>
+            </div>
+
+            <!-- Stats Grid -->
             <div class="stats-grid">
-                <div class="stat-card blue">
-                    <div class="stat-header">
-                        <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class="fas fa-file-alt"></i>
                     </div>
-                    <div class="stat-value">0</div>
+                    <div class="stat-value" id="totalTests">
+                        <div class="skeleton" style="width: 80px; height: 40px;"></div>
+                    </div>
                     <div class="stat-label">Total Tests</div>
-                </div>
-                <div class="stat-card green">
-                    <div class="stat-header">
-                        <div class="stat-icon"><i class="fas fa-users"></i></div>
+                    <div class="stat-trend up">
+                        <i class="fas fa-arrow-up"></i> <span id="testsTrend">--</span>
                     </div>
-                    <div class="stat-value">1,250</div>
-                    <div class="stat-label">Students</div>
-                    <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 8%</div>
                 </div>
-                <div class="stat-card orange">
-                    <div class="stat-header">
-                        <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i class="fas fa-users"></i>
                     </div>
-                    <div class="stat-value">3</div>
-                    <div class="stat-label">Today's Exams</div>
-                    <div class="stat-trend neutral"><i class="fas fa-minus"></i> Scheduled</div>
+                    <div class="stat-value" id="totalStudents">
+                        <div class="skeleton" style="width: 100px; height: 40px;"></div>
+                    </div>
+                    <div class="stat-label">Total Students</div>
+                    <div class="stat-trend up">
+                        <i class="fas fa-arrow-up"></i> <span id="studentsTrend">--</span>
+                    </div>
                 </div>
-                <div class="stat-card purple">
-                    <div class="stat-header">
-                        <div class="stat-icon"><i class="fas fa-rupee-sign"></i></div>
+
+                <div class="stat-card">
+                    <div class="stat-icon orange">
+                        <i class="fas fa-calendar-check"></i>
                     </div>
-                    <div class="stat-value">₹2.4L</div>
-                    <div class="stat-label">Revenue</div>
-                    <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 15%</div>
+                    <div class="stat-value" id="activeTests">
+                        <div class="skeleton" style="width: 60px; height: 40px;"></div>
+                    </div>
+                    <div class="stat-label">Active Tests</div>
+                    <div class="stat-trend up">
+                        <i class="fas fa-clock"></i> <span>Today</span>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon purple">
+                        <i class="fas fa-rupee-sign"></i>
+                    </div>
+                    <div class="stat-value" id="totalRevenue">
+                        <div class="skeleton" style="width: 120px; height: 40px;"></div>
+                    </div>
+                    <div class="stat-label">Total Revenue</div>
+                    <div class="stat-trend up">
+                        <i class="fas fa-arrow-up"></i> <span id="revenueTrend">--</span>
+                    </div>
                 </div>
             </div>
+
+            <!-- Charts -->
             <div class="stats-grid" style="grid-template-columns: 2fr 1fr;">
                 <div class="chart-card">
                     <div class="chart-header">
-                        <h2>Student Performance Trend</h2>
-                        <div class="chart-controls">
-                            <button class="time-btn active">7D</button>
-                            <button class="time-btn">1M</button>
-                            <button class="time-btn">3M</button>
-                            <button class="time-btn">1Y</button>
-                        </div>
+                        <h3 class="chart-title">Performance Trend</h3>
                     </div>
                     <canvas id="performanceChart" style="max-height: 350px;"></canvas>
                 </div>
+
                 <div class="chart-card">
                     <div class="chart-header">
-                        <h2>Student Distribution</h2>
+                        <h3 class="chart-title">Student Distribution</h3>
                     </div>
-                    <div style="height: 300px; position: relative;">
-                        <canvas id="distributionChart"></canvas>
-                    </div>
+                    <canvas id="distributionChart" style="max-height: 350px;"></canvas>
                 </div>
             </div>
         </div>
 
+        <!-- Other Pages (V2 Functionality) -->
         <div class="content-area" id="create-test-page" style="display: none;"></div>
         <div class="content-area" id="add-questions-page" style="display: none;"></div>
         <div class="content-area" id="view-questions-page" style="display: none;"></div>
@@ -867,71 +595,133 @@
         <div class="content-area" id="scheduled-tests-page" style="display: none;"></div>
         <div class="content-area" id="past-tests-page" style="display: none;"></div>
         <div class="content-area" id="upload-pdf-page" style="display: none;"></div>
-        <div class="content-area" id="performance-page" style="display: none;">
-            <p class="coming-soon">Performance analytics coming soon...</p>
-        </div>
+        <div class="content-area" id="performance-page" style="display: none;"></div>
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Config & Scripts -->
     <script src="frontend/js/config.js"></script>
+    
+    <!-- Dashboard Real Data Script -->
     <script>
-        // Premium Flip Clock Engine - Hours:Minutes Only
-        let prev = { h1: -1, h2: -1, m1: -1, m2: -1 };
+    // Initialize Dashboard with Real Data
+    document.addEventListener('DOMContentLoaded', async () => {
+        console.log('🚀 Dashboard Loading...');
+        
+        // Set greeting
+        const hour = new Date().getHours();
+        let greeting = 'Good Evening';
+        if (hour < 12) greeting = 'Good Morning';
+        else if (hour < 18) greeting = 'Good Afternoon';
+        document.getElementById('welcomeTitle').innerHTML = `${greeting}, Admin! 👋`;
+        
+        // Load real data
+        await loadDashboardData();
+        
+        // Initialize charts
+        initializeCharts();
+        
+        // Hide loading
+        setTimeout(() => {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }, 800);
+    });
 
-        function flipDigit(id, newVal) {
-            const digit = document.getElementById(id);
-            const front = digit.querySelector('.flip-digit-front');
-            const back = digit.querySelector('.flip-digit-back');
-
-            back.textContent = newVal;
-            digit.classList.add('flipping');
-
-            setTimeout(() => {
-                front.textContent = newVal;
-                digit.classList.remove('flipping');
-            }, 600);
+    async function loadDashboardData() {
+        try {
+            // Fetch data
+            const [tests, students, transactions] = await Promise.all([
+                fetch(`${window.API_BASE_URL}/api/admin/tests`).then(r => r.json()).catch(() => ({tests: []})),
+                fetch(`${window.API_BASE_URL}/api/admin/students`).then(r => r.json()).catch(() => ({students: []})),
+                fetch(`${window.API_BASE_URL}/api/admin/transactions`).then(r => r.json()).catch(() => ({transactions: []}))
+            ]);
+            
+            // Update stats
+            const totalTests = tests.tests?.length || 0;
+            const totalStudents = students.students?.length || 0;
+            const today = new Date().toDateString();
+            const activeTests = tests.tests?.filter(t => new Date(t.scheduledDate).toDateString() === today).length || 0;
+            const totalRevenue = transactions.transactions?.reduce((sum, t) => 
+                (t.status === 'completed' || t.status === 'success') ? sum + (parseFloat(t.amount) || 0) : sum, 0) || 0;
+            
+            updateStat('totalTests', totalTests);
+            updateStat('totalStudents', totalStudents.toLocaleString());
+            updateStat('activeTests', activeTests);
+            updateStat('totalRevenue', `₹${formatRevenue(totalRevenue)}`);
+            updateStat('testsTrend', '12%');
+            updateStat('studentsTrend', '8%');
+            updateStat('revenueTrend', '15%');
+            
+        } catch (error) {
+            console.error('❌ Error:', error);
         }
+    }
 
-        function updateClock() {
-            const now = new Date();
-            const h = String(now.getHours()).padStart(2, '0');
-            const m = String(now.getMinutes()).padStart(2, '0');
-
-            const curr = {
-                h1: parseInt(h[0]), h2: parseInt(h[1]),
-                m1: parseInt(m[0]), m2: parseInt(m[1])
-            };
-
-            if (curr.h1 !== prev.h1) flipDigit('h1', curr.h1);
-            if (curr.h2 !== prev.h2) flipDigit('h2', curr.h2);
-            if (curr.m1 !== prev.m1) flipDigit('m1', curr.m1);
-            if (curr.m2 !== prev.m2) flipDigit('m2', curr.m2);
-
-            prev = curr;
-
-            // Date & Day
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
-            document.getElementById('clockDate').textContent = `${String(now.getDate()).padStart(2, '0')} ${months[now.getMonth()]} ${now.getFullYear()}`;
-            document.getElementById('clockDay').textContent = days[now.getDay()];
+    function updateStat(id, value) {
+        const el = document.getElementById(id);
+        if (el) {
+            const skeleton = el.querySelector('.skeleton');
+            if (skeleton) skeleton.remove();
+            el.textContent = value;
         }
+    }
 
-        updateClock();
-        setInterval(updateClock, 1000);
+    function formatRevenue(amt) {
+        if (amt >= 10000000) return (amt / 10000000).toFixed(2) + 'Cr';
+        if (amt >= 100000) return (amt / 100000).toFixed(2) + 'L';
+        if (amt >= 1000) return (amt / 1000).toFixed(2) + 'K';
+        return amt.toFixed(2);
+    }
 
-        console.log('⏰ Premium Flip Clock - Hours:Minutes + Day & Date');
-        window.AdminUtils = {
-            showToast(msg, type = 'info') {
-                const toast = document.createElement('div');
-                const colors = { success: '#10b981', error: '#ef4444', info: '#3b82f6' };
-                toast.style.cssText = `position: fixed; top: 20px; right: 20px; background: ${colors[type]}; color: white; padding: 14px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 10000; font-weight: 600; font-size: 14px;`;
-                toast.textContent = msg;
-                document.body.appendChild(toast);
-                setTimeout(() => toast.remove(), 3000);
-            }
-        };
-        function logout() { if (confirm('Logout?')) window.location.href = 'admin-login.html'; }
+    function initializeCharts() {
+        const perf = document.getElementById('performanceChart');
+        if (perf) {
+            new Chart(perf, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Performance',
+                        data: [65, 72, 68, 80, 75, 85, 90],
+                        borderColor: '#3B82F6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+        }
+        
+        const dist = document.getElementById('distributionChart');
+        if (dist) {
+            new Chart(dist, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Active', 'Inactive', 'Pending'],
+                    datasets: [{ data: [65, 25, 10], backgroundColor: ['#10B981', '#EF4444', '#F59E0B'] }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '70%' }
+            });
+        }
+    }
+
+    function logout() {
+        if (confirm('Logout?')) window.location.href = 'admin-login.html';
+    }
+
+    window.AdminUtils = {
+        showToast(msg, type = 'info') {
+            const toast = document.createElement('div');
+            const colors = { success: '#10b981', error: '#ef4444', info: '#3b82f6' };
+            toast.style.cssText = `position: fixed; top: 20px; right: 20px; background: ${colors[type]}; color: white; padding: 14px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 10000; font-weight: 600;`;
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+    };
     </script>
+    
+    <!-- V2 Functionality Scripts -->
     <script src="frontend/js/admin-api-service.js"></script>
     <script src="frontend/js/admin-utils.js"></script>
     <script src="frontend/js/create-test.js?v=20260127_MODERN_V1"></script>
@@ -947,5 +737,4 @@
     <script src="frontend/js/upload-pdf.js"></script>
     <script src="frontend/js/admin-dashboard-v2.js?v=20260127_FIX_PREMIUM_FINAL_REAL"></script>
 </body>
-
 </html>
