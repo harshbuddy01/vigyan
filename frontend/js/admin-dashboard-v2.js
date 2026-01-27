@@ -1,6 +1,6 @@
 /**
  * Admin Dashboard Main - REAL Backend Integration - NO FAKE DATA!
- * FIXED: 2026-01-25 - Completely removed all fallback fake data
+ * FIXED: 2026-01-27 - Fixed duplicate catch block syntax error
  */
 
 let performanceChart = null;
@@ -708,8 +708,6 @@ async function loadDashboardData() {
 
         // Update distribution chart manually if possible, else fallback
         updateDistributionChart(backendStats.studentDistribution || { iat: 30, nest: 45, jee: 25 });
-
-    } catch (error) {
 
     } catch (error) {
         console.error('❌ Failed to load dashboard data:', error);
