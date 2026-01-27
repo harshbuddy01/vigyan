@@ -660,13 +660,21 @@ async function loadDashboardData() {
     showDashboardLoading();
 
     try {
-        // 🔥 Fetch REAL stats from backend
-        const stats = await window.AdminAPI.getDashboardStats();
+        // 🔥 Fetch REAL stats AND Scheduled Tests (for accurate count)
+        const [stats, scheduledTests] = await Promise.all([
+            window.AdminAPI.getDashboardStats(),
+            window.AdminAPI.getScheduledTests().catch(() => []) // Fallback to empty array if fails
+        ]);
 
-        console.log('✅ Dashboard stats loaded from backend:', stats);
+        console.log('✅ Dashboard stats loaded:', stats);
+        console.log('✅ Scheduled tests loaded:', scheduledTests.length);
+
+        // Calculate real total tests (Scheduled + Active)
+        // detailed logic: if scheduledTests array exists, usage that length.
+        const realTotalTests = Array.isArray(scheduledTests) ? scheduledTests.length : (stats.activeTests || 0);
 
         // Update UI with REAL data
-        updateDashboardStats(stats);
+        updateDashboardStats(stats, realTotalTests);
         updatePerformanceChart(stats.performanceData || {});
         updateDistributionChart(stats.studentDistribution || { iat: 30, nest: 45, jee: 25 }); // Fake data fallback for now if empty
 
@@ -697,10 +705,10 @@ function showDashboardError(error) {
 }
 
 // 🔥 Update dashboard stats with REAL data only
-function updateDashboardStats(stats) {
+function updateDashboardStats(stats, realTotalTests) {
     try {
         const statCards = {
-            tests: { value: stats.activeTests || 0, trend: stats.testsTrend || 0 },
+            tests: { value: realTotalTests || 0, trend: stats.testsTrend || 0 },
             students: { value: stats.totalStudents || 0, trend: stats.studentsTrend || 0 },
             exams: { value: stats.todayExams || 0 },
             revenue: { value: stats.monthlyRevenue || 0, trend: stats.revenueTrend || 0 }
