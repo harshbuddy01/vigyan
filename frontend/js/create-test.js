@@ -1,6 +1,39 @@
 // Modern Create Test Module - Rebuilt 2026-01-27
+// 🧠 Smart Sanitization Logic
+function smartSanitize(data) {
+    const clean = {};
+
+    for (const [key, value] of Object.entries(data)) {
+        // 1. Detect Numbers (strings that look like numbers)
+        // Check if value is a string, represents a finite number, and is not an empty string
+        if (typeof value === 'string' && !isNaN(value) && value.trim() !== '') {
+            // Convert to number
+            clean[key] = Number(value);
+        }
+        // 2. Detect Strings that need trimming or lowercasing
+        else if (typeof value === 'string') {
+            let processed = value.trim();
+
+            // Special Rule: 'test_type' must ALWAYS be lowercase for backend enum
+            if (key === 'test_type') {
+                processed = processed.toLowerCase();
+            }
+
+            clean[key] = processed;
+        }
+        // 3. Keep other types (booleans, null, existing numbers) as is
+        else {
+            clean[key] = value;
+        }
+    }
+
+    return clean;
+}
+
+console.log('✅ Create Test module loaded with Smart Sanitizer');
+console.log('🔧 Initializing Create Test Page');
 window.initCreateTest = function () {
-    console.log('🔵 Initializing Modern Create Test page...');
+    // console.log('🔵 Initializing Modern Create Test page...'); // Removed as per instruction
 
     if (!window.AdminAPI) {
         console.error('❌ AdminAPI service not found');
@@ -214,48 +247,44 @@ async function handleModernCreateTest(e) {
         return;
     }
 
-    // 2. Prepare Data
+    // 2. Prepare Data & Smart Sanitize
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
 
-    const testName = document.getElementById('testName').value;
-    const rawExamType = document.getElementById('examType').value;
-    const testDate = document.getElementById('testDate').value;
-    const testTime = document.getElementById('testTime').value;
-    const testDescription = document.getElementById('testDescription').value;
-    const durationMinutes = parseInt(document.getElementById('testDuration').value);
-    const totalMarks = parseInt(document.getElementById('totalMarks').value);
+    const rawData = {
+        test_name: document.getElementById('testName').value,
+        test_type: document.getElementById('examType').value,
+        exam_date: document.getElementById('testDate').value,
+        start_time: document.getElementById('testTime').value,
+        description: document.getElementById('testDescription').value,
+        duration_minutes: document.getElementById('testDuration').value,
+        total_marks: document.getElementById('totalMarks').value,
+        subjects: selectedSections.join(', ')
+    };
 
-    // 🔥 CRITICAL FIX: Backend Compatibility
-    // Backend strictly accepts: 'iat' or 'nest' (lowercase).
-    // Some UIs might send Uppercase, we force conversion here.
-    const examType = rawExamType.toLowerCase().trim();
+    // 🧠 SMART SANITIZER: Automatically detects and formats data types
+    const sanitizedData = smartSanitize(rawData);
 
-    if (!['iat', 'nest'].includes(examType)) {
-        if (window.AdminUtils) window.AdminUtils.showToast(`Invalid exam type: ${rawExamType}. Only IAT and NEST supported.`, 'error');
+    // Generate strict Test ID based on sanitized type
+    sanitizedData.test_id = `TEST-${sanitizedData.test_type.toUpperCase()}-${Date.now()}`;
+    sanitizedData.total_questions = 0;
+    sanitizedData.status = 'scheduled';
+    sanitizedData.start_time = sanitizedData.start_time + ':00'; // Append seconds if missing
+
+    // Strict Enum Validation (Double Check)
+    if (!['iat', 'nest', 'isi'].includes(sanitizedData.test_type)) {
+        if (window.AdminUtils) window.AdminUtils.showToast(`Smart detection failed: '${sanitizedData.test_type}' is not a valid exam type.`, 'error');
+
+        // 🔴 Fail safely
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalBtnText;
         return;
     }
 
-    const testData = {
-        test_name: testName,
-        test_type: examType,
-        test_id: `TEST-${examType.toUpperCase()}-${Date.now()}`,
-        exam_date: testDate,
-        start_time: testTime + ':00',
-        duration_minutes: durationMinutes,
-        total_marks: totalMarks,
-        subjects: selectedSections.join(', '),
-        description: testDescription || `${examType.toUpperCase()} Mock Test`,
-        total_questions: 0,
-        status: 'scheduled'
-    };
-
-    console.log('📤 Sending Payload:', testData);
+    console.log('🧠 Smart Sanitized Payload:', sanitizedData);
 
     try {
-        const response = await window.AdminAPI.createTest(testData);
+        const response = await window.AdminAPI.createTest(sanitizedData);
         console.log('✅ Response:', response);
 
         if (window.AdminUtils) {
