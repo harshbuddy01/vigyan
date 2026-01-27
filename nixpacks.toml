@@ -1,0 +1,11 @@
+[phases.setup]
+nixPkgs = ["nodejs_18", "python311", "pip"]
+
+[phases.install]
+cmds = ["npm ci --prefer-offline --no-audit"]
+
+[phases.build]
+cmds = ["pip install --no-cache-dir PyPDF2 pdfplumber python-dotenv requests openai google-generativeai"]
+
+[start]
+cmd = "npm start"
