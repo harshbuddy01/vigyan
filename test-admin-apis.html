@@ -742,7 +742,7 @@
 
         async function testSection(categoryIndex) {
             const category = apiStructure[categoryIndex];
-            const btn = document.querySelector(`[data - section= "${categoryIndex}"]`);
+            const btn = document.querySelector(`[data-section="${categoryIndex}"]`);
 
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running...';
