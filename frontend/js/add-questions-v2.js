@@ -384,6 +384,17 @@ function initAddQuestions() {
             document.getElementById('questionNumber').value = '';
             document.getElementById('paperTypeGroup').style.display = 'none';
 
+            // Redirect to View/Edit section as requested
+            setTimeout(() => {
+                const viewQuestionsLink = document.querySelector('[data-page="view-questions"]');
+                if (viewQuestionsLink) {
+                    console.log('🔄 Redirecting to View/Edit section...');
+                    viewQuestionsLink.click();
+                } else {
+                    console.warn('⚠️ View/Edit link not found for redirect');
+                }
+            }, 1000);
+
         } catch (error) {
             console.error('❌ Error adding question:', error);
 
