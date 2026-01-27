@@ -431,6 +431,15 @@ export const getTestDetails = async (req, res) => {
 export const updateTestStatus = async (req, res) => {
   try {
     console.log('🔹 Updating test status:', req.params.testId);
+
+    // Validate ID format
+    if (!req.params.testId.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid Test ID format'
+      });
+    }
+
     const { status } = req.body;
 
     const test = await ScheduledTest.findByIdAndUpdate(
@@ -466,6 +475,15 @@ export const updateTestStatus = async (req, res) => {
 export const deleteTest = async (req, res) => {
   try {
     console.log('🔹 Deleting test:', req.params.testId);
+
+    // Validate ID format
+    if (!req.params.testId.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid Test ID format'
+      });
+    }
+
     const test = await ScheduledTest.findByIdAndDelete(req.params.testId);
 
     if (!test) {
@@ -480,6 +498,7 @@ export const deleteTest = async (req, res) => {
       success: true,
       message: 'Test deleted successfully'
     });
+
   } catch (error) {
     console.error('❌ Error deleting test:', error.message);
     res.status(500).json({
