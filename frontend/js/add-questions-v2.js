@@ -347,13 +347,15 @@ function initAddQuestions() {
             }
 
             // Prepare payload matching backend expectations
-            // Prepare payload matching backend expectations
+            // Extract the numeric part from the generated ID (e.g., NEST_2026_123456 -> 123456)
+            const numericId = parseInt(questionNumber.split('_').pop());
+
             const payload = {
                 testId: testId,
-                examType: examType, // Added
-                year: examYear,     // Added
-                paperType: paperType || null, // Added optional
-                questionNumber: questionNumber,
+                examType: examType,
+                year: examYear,
+                paperType: paperType || null,
+                questionNumber: numericId, // Send NUMBER, not string
                 questionText: questionText,
                 options: options,
                 correctAnswer: correctAnswer,
