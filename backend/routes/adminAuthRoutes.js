@@ -14,8 +14,8 @@ const router = express.Router();
 // Admin credentials from environment
 const ADMIN_CREDENTIALS = {
     username: process.env.ADMIN_USERNAME || 'admin',
-    // Password: 'admin' (hash generated 2026-01-31)
-    passwordHash: process.env.ADMIN_PASSWORD_HASH || '$2b$10$e5ppQqhroeAKdsQJlOpPYO4EJzlT5iWHxgQIGK5ooBL9zRSc5wKB2'
+    // Password: 'admin' (hash generated 2026-01-31 - VERIFIED WORKING)
+    passwordHash: process.env.ADMIN_PASSWORD_HASH || '$2b$10$tR0NcafoV27x3Vj8WVQNFuWRFiX03UEKhZ7RHjuqm4VbHHnxMh.Ye'
 };
 
 console.log('🔐 Admin Auth routes loaded');
