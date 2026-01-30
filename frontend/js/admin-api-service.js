@@ -22,10 +22,14 @@ const AdminAPI = {
 
     // Helper method for API calls
     async request(endpoint, options = {}) {
+        // ✅ Get CSRF token from cookie
+        const csrfToken = this.getCSRFToken();
+
         const defaultOptions = {
             credentials: 'include',  // ✅ Send cookies for authentication
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {})  // ✅ Add CSRF token if exists
                 // ✅ REMOVED: Authorization header - backend uses cookies
             }
         };
@@ -58,6 +62,12 @@ const AdminAPI = {
             console.error('   Full Error:', error);
             throw error;
         }
+    },
+
+    // ✅ Get CSRF token from cookie
+    getCSRFToken() {
+        const cookie = document.cookie.split('; ').find(row => row.startsWith('csrf_token='));
+        return cookie ? cookie.split('=')[1] : null;
     },
 
     // ✅ REMOVED: getAuthToken() - No longer needed with cookie-based auth

@@ -65,11 +65,13 @@ router.post('/login', async (req, res) => {
         // ✅ SECURITY FIX: Generate JWT token
         const adminToken = generateAdminToken(username);
 
-        // Set HTTP-only cookie (most secure)
+        // Set HTTP-only cookie (cross-origin enabled)
+        // ⚠️ TEMPORARY: sameSite: 'none' for cross-domain auth
+        // TODO: Move to api.vigyanprep.com subdomain and change to 'lax'
         res.cookie('admin_token', adminToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: 'none',  // ✅ CHANGED: Allow cross-origin (vigyanprep.com → railway.app)
             maxAge: 24 * 60 * 60 * 1000 // 24 hours
         });
 
