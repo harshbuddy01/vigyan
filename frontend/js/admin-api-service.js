@@ -23,9 +23,10 @@ const AdminAPI = {
     // Helper method for API calls
     async request(endpoint, options = {}) {
         const defaultOptions = {
+            credentials: 'include',  // ✅ Send cookies for authentication
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${this.getAuthToken()}`
+                'Content-Type': 'application/json'
+                // ✅ REMOVED: Authorization header - backend uses cookies
             }
         };
 
@@ -59,10 +60,7 @@ const AdminAPI = {
         }
     },
 
-    getAuthToken() {
-        const auth = sessionStorage.getItem('adminAuth') || localStorage.getItem('adminAuth');
-        return auth ? JSON.parse(auth).token || 'demo-token' : 'demo-token';
-    },
+    // ✅ REMOVED: getAuthToken() - No longer needed with cookie-based auth
 
     // ==================== DASHBOARD ====================
     async getDashboardStats() {

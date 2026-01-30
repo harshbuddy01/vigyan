@@ -1,21 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vigyan.prep Admin Portal - Professional Dashboard</title>
-    
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Roboto+Mono:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Roboto+Mono:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
+
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    
+
+    <!-- ✅ API Configuration - MUST be loaded before admin-api-service.js -->
+    <script>
+        // Set API base URL for all admin API calls
+        window.API_BASE_URL = 'https://vigyan-production.up.railway.app';
+        console.log('✅ API Base URL configured:', window.API_BASE_URL);
+    </script>
+
     <style>
         /* ============================================
            🎨 MODERN PROFESSIONAL ADMIN DASHBOARD
@@ -35,35 +45,35 @@
             --primary: #2563EB;
             --primary-dark: #1D4ED8;
             --primary-light: #3B82F6;
-            
+
             --success: #10B981;
             --success-light: #34D399;
             --warning: #F59E0B;
             --danger: #EF4444;
             --info: #0EA5E9;
             --purple: #8B5CF6;
-            
+
             /* Dark Theme */
             --bg-primary: #0A0E1A;
             --bg-secondary: #111827;
             --bg-card: #1F2937;
             --bg-hover: #374151;
-            
+
             /* Text */
             --text-primary: #F9FAFB;
             --text-secondary: #D1D5DB;
             --text-muted: #9CA3AF;
-            
+
             /* Borders */
             --border: #374151;
             --border-light: #4B5563;
-            
+
             /* Shadows */
             --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
             --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.2);
             --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.3);
-            
+
             /* Transitions */
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             --transition-fast: all 0.15s ease;
@@ -85,7 +95,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: 
+            background:
                 radial-gradient(circle at 20% 20%, rgba(37, 99, 235, 0.05) 0%, transparent 50%),
                 radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
             animation: gradientMove 15s ease infinite;
@@ -94,8 +104,15 @@
         }
 
         @keyframes gradientMove {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(50px, 50px) scale(1.1); }
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(50px, 50px) scale(1.1);
+            }
         }
 
         /* ============================================
@@ -147,8 +164,15 @@
         }
 
         @keyframes logoFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-5px);
+            }
         }
 
         .sidebar-nav {
@@ -297,7 +321,8 @@
             align-items: center;
         }
 
-        .theme-toggle, .notification-btn {
+        .theme-toggle,
+        .notification-btn {
             width: 44px;
             height: 44px;
             border-radius: 10px;
@@ -311,7 +336,8 @@
             position: relative;
         }
 
-        .theme-toggle:hover, .notification-btn:hover {
+        .theme-toggle:hover,
+        .notification-btn:hover {
             background: var(--bg-hover);
             transform: translateY(-2px);
         }
@@ -396,13 +422,20 @@
             right: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
             animation: pulse 4s ease-in-out infinite;
         }
 
         @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
         }
 
         .welcome-content {
@@ -512,10 +545,21 @@
             transform: scale(1.1) rotate(5deg);
         }
 
-        .stat-icon.blue { background: linear-gradient(135deg, #3B82F6, #2563EB); }
-        .stat-icon.green { background: linear-gradient(135deg, #34D399, #10B981); }
-        .stat-icon.orange { background: linear-gradient(135deg, #FBBF24, #F59E0B); }
-        .stat-icon.purple { background: linear-gradient(135deg, #A78BFA, #8B5CF6); }
+        .stat-icon.blue {
+            background: linear-gradient(135deg, #3B82F6, #2563EB);
+        }
+
+        .stat-icon.green {
+            background: linear-gradient(135deg, #34D399, #10B981);
+        }
+
+        .stat-icon.orange {
+            background: linear-gradient(135deg, #FBBF24, #F59E0B);
+        }
+
+        .stat-icon.purple {
+            background: linear-gradient(135deg, #A78BFA, #8B5CF6);
+        }
 
         .stat-value {
             font-size: 36px;
@@ -670,8 +714,13 @@
         }
 
         @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+            0% {
+                background-position: 200% 0;
+            }
+
+            100% {
+                background-position: -200% 0;
+            }
         }
 
         /* Animations */
@@ -680,31 +729,45 @@
                 opacity: 0;
                 transform: translateY(30px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
 
-        .stat-card, .chart-card, .activity-card {
+        .stat-card,
+        .chart-card,
+        .activity-card {
             animation: fadeInUp 0.6s ease backwards;
         }
 
-        .stat-card:nth-child(1) { animation-delay: 0.1s; }
-        .stat-card:nth-child(2) { animation-delay: 0.2s; }
-        .stat-card:nth-child(3) { animation-delay: 0.3s; }
-        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+        .stat-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .stat-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .stat-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .stat-card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
 
         /* Responsive */
         @media (max-width: 1024px) {
             .sidebar {
                 transform: translateX(-100%);
             }
-            
+
             .main-content {
                 margin-left: 0;
             }
-            
+
             .charts-grid {
                 grid-template-columns: 1fr;
             }
@@ -714,12 +777,12 @@
             .stats-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .top-header {
                 flex-direction: column;
                 gap: 16px;
             }
-            
+
             .search-box {
                 width: 100%;
             }
@@ -749,10 +812,13 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
+
 <body>
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
@@ -767,13 +833,13 @@
                 <span>VIGYAN.PREP</span>
             </div>
         </div>
-        
+
         <nav class="sidebar-nav">
             <a href="#" class="nav-link active" data-page="dashboard">
                 <i class="fas fa-home"></i>
                 <span>Dashboard</span>
             </a>
-            
+
             <div class="nav-section">
                 <div class="nav-section-title">Test Management</div>
                 <a href="#" class="nav-link" data-page="test-calendar">
@@ -793,7 +859,7 @@
                     <span>Past Tests</span>
                 </a>
             </div>
-            
+
             <div class="nav-section">
                 <div class="nav-section-title">Question Bank</div>
                 <a href="#" class="nav-link" data-page="add-questions">
@@ -809,7 +875,7 @@
                     <span>Upload PDF</span>
                 </a>
             </div>
-            
+
             <div class="nav-section">
                 <div class="nav-section-title">Students</div>
                 <a href="#" class="nav-link" data-page="all-students">
@@ -825,7 +891,7 @@
                     <span>Performance</span>
                 </a>
             </div>
-            
+
             <div class="nav-section">
                 <div class="nav-section-title">Financial</div>
                 <a href="#" class="nav-link" data-page="transactions">
@@ -833,7 +899,7 @@
                     <span>Transactions</span>
                 </a>
             </div>
-            
+
             <div class="nav-section">
                 <div class="nav-section-title">Results</div>
                 <a href="#" class="nav-link" data-page="view-results">
@@ -855,19 +921,20 @@
                     <input type="text" placeholder="Search anything..." id="globalSearch">
                 </div>
             </div>
-            
+
             <div class="header-actions">
                 <div class="theme-toggle" id="themeToggle">
                     <i class="fas fa-moon"></i>
                 </div>
-                
+
                 <div class="notification-btn" id="notificationBtn">
                     <i class="fas fa-bell"></i>
                     <span class="notification-badge" id="notificationBadge">3</span>
                 </div>
-                
+
                 <div class="admin-profile" onclick="toggleProfileMenu()">
-                    <img src="https://ui-avatars.com/api/?name=Admin+User&background=2563EB&color=fff" alt="Admin" class="admin-avatar">
+                    <img src="https://ui-avatars.com/api/?name=Admin+User&background=2563EB&color=fff" alt="Admin"
+                        class="admin-avatar">
                     <div class="admin-info">
                         <span class="admin-name" id="adminName">Loading...</span>
                         <span class="admin-role">Super Admin</span>
@@ -1014,7 +1081,7 @@
     <!-- Scripts -->
     <script src="frontend/js/config.js"></script>
     <script src="frontend/js/admin-dashboard-v3.js"></script>
-    
+
     <!-- Existing Scripts -->
     <script src="frontend/js/admin-api-service.js"></script>
     <script src="frontend/js/admin-utils.js"></script>
@@ -1029,4 +1096,5 @@
     <script src="frontend/js/past-tests.js"></script>
     <script src="frontend/js/upload-pdf.js"></script>
 </body>
+
 </html>

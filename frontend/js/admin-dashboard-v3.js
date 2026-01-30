@@ -95,10 +95,10 @@ async function fetchTests() {
     try {
         const response = await fetch(`${window.API_BASE_URL}/api/admin/tests`, {
             method: 'GET',
+            credentials: 'include',  // ✅ Send cookies for authentication
             headers: {
                 'Content-Type': 'application/json'
             },
-            credentials: 'include'  // ✅ SECURITY FIX: Send JWT cookie
         });
 
         if (!response.ok) throw new Error('Failed to fetch tests');
@@ -116,10 +116,10 @@ async function fetchStudents() {
     try {
         const response = await fetch(`${window.API_BASE_URL}/api/admin/students`, {
             method: 'GET',
+            credentials: 'include',  // ✅ Send cookies for authentication
             headers: {
                 'Content-Type': 'application/json'
             },
-            credentials: 'include'  // ✅ SECURITY FIX: Send JWT cookie
         });
 
         if (!response.ok) throw new Error('Failed to fetch students');
@@ -137,10 +137,10 @@ async function fetchTransactions() {
     try {
         const response = await fetch(`${window.API_BASE_URL}/api/admin/transactions`, {
             method: 'GET',
+            credentials: 'include',  // ✅ Send cookies for authentication
             headers: {
                 'Content-Type': 'application/json'
             },
-            credentials: 'include'  // ✅ SECURITY FIX: Send JWT cookie
         });
 
         if (!response.ok) throw new Error('Failed to fetch transactions');

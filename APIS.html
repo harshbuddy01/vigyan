@@ -303,8 +303,7 @@
             <label>API Base URL:</label>
             <input type="text" id="baseURL" value="https://vigyan-production.up.railway.app">
 
-            <label>🔑 JWT Token (for authenticated endpoints):</label>
-            <input type="text" id="jwtToken" placeholder="Paste JWT token from login response">
+            <!-- ✅ REMOVED: JWT Token input - Now using cookie-based authentication -->
 
             <button class="test-all-btn" onclick="testAllAPIs()">🧪 TEST ALL APIS (33 endpoints)</button>
         </div>
@@ -773,9 +772,20 @@
         }
 
         async function fetchAPI(url, options = {}) {
-            const jwt = getJWT();
-            if (jwt) options.headers = { ...options.headers, 'Authorization': `Bearer ${jwt}` };
-            const res = await fetch(url, options);
+            // ✅ FIXED: Use cookie-based authentication instead of Bearer token
+            const defaultOptions = {
+                credentials: 'include',  // ✅ Send cookies automatically
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+
+            const res = await fetch(url, {
+                ...defaultOptions,
+                ...options,
+                headers: { ...defaultOptions.headers, ...options.headers }
+            });
+
             return { ok: res.ok, data: await res.json() };
         }
 
