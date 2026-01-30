@@ -23,8 +23,8 @@ window.APP_CONFIG = {
             return 'http://localhost:3000';
         }
 
-        // 3. PRODUCTION: Railway backend (Updated 2026-01-31)
-        return 'https://xqhrh218.up.railway.app';
+        // 3. PRODUCTION: Railway backend - CORRECT WORKING URL
+        return 'https://vigyan-production.up.railway.app';
     })(),
 
     // Feature flags
