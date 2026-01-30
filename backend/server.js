@@ -219,6 +219,13 @@ app.get('/api/config', (req, res) => {
   });
 });
 
+// ✅ CRITICAL FIX: Mount auth routes FIRST to avoid middleware blocking login
+// Admin auth routes MUST be mounted before other /api/admin routes
+// Otherwise, verifyAdminAuth middleware from questionRoutes/adminRoutes blocks login
+console.log('🔵 Mounting Admin Auth routes FIRST...');
+app.use('/api/admin/auth', adminAuthRoutes);
+console.log('✅ Admin auth routes mounted - /api/admin/auth/* (NO AUTH MIDDLEWARE)');
+
 // Admin API routes (OLD structure)
 console.log('🔵 Setting up Admin API routes...');
 app.use('/api/admin', questionRoutes);
@@ -255,8 +262,7 @@ console.log('✅ PDF AI routes mounted at /api/admin/pdf-ai/*');
 console.log('🔵 Mounting API routes...');
 app.use('/api', authRoutes);
 console.log('✅ Auth routes mounted - /api/verify-user-full');
-app.use('/api/admin/auth', adminAuthRoutes);
-console.log('✅ Admin auth routes mounted - /api/admin/auth/*');
+// ✅ Admin auth routes already mounted above (line ~226) - removed duplicate
 app.use('/api/payment', paymentRoutes);
 console.log('✅ Payment routes mounted - /api/payment/*');
 app.use('/api/exam', examRoutes);
