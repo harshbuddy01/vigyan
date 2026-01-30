@@ -12,7 +12,7 @@ window.APP_CONFIG = {
     // Production backend moved from Hostinger to Railway
     API_BASE_URL: (() => {
         const hostname = window.location.hostname;
-        
+
         // 1. Check for server-injected environment variable first
         if (window.__ENV__ && window.__ENV__.API_URL) {
             return window.__ENV__.API_URL;
