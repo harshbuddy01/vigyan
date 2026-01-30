@@ -199,7 +199,8 @@
                 </div>
                 <div class="input-group">
                     <label>Roll Number</label>
-                    <input type="text" id="tokenInput" placeholder="12345678" maxlength="8">
+                    <input type="text" id="tokenInput" placeholder="12345678" maxlength="8" pattern="[0-9]{8}"
+                        inputmode="numeric" title="Enter your 8-digit roll number">
                 </div>
                 <button class="btn" id="loginBtn" onclick="attemptLogin()">
                     <span id="btnText">Enter Exam Hall</span>
@@ -221,8 +222,17 @@
 
             errorDiv.style.display = 'none';
 
-            if (!email || !token) {
-                showError("Both Email and Roll Number are required.");
+            // ✅ FIX #1: Email validation with regex
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!email || !emailRegex.test(email)) {
+                showError("❌ Please enter a valid email address (e.g., student@example.com)");
+                return;
+            }
+
+            // ✅ FIX #2: Roll number validation - must be 8 numeric digits
+            const tokenRegex = /^[0-9]{8}$/;
+            if (!tokenRegex.test(token)) {
+                showError("❌ Roll number must be exactly 8 numeric digits");
                 return;
             }
 
@@ -233,9 +243,12 @@
             try {
                 console.log('🚀 Sending login request to:', `${API_BASE_URL}/api/exam/start`);
 
+                // ✅ FIX #3: Add 15-second timeout
                 const response = await axios.post(`${API_BASE_URL}/api/exam/start`, {
                     rollNumber: token,
                     email: email
+                }, {
+                    timeout: 15000 // 15 seconds
                 });
 
                 console.log('✅ Login response:', response.data);
@@ -282,16 +295,19 @@
                 spinner.style.display = 'none';
                 btnText.style.display = 'block';
 
+                // ✅ FIX #3: Better error message classification
                 let msg = "Server Error. Please try again.";
 
-                if (error.response) {
+                if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+                    msg = "⏱️ Connection timeout. Please check your internet and try again.";
+                } else if (error.code === 'ERR_NETWORK') {
+                    msg = "🌐 Cannot connect to server. Please check your internet connection.";
+                } else if (error.response) {
                     if (error.response.status === 404) {
-                        msg = "Invalid credentials. Please check your email and roll number.";
+                        msg = "❌ Invalid credentials. Please check your email and roll number.";
                     } else if (error.response.data?.message) {
                         msg = error.response.data.message;
                     }
-                } else if (error.request) {
-                    msg = "Cannot connect to server. Please check your internet connection.";
                 }
 
                 showError(msg);

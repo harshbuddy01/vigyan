@@ -19,8 +19,12 @@ import {
   deleteQuestion,
   getAvailableTests
 } from '../controllers/adminController.js';
+import { verifyAdminAuth } from '../middlewares/adminAuth.js';
 
 const router = express.Router();
+
+// ✅ SECURITY FIX: Protect ALL admin routes
+router.use(verifyAdminAuth);
 
 // ========== DASHBOARD ENDPOINTS ==========
 router.get('/stats', getDashboardStats);

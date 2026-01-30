@@ -2,20 +2,25 @@
 // 🔒 SECURED EXAM ROUTES WITH AUTHENTICATION
 
 import express from 'express';
-import { 
-  startTest, 
-  submitExam, 
-  getQuestions, 
+import {
+  startTest,
+  submitExam,
+  getQuestions,
   getStudentResults,
   getUserInfo,
   listScheduledTests
 } from '../controllers/examController.js';
 
-import { 
-  verifyAuth, 
+import {
+  verifyAuth,
   verifyTestAccess,
   requirePurchase
 } from '../middlewares/auth.js';
+
+import {
+  validateEmail,
+  validateRollNumber
+} from '../middlewares/validation.js';
 
 const router = express.Router();
 
@@ -26,9 +31,9 @@ router.get('/list', listScheduledTests);
 // Used by frontend to fetch user's purchased tests
 router.post('/user-info', verifyAuth, getUserInfo);
 
-// ✅ PROTECTED: Start exam / Login (verifies credentials, returns JWT)
+// ✅ PROTECTED + VALIDATED: Start exam / Login (verifies credentials, returns JWT)
 // This is the "login" endpoint - validates email + roll number
-router.post('/start', startTest);
+router.post('/start', validateEmail, validateRollNumber, startTest);
 
 // 🔒 PROTECTED: Get questions (requires auth + test purchase)
 // CRITICAL: This was completely open before!

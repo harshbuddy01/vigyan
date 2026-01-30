@@ -71,8 +71,15 @@ const checkDatabaseConnection = async () => {
 };
 
 // 1. GET API KEY
+// ✅ SECURITY FIX: Only expose PUBLIC key ID, never secret
 export const getApiKey = (req, res) => {
-  res.status(200).json({ key: process.env.RAZORPAY_API_KEY });
+  // Only return the public key ID
+  // The secret key should NEVER be exposed to frontend
+  const keyId = process.env.RAZORPAY_KEY_ID || process.env.RAZORPAY_API_KEY;
+
+  res.status(200).json({
+    key: keyId  // Frontend expects 'key' property
+  });
 };
 
 // 2. CHECKOUT - 🔧 ENHANCED ERROR LOGGING
@@ -227,16 +234,23 @@ export const paymentVerification = async (req, res) => {
       });
     }
 
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, email, testId, amount } = req.body;
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, email, testId, amount, fullName } = req.body;
 
     console.log(`🔹 Email: ${email}`);
     console.log(`🔹 TestId: ${testId}`);
     console.log(`🔹 Amount: ${amount}`);
+    console.log(`🔹 FullName: ${fullName}`);
 
     // Validate required fields
     if (!email || typeof email !== 'string' || !email.includes('@')) {
       console.log("❌ Invalid or missing email!");
       return res.status(400).json({ success: false, message: "Valid email is required" });
+    }
+
+    // ✅ NEW: Validate fullName
+    if (!fullName || typeof fullName !== 'string' || fullName.trim().length < 2 || fullName.trim().length > 50) {
+      console.log("❌ Invalid or missing fullName!");
+      return res.status(400).json({ success: false, message: "Valid full name is required (2-50 characters)" });
     }
 
     if (!testId || typeof testId !== 'string') {
@@ -412,12 +426,12 @@ export const paymentVerification = async (req, res) => {
           {
             email: normalizedEmail,
             rollNumber: rollNumber,
-            fullName: extractFirstName(normalizedEmail),
+            fullName: fullName.trim(), // ✅ USE PROVIDED NAME
             lastLoginAt: new Date()
           },
           { upsert: true, new: true, session }
         );
-        console.log("✅ Dashboard Student record synced");
+        console.log("✅ Dashboard Student record synced with fullName:", fullName.trim());
       } catch (syncError) {
         console.error("❌ Error syncing Dashboard Student record:", syncError.message);
       }
@@ -447,7 +461,6 @@ export const paymentVerification = async (req, res) => {
 
     if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
       try {
-        const firstName = extractFirstName(normalizedEmail);
         const testSeriesName = testId.toUpperCase();
 
         const emailHtml = `
@@ -481,10 +494,10 @@ export const paymentVerification = async (req, res) => {
                     <!-- Content -->
                     <tr>
                         <td style="padding: 0 40px 30px;">
-                            <h2 style="margin: 0 0 20px 0; color: #1f2937; font-size: 22px; font-weight: 600; text-align: center;">Registration Confirmed!</h2>
+                            <h2 style="margin: 0 0 20px 0; color: #1f2937; font-size: 22px; font-weight: 600; text-align: center;">Enrollment Confirmed!</h2>
                             
-                            <p style="margin: 0 0 8px 0; color: #6b7280; font-size: 15px; text-align: center;">Hello <strong style="color: #1f2937;">${firstName}</strong>,</p>
-                            <p style="margin: 0 0 30px 0; color: #6b7280; font-size: 14px; text-align: center;">You're enrolled in <strong style="color: #2563eb;">${testSeriesName} Test Series</strong></p>
+                            <p style="margin: 0 0 8px 0; color: #6b7280; font-size: 15px; text-align: center;">Hello <strong style="color: #1f2937;">${fullName.trim()}</strong>,</p>
+                            <p style="margin: 0 0 20px 0; color: #6b7280; font-size: 14px; text-align: center;"><strong style="color: #2563eb;">${fullName.trim()}</strong> has successfully enrolled in the <strong style="color: #2563eb;">${testSeriesName} Test Series</strong>! 🎉</p>
 
                             <!-- Roll Number Box -->
                             <table width="100%" cellpadding="0" cellspacing="0" style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; margin-bottom: 30px;">
@@ -556,7 +569,7 @@ export const paymentVerification = async (req, res) => {
 
     // 🔐 GENERATE JWT TOKEN FOR AUTHENTICATION
     console.log("🔐 Generating JWT authentication token...");
-    
+
     const authToken = generateAuthToken(
       normalizedEmail,
       rollNumber,

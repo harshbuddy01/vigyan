@@ -2,8 +2,13 @@ import express from 'express';
 // DISABLED FOR MONGODB: import { pool } from '../config/mysql.js';
 import QuestionModel from '../schemas/QuestionSchema.js';
 import { QuestionService } from '../services/QuestionService.js';
+import { verifyAdminAuth } from '../middlewares/adminAuth.js';
 
 const router = express.Router();
+
+// ✅ SECURITY FIX: Protect ALL admin question routes
+// Apply authentication middleware to all routes in this file
+router.use(verifyAdminAuth);
 
 // Initialize OOP service
 const questionService = new QuestionService();
@@ -38,7 +43,7 @@ router.post('/questions', async (req, res) => {
     try {
         console.log('📥 [ADMIN] Receiving new question...');
         console.log('📦 Payload:', JSON.stringify(req.body, null, 2));
-        
+
         const {
             testId,
             examType,
@@ -54,7 +59,7 @@ router.post('/questions', async (req, res) => {
             topic,
             explanation
         } = req.body;
-        
+
         // ===== VALIDATION =====
         if (!testId || !examType || !year) {
             return res.status(400).json({
@@ -62,28 +67,28 @@ router.post('/questions', async (req, res) => {
                 error: 'Missing required fields: testId, examType, year'
             });
         }
-        
+
         if (!questionNumber || !questionText || !section) {
             return res.status(400).json({
                 success: false,
                 error: 'Missing required fields: questionNumber, questionText, section'
             });
         }
-        
+
         if (!Array.isArray(options) || options.length !== 4) {
             return res.status(400).json({
                 success: false,
                 error: 'Options must be an array of exactly 4 items'
             });
         }
-        
+
         if (!correctAnswer || !['A', 'B', 'C', 'D'].includes(correctAnswer)) {
             return res.status(400).json({
                 success: false,
                 error: 'correctAnswer must be A, B, C, or D'
             });
         }
-        
+
         // Validate exam type
         if (!['IISER', 'ISI', 'NEST'].includes(examType)) {
             return res.status(400).json({
@@ -91,7 +96,7 @@ router.post('/questions', async (req, res) => {
                 error: 'examType must be IISER, ISI, or NEST'
             });
         }
-        
+
         // For ISI, paperType is required
         if (examType === 'ISI' && !paperType) {
             return res.status(400).json({
@@ -99,21 +104,21 @@ router.post('/questions', async (req, res) => {
                 error: 'paperType (A or B) is required for ISI exams'
             });
         }
-        
+
         // Check if question number already exists for this test+section
         const existingQuestion = await QuestionModel.findOne({
             testId: testId,
             questionNumber: questionNumber,
             section: section
         });
-        
+
         if (existingQuestion) {
             return res.status(400).json({
                 success: false,
                 error: `Question number ${questionNumber} already exists for ${testId} - ${section}. Please use a different number or update the existing question.`
             });
         }
-        
+
         // ===== INSERT QUESTION INTO DATABASE =====
         const newQuestion = new QuestionModel({
             testId,
@@ -122,14 +127,14 @@ router.post('/questions', async (req, res) => {
             correctAnswer,
             section: section
         });
-        
+
         const savedQuestion = await newQuestion.save();
-        
+
         console.log(`✅ [ADMIN] Question added with ID: ${savedQuestion._id}`);
         console.log(`📊 Test ID: ${testId}`);
         console.log(`📝 Question Number: ${questionNumber}`);
         console.log(`📚 Subject: ${section}`);
-        
+
         // Return success response
         res.status(201).json({
             success: true,
@@ -147,7 +152,7 @@ router.post('/questions', async (req, res) => {
                 topic
             }
         });
-        
+
     } catch (error) {
         console.error('❌ [ADMIN] Error adding question:', error);
         res.status(500).json({
@@ -172,21 +177,21 @@ router.post('/questions', async (req, res) => {
 router.get('/exam/questions', async (req, res) => {
     try {
         const { testId } = req.query;
-        
+
         console.log(`🎓 [STUDENT] Fetching questions for testId: ${testId}`);
-        
+
         if (!testId) {
             return res.status(400).json({
                 success: false,
                 error: 'testId parameter is required'
             });
         }
-        
+
         // Fetch all questions for this test, sorted by question number
         const questions = await QuestionModel.find({
             testId: testId
         }).sort({ questionNumber: 1 });
-        
+
         if (questions.length === 0) {
             console.log(`⚠️ [STUDENT] No questions found for testId: ${testId}`);
             return res.status(404).json({
@@ -194,7 +199,7 @@ router.get('/exam/questions', async (req, res) => {
                 error: `No questions found for test: ${testId}`
             });
         }
-        
+
         // Parse options JSON for each question
         const parsedQuestions = questions.map(q => {
             let options = [];
@@ -204,7 +209,7 @@ router.get('/exam/questions', async (req, res) => {
                 console.error(`⚠️ Failed to parse options for question ${q._id}:`, e);
                 options = [];
             }
-            
+
             return {
                 _id: q._id,
                 testId: q.testId,
@@ -219,16 +224,16 @@ router.get('/exam/questions', async (req, res) => {
                 optionD: options[3] || ''
             };
         });
-        
+
         console.log(`✅ [STUDENT] Returning ${parsedQuestions.length} questions for ${testId}`);
-        
+
         res.json({
             success: true,
             testId: testId,
             count: parsedQuestions.length,
             questions: parsedQuestions
         });
-        
+
     } catch (error) {
         console.error('❌ [STUDENT] Error fetching questions:', error);
         res.status(500).json({
@@ -247,13 +252,13 @@ router.get('/exam/questions', async (req, res) => {
 router.get('/questions', async (req, res) => {
     try {
         console.log('🔍 [QUESTIONS] Fetching questions from database...');
-        
+
         const section = req.query.section || '';
         const difficulty = req.query.difficulty || '';
         const search = req.query.search || '';
-        
+
         let filter = {};
-        
+
         if (section) {
             filter.section = section;
         }
@@ -266,16 +271,16 @@ router.get('/questions', async (req, res) => {
                 { testId: { $regex: search, $options: 'i' } }
             ];
         }
-        
+
         const questions = await QuestionModel.find(filter)
             .sort({ _id: -1 })
             .limit(100);
-        
+
         console.log(`📊 [QUESTIONS] Found ${questions.length} questions`);
-        
+
         const formattedQuestions = questions.map((q) => {
             let options = [];
-            
+
             try {
                 if (q.options) {
                     if (typeof q.options === 'string') {
@@ -288,7 +293,7 @@ router.get('/questions', async (req, res) => {
                 console.error(`❌ Question ${q._id}: Failed to parse options:`, parseError.message);
                 options = [];
             }
-            
+
             return {
                 id: q._id,
                 section: q.section || 'Physics',
@@ -302,10 +307,10 @@ router.get('/questions', async (req, res) => {
                 testId: q.testId || 'UNKNOWN'
             };
         });
-        
+
         console.log(`✅ [QUESTIONS] Returning ${formattedQuestions.length} questions`);
         res.json({ questions: formattedQuestions });
-        
+
     } catch (error) {
         console.error('❌ [QUESTIONS] Error fetching questions:', error);
         res.status(500).json({
@@ -320,9 +325,9 @@ router.get('/questions', async (req, res) => {
 router.put('/questions/:id', async (req, res) => {
     try {
         console.log(`✏️ [QUESTIONS] Updating question ${req.params.id}`);
-        
+
         const { questionText, options, correctAnswer, section, marks } = req.body;
-        
+
         const updatedQuestion = await QuestionModel.findByIdAndUpdate(
             req.params.id,
             {
@@ -334,26 +339,26 @@ router.put('/questions/:id', async (req, res) => {
             },
             { new: true }
         );
-        
+
         if (!updatedQuestion) {
             return res.status(404).json({
                 success: false,
                 error: 'Question not found'
             });
         }
-        
+
         console.log(`✅ [QUESTIONS] Question ${req.params.id} updated`);
-        
+
         res.json({
             success: true,
             question: updatedQuestion
         });
-        
+
     } catch (error) {
         console.error(`❌ [QUESTIONS] Error updating question ${req.params.id}:`, error);
-        res.status(500).json({ 
+        res.status(500).json({
             success: false,
-            error: error.message 
+            error: error.message
         });
     }
 });
@@ -362,28 +367,28 @@ router.put('/questions/:id', async (req, res) => {
 router.delete('/questions/:id', async (req, res) => {
     try {
         console.log(`🗑️ [QUESTIONS] Deleting question ${req.params.id}`);
-        
+
         const deletedQuestion = await QuestionModel.findByIdAndDelete(req.params.id);
-        
+
         if (!deletedQuestion) {
             return res.status(404).json({
                 success: false,
                 error: 'Question not found'
             });
         }
-        
+
         console.log(`✅ [QUESTIONS] Question ${req.params.id} deleted`);
-        
-        res.json({ 
+
+        res.json({
             success: true,
-            message: 'Question deleted successfully' 
+            message: 'Question deleted successfully'
         });
-        
+
     } catch (error) {
         console.error(`❌ [QUESTIONS] Error deleting question ${req.params.id}:`, error);
-        res.status(500).json({ 
+        res.status(500).json({
             success: false,
-            error: error.message 
+            error: error.message
         });
     }
 });
@@ -396,7 +401,7 @@ router.delete('/questions/:id', async (req, res) => {
 router.get('/questions-v2', async (req, res) => {
     try {
         console.log('🆕 [QUESTIONS-OOP] Fetching questions with OOP service...');
-        
+
         const filters = {
             section: req.query.section || req.query.subject,
             difficulty: req.query.difficulty,
@@ -404,12 +409,12 @@ router.get('/questions-v2', async (req, res) => {
             limit: parseInt(req.query.limit) || 100,
             offset: parseInt(req.query.offset) || 0
         };
-        
+
         const result = await questionService.getAllQuestions(filters);
-        
+
         console.log(`✅ [QUESTIONS-OOP] Returning ${result.count} questions`);
         res.json(result);
-        
+
     } catch (error) {
         console.error('❌ [QUESTIONS-OOP] Error:', error);
         res.status(500).json({

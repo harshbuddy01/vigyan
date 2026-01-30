@@ -220,7 +220,9 @@
         }
 
         @keyframes shake {
-            0%, 100% {
+
+            0%,
+            100% {
                 transform: translateX(0);
             }
 
@@ -332,9 +334,18 @@
         console.log('🔐 Admin Login Page Loaded');
         console.log('🌐 API URL:', window.APP_CONFIG.API_BASE_URL);
 
-        // Check if already logged in - FIXED: Redirect to v3
-        if (sessionStorage.getItem('adminAuth') === 'true') {
-            window.location.href = 'admin-dashboard-v3.html'; // ✅ CHANGED FROM v2 TO v3
+        // ✅ SECURITY FIX: Check if already logged in
+        const authData = sessionStorage.getItem('adminAuth');
+        if (authData) {
+            try {
+                const parsed = JSON.parse(authData);
+                if (parsed.authenticated) {
+                    window.location.href = 'admin-dashboard-v3.html';
+                }
+            } catch (e) {
+                // Invalid auth data, clear it
+                sessionStorage.removeItem('adminAuth');
+            }
         }
 
         // Toggle password visibility

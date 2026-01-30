@@ -506,10 +506,27 @@
             pillsContainer.innerHTML = html;
         }
 
-        async function loadScheduledTests() {
+        // ✅ FIX #7: API retry with exponential backoff
+        async function loadScheduledTests(retryCount = 0) {
+            const MAX_RETRIES = 3;
+
             try {
-                console.log('🔄 Loading scheduled tests from backend...');
-                const response = await fetch(`${API_BASE_URL}/api/admin/tests`);
+                console.log(`🔄 Loading scheduled tests (attempt ${retryCount + 1}/${MAX_RETRIES + 1})...`);
+
+                // ✅ Add timeout using AbortController
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
+                const response = await fetch(`${API_BASE_URL}/api/admin/tests`, {
+                    signal: controller.signal
+                });
+
+                clearTimeout(timeoutId);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
                 const data = await response.json();
 
                 allScheduledTests = data.tests || [];
@@ -539,8 +556,27 @@
                     renderCalendar(myTests);
                 }
             } catch (error) {
-                console.error('❌ Error loading tests:', error);
-                showError();
+                console.error(`❌ Error loading tests (attempt ${retryCount + 1}):`, error);
+
+                // ✅ Retry logic
+                if (retryCount < MAX_RETRIES) {
+                    const retryDelay = Math.pow(2, retryCount) * 1000; // Exponential backoff: 1s, 2s, 4s
+                    console.log(`⏳ Retrying in ${retryDelay / 1000}s...`);
+
+                    // Show retry message to user
+                    document.getElementById('calendarContent').innerHTML = `
+                        <div class="loading-spinner">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p style="margin-top: 20px; color: #94a3b8;">Connection failed. Retrying... (${retryCount + 1}/${MAX_RETRIES})</p>
+                        </div>
+                    `;
+
+                    setTimeout(() => {
+                        loadScheduledTests(retryCount + 1);
+                    }, retryDelay);
+                } else {
+                    showError(); // Final failure after all retries
+                }
             }
         }
 
@@ -680,9 +716,33 @@
             });
         }
 
+        // ✅ FIX #8: Improved startTest with validation
         function startTest(testId) {
+            // ✅ Validate testId first
+            if (!testId || testId === 'undefined' || testId === 'null') {
+                alert("❌ Invalid test ID. Please refresh the page and try again.");
+                return;
+            }
+
+            // ✅ Check if user is logged in
+            const userEmail = localStorage.getItem("userEmail");
+            const rollNumber = localStorage.getItem("userRollNumber") || localStorage.getItem("userToken");
+
+            if (!userEmail || !rollNumber) {
+                alert("⚠️ Please login first before starting the exam.");
+                window.location.href = "signinpage.html";
+                return;
+            }
+
+            // ✅ Store test context and clear old progress
             localStorage.setItem('currentTestId', testId);
-            window.location.href = 'instructions.html?test=' + testId;
+            localStorage.removeItem('examProgress'); // Clear any old exam progress
+            localStorage.removeItem('examStartTime');
+
+            console.log('🎯 Starting test:', testId, 'for', userEmail);
+
+            // ✅ Navigate to exam page directly
+            window.location.href = `exam.html?test=${encodeURIComponent(testId)}`;
         }
 
         function showEmptyState() {

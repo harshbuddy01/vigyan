@@ -7,19 +7,18 @@
 
 import express from 'express';
 import bcrypt from 'bcryptjs';
+import { generateAdminToken } from '../middlewares/adminAuth.js';
 
 const router = express.Router();
 
-// Admin credentials from environment or defaults
+// Admin credentials from environment
 const ADMIN_CREDENTIALS = {
     username: process.env.ADMIN_USERNAME || 'admin',
-    // Default password: 'admin123' (hashed with bcrypt)
     passwordHash: process.env.ADMIN_PASSWORD_HASH || '$2a$10$X8h1jBqPqEQxV.6lY7bQz.Yz7e8TwKWVxJvqDkR5YJ0gLZXg1K1LS'
 };
 
 console.log('🔐 Admin Auth routes loaded');
-console.log('👤 Admin username:', ADMIN_CREDENTIALS.username);
-console.log('⚠️  Using default password: admin123 (Change in production!)');
+// ✅ SECURITY FIX: Removed password logging
 
 /**
  * POST /api/admin/auth/login
@@ -63,9 +62,21 @@ router.post('/login', async (req, res) => {
         // Successful login
         console.log('✅ Admin login successful:', username);
 
+        // ✅ SECURITY FIX: Generate JWT token
+        const adminToken = generateAdminToken(username);
+
+        // Set HTTP-only cookie (most secure)
+        res.cookie('admin_token', adminToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 24 * 60 * 60 * 1000 // 24 hours
+        });
+
         return res.status(200).json({
             success: true,
             message: 'Login successful',
+            token: adminToken, // Send token for Authorization header option
             data: {
                 username: username,
                 role: 'admin',
@@ -152,67 +163,12 @@ router.post('/logout', (req, res) => {
     }
 });
 
-/**
- * POST /api/admin/auth/generate-hash
- * Utility endpoint to generate password hash
- * 
- * Usage: 
- * curl -X POST http://localhost:3000/api/admin/auth/generate-hash \
- *   -H "Content-Type: application/json" \
- *   -d '{"password": "your-new-password"}'
- */
-router.post('/generate-hash', async (req, res) => {
-    try {
-        const { password } = req.body;
+// ✅ SECURITY FIX: /generate-hash endpoint removed
+// This was a critical security vulnerability - public password hash generator
+// To generate a new password hash, use bcrypt locally:
+// node -e "const bcrypt = require('bcryptjs'); bcrypt.hash('your-password', 10).then(h => console.log(h));"
 
-        if (!password) {
-            return res.status(400).json({
-                success: false,
-                message: 'Password required'
-            });
-        }
-
-        console.log('🔑 Generating password hash...');
-        const hash = await bcrypt.hash(password, 10);
-
-        console.log('✅ Hash generated successfully');
-
-        return res.status(200).json({
-            success: true,
-            hash: hash,
-            message: 'Add this hash to your .env file as ADMIN_PASSWORD_HASH',
-            instructions: {
-                step1: 'Copy the hash above',
-                step2: 'Add to backend/.env: ADMIN_PASSWORD_HASH=<hash>',
-                step3: 'Restart your backend server',
-                step4: 'Test login with new password'
-            }
-        });
-
-    } catch (error) {
-        console.error('❌ Hash generation error:', error);
-        return res.status(500).json({
-            success: false,
-            message: 'Server error'
-        });
-    }
-});
-
-/**
- * GET /api/admin/auth/test
- * Test endpoint to verify auth routes are working
- */
-router.get('/test', (req, res) => {
-    res.json({
-        success: true,
-        message: 'Admin auth routes are working!',
-        timestamp: new Date().toISOString(),
-        defaultCredentials: {
-            username: 'admin',
-            password: 'admin123',
-            warning: 'Change these in production!'
-        }
-    });
-});
+// ✅ SECURITY FIX: /test endpoint removed
+// This was a CRITICAL security vulnerability - exposed admin credentials publicly
 
 export default router;

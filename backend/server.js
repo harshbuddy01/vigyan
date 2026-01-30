@@ -13,6 +13,9 @@ import cors from 'cors';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { apiLimiter, adminLimiter, loginLimiter, paymentLimiter } from './middlewares/rateLimiter.js';
+import { errorHandler, notFoundHandler } from './middlewares/errorHandler.js';
+import { requestLogger, adminLogger } from './middlewares/logger.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -88,12 +91,33 @@ const validateEnvironmentVariables = () => {
 // Validate env vars before starting
 validateEnvironmentVariables();
 
-// 🔧 CRITICAL FIX #2: SIMPLIFIED CORS Configuration - Allow All Origins for Railway
+// ✅ SECURITY FIX: Restrict CORS origins based on environment
 console.log('🔵 Setting up CORS...');
 
-// 🔥 RAILWAY FIX: Simplified CORS - Allow ALL origins temporarily
 const corsOptions = {
-  origin: true, // ✅ Allow all origins
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+
+    const allowedOrigins = process.env.NODE_ENV === 'production'
+      ? [
+        'https://vigyanprep.com',
+        'https://www.vigyanprep.com',
+        'https://vigyan-production.up.railway.app' // Railway backend can call itself
+      ]
+      : [
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+        '*' // Allow all in development
+      ];
+
+    if (process.env.NODE_ENV !== 'production' || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.warn(`⚠️ CORS blocked request from: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
@@ -103,11 +127,11 @@ const corsOptions = {
   optionsSuccessStatus: 200
 };
 
-// Apply CORS middleware - this automatically handles OPTIONS requests
+// Apply CORS middleware
 app.use(cors(corsOptions));
 
-console.log('✅ CORS configured to allow ALL origins (Railway deployment)');
-console.log('⚠️  Note: This is for testing. Restrict origins in production!');
+console.log('✅ CORS configured');
+console.log(`🌐 Allowed origins: ${process.env.NODE_ENV === 'production' ? 'vigyanprep.com only' : 'development (all origins)'}`);
 console.log('✅ CORS middleware handles all OPTIONS requests automatically');
 
 // 🔧 INJECT ENVIRONMENT VARIABLES INTO HTML FILES - MUST BE FIRST MIDDLEWARE
@@ -151,6 +175,12 @@ console.log('🔵 Setting up body parsers...');
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
+// 🔒 SECURITY FIX: Logging Middleware
+console.log('🔵 Applying logging middleware...');
+app.use(requestLogger);  // Log all requests
+app.use(adminLogger);    // Log admin actions for audit trail
+console.log('✅ Logging active: access.log, admin.log, error.log');
+
 // Razorpay is initialized in config/razorpay.js
 // This prevents circular dependencies
 console.log('✅ Server startup sequence continuing...');
@@ -173,6 +203,10 @@ import resultRoutes from './routes/resultRoutes.js';
 
 // 📄 PDF AI ROUTES - Added Jan 28, 2026
 import pdfAiRoutes from './routes/pdfAiRoutes.js';
+
+// ✅ NEW USER & ANALYTICS ROUTES - Added Jan 30, 2026
+import userRoutes from './routes/userRoutes.js';
+import analyticsRoutes from './routes/analyticsRoutes.js';
 
 // 🔧 CONFIG ENDPOINT - CRITICAL FOR PAYMENT GATEWAY
 app.get('/api/config', (req, res) => {
@@ -229,6 +263,12 @@ app.use('/api/exam', examRoutes);
 console.log('✅ Exam routes mounted - /api/exam/*');
 app.use('/api/news', newsRoutes);
 console.log('✅ News routes mounted - /api/news/*');
+
+// ✅ NEW USER & ANALYTICS ROUTES
+app.use('/api', userRoutes);
+console.log('✅ User routes mounted - /api/profile, /api/check-purchase/*');
+app.use('/api/analytics', analyticsRoutes);
+console.log('✅ Analytics routes mounted - /api/analytics/*');
 
 // Health check
 app.get('/health', (req, res) => {

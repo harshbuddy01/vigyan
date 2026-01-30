@@ -1,13 +1,18 @@
 import express from 'express';
 import { StudentAttempt } from '../models/StudentAttempt.js'; // ✅ FIXED: Named import
+import { verifyAdminAuth } from '../middlewares/adminAuth.js';
 
 const router = express.Router();
+
+// ✅ SECURITY FIX: Protect ALL result routes
+// Apply authentication middleware to all routes in this file
+router.use(verifyAdminAuth);
 
 // ==================== GET ALL RESULTS ====================
 router.get('/', async (req, res) => {
     try {
         const { testId, search, page = 1, limit = 20 } = req.query;
-        
+
         const query = {};
         if (testId) query.test_id = testId;
         if (search) {
@@ -43,11 +48,11 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
     try {
         const result = await StudentAttempt.findById(req.params.id);
-        
+
         if (!result) {
-            return res.status(404).json({ 
-                success: false, 
-                error: 'Result not found' 
+            return res.status(404).json({
+                success: false,
+                error: 'Result not found'
             });
         }
 
@@ -157,11 +162,11 @@ router.get('/stats/top-performers', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     try {
         const result = await StudentAttempt.findByIdAndDelete(req.params.id);
-        
+
         if (!result) {
-            return res.status(404).json({ 
-                success: false, 
-                error: 'Result not found' 
+            return res.status(404).json({
+                success: false,
+                error: 'Result not found'
             });
         }
 

@@ -458,6 +458,51 @@
                 flex-wrap: wrap;
             }
         }
+
+        /* ✅ PERSONALIZED GREETING BANNER */
+        .personalized-greeting {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
+            border-bottom: 2px solid rgba(59, 130, 246, 0.2);
+            padding: 24px;
+            text-align: center;
+            margin-top: 80px;
+            backdrop-filter: blur(10px);
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .greeting-text {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            font-weight: 700;
+            color: #fff;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        .greeting-subtitle {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            color: #94a3b8;
+            margin: 10px 0 0 0;
+        }
+
+        #greetingName {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+        }
     </style>
 </head>
 
@@ -512,6 +557,17 @@
             <div class="bar"></div>
         </div>
     </nav>
+
+    <!-- ✅ NEW: Personalized Greeting Banner -->
+    <div id="personalizedGreeting" class="personalized-greeting" style="display: none;">
+        <div class="greeting-content">
+            <p class="greeting-text">
+                <span id="greetingTime">Good Morning</span>,
+                <span id="greetingName"></span>! 👋
+            </p>
+            <p class="greeting-subtitle">Ready to continue your learning journey?</p>
+        </div>
+    </div>
 
     <section class="hero hero-with-canvas" id="hero">
         <!-- Immersive 3D Science Background -->
@@ -784,6 +840,47 @@
                 "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"
             }
         }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <!-- ✅ Personalized Greeting Script -->
+    <script>
+        const API_BASE_URL = "https://vigyan-production.up.railway.app";
+
+        function getTimeBasedGreeting() {
+            const hour = new Date().getHours();
+            if (hour < 12) return "Good Morning";
+            if (hour < 17) return "Good Afternoon";
+            if (hour < 21) return "Good Evening";
+            return "Good Night";
+        }
+
+        async function displayPersonalizedGreeting() {
+            try {
+                const userEmail = localStorage.getItem("userEmail");
+                if (!userEmail) return;
+
+                const res = await axios.get(`${API_BASE_URL}/api/profile`, {
+                    params: { email: userEmail },
+                    timeout: 3000
+                });
+
+                if (res.data && res.data.success && res.data.fullName) {
+                    document.getElementById('greetingTime').textContent = getTimeBasedGreeting();
+                    document.getElementById('greetingName').textContent = res.data.fullName.toUpperCase();
+                    document.getElementById('personalizedGreeting').style.display = 'block';
+                }
+            } catch (error) {
+                const cachedName = localStorage.getItem("userName");
+                if (cachedName) {
+                    document.getElementById('greetingTime').textContent = getTimeBasedGreeting();
+                    document.getElementById('greetingName').textContent = cachedName.toUpperCase();
+                    document.getElementById('personalizedGreeting').style.display = 'block';
+                }
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', displayPersonalizedGreeting);
     </script>
     <script type="module" src="frontend/js/homepage-canvas.js"></script>
 </body>

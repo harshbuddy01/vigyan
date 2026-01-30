@@ -529,24 +529,52 @@
         let currentSubject = "Physics", currentQIndex = 0;
         let userResponses = {}, questionStatus = {};
         let attemptId = null;
+        let examStartTime = null; // ✅ Track actual start time
         let examEndTime = null;
         let timerInterval;
+        let testSubmitted = false; // ✅ Track if exam was submitted
+        let autoSaveInterval; // ✅ For periodic auto-save
 
-        window.onload = function () {
-            const email = localStorage.getItem("userEmail");
-            const rollNumber = localStorage.getItem("userToken"); // Roll number stored as userToken
+        // ✅ FIX #4: Add error boundary and validation
+        window.onload = async function () {
+            try {
+                const email = localStorage.getItem("userEmail");
+                const rollNumber = localStorage.getItem("userToken");
 
-            if (!email || !rollNumber) {
-                alert("⚠️ Session expired. Please login again.");
-                window.location.href = "signinpage.html";
-                return;
+                // ✅ Validate session data
+                if (!email || !rollNumber) {
+                    alert("⚠️ Session expired. Please login again.");
+                    window.location.href = "signinpage.html";
+                    return;
+                }
+
+                // ✅ Validate email format before using
+                if (!email.includes('@')) {
+                    console.error('Invalid email format in localStorage');
+                    localStorage.clear();
+                    alert("⚠️ Invalid session data. Please login again.");
+                    window.location.href = "signinpage.html";
+                    return;
+                }
+
+                // ✅ Safely access DOM elements
+                const nameEl = document.getElementById("userName");
+                const rollEl = document.getElementById("rollDisplay");
+
+                if (nameEl) nameEl.innerText = email.split('@')[0].toUpperCase();
+                if (rollEl) rollEl.innerText = "Roll: " + rollNumber;
+
+                const testId = new URLSearchParams(window.location.search).get("test") || "iat";
+
+                // ✅ Check for saved progress
+                checkForSavedProgress();
+
+                await startExam(email, rollNumber, testId);
+            } catch (error) {
+                console.error("Fatal error during exam load:", error);
+                alert("⚠️ An unexpected error occurred. Please refresh and try again.");
+                window.location.href = "testfirstpage.html";
             }
-
-            document.getElementById("userName").innerText = email.split('@')[0].toUpperCase();
-            document.getElementById("rollDisplay").innerText = "Roll: " + rollNumber;
-
-            const testId = new URLSearchParams(window.location.search).get("test") || "iat";
-            startExam(email, rollNumber, testId);
         };
 
         async function startExam(email, rollNumber, testId) {
@@ -586,8 +614,15 @@
                         // Hide loading screen
                         document.getElementById('loadingScreen').style.display = 'none';
 
+                        // ✅ FIX #6: Track exam start time
+                        examStartTime = Date.now();
+                        localStorage.setItem('examStartTime', examStartTime);
+
                         // Start timer (3 hours = 180 minutes)
                         startTimer(180);
+
+                        // ✅ FIX #5: Start auto-save
+                        startAutoSave();
 
                         // Load first question
                         loadQuestion();
@@ -784,20 +819,30 @@
                     return userResponses[qKey] || null;
                 });
 
+                // ✅ FIX #6: Calculate actual time taken
+                const actualTimeTaken = examStartTime
+                    ? Math.floor((Date.now() - examStartTime) / 1000)
+                    : 180 * 60; // Fallback to max time
+
                 const res = await axios.post(`${API_BASE_URL}/api/exam/submit`, {
                     email: email,
                     rollNumber: rollNumber,
                     testId: testId,
                     testName: testId.toUpperCase(),
                     userResponses: responsesArray,
-                    timeTaken: 180 * 60, // 3 hours in seconds
-                    startedAt: new Date().toISOString()
+                    timeTaken: actualTimeTaken, // ✅ Actual time, not hardcoded
+                    startedAt: examStartTime ? new Date(examStartTime).toISOString() : new Date().toISOString(),
+                    submittedAt: new Date().toISOString()
                 });
 
                 console.log('✅ Exam submitted:', res.data);
 
                 if (res.data.success) {
+                    testSubmitted = true; // ✅ Mark as submitted
                     clearInterval(timerInterval);
+                    clearInterval(autoSaveInterval); // ✅ Stop auto-save
+                    localStorage.removeItem('examProgress'); // ✅ Clear saved progress
+                    localStorage.removeItem('examStartTime');
                     alert(`✅ Test Submitted Successfully!\n\nCorrect Answers: ${res.data.results.correctAnswers}/${res.data.results.totalQuestions}\nScore: ${res.data.results.score}\nPercentage: ${res.data.results.percentage}%`);
                     window.location.href = "testfirstpage.html";
                 }
@@ -807,29 +852,107 @@
             }
         }
 
+        // ✅ FIX #6: Improved timer with warnings and actual time tracking
         function startTimer(durationMinutes) {
-            let timeLeft = durationMinutes * 60; // Convert to seconds
+            examEndTime = Date.now() + (durationMinutes * 60 * 1000);
+            let fiveMinuteWarningShown = false;
 
             timerInterval = setInterval(() => {
-                timeLeft--;
+                const now = Date.now();
+                const remaining = examEndTime - now;
 
-                const h = Math.floor(timeLeft / 3600).toString().padStart(2, '0');
-                const m = Math.floor((timeLeft % 3600) / 60).toString().padStart(2, '0');
-                const s = (timeLeft % 60).toString().padStart(2, '0');
-                document.getElementById("timerDisplay").innerText = `${h}:${m}:${s}`;
-
-                if (timeLeft <= 0) {
+                if (remaining <= 0) {
                     clearInterval(timerInterval);
                     alert("⏰ Time's up! Auto-submitting your test...");
                     finalSubmit();
+                    return;
+                }
+
+                const h = Math.floor(remaining / (1000 * 60 * 60));
+                const m = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((remaining % (1000 * 60)) / 1000);
+
+                document.getElementById("timerDisplay").innerText =
+                    `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+
+                // ✅ 5-minute warning
+                if (!fiveMinuteWarningShown && remaining <= 5 * 60 * 1000) {
+                    fiveMinuteWarningShown = true;
+                    alert("⚠️ Only 5 minutes remaining!");
                 }
             }, 1000);
         }
 
-        // Prevent accidental page close
+        // ✅ FIX #5: Auto-save functionality
+        function startAutoSave() {
+            // Save every 30 seconds
+            autoSaveInterval = setInterval(() => {
+                saveProgress();
+            }, 30000);
+        }
+
+        function saveProgress() {
+            try {
+                const progressData = {
+                    userResponses,
+                    questionStatus,
+                    currentSubject,
+                    currentQIndex,
+                    examStartTime,
+                    timestamp: Date.now()
+                };
+                localStorage.setItem('examProgress', JSON.stringify(progressData));
+                console.log('✅ Progress auto-saved at', new Date().toLocaleTimeString());
+            } catch (error) {
+                console.error('❌ Failed to auto-save:', error);
+            }
+        }
+
+        function checkForSavedProgress() {
+            try {
+                const saved = localStorage.getItem('examProgress');
+                if (!saved) return;
+
+                const data = JSON.parse(saved);
+                const savedTime = new Date(data.timestamp).toLocaleTimeString();
+
+                const shouldRestore = confirm(
+                    `Found saved exam progress from ${savedTime}.\n\nDo you want to continue where you left off?`
+                );
+
+                if (shouldRestore) {
+                    userResponses = data.userResponses || {};
+                    questionStatus = data.questionStatus || {};
+                    currentSubject = data.currentSubject || "Physics";
+                    currentQIndex = data.currentQIndex || 0;
+                    examStartTime = data.examStartTime;
+                    console.log('✅ Restored saved progress');
+                } else {
+                    localStorage.removeItem('examProgress');
+                }
+            } catch (error) {
+                console.error('❌ Failed to restore progress:', error);
+                localStorage.removeItem('examProgress');
+            }
+        }
+
+        // ✅ FIX #5: Improved beforeunload with auto-save
         window.addEventListener('beforeunload', (e) => {
-            e.preventDefault();
-            e.returnValue = '';
+            // Save current state
+            saveProgress();
+
+            // Show warning only if test not submitted
+            if (!testSubmitted) {
+                e.preventDefault();
+                e.returnValue = 'You have an exam in progress. Are you sure you want to leave?';
+                return e.returnValue;
+            }
+        });
+
+        // ✅ Cleanup intervals on page unload
+        window.addEventListener('unload', () => {
+            if (timerInterval) clearInterval(timerInterval);
+            if (autoSaveInterval) clearInterval(autoSaveInterval);
         });
     </script>
 </body>

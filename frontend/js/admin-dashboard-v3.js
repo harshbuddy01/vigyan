@@ -17,27 +17,27 @@ const DashboardState = {
 // Initialize Dashboard
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('🚀 Initializing Premium Dashboard v3...');
-    
+
     // Set greeting based on time
     setGreeting();
-    
+
     // Load real data
     await loadDashboardData();
-    
+
     // Initialize charts
     initializeCharts();
-    
+
     // Setup navigation
     setupNavigation();
-    
+
     // Setup auto-refresh (every 30 seconds)
     DashboardState.refreshInterval = setInterval(refreshDashboard, 30000);
-    
+
     // Hide loading overlay
     setTimeout(() => {
         document.getElementById('loadingOverlay').style.display = 'none';
     }, 800);
-    
+
     console.log('✅ Dashboard initialized successfully');
 });
 
@@ -45,10 +45,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 function setGreeting() {
     const hour = new Date().getHours();
     let greeting = 'Good Evening';
-    
+
     if (hour < 12) greeting = 'Good Morning';
     else if (hour < 18) greeting = 'Good Afternoon';
-    
+
     const welcomeTitle = document.getElementById('welcomeTitle');
     if (welcomeTitle) {
         welcomeTitle.innerHTML = `${greeting}, Admin! 👋`;
@@ -59,24 +59,31 @@ function setGreeting() {
 async function loadDashboardData() {
     try {
         console.log('📊 Fetching dashboard statistics...');
-        
+
         // Fetch all data in parallel
         const [testsData, studentsData, transactionsData] = await Promise.all([
             fetchTests(),
             fetchStudents(),
             fetchTransactions()
         ]);
-        
+
         // Update stats
         updateStats({
             tests: testsData,
             students: studentsData,
             transactions: transactionsData
         });
-        
+
+        // Update stats
+        updateStats({
+            tests: testsData,
+            students: studentsData,
+            transactions: transactionsData
+        });
+
         // Load recent activity
         await loadRecentActivity();
-        
+
     } catch (error) {
         console.error('❌ Error loading dashboard data:', error);
         showError('Failed to load dashboard data');
@@ -90,11 +97,12 @@ async function fetchTests() {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
-            }
+            },
+            credentials: 'include'  // ✅ SECURITY FIX: Send JWT cookie
         });
-        
+
         if (!response.ok) throw new Error('Failed to fetch tests');
-        
+
         const data = await response.json();
         return data.tests || [];
     } catch (error) {
@@ -110,11 +118,12 @@ async function fetchStudents() {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
-            }
+            },
+            credentials: 'include'  // ✅ SECURITY FIX: Send JWT cookie
         });
-        
+
         if (!response.ok) throw new Error('Failed to fetch students');
-        
+
         const data = await response.json();
         return data.students || [];
     } catch (error) {
@@ -130,11 +139,12 @@ async function fetchTransactions() {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
-            }
+            },
+            credentials: 'include'  // ✅ SECURITY FIX: Send JWT cookie
         });
-        
+
         if (!response.ok) throw new Error('Failed to fetch transactions');
-        
+
         const data = await response.json();
         return data.transactions || [];
     } catch (error) {
@@ -146,17 +156,17 @@ async function fetchTransactions() {
 // Update Statistics
 function updateStats(data) {
     const { tests, students, transactions } = data;
-    
+
     // Total Tests
     const totalTests = tests.length;
     updateStatCard('totalTests', totalTests);
     updateStatCard('testsTrend', calculateTrend(tests, 'createdAt'));
-    
+
     // Total Students
     const totalStudents = students.length;
     updateStatCard('totalStudents', totalStudents.toLocaleString());
     updateStatCard('studentsTrend', calculateTrend(students, 'createdAt'));
-    
+
     // Active Tests (tests scheduled for today)
     const today = new Date().toDateString();
     const activeTests = tests.filter(test => {
@@ -164,7 +174,7 @@ function updateStats(data) {
         return new Date(test.scheduledDate).toDateString() === today;
     }).length;
     updateStatCard('activeTests', activeTests);
-    
+
     // Total Revenue
     const totalRevenue = transactions.reduce((sum, t) => {
         if (t.status === 'completed' || t.status === 'success') {
@@ -174,7 +184,7 @@ function updateStats(data) {
     }, 0);
     updateStatCard('totalRevenue', `₹${formatRevenue(totalRevenue)}`);
     updateStatCard('revenueTrend', calculateRevenueTrend(transactions));
-    
+
     // Store in state
     DashboardState.stats = { totalTests, totalStudents, activeTests, totalRevenue };
 }
@@ -195,19 +205,19 @@ function updateStatCard(id, value) {
 // Calculate Trend (percentage change from last week)
 function calculateTrend(data, dateField) {
     if (!data || data.length === 0) return '0%';
-    
+
     const now = new Date();
     const lastWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    
+
     const recentCount = data.filter(item => {
         const itemDate = new Date(item[dateField]);
         return itemDate >= lastWeek;
     }).length;
-    
+
     const previousCount = data.length - recentCount;
-    
+
     if (previousCount === 0) return '100%';
-    
+
     const percentChange = ((recentCount / previousCount) * 100).toFixed(1);
     return `${percentChange}%`;
 }
@@ -215,27 +225,27 @@ function calculateTrend(data, dateField) {
 // Calculate Revenue Trend
 function calculateRevenueTrend(transactions) {
     if (!transactions || transactions.length === 0) return '0%';
-    
+
     const now = new Date();
     const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    
+
     const lastMonthRevenue = transactions
         .filter(t => {
             const date = new Date(t.createdAt);
             return date >= lastMonth && date < thisMonth && (t.status === 'completed' || t.status === 'success');
         })
         .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
-    
+
     const thisMonthRevenue = transactions
         .filter(t => {
             const date = new Date(t.createdAt);
             return date >= thisMonth && (t.status === 'completed' || t.status === 'success');
         })
         .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
-    
+
     if (lastMonthRevenue === 0) return '100%';
-    
+
     const percentChange = (((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100).toFixed(1);
     return `${percentChange}%`;
 }
@@ -316,7 +326,7 @@ function initializeCharts() {
             }
         });
     }
-    
+
     // Distribution Chart (Doughnut Chart)
     const distributionCtx = document.getElementById('distributionChart');
     if (distributionCtx) {
@@ -367,13 +377,13 @@ function initializeCharts() {
 // Update Chart Data
 function updateChart(period) {
     console.log('📊 Updating chart for period:', period);
-    
+
     // Update active button
     document.querySelectorAll('.time-btn').forEach(btn => {
         btn.classList.remove('active');
     });
     event.target.classList.add('active');
-    
+
     // Update chart data based on period
     // This would fetch new data from API in production
     const chart = DashboardState.charts.performance;
@@ -423,7 +433,7 @@ async function loadRecentActivity() {
             time: '3 hours ago'
         }
     ];
-    
+
     const activityList = document.getElementById('activityList');
     if (activityList) {
         activityList.innerHTML = activities.map(activity => `
@@ -443,11 +453,11 @@ async function loadRecentActivity() {
 // Setup Navigation
 function setupNavigation() {
     const navLinks = document.querySelectorAll('.nav-link');
-    
+
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
-            
+
             const page = link.dataset.page;
             if (page) {
                 navigateTo(page);
@@ -459,18 +469,18 @@ function setupNavigation() {
 // Navigate to Page
 function navigateTo(page) {
     console.log('📍 Navigating to:', page);
-    
+
     // Hide all pages
     document.querySelectorAll('.content-area').forEach(area => {
         area.style.display = 'none';
     });
-    
+
     // Show selected page
     const targetPage = document.getElementById(`${page}-page`);
     if (targetPage) {
         targetPage.style.display = 'block';
     }
-    
+
     // Update active nav link
     document.querySelectorAll('.nav-link').forEach(link => {
         link.classList.remove('active');
@@ -478,11 +488,63 @@ function navigateTo(page) {
             link.classList.add('active');
         }
     });
-    
+
     // Update page title
     const pageTitle = document.getElementById('pageTitle');
     if (pageTitle) {
         pageTitle.textContent = formatPageTitle(page);
+    }
+
+    // ✅ FIX: Call page initialization function to render content
+    callPageInit(page);
+}
+
+// ✅ NEW: Call page-specific initialization function
+function callPageInit(page) {
+    // Map of page names to their init functions
+    const pageInitMap = {
+        'create-test': 'initCreateTest',
+        'test-calendar': 'initTestCalendar',
+        'scheduled-tests': 'initScheduledTests',
+        'past-tests': 'initPastTests',
+        'add-questions': 'initAddQuestions',
+        'view-questions': 'initViewQuestions',
+        'upload-pdf': 'initUploadPdf',
+        'upload-image': 'initUploadImage',
+        'all-students': 'initStudents',
+        'add-student': 'initAddStudent',
+        'transactions': 'initTransactions',
+        'view-results': 'initResults',
+        'performance': 'initPerformance'
+    };
+
+    const initFunctionName = pageInitMap[page];
+
+    if (initFunctionName && typeof window[initFunctionName] === 'function') {
+        console.log(`🚀 Calling ${initFunctionName}()`);
+        try {
+            window[initFunctionName]();
+        } catch (error) {
+            console.error(`❌ Error initializing ${page}:`, error);
+            // Show error message on the page
+            const targetPage = document.getElementById(`${page}-page`);
+            if (targetPage) {
+                targetPage.innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px; color: #ef4444;">
+                        <i class="fas fa-exclamation-circle" style="font-size: 48px; margin-bottom: 16px;"></i>
+                        <h3 style="margin: 0 0 8px 0;">Failed to Load Page</h3>
+                        <p style="margin: 0 0 20px 0; color: #94a3b8;">
+                            An error occurred while loading this page. Please try again.
+                        </p>
+                        <button onclick="navigateTo('${page}')" class="btn-primary">
+                            <i class="fas fa-sync"></i> Retry
+                        </button>
+                    </div>
+                `;
+            }
+        }
+    } else if (page !== 'dashboard') {
+        console.warn(`⚠️ No init function found for page: ${page}`);
     }
 }
 
@@ -528,4 +590,8 @@ window.addEventListener('beforeunload', () => {
     }
 });
 
+// ✅ Export navigateTo for global access (used by HTML onclick handlers)
+window.navigateTo = navigateTo;
+
 console.log('✅ Dashboard v3 script loaded');
+

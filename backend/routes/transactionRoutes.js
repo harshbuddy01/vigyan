@@ -1,8 +1,13 @@
 import express from 'express';
 import { PaymentTransaction } from '../models/PaymentTransaction.js';
 import Student from '../models/Student.js'; // ✅ FIXED: Named import
+import { verifyAdminAuth } from '../middlewares/adminAuth.js';
 
 const router = express.Router();
+
+// ✅ SECURITY FIX: Protect ALL transaction/financial routes
+// Apply authentication middleware to all routes in this file
+router.use(verifyAdminAuth);
 
 // ==================== GET ALL TRANSACTIONS ====================
 router.get('/', async (req, res) => {

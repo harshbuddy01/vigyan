@@ -2,8 +2,13 @@ import express from 'express';
 import Student from '../models/Student.js';
 import { StudentAttempt } from '../models/StudentAttempt.js'; // ✅ FIXED: Named import
 import { PaymentTransaction } from '../models/PaymentTransaction.js'; // ✅ FIXED: Named import
+import { verifyAdminAuth } from '../middlewares/adminAuth.js';
 
 const router = express.Router();
+
+// ✅ SECURITY FIX: Protect ALL student data routes
+// Apply authentication middleware to all routes in this file
+router.use(verifyAdminAuth);
 
 // ==================== GET ALL STUDENTS ====================
 // GET /api/admin/students?search=xyz

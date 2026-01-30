@@ -2,8 +2,12 @@ import express from 'express';
 import Student from '../models/Student.js';
 import { PaymentTransaction } from '../models/PaymentTransaction.js'; // ✅ FIXED: Named import
 import { StudentAttempt } from '../models/StudentAttempt.js'; // ✅ FIXED: Named import
+import { verifyAdminAuth } from '../middlewares/adminAuth.js';
 
 const router = express.Router();
+
+// ✅ SECURITY FIX: Protect ALL admin dashboard routes
+router.use(verifyAdminAuth);
 
 // ==================== DASHBOARD STATS ====================
 router.get('/stats', async (req, res) => {
