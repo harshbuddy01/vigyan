@@ -103,7 +103,7 @@ const corsOptions = {
       ? [
         'https://vigyanprep.com',
         'https://www.vigyanprep.com',
-        'https://vigyan-production.up.railway.app' // Railway backend can call itself
+        'https://xqhrh218.up.railway.app' // ✅ UPDATED: Current Railway backend URL
       ]
       : [
         'http://localhost:3000',
