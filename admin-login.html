@@ -391,6 +391,7 @@
                 // Call backend API for authentication
                 const response = await fetch(`${window.APP_CONFIG.API_BASE_URL}/api/admin/auth/login`, {
                     method: 'POST',
+                    credentials: 'include',  // ✅ CRITICAL: Enable cookies for cross-origin auth
                     headers: {
                         'Content-Type': 'application/json',
                     },
