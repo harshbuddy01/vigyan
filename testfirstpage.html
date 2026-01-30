@@ -441,16 +441,30 @@
 <body>
     <div class="grid-bg"></div>
 
-    <div id="emailModal" class="modal-overlay">
+    <div id="emailModal" class="modal-overlay" role="dialog" aria-labelledby="modal-title" aria-modal="true">
         <div class="modal-content">
-            <h2 class="text-white font-black text-2xl uppercase">Student Identification</h2>
-            <p class="text-gray-400 text-sm mt-2">Enter your email to proceed with payment.</p>
-            <input type="email" id="modalUserEmail" class="modal-input" placeholder="student@example.com">
-            <div id="modalError" class="error-banner hidden"></div>
-            <button id="modalActionBtn" onclick="handleModalSubmit()" class="buy-btn" style="margin-top: 1rem">Proceed
-                to Payment</button>
+            <h2 id="modal-title" class="text-white font-black text-2xl uppercase">Student Identification</h2>
+            <p class="text-gray-400 text-sm mt-2">Enter your details to proceed with payment.</p>
+
+            <!-- ✅ NEW: Name input -->
+            <input type="text" id="modalUserName" class="modal-input" placeholder="Full Name (e.g., Harsh Anand)"
+                autocomplete="name" required aria-label="Full Name" aria-required="true">
+
+            <input type="email" id="modalUserEmail" class="modal-input" placeholder="Email (e.g., student@example.com)"
+                autocomplete="email" required aria-label="Email Address" aria-required="true">
+
+            <div id="modalError" class="error-banner hidden" role="alert" aria-live="polite"></div>
+
+            <button id="modalActionBtn" onclick="handleModalSubmit()" class="buy-btn" style="margin-top: 1rem"
+                aria-label="Proceed to payment">
+                Proceed to Payment
+            </button>
+
             <button onclick="closeEntryModal()"
-                class="text-gray-400 text-xs mt-4 block mx-auto uppercase hover:text-white transition">Cancel</button>
+                class="text-gray-400 text-xs mt-4 block mx-auto uppercase hover:text-white transition"
+                aria-label="Cancel payment">
+                Cancel
+            </button>
         </div>
     </div>
 
@@ -560,6 +574,7 @@
 
         let countdownInterval = null;
         let secondsRemaining = 6;
+        let paymentInProgress = false; // ✅ FIX #15: Prevent double payment
 
         const cardsContainer = document.getElementById('cardsContainer');
         testSeries.forEach(test => {
@@ -590,15 +605,40 @@
             cardsContainer.appendChild(card);
         });
 
-        window.onload = function () {
-            if (window.refreshUserDashboard) window.refreshUserDashboard();
-            const purchased = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
-            if (purchased.length > 0) {
-                document.getElementById('calendarBanner').style.display = 'flex';
+        // ✅ FIX #12: Error boundary on page load
+        window.onload = async function () {
+            try {
+                if (window.refreshUserDashboard) window.refreshUserDashboard();
+
+                let purchased = [];
+                try {
+                    purchased = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
+                } catch (parseError) {
+                    console.error("Corrupted localStorage data:", parseError);
+                    localStorage.removeItem("purchasedTests");
+                    showModalError("⚠️ Session data cleared. Please login again if needed.");
+                }
+
+                if (purchased.length > 0) {
+                    const banner = document.getElementById('calendarBanner');
+                    banner.style.display = 'flex';
+                    // ✅ FIX #19: Smooth animation
+                    banner.style.opacity = '0';
+                    banner.style.transform = 'translateY(-20px)';
+                    setTimeout(() => {
+                        banner.style.transition = 'all 0.5s ease-out';
+                        banner.style.opacity = '1';
+                        banner.style.transform = 'translateY(0)';
+                    }, 100);
+                }
+
+                testSeries.forEach(test => {
+                    if (purchased.includes(test.id)) markAsPurchased(test.id);
+                });
+            } catch (error) {
+                console.error("Critical error during page load:", error);
+                alert("⚠️ An error occurred loading the page. Please refresh.");
             }
-            testSeries.forEach(test => {
-                if (purchased.includes(test.id)) markAsPurchased(test.id);
-            });
         };
 
         function markAsPurchased(testId) {
@@ -608,18 +648,50 @@
                 btn.style.background = "#10b981";
                 btn.onclick = () => {
                     localStorage.setItem("currentTestId", testId);
-                    window.location.href = "instructions.html?test=" + testId;
+                    // ✅ NEW: Redirect to pre-test dashboard first, then to instructions
+                    window.location.href = "pre-test-dashboard.html?test=" + testId;
                 };
             }
         }
 
-        function executePurchase(testId, amount) {
+        // ✅ FIX #22: Check for duplicate purchase before showing modal
+        async function executePurchase(testId, amount) {
+            const userEmail = localStorage.getItem("userEmail");
+            if (userEmail) {
+                try {
+                    const checkRes = await axios.get(
+                        `${API_BASE_URL}/api/check-purchase/${testId}?email=${encodeURIComponent(userEmail)}`
+                    );
+
+                    if (checkRes.data.alreadyPurchased) {
+                        const date = new Date(checkRes.data.purchaseDate).toLocaleDateString();
+                        showModalError(`✅ You already own this test series! (Purchased: ${date})`);
+                        markAsPurchased(testId);
+                        document.getElementById("emailModal").style.display = "flex";
+                        setTimeout(() => {
+                            document.getElementById("emailModal").style.display = "none";
+                        }, 3000);
+                        return;
+                    }
+                } catch (err) {
+                    console.error("Could not verify purchase status:", err);
+                    // Continue anyway - backend will catch duplicates
+                }
+            }
+
             localStorage.setItem("tempTestId", testId);
             localStorage.setItem("tempAmount", amount);
             document.getElementById("emailModal").style.display = "flex";
             document.getElementById("modalError").classList.add("hidden");
+
+            // Pre-fill saved data
             const savedEmail = localStorage.getItem("userEmail");
+            const savedName = localStorage.getItem("userName");
             if (savedEmail) document.getElementById("modalUserEmail").value = savedEmail;
+            if (savedName) document.getElementById("modalUserName").value = savedName;
+
+            // ✅ FIX #20: Focus first input
+            document.getElementById("modalUserName").focus();
         }
 
         function closeEntryModal() {
@@ -668,51 +740,109 @@
             countdownElement.parentElement.innerHTML = '<i class="fas fa-check-circle"></i> Auto-redirect cancelled';
         }
 
+        // ✅ FIX #11: Remove infinite redirect loop
         function closeSuccessModal() {
-            if (countdownInterval) clearInterval(countdownInterval);
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+            }
+
             document.getElementById("successModal").style.display = "none";
             const testId = localStorage.getItem("tempTestId");
+
+            // ✅ Clear temp storage to prevent loops
+            localStorage.removeItem("tempTestId");
+            localStorage.removeItem("tempAmount");
+
             if (testId) markAsPurchased(testId);
             document.getElementById('calendarBanner').style.display = 'flex';
+
             if (window.renderUserPanelDirect) {
                 const email = localStorage.getItem("userEmail");
                 const rollNumber = localStorage.getItem("userRollNumber");
                 const purchasedTests = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
                 window.renderUserPanelDirect({ email, rollNumber, tests: purchasedTests });
             }
-            setTimeout(() => {
-                window.location.href = "testfirstpage.html?t=" + Date.now();
-            }, 500);
+
+            // ✅ FIX: NO REDIRECT - just close modal
         }
 
+        // ✅ FIX #15, #16, #18: Improved validation and double payment prevention
         async function handleModalSubmit() {
-            const emailInput = document.getElementById("modalUserEmail").value.trim().toLowerCase();
-            const errorDiv = document.getElementById("modalError");
-            const btn = document.getElementById("modalActionBtn");
-            errorDiv.classList.add("hidden");
-            if (!emailInput || !emailInput.includes("@")) {
-                showModalError("✖ Please enter a valid email address");
+            // Prevent double submission
+            if (paymentInProgress) {
+                console.warn("Payment already in progress");
                 return;
             }
+
+            const emailInput = document.getElementById("modalUserEmail").value.trim().toLowerCase();
+            const nameInput = document.getElementById("modalUserName").value.trim();
+            const errorDiv = document.getElementById("modalError");
+            const btn = document.getElementById("modalActionBtn");
+
+            errorDiv.classList.add("hidden");
+
+            // ✅ FIX #6: Proper email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailInput || !emailRegex.test(emailInput)) {
+                showModalError("❌ Oops! Please enter a valid email address (e.g., student@example.com)");
+                return;
+            }
+
+            // ✅ FIX #5: Name validation
+            const nameRegex = /^[a-zA-Z\s]{2,50}$/;
+            if (!nameInput || !nameRegex.test(nameInput)) {
+                showModalError("❌ Please enter your full name (letters and spaces only, 2-50 characters)");
+                return;
+            }
+
+            paymentInProgress = true;
+
             localStorage.setItem("userEmail", emailInput);
-            startPayment(emailInput, null, localStorage.getItem("tempTestId"), localStorage.getItem("tempAmount"));
+            localStorage.setItem("userName", nameInput);
+
+            try {
+                await startPayment(
+                    emailInput,
+                    nameInput,
+                    null,
+                    localStorage.getItem("tempTestId"),
+                    localStorage.getItem("tempAmount")
+                );
+            } finally {
+                paymentInProgress = false;
+            }
         }
 
-        async function startPayment(userEmail, studentId, testId, amount) {
+        // ✅ FIX #13, #14, #18: Better error handling
+        async function startPayment(userEmail, fullName, studentId, testId, amount) {
+            // ✅ FIX #13: Check if Razorpay loaded
+            if (typeof Razorpay === "undefined") {
+                showModalError("❌ Payment gateway failed to load. Please disable ad-blockers, check your internet connection, and refresh the page.");
+                const btn = document.getElementById("modalActionBtn");
+                btn.disabled = false;
+                btn.innerHTML = "Proceed to Payment";
+                return;
+            }
+
             const btn = document.getElementById("modalActionBtn");
             btn.disabled = true;
             btn.innerHTML = '<span class="loading-spinner"></span> Creating Order...';
+
             try {
                 const orderRes = await axios.post(`${PAYMENT_API_URL}/api/payment/checkout`, {
                     amount: amount,
                     testId: testId,
                     email: userEmail
                 }, { timeout: 15000 });
+
                 if (!orderRes.data.success || !orderRes.data.orderId) {
                     throw new Error('Failed to create order: ' + (orderRes.data.message || 'Unknown error'));
                 }
+
                 const { orderId, amount: orderAmount, currency, key } = orderRes.data;
                 btn.innerHTML = '<span class="loading-spinner"></span> Opening Razorpay...';
+
                 const options = {
                     key: key,
                     amount: orderAmount,
@@ -731,18 +861,23 @@
                                 razorpay_signature: response.razorpay_signature,
                                 testId: testId,
                                 email: userEmail,
-                                amount: amount
+                                amount: amount,
+                                fullName: fullName  // ✅ SEND NAME TO BACKEND
                             }, { timeout: 15000 });
+
                             if (verifyRes.data.success) {
                                 const rollNumber = verifyRes.data.rollNumber;
                                 localStorage.setItem("userEmail", userEmail);
+                                localStorage.setItem("userName", fullName);  // ✅ SAVE NAME
                                 localStorage.setItem("userRollNumber", rollNumber);
                                 localStorage.setItem("currentTestId", testId);
+
                                 const purchased = JSON.parse(localStorage.getItem("purchasedTests") || "[]");
                                 if (!purchased.includes(testId)) {
                                     purchased.push(testId);
                                 }
                                 localStorage.setItem("purchasedTests", JSON.stringify(purchased));
+
                                 setTimeout(() => {
                                     closeEntryModal();
                                     document.getElementById("finalTokenDisplay").innerText = rollNumber;
@@ -753,11 +888,11 @@
                                 throw new Error(verifyRes.data.message || 'Payment verification failed');
                             }
                         } catch (verifyErr) {
-                            let errorMessage = "✖ Payment verification failed. ";
+                            let errorMessage = "❌ Payment verification failed. ";
                             if (verifyErr.response?.data?.message) {
                                 errorMessage += verifyErr.response.data.message;
                             } else {
-                                errorMessage += "Please contact support with payment ID: " + response.razorpay_payment_id;
+                                errorMessage += "Don't worry! Your payment status is being checked. Please save this payment ID and contact support if needed: " + response.razorpay_payment_id;
                             }
                             showModalError(errorMessage);
                             btn.innerText = "Proceed to Payment";
@@ -771,22 +906,75 @@
                         }
                     }
                 };
+
                 const rzp = new Razorpay(options);
                 rzp.open();
             } catch (error) {
-                let errorMessage = "✖ Payment failed: ";
-                if (error.code === 'ECONNABORTED') {
-                    errorMessage += "Connection timeout. Please check your internet.";
+                console.error("Payment Error:", {
+                    email: userEmail,
+                    testId: testId,
+                    errorCode: error.code,
+                    errorMessage: error.message,
+                    timestamp: new Date().toISOString()
+                });
+
+                let errorMessage = "❌ Payment failed: ";
+
+                // ✅ FIX #14: Better error classification
+                if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+                    errorMessage += "Connection timeout. Please check your internet and try again.";
+                } else if (error.code === 'ERR_NETWORK') {
+                    errorMessage += "Network error. Please check your internet connection.";
+                } else if (error.response?.status === 500) {
+                    errorMessage += "Server error. Our team has been notified. Please try again in a few minutes.";
                 } else if (error.response?.data?.message) {
                     errorMessage += error.response.data.message;
                 } else {
-                    errorMessage += error.message || "Unknown error occurred.";
+                    errorMessage += error.message || "An unexpected error occurred. Please contact support.";
                 }
+
                 showModalError(errorMessage);
-                btn.innerText = "Proceed to Payment";
+
+                // ✅ FIX: Always reset button state
+                btn.innerHTML = "Proceed to Payment";
                 btn.disabled = false;
+
+                // ✅ FIX #21: Log to backend for admin monitoring
+                try {
+                    await axios.post(`${API_BASE_URL}/api/analytics/payment-failed`, {
+                        email: userEmail,
+                        testId: testId,
+                        error: error.message,
+                        errorCode: error.code,
+                        timestamp: new Date().toISOString()
+                    }, { timeout: 3000 });
+                } catch (logError) {
+                    console.error("Failed to log error:", logError);
+                }
             }
         }
+
+        // ✅ FIX #20: ESC key to close modals
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                // Close email modal
+                if (document.getElementById('emailModal').style.display === 'flex') {
+                    closeEntryModal();
+                }
+                // Close success modal (but only if countdown cancelled)
+                if (document.getElementById('successModal').style.display === 'flex' && !countdownInterval) {
+                    closeSuccessModal();
+                }
+            }
+        });
+
+        // ✅ FIX #9: Cleanup intervals on page unload (prevent memory leaks)
+        window.addEventListener('beforeunload', () => {
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+            }
+        });
     </script>
 </body>
 

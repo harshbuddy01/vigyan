@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔒 Vigyan API Tester (Admin Only)</title>
+    <title>🔒 Vigyan Complete API Tester</title>
     <style>
         * {
             margin: 0;
@@ -39,7 +39,6 @@
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
             text-align: center;
             max-width: 400px;
-            width: 90%;
         }
 
         .login-box h2 {
@@ -65,15 +64,10 @@
             border-radius: 8px;
             font-size: 1.1em;
             cursor: pointer;
-            margin-top: 10px;
-        }
-
-        .login-box button:hover {
-            background: #5568d3;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
             background: white;
             border-radius: 15px;
@@ -86,45 +80,115 @@
             display: block;
         }
 
-        .security-warning {
-            background: #fee2e2;
-            border-left: 4px solid #dc2626;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 8px;
-        }
-
-        .security-warning h3 {
-            color: #dc2626;
-            margin-bottom: 10px;
-        }
-
         h1 {
             color: #667eea;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
         }
 
-        .api-tester {
-            background: #f8f9fa;
-            border-radius: 10px;
+        .top-controls {
+            background: #1f2937;
             padding: 20px;
+            border-radius: 10px;
             margin: 20px 0;
-            border: 2px solid #e0e0e0;
+        }
+
+        .top-controls label {
+            color: #10b981;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .top-controls input {
+            width: 100%;
+            padding: 10px;
+            background: #374151;
+            border: 2px solid #4b5563;
+            color: #10b981;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 15px;
+        }
+
+        .test-all-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+
+        .test-all-btn:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+        }
+
+        .section {
+            margin: 30px 0;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            font-size: 1.3em;
+        }
+
+        .test-section-btn {
+            padding: 8px 20px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .test-section-btn:hover {
+            background: #059669;
+        }
+
+        .section-content {
+            padding: 20px;
+            background: #f9fafb;
+        }
+
+        .api-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
         }
 
         .api-header {
             display: flex;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             flex-wrap: wrap;
+            gap: 10px;
         }
 
         .method {
-            padding: 8px 15px;
-            border-radius: 6px;
+            padding: 5px 12px;
+            border-radius: 5px;
             font-weight: bold;
-            margin-right: 10px;
             color: white;
+            font-size: 0.85em;
         }
 
         .method-get {
@@ -146,389 +210,760 @@
         .path {
             font-family: 'Courier New', monospace;
             color: #667eea;
-            font-size: 1.1em;
             flex: 1;
-        }
-
-        .form-group {
-            margin: 15px 0;
-        }
-
-        .form-group label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #555;
-        }
-
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            font-family: 'Courier New', monospace;
             font-size: 0.95em;
         }
 
-        .form-group textarea {
-            min-height: 100px;
-            resize: vertical;
+        .auth-badge {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            background: #fbbf24;
+            color: #92400e;
         }
 
-        .test-button {
+        .auth-admin {
+            background: #dc2626;
+            color: white;
+        }
+
+        .test-btn {
+            padding: 6px 15px;
             background: #10b981;
             color: white;
-            padding: 12px 30px;
             border: none;
-            border-radius: 8px;
-            font-size: 1em;
-            font-weight: bold;
+            border-radius: 5px;
             cursor: pointer;
-            margin-top: 10px;
+            font-size: 0.85em;
         }
 
-        .test-button:hover {
+        .test-btn:hover {
             background: #059669;
         }
 
-        .test-button:disabled {
-            background: #9ca3af;
-            cursor: not-allowed;
-        }
-
-        .response-box {
-            margin-top: 15px;
-            padding: 15px;
+        .response {
+            margin-top: 10px;
+            padding: 10px;
             background: #1f2937;
             color: #10b981;
-            border-radius: 8px;
+            border-radius: 5px;
             font-family: 'Courier New', monospace;
-            max-height: 400px;
+            font-size: 0.85em;
+            max-height: 200px;
             overflow-y: auto;
             display: none;
         }
 
-        .response-box.show {
+        .response.show {
             display: block;
         }
 
-        .response-box pre {
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-
-        .error {
+        .response.error {
             color: #ef4444;
         }
 
-        .section-header {
-            background: #667eea;
-            color: white;
-            padding: 15px 20px;
-            margin: 30px 0 20px 0;
-            border-radius: 8px;
-            font-size: 1.3em;
-        }
-
-        .base-url-input {
+        .status-bar {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
             background: #1f2937;
-            color: #10b981;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 20px 0;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: none;
         }
 
-        .base-url-input input {
-            width: 100%;
-            padding: 10px;
-            background: #374151;
-            border: 2px solid #4b5563;
-            color: #10b981;
-            border-radius: 6px;
-            font-family: 'Courier New', monospace;
+        .status-bar.show {
+            display: block;
         }
     </style>
 </head>
 
 <body>
-    <!-- Security Login Overlay -->
+    <!-- Security Login -->
     <div class="security-overlay" id="securityOverlay">
         <div class="login-box">
             <h2>🔒 Admin Access Required</h2>
-            <p style="color: #666; margin-bottom: 20px;">This API testing tool is for authorized admins only.</p>
-            <input type="password" id="accessPassword" placeholder="Enter admin password" autocomplete="off">
+            <p style="color: #666; margin-bottom: 20px;">Password: vigyan_admin_2026</p>
+            <input type="password" id="accessPassword" placeholder="Enter admin password">
             <button onclick="checkAccess()">Unlock API Tester</button>
-            <p style="color: #999; font-size: 0.85em; margin-top: 15px;">⚠️ Unauthorized access is strictly prohibited
-            </p>
         </div>
     </div>
 
-    <!-- Main Container (hidden until authenticated) -->
+    <!-- Main Container -->
     <div class="container" id="mainContainer">
-        <h1>🚀 Vigyan API Interactive Tester</h1>
-        <p style="color: #666; margin-bottom: 10px;">Test your backend APIs in real-time</p>
+        <h1>🚀 Vigyan Complete API Tester (33 Endpoints)</h1>
         <button onclick="logout()"
-            style="float: right; padding: 8px 15px; background: #dc2626; color: white; border: none; border-radius: 6px; cursor: pointer;">🔓
-            Logout</button>
+            style="float: right; padding: 8px 15px; background: #dc2626; color: white; border: none; border-radius: 6px; cursor: pointer;">Logout</button>
         <div style="clear: both;"></div>
 
-        <!-- Security Warning -->
-        <div class="security-warning">
-            <h3>⚠️ SECURITY NOTICE</h3>
-            <ul style="margin-left: 20px; line-height: 1.8;">
-                <li><strong>This page is SECURE</strong> - Password protected, session-based access</li>
-                <li><strong>Client-side only</strong> - All API calls made from YOUR browser (no server storage)</li>
-                <li><strong>No data stored</strong> - Requests/responses not logged anywhere</li>
-                <li><strong>Your credentials safe</strong> - JWT tokens stay in your browser only</li>
-                <li><strong>Delete after use</strong> - Remove this file from production deployment</li>
-                <li><strong>Use only for testing</strong> - Not for production API calls</li>
-            </ul>
-        </div>
+        <!-- Top Controls -->
+        <div class="top-controls">
+            <label>API Base URL:</label>
+            <input type="text" id="baseURL" value="https://vigyan-production.up.railway.app">
 
-        <!-- Base URL Configuration -->
-        <div class="base-url-input">
-            <label style="color: #10b981; margin-bottom: 10px; display: block; font-weight: bold;">API Base URL:</label>
-            <input type="text" id="baseURL" value="https://vigyan-production.up.railway.app"
-                placeholder="https://your-backend.railway.app">
-        </div>
-
-        <!-- JWT Token Storage -->
-        <div class="form-group">
             <label>🔑 JWT Token (for authenticated endpoints):</label>
-            <input type="text" id="jwtToken" placeholder="Paste your JWT token here (get from login response)">
+            <input type="text" id="jwtToken" placeholder="Paste JWT token from login response">
+
+            <button class="test-all-btn" onclick="testAllAPIs()">🧪 TEST ALL APIS (33 endpoints)</button>
         </div>
 
-        <!-- Authentication APIs -->
-        <div class="section-header">🔐 Authentication APIs</div>
+        <!-- Status Bar -->
+        <div class="status-bar" id="statusBar">Testing...</div>
 
-        <div class="api-tester">
-            <div class="api-header">
-                <span class="method method-post">POST</span>
-                <span class="path">/api/admin/auth/login</span>
+        <!-- 1. AUTHENTICATION APIs -->
+        <div class="section">
+            <div class="section-header">
+                <h2>🔐 Authentication APIs (3)</h2>
+                <button class="test-section-btn" onclick="testSection('auth')">Test Section</button>
             </div>
-            <div class="form-group">
-                <label>Username:</label>
-                <input type="text" id="login_username" value="admin">
+            <div class="section-content">
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-post">POST</span>
+                        <span class="path">/api/admin/auth/login</span>
+                        <button class="test-btn" onclick="testAPI('auth_login')">Test</button>
+                    </div>
+                    <input type="text" id="auth_login_username" placeholder="username" value="admin"
+                        style="width: 48%; padding: 8px; margin: 5px 1% 5px 0; border: 1px solid #ddd; border-radius: 4px;">
+                    <input type="password" id="auth_login_password" placeholder="password"
+                        style="width: 48%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px;">
+                    <div class="response" id="response_auth_login"></div>
+                </div>
+
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-post">POST</span>
+                        <span class="path">/api/admin/auth/logout</span>
+                        <button class="test-btn" onclick="testAPI('auth_logout')">Test</button>
+                    </div>
+                    <div class="response" id="response_auth_logout"></div>
+                </div>
+
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-post">POST</span>
+                        <span class="path">/api/admin/auth/validate-session</span>
+                        <button class="test-btn" onclick="testAPI('auth_validate')">Test</button>
+                    </div>
+                    <div class="response" id="response_auth_validate"></div>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Password:</label>
-                <input type="password" id="login_password" placeholder="Enter admin password">
-            </div>
-            <button class="test-button" onclick="testLogin()">🧪 Test Login</button>
-            <div class="response-box" id="response_login"></div>
         </div>
 
-        <!-- Payment APIs -->
-        <div class="section-header">💳 Payment APIs</div>
-
-        <div class="api-tester">
-            <div class="api-header">
-                <span class="method method-get">GET</span>
-                <span class="path">/api/payment/getkey</span>
+        <!-- 2. EXAM & TEST APIs -->
+        <div class="section">
+            <div class="section-header">
+                <h2>📝 Exam & Test APIs (4)</h2>
+                <button class="test-section-btn" onclick="testSection('exam')">Test Section</button>
             </div>
-            <button class="test-button" onclick="testGetKey()">🧪 Test Get Razorpay Key</button>
-            <div class="response-box" id="response_getkey"></div>
+            <div class="section-content">
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-get">GET</span>
+                        <span class="path">/api/exam/scheduled-tests</span>
+                        <span class="auth-badge auth-admin">Admin</span>
+                        <button class="test-btn" onclick="testAPI('exam_scheduled')">Test</button>
+                    </div>
+                    <div class="response" id="response_exam_scheduled"></div>
+                </div>
+
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-post">POST</span>
+                        <span class="path">/api/exam/getUserInfo</span>
+                        <button class="test-btn" onclick="testAPI('exam_userinfo')">Test</button>
+                    </div>
+                    <input type="text" id="exam_userinfo_email" placeholder="email@example.com"
+                        style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px;">
+                    <div class="response" id="response_exam_userinfo"></div>
+                </div>
+
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-post">POST</span>
+                        <span class="path">/api/exam/start</span>
+                        <button class="test-btn" onclick="testAPI('exam_start')">Test</button>
+                    </div>
+                    <div class="response" id="response_exam_start"></div>
+                </div>
+
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-post">POST</span>
+                        <span class="path">/api/exam/submit</span>
+                        <button class="test-btn" onclick="testAPI('exam_submit')">Test</button>
+                    </div>
+                    <div class="response" id="response_exam_submit"></div>
+                </div>
+            </div>
         </div>
 
-        <!-- User Profile APIs -->
-        <div class="section-header">👤 User Profile APIs (Requires JWT)</div>
-
-        <div class="api-tester">
-            <div class="api-header">
-                <span class="method method-get">GET</span>
-                <span class="path">/api/user/profile</span>
+        <!-- 3. PAYMENT APIs -->
+        <div class="section">
+            <div class="section-header">
+                <h2>💳 Payment APIs (3)</h2>
+                <button class="test-section-btn" onclick="testSection('payment')">Test Section</button>
             </div>
-            <p style="color: #666; margin-bottom: 10px;">⚠️ Requires JWT token</p>
-            <button class="test-button" onclick="testGetProfile()">🧪 Test Get Profile</button>
-            <div class="response-box" id="response_profile"></div>
+            <div class="section-content">
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-get">GET</span>
+                        <span class="path">/api/payment/getkey</span>
+                        <button class="test-btn" onclick="testAPI('payment_getkey')">Test</button>
+                    </div>
+                    <div class="response" id="response_payment_getkey"></div>
+                </div>
+
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-post">POST</span>
+                        <span class="path">/api/payment/checkout</span>
+                        <button class="test-btn" onclick="testAPI('payment_checkout')">Test</button>
+                    </div>
+                    <div class="response" id="response_payment_checkout"></div>
+                </div>
+
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-post">POST</span>
+                        <span class="path">/api/payment/paymentverification</span>
+                        <button class="test-btn" onclick="testAPI('payment_verify')">Test</button>
+                    </div>
+                    <div class="response" id="response_payment_verify"></div>
+                </div>
+            </div>
         </div>
 
-        <!-- News API -->
-        <div class="section-header">📰 News APIs (Public)</div>
-
-        <div class="api-tester">
-            <div class="api-header">
-                <span class="method method-get">GET</span>
-                <span class="path">/api/news</span>
+        <!-- 4. ANALYTICS APIs -->
+        <div class="section">
+            <div class="section-header">
+                <h2>📊 Analytics APIs (2) - ✅ Now Secured</h2>
+                <button class="test-section-btn" onclick="testSection('analytics')">Test Section</button>
             </div>
-            <button class="test-button" onclick="testNews()">🧪 Test Get News</button>
-            <div class="response-box" id="response_news"></div>
+            <div class="section-content">
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-post">POST</span>
+                        <span class="path">/api/analytics/payment-event</span>
+                        <span class="auth-badge">User JWT</span>
+                        <button class="test-btn" onclick="testAPI('analytics_event')">Test</button>
+                    </div>
+                    <div class="response" id="response_analytics_event"></div>
+                </div>
+
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-post">POST</span>
+                        <span class="path">/api/analytics/payment-failed</span>
+                        <span class="auth-badge">User JWT</span>
+                        <button class="test-btn" onclick="testAPI('analytics_failed')">Test</button>
+                    </div>
+                    <div class="response" id="response_analytics_failed"></div>
+                </div>
+            </div>
         </div>
 
-        <!-- Custom API Tester -->
-        <div class="section-header">🔧 Custom API Test</div>
+        <!-- 5. USER PROFILE APIs -->
+        <div class="section">
+            <div class="section-header">
+                <h2>👤 User Profile APIs (2) - ✅ Now Secured</h2>
+                <button class="test-section-btn" onclick="testSection('user')">Test Section</button>
+            </div>
+            <div class="section-content">
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-get">GET</span>
+                        <span class="path">/api/user/profile</span>
+                        <span class="auth-badge">User JWT</span>
+                        <button class="test-btn" onclick="testAPI('user_profile')">Test</button>
+                    </div>
+                    <div class="response" id="response_user_profile"></div>
+                </div>
 
-        <div class="api-tester">
-            <div class="form-group">
-                <label>Method:</label>
-                <select id="custom_method"
-                    style="width: 100%; padding: 10px; border: 2px solid #ddd; border-radius: 6px;">
-                    <option value="GET">GET</option>
-                    <option value="POST">POST</option>
-                    <option value="PUT">PUT</option>
-                    <option value="DELETE">DELETE</option>
-                </select>
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-get">GET</span>
+                        <span class="path">/api/user/check-purchase/:testId</span>
+                        <span class="auth-badge">User JWT</span>
+                        <button class="test-btn" onclick="testAPI('user_check')">Test</button>
+                    </div>
+                    <input type="text" id="user_check_testid" placeholder="testId (e.g., IISER_2025)" value="IISER_2025"
+                        style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px;">
+                    <div class="response" id="response_user_check"></div>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Endpoint Path:</label>
-                <input type="text" id="custom_path" placeholder="/api/endpoint">
+        </div>
+
+        <!-- 6. ADMIN DASHBOARD APIs -->
+        <div class="section">
+            <div class="section-header">
+                <h2>📈 Admin Dashboard APIs (3)</h2>
+                <button class="test-section-btn" onclick="testSection('dashboard')">Test Section</button>
             </div>
-            <div class="form-group">
-                <label>Request Body (JSON):</label>
-                <textarea id="custom_body" placeholder='{"key": "value"}'></textarea>
+            <div class="section-content">
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-get">GET</span>
+                        <span class="path">/api/admin/dashboard/stats</span>
+                        <span class="auth-badge auth-admin">Admin</span>
+                        <button class="test-btn" onclick="testAPI('dashboard_stats')">Test</button>
+                    </div>
+                    <div class="response" id="response_dashboard_stats"></div>
+                </div>
+
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-get">GET</span>
+                        <span class="path">/api/admin/dashboard/performance</span>
+                        <span class="auth-badge admin-admin">Admin</span>
+                        <button class="test-btn" onclick="testAPI('dashboard_performance')">Test</button>
+                    </div>
+                    <div class="response" id="response_dashboard_performance"></div>
+                </div>
+
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-get">GET</span>
+                        <span class="path">/api/admin/dashboard/recent-activity</span>
+                        <span class="auth-badge auth-admin">Admin</span>
+                        <button class="test-btn" onclick="testAPI('dashboard_activity')">Test</button>
+                    </div>
+                    <div class="response" id="response_dashboard_activity"></div>
+                </div>
             </div>
-            <button class="test-button" onclick="testCustom()">🧪 Test Custom API</button>
-            <div class="response-box" id="response_custom"></div>
+        </div>
+
+        <!-- 7. QUESTION MANAGEMENT APIs -->
+        <div class="section">
+            <div class="section-header">
+                <h2>❓ Question Management APIs (4)</h2>
+                <button class="test-section-btn" onclick="testSection('questions')">Test Section</button>
+            </div>
+            <div class="section-content">
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-post">POST</span>
+                        <span class="path">/api/admin/questions</span>
+                        <span class="auth-badge auth-admin">Admin</span>
+                        <button class="test-btn" onclick="testAPI('questions_add')">Test</button>
+                    </div>
+                    <div class="response" id="response_questions_add"></div>
+                </div>
+
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-get">GET</span>
+                        <span class="path">/api/admin/questions?testId=...</span>
+                        <span class="auth-badge auth-admin">Admin</span>
+                        <button class="test-btn" onclick="testAPI('questions_get')">Test</button>
+                    </div>
+                    <input type="text" id="questions_get_testid" placeholder="testId" value="IISER_2025"
+                        style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px;">
+                    <div class="response" id="response_questions_get"></div>
+                </div>
+
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-put">PUT</span>
+                        <span class="path">/api/admin/questions/:id</span>
+                        <span class="auth-badge auth-admin">Admin</span>
+                        <button class="test-btn" onclick="testAPI('questions_update')">Test</button>
+                    </div>
+                    <div class="response" id="response_questions_update"></div>
+                </div>
+
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-delete">DELETE</span>
+                        <span class="path">/api/admin/questions/:id</span>
+                        <span class="auth-badge auth-admin">Admin</span>
+                        <button class="test-btn" onclick="testAPI('questions_delete')">Test</button>
+                    </div>
+                    <div class="response" id="response_questions_delete"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8. PDF PROCESSING APIs -->
+        <div class="section">
+            <div class="section-header">
+                <h2>📄 PDF Processing APIs (6)</h2>
+                <button class="test-section-btn" onclick="testSection('pdf')">Test Section</button>
+            </div>
+            <div class="section-content">
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-post">POST</span>
+                        <span class="path">/api/pdf/upload</span>
+                        <span class="auth-badge auth-admin">Admin</span>
+                        <button class="test-btn" onclick="testAPI('pdf_upload')">Test</button>
+                    </div>
+                    <div class="response" id="response_pdf_upload"></div>
+                </div>
+
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-get">GET</span>
+                        <span class="path">/api/pdf/history</span>
+                        <span class="auth-badge auth-admin">Admin</span>
+                        <button class="test-btn" onclick="testAPI('pdf_history')">Test</button>
+                    </div>
+                    <div class="response" id="response_pdf_history"></div>
+                </div>
+
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-delete">DELETE</span>
+                        <span class="path">/api/pdf/:id</span>
+                        <span class="auth-badge auth-admin">Admin</span>
+                        <button class="test-btn" onclick="testAPI('pdf_delete')">Test</button>
+                    </div>
+                    <div class="response" id="response_pdf_delete"></div>
+                </div>
+
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-post">POST</span>
+                        <span class="path">/api/pdf-ai/extract</span>
+                        <button class="test-btn" onclick="testAPI('pdfai_extract')">Test</button>
+                    </div>
+                    <div class="response" id="response_pdfai_extract"></div>
+                </div>
+
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-post">POST</span>
+                        <span class="path">/api/pdf-ai/convert-questions</span>
+                        <button class="test-btn" onclick="testAPI('pdfai_convert')">Test</button>
+                    </div>
+                    <div class="response" id="response_pdfai_convert"></div>
+                </div>
+
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-post">POST</span>
+                        <span class="path">/api/pdf-ai/full-process</span>
+                        <button class="test-btn" onclick="testAPI('pdfai_full')">Test</button>
+                    </div>
+                    <div class="response" id="response_pdfai_full"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 9. RESULTS APIs -->
+        <div class="section">
+            <div class="section-header">
+                <h2>📊 Results APIs (5)</h2>
+                <button class="test-section-btn" onclick="testSection('results')">Test Section</button>
+            </div>
+            <div class="section-content">
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-get">GET</span>
+                        <span class="path">/api/admin/results</span>
+                        <span class="auth-badge auth-admin">Admin</span>
+                        <button class="test-btn" onclick="testAPI('results_all')">Test</button>
+                    </div>
+                    <div class="response" id="response_results_all"></div>
+                </div>
+
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-get">GET</span>
+                        <span class="path">/api/admin/results/:id</span>
+                        <span class="auth-badge auth-admin">Admin</span>
+                        <button class="test-btn" onclick="testAPI('results_single')">Test</button>
+                    </div>
+                    <div class="response" id="response_results_single"></div>
+                </div>
+
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-get">GET</span>
+                        <span class="path">/api/admin/results/stats/overview</span>
+                        <span class="auth-badge auth-admin">Admin</span>
+                        <button class="test-btn" onclick="testAPI('results_stats')">Test</button>
+                    </div>
+                    <div class="response" id="response_results_stats"></div>
+                </div>
+
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-get">GET</span>
+                        <span class="path">/api/admin/results/stats/distribution</span>
+                        <span class="auth-badge auth-admin">Admin</span>
+                        <button class="test-btn" onclick="testAPI('results_distribution')">Test</button>
+                    </div>
+                    <div class="response" id="response_results_distribution"></div>
+                </div>
+
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-get">GET</span>
+                        <span class="path">/api/admin/results/stats/top-performers</span>
+                        <span class="auth-badge auth-admin">Admin</span>
+                        <button class="test-btn" onclick="testAPI('results_top')">Test</button>
+                    </div>
+                    <div class="response" id="response_results_top"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 10. NEWS API -->
+        <div class="section">
+            <div class="section-header">
+                <h2>📰 News APIs (1)</h2>
+                <button class="test-section-btn" onclick="testSection('news')">Test Section</button>
+            </div>
+            <div class="section-content">
+                <div class="api-item">
+                    <div class="api-header">
+                        <span class="method method-get">GET</span>
+                        <span class="path">/api/news</span>
+                        <button class="test-btn" onclick="testAPI('news_get')">Test</button>
+                    </div>
+                    <div class="response" id="response_news_get"></div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // Security: Simple password protection (Session-based)
-        const ADMIN_PASSWORD = 'vigyan_admin_2026'; // Change this!
+        const ADMIN_PASSWORD = 'vigyan_admin_2026';
 
         function checkAccess() {
-            const password = document.getElementById('accessPassword').value;
-            if (password === ADMIN_PASSWORD) {
+            if (document.getElementById('accessPassword').value === ADMIN_PASSWORD) {
                 document.getElementById('securityOverlay').style.display = 'none';
                 document.getElementById('mainContainer').classList.add('unlocked');
-                sessionStorage.setItem('apiTesterAuth', 'true');
+                sessionStorage.setItem('apiAuth', 'true');
             } else {
-                alert('❌ Access Denied! Incorrect password.');
-                document.getElementById('accessPassword').value = '';
+                alert('❌ Access Denied!');
             }
         }
 
         function logout() {
-            sessionStorage.removeItem('apiTesterAuth');
-            document.getElementById('securityOverlay').style.display = 'flex';
-            document.getElementById('mainContainer').classList.remove('unlocked');
-            document.getElementById('accessPassword').value = '';
+            sessionStorage.removeItem('apiAuth');
+            location.reload();
         }
 
-        // Check if already authenticated
-        window.onload = function () {
-            if (sessionStorage.getItem('apiTesterAuth') === 'true') {
+        window.onload = () => {
+            if (sessionStorage.getItem('apiAuth') === 'true') {
                 document.getElementById('securityOverlay').style.display = 'none';
                 document.getElementById('mainContainer').classList.add('unlocked');
             }
         };
 
-        // Helper: Show response
-        function showResponse(elementId, data, isError = false) {
-            const box = document.getElementById(elementId);
-            box.classList.add('show');
-            box.innerHTML = `<pre class="${isError ? 'error' : ''}">${JSON.stringify(data, null, 2)}</pre>`;
+        function getBaseURL() { return document.getElementById('baseURL').value.trim(); }
+        function getJWT() { return document.getElementById('jwtToken').value.trim(); }
+
+        function showStatus(msg) {
+            const bar = document.getElementById('statusBar');
+            bar.textContent = msg;
+            bar.classList.add('show');
+            setTimeout(() => bar.classList.remove('show'), 3000);
         }
 
-        // Helper: Get base URL
-        function getBaseURL() {
-            return document.getElementById('baseURL').value.trim();
+        function showResponse(id, data, isError = false) {
+            const el = document.getElementById('response_' + id);
+            el.classList.add('show');
+            el.classList.toggle('error', isError);
+            el.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
         }
 
-        // Helper: Get JWT token
-        function getJWT() {
-            return document.getElementById('jwtToken').value.trim();
+        async function fetchAPI(url, options = {}) {
+            const jwt = getJWT();
+            if (jwt) options.headers = { ...options.headers, 'Authorization': `Bearer ${jwt}` };
+            const res = await fetch(url, options);
+            return { ok: res.ok, data: await res.json() };
         }
 
-        // API Test Functions
-        async function testLogin() {
-            const username = document.getElementById('login_username').value;
-            const password = document.getElementById('login_password').value;
-
+        // Individual API Tests
+        async function testAPI(id) {
+            const base = getBaseURL();
             try {
-                const response = await fetch(`${getBaseURL()}/api/admin/auth/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                const data = await response.json();
-                showResponse('response_login', data, !response.ok);
-            } catch (error) {
-                showResponse('response_login', { error: error.message }, true);
-            }
-        }
-
-        async function testGetKey() {
-            try {
-                const response = await fetch(`${getBaseURL()}/api/payment/getkey`);
-                const data = await response.json();
-                showResponse('response_getkey', data, !response.ok);
-            } catch (error) {
-                showResponse('response_getkey', { error: error.message }, true);
-            }
-        }
-
-        async function testGetProfile() {
-            const token = getJWT();
-            if (!token) {
-                showResponse('response_profile', { error: 'JWT token required! Get it from login response.' }, true);
-                return;
-            }
-
-            try {
-                const response = await fetch(`${getBaseURL()}/api/user/profile`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-                const data = await response.json();
-                showResponse('response_profile', data, !response.ok);
-            } catch (error) {
-                showResponse('response_profile', { error: error.message }, true);
-            }
-        }
-
-        async function testNews() {
-            try {
-                const response = await fetch(`${getBaseURL()}/api/news`);
-                const data = await response.json();
-                showResponse('response_news', data, !response.ok);
-            } catch (error) {
-                showResponse('response_news', { error: error.message }, true);
-            }
-        }
-
-        async function testCustom() {
-            const method = document.getElementById('custom_method').value;
-            const path = document.getElementById('custom_path').value;
-            const body = document.getElementById('custom_body').value;
-            const token = getJWT();
-
-            const options = {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json'
+                let result;
+                switch (id) {
+                    case 'auth_login':
+                        result = await fetchAPI(`${base}/api/admin/auth/login`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                username: document.getElementById('auth_login_username').value,
+                                password: document.getElementById('auth_login_password').value
+                            })
+                        });
+                        break;
+                    case 'auth_logout':
+                        result = await fetchAPI(`${base}/api/admin/auth/logout`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ username: 'admin' })
+                        });
+                        break;
+                    case 'auth_validate':
+                        result = await fetchAPI(`${base}/api/admin/auth/validate-session`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ username: 'admin' })
+                        });
+                        break;
+                    case 'exam_scheduled':
+                        result = await fetchAPI(`${base}/api/exam/scheduled-tests`);
+                        break;
+                    case 'exam_userinfo':
+                        result = await fetchAPI(`${base}/api/exam/getUserInfo`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email: document.getElementById('exam_userinfo_email').value })
+                        });
+                        break;
+                    case 'exam_start':
+                        result = await fetchAPI(`${base}/api/exam/start`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email: 'test@example.com', rollNumber: '12345' })
+                        });
+                        break;
+                    case 'exam_submit':
+                        result = { ok: false, data: { info: 'Requires full exam data - manual test only' } };
+                        break;
+                    case 'payment_getkey':
+                        result = await fetchAPI(`${base}/api/payment/getkey`);
+                        break;
+                    case 'payment_checkout':
+                        result = await fetchAPI(`${base}/api/payment/checkout`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ amount: 999, testId: 'IISER_2025' })
+                        });
+                        break;
+                    case 'payment_verify':
+                        result = { ok: false, data: { info: 'Requires Razorpay signature - manual test only' } };
+                        break;
+                    case 'analytics_event':
+                        result = await fetchAPI(`${base}/api/analytics/payment-event`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ event: 'initiated', data: { testId: 'TEST' }, timestamp: new Date().toISOString() })
+                        });
+                        break;
+                    case 'analytics_failed':
+                        result = await fetchAPI(`${base}/api/analytics/payment-failed`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ testId: 'TEST', error: 'Test error', timestamp: new Date().toISOString() })
+                        });
+                        break;
+                    case 'user_profile':
+                        result = await fetchAPI(`${base}/api/user/profile`);
+                        break;
+                    case 'user_check':
+                        result = await fetchAPI(`${base}/api/user/check-purchase/${document.getElementById('user_check_testid').value}`);
+                        break;
+                    case 'dashboard_stats':
+                        result = await fetchAPI(`${base}/api/admin/dashboard/stats`);
+                        break;
+                    case 'dashboard_performance':
+                        result = await fetchAPI(`${base}/api/admin/dashboard/performance?period=7d`);
+                        break;
+                    case 'dashboard_activity':
+                        result = await fetchAPI(`${base}/api/admin/dashboard/recent-activity`);
+                        break;
+                    case 'questions_add':
+                        result = { ok: false, data: { info: 'Requires full question data - manual test only' } };
+                        break;
+                    case 'questions_get':
+                        result = await fetchAPI(`${base}/api/admin/questions?testId=${document.getElementById('questions_get_testid').value}`);
+                        break;
+                    case 'questions_update':
+                        result = { ok: false, data: { info: 'Requires question ID - manual test only' } };
+                        break;
+                    case 'questions_delete':
+                        result = { ok: false, data: { info: 'Requires question ID - manual test only' } };
+                        break;
+                    case 'pdf_upload':
+                        result = { ok: false, data: { info: 'Requires file upload - manual test only' } };
+                        break;
+                    case 'pdf_history':
+                        result = await fetchAPI(`${base}/api/pdf/history`);
+                        break;
+                    case 'pdf_delete':
+                        result = { ok: false, data: { info: 'Requires PDF ID - manual test only' } };
+                        break;
+                    case 'pdfai_extract':
+                        result = { ok: false, data: { info: 'Requires PDF file - manual test only' } };
+                        break;
+                    case 'pdfai_convert':
+                        result = { ok: false, data: { info: 'Requires text input - manual test only' } };
+                        break;
+                    case 'pdfai_full':
+                        result = { ok: false, data: { info: 'Requires PDF file - manual test only' } };
+                        break;
+                    case 'results_all':
+                        result = await fetchAPI(`${base}/api/admin/results?page=1&limit=10`);
+                        break;
+                    case 'results_single':
+                        result = { ok: false, data: { info: 'Requires result ID - manual test only' } };
+                        break;
+                    case 'results_stats':
+                        result = await fetchAPI(`${base}/api/admin/results/stats/overview`);
+                        break;
+                    case 'results_distribution':
+                        result = await fetchAPI(`${base}/api/admin/results/stats/distribution`);
+                        break;
+                    case 'results_top':
+                        result = await fetchAPI(`${base}/api/admin/results/stats/top-performers?limit=10`);
+                        break;
+                    case 'news_get':
+                        result = await fetchAPI(`${base}/api/news`);
+                        break;
+                    default:
+                        result = { ok: false, data: { error: 'Unknown API' } };
                 }
+                showResponse(id, result.data, !result.ok);
+            } catch (error) {
+                showResponse(id, { error: error.message }, true);
+            }
+        }
+
+        // Test Section
+        async function testSection(section) {
+            showStatus(`Testing ${section.toUpperCase()} section...`);
+            const apis = {
+                auth: ['auth_login', 'auth_logout', 'auth_validate'],
+                exam: ['exam_scheduled', 'exam_userinfo', 'exam_start', 'exam_submit'],
+                payment: ['payment_getkey', 'payment_checkout', 'payment_verify'],
+                analytics: ['analytics_event', 'analytics_failed'],
+                user: ['user_profile', 'user_check'],
+                dashboard: ['dashboard_stats', 'dashboard_performance', 'dashboard_activity'],
+                questions: ['questions_add', 'questions_get', 'questions_update', 'questions_delete'],
+                pdf: ['pdf_upload', 'pdf_history', 'pdf_delete', 'pdfai_extract', 'pdfai_convert', 'pdfai_full'],
+                results: ['results_all', 'results_single', 'results_stats', 'results_distribution', 'results_top'],
+                news: ['news_get']
             };
 
-            if (token) {
-                options.headers['Authorization'] = `Bearer ${token}`;
+            for (const api of apis[section]) {
+                await testAPI(api);
+                await new Promise(r => setTimeout(r, 500)); // Delay between requests
             }
-
-            if (method !== 'GET' && body) {
-                try {
-                    options.body = body;
-                } catch (e) {
-                    showResponse('response_custom', { error: 'Invalid JSON in body' }, true);
-                    return;
-                }
-            }
-
-            try {
-                const response = await fetch(`${getBaseURL()}${path}`, options);
-                const data = await response.json();
-                showResponse('response_custom', data, !response.ok);
-            } catch (error) {
-                showResponse('response_custom', { error: error.message }, true);
-            }
+            showStatus(`✅ ${section.toUpperCase()} section complete!`);
         }
 
-        // Enter key support for password
-        document.getElementById('accessPassword')?.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                checkAccess();
+        // Test All APIs
+        async function testAllAPIs() {
+            const sections = ['auth', 'exam', 'payment', 'analytics', 'user', 'dashboard', 'questions', 'pdf', 'results', 'news'];
+            showStatus('Testing ALL 33 APIs...');
+            for (const section of sections) {
+                await testSection(section);
             }
+            showStatus('✅ ALL 33 APIS TESTED!');
+        }
+
+        // Enter key for password
+        document.getElementById('accessPassword')?.addEventListener('keypress', e => {
+            if (e.key === 'Enter') checkAccess();
         });
     </script>
 </body>
