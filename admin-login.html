@@ -333,16 +333,16 @@
         console.log('🔐 Admin Login Page Loaded');
         console.log('🌐 API URL:', API_URL);
 
-        // ✅ SECURITY FIX: Check if already logged in
+        // ✅ Check if already logged in
         const authData = sessionStorage.getItem('adminAuth');
         if (authData) {
             try {
                 const parsed = JSON.parse(authData);
-                if (parsed.authenticated) {
+                if (parsed.authenticated && parsed.token) {
+                    console.log('✅ Already authenticated, redirecting...');
                     window.location.href = 'admin-dashboard-v3.html';
                 }
             } catch (e) {
-                // Invalid auth data, clear it
                 sessionStorage.removeItem('adminAuth');
             }
         }
@@ -392,7 +392,6 @@
                 // Call backend API for authentication
                 const response = await fetch(`${API_URL}/api/admin/auth/login`, {
                     method: 'POST',
-                    credentials: 'include',  // ✅ CRITICAL: Enable cookies for cross-origin auth
                     headers: {
                         'Content-Type': 'application/json',
                     },
@@ -407,13 +406,17 @@
                 if (response.ok && data.success) {
                     // Successful login
                     console.log('✅ Login successful');
+                    console.log('🔑 Token received:', data.token ? 'Yes' : 'No');
 
-                    // Store authentication
+                    // ✅ CRITICAL: Store JWT token in sessionStorage
                     sessionStorage.setItem('adminAuth', JSON.stringify({
                         authenticated: true,
                         username: username,
+                        token: data.token,  // JWT token for API requests
                         loginTime: new Date().getTime()
                     }));
+
+                    console.log('✅ Token stored in sessionStorage');
 
                     // Optional: Store in localStorage if "Remember me" is checked
                     if (rememberMe) {
@@ -467,13 +470,6 @@
             if (rememberedUser) {
                 document.getElementById('username').value = rememberedUser;
                 document.getElementById('rememberMe').checked = true;
-            }
-        });
-
-        // Enter key support
-        document.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
             }
         });
     </script>
