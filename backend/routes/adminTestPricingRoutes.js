@@ -1,12 +1,12 @@
 import express from "express";
-import { requireAdminAuth } from "../middlewares/adminAuth.js";
+import { verifyAdminAuth } from "../middlewares/adminAuth.js";
 import { TestSeries } from "../models/TestSeries.js";
 import { PriceHistory } from "../models/PriceHistory.js";
 
 const router = express.Router();
 
 // 🔒 GET /api/admin/tests - List all tests with pricing (ADMIN ONLY)
-router.get("/", requireAdminAuth, async (req, res) => {
+router.get("/", verifyAdminAuth, async (req, res) => {
   try {
     const tests = await TestSeries.find({ isActive: true }, "testId name price description").lean();
     
@@ -28,7 +28,7 @@ router.get("/", requireAdminAuth, async (req, res) => {
 });
 
 // 🔒 PATCH /api/admin/tests/:testId/price - Update price (ADMIN ONLY + AUDIT LOG)
-router.patch("/:testId/price", requireAdminAuth, async (req, res) => {
+router.patch("/:testId/price", verifyAdminAuth, async (req, res) => {
   try {
     const { testId } = req.params;
     const { price } = req.body;
@@ -78,7 +78,7 @@ router.patch("/:testId/price", requireAdminAuth, async (req, res) => {
       testId,
       oldPrice,
       newPrice: price,
-      changedBy: req.admin?.email || req.admin?.id || 'unknown',
+      changedBy: req.admin?.email || req.admin?.username || req.admin?.id || 'unknown',
       changedAt: new Date(),
       ipAddress: req.ip || req.headers['x-forwarded-for'] || 'unknown',
       reason: req.body.reason || 'Admin panel price update'
@@ -89,7 +89,7 @@ router.patch("/:testId/price", requireAdminAuth, async (req, res) => {
       testName: test.name,
       oldPrice: `₹${oldPrice}`,
       newPrice: `₹${price}`,
-      changedBy: req.admin?.email || req.admin?.id,
+      changedBy: req.admin?.username || req.admin?.id,
       ip: req.ip,
       timestamp: new Date().toISOString()
     });
@@ -115,7 +115,7 @@ router.patch("/:testId/price", requireAdminAuth, async (req, res) => {
 });
 
 // 🔒 GET /api/admin/tests/:testId/price-history - View price change audit log (ADMIN ONLY)
-router.get("/:testId/price-history", requireAdminAuth, async (req, res) => {
+router.get("/:testId/price-history", verifyAdminAuth, async (req, res) => {
   try {
     const { testId } = req.params;
     
