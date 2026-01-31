@@ -673,7 +673,7 @@ function navigateTo(page) {
     callPageInit(page);
 }
 
-// Call page-specific initialization function
+// ✅ FIXED: Call page-specific initialization function with retry logic
 function callPageInit(page) {
     const pageInitMap = {
         'create-test': 'initCreateTest',
@@ -692,17 +692,94 @@ function callPageInit(page) {
 
     const initFunctionName = pageInitMap[page];
 
-    if (initFunctionName && typeof window[initFunctionName] === 'function') {
-        console.log(`🚀 Calling ${initFunctionName}()`);
-        try {
-            window[initFunctionName]();
-        } catch (error) {
-            console.error(`❌ Error initializing ${page}:`, error);
-            showErrorNotification(`Failed to load ${formatPageTitle(page)}`);
-        }
-    } else if (page !== 'dashboard') {
-        console.warn(`⚠️ No init function found for page: ${page}`);
+    // Skip dashboard (no init needed)
+    if (page === 'dashboard') return;
+
+    // If no mapping exists, show placeholder
+    if (!initFunctionName) {
+        console.warn(`⚠️ No init function mapped for page: ${page}`);
+        showPagePlaceholder(page);
+        return;
     }
+
+    // Try calling the init function
+    function attemptInit(retryCount = 0) {
+        if (typeof window[initFunctionName] === 'function') {
+            console.log(`🚀 Calling ${initFunctionName}()`);
+            try {
+                window[initFunctionName]();
+            } catch (error) {
+                console.error(`❌ Error initializing ${page}:`, error);
+                showErrorNotification(`Failed to load ${formatPageTitle(page)}`);
+            }
+        } else {
+            // Function not loaded yet, retry up to 3 times
+            if (retryCount < 3) {
+                console.log(`⏳ ${initFunctionName} not ready, retrying... (${retryCount + 1}/3)`);
+                setTimeout(() => attemptInit(retryCount + 1), 200);
+            } else {
+                console.error(`❌ ${initFunctionName} not found after 3 retries`);
+                showPagePlaceholder(page, `Function ${initFunctionName} not loaded`);
+            }
+        }
+    }
+
+    attemptInit();
+}
+
+// ✅ NEW: Show placeholder when page init fails
+function showPagePlaceholder(page, errorMsg = '') {
+    const targetPage = document.getElementById(`${page}-page`);
+    if (!targetPage) return;
+
+    const pageTitle = formatPageTitle(page);
+    targetPage.innerHTML = `
+        <div style="
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            text-align: center;
+            padding: 40px;
+        ">
+            <div style="
+                font-size: 64px;
+                margin-bottom: 20px;
+                opacity: 0.5;
+            ">🚧</div>
+            <h2 style="
+                font-size: 24px;
+                font-weight: 700;
+                color: var(--text-primary);
+                margin-bottom: 12px;
+            ">${pageTitle}</h2>
+            <p style="
+                font-size: 16px;
+                color: var(--text-secondary);
+                max-width: 500px;
+                line-height: 1.6;
+            ">
+                This page is under development or the required script hasn't loaded yet.
+                ${errorMsg ? `<br><small style="color: var(--text-muted); margin-top: 8px; display: block;">${errorMsg}</small>` : ''}
+            </p>
+            <button 
+                onclick="window.location.reload()" 
+                style="
+                    margin-top: 24px;
+                    padding: 12px 24px;
+                    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+                    color: white;
+                    border: none;
+                    border-radius: 10px;
+                    font-weight: 600;
+                    cursor: pointer;
+                "
+            >
+                <i class="fas fa-redo"></i> Reload Page
+            </button>
+        </div>
+    `;
 }
 
 // Format Page Title
