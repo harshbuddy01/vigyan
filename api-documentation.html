@@ -19,7 +19,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             background: white;
             border-radius: 15px;
@@ -46,6 +46,38 @@
 
         .content {
             padding: 30px;
+        }
+
+        .config-section {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+
+        .config-section h3 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .input-group {
+            margin-bottom: 10px;
+        }
+
+        .input-group label {
+            display: block;
+            color: #555;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
         }
 
         .section {
@@ -88,6 +120,8 @@
             font-weight: bold;
             font-size: 0.85em;
             text-transform: uppercase;
+            min-width: 60px;
+            text-align: center;
         }
 
         .method.get {
@@ -112,7 +146,7 @@
 
         .endpoint {
             font-family: 'Courier New', monospace;
-            font-size: 1em;
+            font-size: 0.95em;
             color: #333;
             font-weight: 600;
         }
@@ -123,25 +157,23 @@
             font-size: 0.95em;
         }
 
+        .backend-info {
+            background: #e8f5e9;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            color: #2e7d32;
+            margin-top: 5px;
+        }
+
         .test-section {
             margin-top: 15px;
             padding-top: 15px;
             border-top: 1px dashed #ddd;
         }
 
-        .input-group {
-            margin-bottom: 10px;
-        }
-
-        .input-group label {
-            display: block;
-            color: #555;
-            margin-bottom: 5px;
-            font-size: 0.9em;
-        }
-
-        .input-group input, .input-group select {
-            width: 100%;
+        .test-section .input-group input, 
+        .test-section .input-group select {
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 5px;
@@ -163,6 +195,11 @@
             background: #5568d3;
         }
 
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
         .response-box {
             margin-top: 15px;
             padding: 15px;
@@ -171,13 +208,19 @@
             border-radius: 5px;
             font-family: 'Courier New', monospace;
             font-size: 0.85em;
-            max-height: 300px;
+            max-height: 400px;
             overflow-y: auto;
             display: none;
+            white-space: pre-wrap;
+            word-wrap: break-word;
         }
 
         .response-box.show {
             display: block;
+        }
+
+        .response-box.error {
+            color: #fc8181;
         }
 
         .params {
@@ -188,31 +231,7 @@
         .param-item {
             color: #555;
             margin-left: 20px;
-        }
-
-        .base-url {
-            background: #e3f2fd;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            border-left: 4px solid #2196f3;
-        }
-
-        .base-url strong {
-            color: #1976d2;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 3px;
-            font-size: 0.75em;
-            margin-left: 10px;
-        }
-
-        .badge.auth {
-            background: #ff9800;
-            color: white;
+            margin-top: 3px;
         }
 
         footer {
@@ -221,6 +240,30 @@
             text-align: center;
             padding: 20px;
             font-size: 0.9em;
+        }
+
+        footer a {
+            color: #68d391;
+            text-decoration: none;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .status-badge.auth {
+            background: #ff9800;
+            color: white;
+        }
+
+        .status-badge.public {
+            background: #4caf50;
+            color: white;
         }
 
         @media (max-width: 768px) {
@@ -238,53 +281,79 @@
     <div class="container">
         <header>
             <h1>🔬 Vigyan API Documentation</h1>
-            <p>Complete API Reference for Test Management System</p>
+            <p>Complete API Reference for Test Management Platform</p>
+            <p style="font-size: 0.9em; margin-top: 10px; opacity: 0.8;">MongoDB Backend | Railway Deployment</p>
         </header>
 
         <div class="content">
-            <div class="base-url">
-                <strong>Base URL:</strong> <code>https://yourdomain.com</code> or <code>http://localhost:3000</code>
+            <!-- Configuration Section -->
+            <div class="config-section">
+                <h3>⚙️ API Configuration</h3>
+                <div class="input-group">
+                    <label>Base URL (Update this to your server address):</label>
+                    <input type="text" id="base-url" value="https://vigyan-production.up.railway.app" placeholder="e.g., http://localhost:3000 or https://your-domain.com">
+                </div>
+                <p style="margin-top: 10px; font-size: 0.9em; color: #856404;">
+                    💡 <strong>Tip:</strong> For local testing, use <code>http://localhost:3000</code>. For production, use your Railway URL.
+                </p>
             </div>
 
-            <!-- News API Section -->
+            <!-- Authentication APIs -->
             <div class="section">
-                <h2 class="section-title">📰 News API</h2>
+                <h2 class="section-title">🔐 Authentication APIs</h2>
                 
                 <div class="api-card">
                     <div class="api-header">
-                        <span class="method get">GET</span>
-                        <span class="endpoint">/api/news</span>
+                        <span class="method post">POST</span>
+                        <span class="endpoint">/api/verify-user-full</span>
+                        <span class="status-badge public">Public</span>
                     </div>
                     <div class="description">
-                        Fetch science news articles from NewsAPI. Bypasses CORS restrictions with serverless function.
+                        Verify user credentials and get user information.
                     </div>
+                    <div class="backend-info">📂 Backend: authRoutes.js</div>
                     <div class="params">
-                        <strong>Query Parameters:</strong>
-                        <div class="param-item">• category (default: "science") - News category</div>
-                        <div class="param-item">• language (default: "en") - Language code</div>
-                        <div class="param-item">• pageSize (default: 50) - Number of articles</div>
-                        <div class="param-item">• page (default: 1) - Page number</div>
+                        <strong>Request Body:</strong>
+                        <div class="param-item">• email (string) - User email</div>
+                        <div class="param-item">• phoneNumber (string) - User phone number</div>
+                    </div>
+                </div>
+
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="method post">POST</span>
+                        <span class="endpoint">/api/admin/auth/login</span>
+                        <span class="status-badge public">Public</span>
+                    </div>
+                    <div class="description">
+                        Admin login - Get authentication token for admin access.
+                    </div>
+                    <div class="backend-info">📂 Backend: adminAuthRoutes.js</div>
+                    <div class="params">
+                        <strong>Request Body:</strong>
+                        <div class="param-item">• username (string) - Admin username</div>
+                        <div class="param-item">• password (string) - Admin password</div>
                     </div>
                     <div class="test-section">
-                        <div class="input-group">
-                            <label>Category:</label>
-                            <select id="news-category">
-                                <option value="science">Science</option>
-                                <option value="technology">Technology</option>
-                                <option value="health">Health</option>
-                            </select>
-                        </div>
-                        <div class="input-group">
-                            <label>Page Size:</label>
-                            <input type="number" id="news-pageSize" value="10" min="1" max="100">
-                        </div>
-                        <button class="btn" onclick="testAPI('news')">Test API</button>
-                        <div class="response-box" id="news-response"></div>
+                        <button class="btn" onclick="testAPI('admin-login')">Test Login</button>
+                        <div class="response-box" id="admin-login-response"></div>
                     </div>
+                </div>
+
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint">/api/admin/auth/verify</span>
+                        <span class="status-badge auth">Auth Required</span>
+                    </div>
+                    <div class="description">
+                        Verify admin token validity.
+                    </div>
+                    <div class="backend-info">📂 Backend: adminAuthRoutes.js</div>
                 </div>
             </div>
 
-            <!-- Dashboard API Section -->
+            <!-- Dashboard APIs -->
             <div class="section">
                 <h2 class="section-title">📊 Admin Dashboard APIs</h2>
                 
@@ -292,10 +361,12 @@
                     <div class="api-header">
                         <span class="method get">GET</span>
                         <span class="endpoint">/api/admin/dashboard/stats</span>
+                        <span class="status-badge auth">Auth Required</span>
                     </div>
                     <div class="description">
-                        Get dashboard statistics including active tests, total students, and revenue data.
+                        Get dashboard statistics (active tests, students, revenue).
                     </div>
+                    <div class="backend-info">📂 Backend: adminDashboardRoutes.js</div>
                     <div class="test-section">
                         <button class="btn" onclick="testAPI('dashboard-stats')">Test API</button>
                         <div class="response-box" id="dashboard-stats-response"></div>
@@ -306,14 +377,12 @@
                     <div class="api-header">
                         <span class="method get">GET</span>
                         <span class="endpoint">/api/admin/dashboard/performance</span>
+                        <span class="status-badge auth">Auth Required</span>
                     </div>
                     <div class="description">
                         Get performance data for charts and analytics.
                     </div>
-                    <div class="params">
-                        <strong>Query Parameters:</strong>
-                        <div class="param-item">• period (optional) - Time period (e.g., "7d", "30d")</div>
-                    </div>
+                    <div class="backend-info">📂 Backend: adminDashboardRoutes.js</div>
                     <div class="test-section">
                         <button class="btn" onclick="testAPI('dashboard-performance')">Test API</button>
                         <div class="response-box" id="dashboard-performance-response"></div>
@@ -323,25 +392,13 @@
                 <div class="api-card">
                     <div class="api-header">
                         <span class="method get">GET</span>
-                        <span class="endpoint">/api/admin/dashboard/upcoming-tests</span>
+                        <span class="endpoint">/api/admin/dashboard/activity</span>
+                        <span class="status-badge auth">Auth Required</span>
                     </div>
                     <div class="description">
-                        Get list of upcoming scheduled tests.
+                        Get recent activity logs.
                     </div>
-                    <div class="test-section">
-                        <button class="btn" onclick="testAPI('dashboard-upcoming')">Test API</button>
-                        <div class="response-box" id="dashboard-upcoming-response"></div>
-                    </div>
-                </div>
-
-                <div class="api-card">
-                    <div class="api-header">
-                        <span class="method get">GET</span>
-                        <span class="endpoint">/api/admin/dashboard/recent-activity</span>
-                    </div>
-                    <div class="description">
-                        Get recent activity logs and events.
-                    </div>
+                    <div class="backend-info">📂 Backend: adminDashboardRoutes.js</div>
                     <div class="test-section">
                         <button class="btn" onclick="testAPI('dashboard-activity')">Test API</button>
                         <div class="response-box" id="dashboard-activity-response"></div>
@@ -349,7 +406,7 @@
                 </div>
             </div>
 
-            <!-- Questions API Section -->
+            <!-- Questions Management -->
             <div class="section">
                 <h2 class="section-title">❓ Questions Management APIs</h2>
                 
@@ -357,27 +414,22 @@
                     <div class="api-header">
                         <span class="method get">GET</span>
                         <span class="endpoint">/api/admin/questions</span>
+                        <span class="status-badge auth">Auth Required</span>
                     </div>
                     <div class="description">
                         Get all questions with optional filtering.
                     </div>
+                    <div class="backend-info">📂 Backend: questionRoutes.js</div>
                     <div class="params">
                         <strong>Query Parameters:</strong>
                         <div class="param-item">• subject (optional) - Filter by subject</div>
-                        <div class="param-item">• difficulty (optional) - Filter by difficulty level</div>
-                        <div class="param-item">• search (optional) - Search in question text or topic</div>
+                        <div class="param-item">• difficulty (optional) - Filter by difficulty</div>
+                        <div class="param-item">• page (optional) - Page number for pagination</div>
+                        <div class="param-item">• limit (optional) - Items per page</div>
                     </div>
                     <div class="test-section">
-                        <div class="input-group">
-                            <label>Subject:</label>
-                            <select id="q-subject">
-                                <option value="all">All</option>
-                                <option value="Physics">Physics</option>
-                                <option value="Mathematics">Mathematics</option>
-                            </select>
-                        </div>
-                        <button class="btn" onclick="testAPI('questions')">Test API</button>
-                        <div class="response-box" id="questions-response"></div>
+                        <button class="btn" onclick="testAPI('questions-list')">Test API</button>
+                        <div class="response-box" id="questions-list-response"></div>
                     </div>
                 </div>
 
@@ -385,30 +437,32 @@
                     <div class="api-header">
                         <span class="method get">GET</span>
                         <span class="endpoint">/api/admin/questions/:id</span>
+                        <span class="status-badge auth">Auth Required</span>
                     </div>
                     <div class="description">
                         Get a single question by ID.
                     </div>
-                    <div class="test-section">
-                        <div class="input-group">
-                            <label>Question ID:</label>
-                            <input type="number" id="question-id" value="1" min="1">
-                        </div>
-                        <button class="btn" onclick="testAPI('question-detail')">Test API</button>
-                        <div class="response-box" id="question-detail-response"></div>
-                    </div>
+                    <div class="backend-info">📂 Backend: questionRoutes.js</div>
                 </div>
 
                 <div class="api-card">
                     <div class="api-header">
                         <span class="method post">POST</span>
                         <span class="endpoint">/api/admin/questions</span>
+                        <span class="status-badge auth">Auth Required</span>
                     </div>
                     <div class="description">
                         Create a new question.
                     </div>
+                    <div class="backend-info">📂 Backend: questionRoutes.js</div>
                     <div class="params">
-                        <strong>Request Body:</strong> JSON with question details (subject, topic, difficulty, marks, question, type, options, answer)
+                        <strong>Request Body:</strong>
+                        <div class="param-item">• question_text (string) - Question text</div>
+                        <div class="param-item">• subject (string) - Subject name</div>
+                        <div class="param-item">• difficulty (string) - Difficulty level</div>
+                        <div class="param-item">• question_type (string) - MCQ/Subjective</div>
+                        <div class="param-item">• options (array) - Answer options for MCQ</div>
+                        <div class="param-item">• correct_answer (string) - Correct answer</div>
                     </div>
                 </div>
 
@@ -416,24 +470,28 @@
                     <div class="api-header">
                         <span class="method put">PUT</span>
                         <span class="endpoint">/api/admin/questions/:id</span>
+                        <span class="status-badge auth">Auth Required</span>
                     </div>
                     <div class="description">
                         Update an existing question.
                     </div>
+                    <div class="backend-info">📂 Backend: questionRoutes.js</div>
                 </div>
 
                 <div class="api-card">
                     <div class="api-header">
                         <span class="method delete">DELETE</span>
                         <span class="endpoint">/api/admin/questions/:id</span>
+                        <span class="status-badge auth">Auth Required</span>
                     </div>
                     <div class="description">
                         Delete a question by ID.
                     </div>
+                    <div class="backend-info">📂 Backend: questionRoutes.js</div>
                 </div>
             </div>
 
-            <!-- Students API Section -->
+            <!-- Students Management -->
             <div class="section">
                 <h2 class="section-title">👨‍🎓 Students Management APIs</h2>
                 
@@ -441,21 +499,21 @@
                     <div class="api-header">
                         <span class="method get">GET</span>
                         <span class="endpoint">/api/admin/students</span>
+                        <span class="status-badge auth">Auth Required</span>
                     </div>
                     <div class="description">
-                        Get all students with optional search functionality.
+                        Get all students with search and pagination.
                     </div>
+                    <div class="backend-info">📂 Backend: studentRoutes.js</div>
                     <div class="params">
                         <strong>Query Parameters:</strong>
-                        <div class="param-item">• search (optional) - Search by name, email, or phone</div>
+                        <div class="param-item">• search (optional) - Search by name/email/phone</div>
+                        <div class="param-item">• page (optional) - Page number</div>
+                        <div class="param-item">• limit (optional) - Items per page</div>
                     </div>
                     <div class="test-section">
-                        <div class="input-group">
-                            <label>Search:</label>
-                            <input type="text" id="student-search" placeholder="Name, email, or phone">
-                        </div>
-                        <button class="btn" onclick="testAPI('students')">Test API</button>
-                        <div class="response-box" id="students-response"></div>
+                        <button class="btn" onclick="testAPI('students-list')">Test API</button>
+                        <div class="response-box" id="students-list-response"></div>
                     </div>
                 </div>
 
@@ -463,128 +521,68 @@
                     <div class="api-header">
                         <span class="method get">GET</span>
                         <span class="endpoint">/api/admin/students/:id</span>
+                        <span class="status-badge auth">Auth Required</span>
                     </div>
                     <div class="description">
                         Get a single student by ID.
                     </div>
-                    <div class="test-section">
-                        <div class="input-group">
-                            <label>Student ID:</label>
-                            <input type="number" id="student-id" value="1" min="1">
-                        </div>
-                        <button class="btn" onclick="testAPI('student-detail')">Test API</button>
-                        <div class="response-box" id="student-detail-response"></div>
-                    </div>
+                    <div class="backend-info">📂 Backend: studentRoutes.js</div>
                 </div>
 
                 <div class="api-card">
                     <div class="api-header">
                         <span class="method post">POST</span>
                         <span class="endpoint">/api/admin/students</span>
+                        <span class="status-badge auth">Auth Required</span>
                     </div>
                     <div class="description">
                         Create a new student record.
                     </div>
-                    <div class="params">
-                        <strong>Request Body:</strong> JSON with student details (name, email, phone, course, address)
-                    </div>
+                    <div class="backend-info">📂 Backend: studentRoutes.js</div>
                 </div>
 
                 <div class="api-card">
                     <div class="api-header">
                         <span class="method put">PUT</span>
                         <span class="endpoint">/api/admin/students/:id</span>
+                        <span class="status-badge auth">Auth Required</span>
                     </div>
                     <div class="description">
                         Update student information.
                     </div>
+                    <div class="backend-info">📂 Backend: studentRoutes.js</div>
                 </div>
 
                 <div class="api-card">
                     <div class="api-header">
                         <span class="method delete">DELETE</span>
                         <span class="endpoint">/api/admin/students/:id</span>
+                        <span class="status-badge auth">Auth Required</span>
                     </div>
                     <div class="description">
                         Delete a student record.
                     </div>
+                    <div class="backend-info">📂 Backend: studentRoutes.js</div>
                 </div>
             </div>
 
-            <!-- Tests API Section -->
+            <!-- Results APIs -->
             <div class="section">
-                <h2 class="section-title">📝 Tests Management APIs</h2>
-                
-                <div class="api-card">
-                    <div class="api-header">
-                        <span class="method get">GET</span>
-                        <span class="endpoint">/api/admin/tests</span>
-                    </div>
-                    <div class="description">
-                        Get all tests.
-                    </div>
-                    <div class="test-section">
-                        <button class="btn" onclick="testAPI('tests')">Test API</button>
-                        <div class="response-box" id="tests-response"></div>
-                    </div>
-                </div>
-
-                <div class="api-card">
-                    <div class="api-header">
-                        <span class="method get">GET</span>
-                        <span class="endpoint">/api/admin/tests/:id</span>
-                    </div>
-                    <div class="description">
-                        Get a single test by ID.
-                    </div>
-                </div>
-
-                <div class="api-card">
-                    <div class="api-header">
-                        <span class="method post">POST</span>
-                        <span class="endpoint">/api/admin/tests</span>
-                    </div>
-                    <div class="description">
-                        Create a new test.
-                    </div>
-                </div>
-
-                <div class="api-card">
-                    <div class="api-header">
-                        <span class="method put">PUT</span>
-                        <span class="endpoint">/api/admin/tests/:id</span>
-                    </div>
-                    <div class="description">
-                        Update test details.
-                    </div>
-                </div>
-
-                <div class="api-card">
-                    <div class="api-header">
-                        <span class="method delete">DELETE</span>
-                        <span class="endpoint">/api/admin/tests/:id</span>
-                    </div>
-                    <div class="description">
-                        Delete a test.
-                    </div>
-                </div>
-            </div>
-
-            <!-- Results API Section -->
-            <div class="section">
-                <h2 class="section-title">🏆 Results APIs</h2>
+                <h2 class="section-title">🏆 Results Management APIs</h2>
                 
                 <div class="api-card">
                     <div class="api-header">
                         <span class="method get">GET</span>
                         <span class="endpoint">/api/admin/results</span>
+                        <span class="status-badge auth">Auth Required</span>
                     </div>
                     <div class="description">
-                        Get all test results with student performance data.
+                        Get all test results.
                     </div>
+                    <div class="backend-info">📂 Backend: resultRoutes.js</div>
                     <div class="test-section">
-                        <button class="btn" onclick="testAPI('results')">Test API</button>
-                        <div class="response-box" id="results-response"></div>
+                        <button class="btn" onclick="testAPI('results-list')">Test API</button>
+                        <div class="response-box" id="results-list-response"></div>
                     </div>
                 </div>
 
@@ -592,48 +590,288 @@
                     <div class="api-header">
                         <span class="method get">GET</span>
                         <span class="endpoint">/api/admin/results/:id</span>
+                        <span class="status-badge auth">Auth Required</span>
                     </div>
                     <div class="description">
                         Get a single result by ID.
                     </div>
+                    <div class="backend-info">📂 Backend: resultRoutes.js</div>
+                </div>
+            </div>
+
+            <!-- Transactions APIs -->
+            <div class="section">
+                <h2 class="section-title">💳 Transaction Management APIs</h2>
+                
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint">/api/admin/transactions</span>
+                        <span class="status-badge auth">Auth Required</span>
+                    </div>
+                    <div class="description">
+                        Get all payment transactions.
+                    </div>
+                    <div class="backend-info">📂 Backend: transactionRoutes.js</div>
                     <div class="test-section">
-                        <div class="input-group">
-                            <label>Result ID:</label>
-                            <input type="number" id="result-id" value="1" min="1">
-                        </div>
-                        <button class="btn" onclick="testAPI('result-detail')">Test API</button>
-                        <div class="response-box" id="result-detail-response"></div>
+                        <button class="btn" onclick="testAPI('transactions-list')">Test API</button>
+                        <div class="response-box" id="transactions-list-response"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment APIs -->
+            <div class="section">
+                <h2 class="section-title">💰 Payment APIs</h2>
+                
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="method post">POST</span>
+                        <span class="endpoint">/api/payment/create-order</span>
+                        <span class="status-badge public">Public</span>
+                    </div>
+                    <div class="description">
+                        Create a new Razorpay payment order.
+                    </div>
+                    <div class="backend-info">📂 Backend: paymentRoutes.js</div>
+                </div>
+
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="method post">POST</span>
+                        <span class="endpoint">/api/payment/verify</span>
+                        <span class="status-badge public">Public</span>
+                    </div>
+                    <div class="description">
+                        Verify Razorpay payment signature.
+                    </div>
+                    <div class="backend-info">📂 Backend: paymentRoutes.js</div>
+                </div>
+            </div>
+
+            <!-- Exam APIs -->
+            <div class="section">
+                <h2 class="section-title">📝 Exam APIs</h2>
+                
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint">/api/exam/questions</span>
+                        <span class="status-badge public">Public</span>
+                    </div>
+                    <div class="description">
+                        Get exam questions for students.
+                    </div>
+                    <div class="backend-info">📂 Backend: examRoutes.js</div>
+                </div>
+
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="method post">POST</span>
+                        <span class="endpoint">/api/exam/submit</span>
+                        <span class="status-badge public">Public</span>
+                    </div>
+                    <div class="description">
+                        Submit exam answers.
+                    </div>
+                    <div class="backend-info">📂 Backend: examRoutes.js</div>
+                </div>
+            </div>
+
+            <!-- News APIs -->
+            <div class="section">
+                <h2 class="section-title">📰 News APIs</h2>
+                
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint">/api/news</span>
+                        <span class="status-badge public">Public</span>
+                    </div>
+                    <div class="description">
+                        Fetch latest science news articles.
+                    </div>
+                    <div class="backend-info">📂 Backend: newsRoutes.js</div>
+                    <div class="params">
+                        <strong>Query Parameters:</strong>
+                        <div class="param-item">• category (optional) - News category (default: science)</div>
+                        <div class="param-item">• page (optional) - Page number</div>
+                    </div>
+                    <div class="test-section">
+                        <button class="btn" onclick="testAPI('news')">Test API</button>
+                        <div class="response-box" id="news-response"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PDF AI APIs -->
+            <div class="section">
+                <h2 class="section-title">📝 PDF AI APIs</h2>
+                
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="method post">POST</span>
+                        <span class="endpoint">/api/admin/pdf-ai/upload</span>
+                        <span class="status-badge auth">Auth Required</span>
+                    </div>
+                    <div class="description">
+                        Upload PDF and convert to quiz using AI.
+                    </div>
+                    <div class="backend-info">📂 Backend: pdfAiRoutes.js</div>
+                </div>
+
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint">/api/pdf/*</span>
+                        <span class="status-badge public">Public</span>
+                    </div>
+                    <div class="description">
+                        PDF management and processing routes.
+                    </div>
+                    <div class="backend-info">📂 Backend: pdf.js</div>
+                </div>
+            </div>
+
+            <!-- User & Analytics APIs -->
+            <div class="section">
+                <h2 class="section-title">👤 User & Analytics APIs</h2>
+                
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint">/api/profile</span>
+                        <span class="status-badge public">Public</span>
+                    </div>
+                    <div class="description">
+                        Get user profile information.
+                    </div>
+                    <div class="backend-info">📂 Backend: userRoutes.js</div>
+                </div>
+
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint">/api/check-purchase/:testId</span>
+                        <span class="status-badge public">Public</span>
+                    </div>
+                    <div class="description">
+                        Check if user has purchased a test.
+                    </div>
+                    <div class="backend-info">📂 Backend: userRoutes.js</div>
+                </div>
+
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint">/api/analytics/*</span>
+                        <span class="status-badge auth">Auth Required</span>
+                    </div>
+                    <div class="description">
+                        Analytics and reporting endpoints.
+                    </div>
+                    <div class="backend-info">📂 Backend: analyticsRoutes.js</div>
+                </div>
+            </div>
+
+            <!-- System APIs -->
+            <div class="section">
+                <h2 class="section-title">⚙️ System APIs</h2>
+                
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint">/health</span>
+                        <span class="status-badge public">Public</span>
+                    </div>
+                    <div class="description">
+                        Server health check endpoint.
+                    </div>
+                    <div class="test-section">
+                        <button class="btn" onclick="testAPI('health')">Test Health Check</button>
+                        <div class="response-box" id="health-response"></div>
+                    </div>
+                </div>
+
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint">/api/config</span>
+                        <span class="status-badge public">Public</span>
+                    </div>
+                    <div class="description">
+                        Get frontend configuration (Razorpay keys, API URLs).
+                    </div>
+                    <div class="test-section">
+                        <button class="btn" onclick="testAPI('config')">Test Config</button>
+                        <div class="response-box" id="config-response"></div>
+                    </div>
+                </div>
+
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint">/api</span>
+                        <span class="status-badge public">Public</span>
+                    </div>
+                    <div class="description">
+                        API information and available endpoints.
+                    </div>
+                    <div class="test-section">
+                        <button class="btn" onclick="testAPI('api-info')">Test API Info</button>
+                        <div class="response-box" id="api-info-response"></div>
                     </div>
                 </div>
             </div>
         </div>
 
         <footer>
-            <p>📚 Vigyan Test Management System | API Documentation v1.0</p>
-            <p style="margin-top: 10px; opacity: 0.8;">Repository: <a href="https://github.com/harshbuddy01/vigyan" style="color: #68d391;">github.com/harshbuddy01/vigyan</a></p>
+            <p>📚 Vigyan Test Management Platform | API Documentation v2.0</p>
+            <p style="margin-top: 10px; opacity: 0.8;">Repository: <a href="https://github.com/harshbuddy01/vigyan" target="_blank">github.com/harshbuddy01/vigyan</a></p>
+            <p style="margin-top: 5px; font-size: 0.85em; opacity: 0.7;">MongoDB Backend | Express.js | Railway Deployment</p>
         </footer>
     </div>
 
     <script>
-        // Base URL - Update this to your actual API endpoint
-        const BASE_URL = 'http://localhost:3000';
+        function getBaseURL() {
+            return document.getElementById('base-url').value.trim() || 'https://vigyan-production.up.railway.app';
+        }
 
         async function testAPI(endpoint) {
-            let url = BASE_URL;
-            let responseId = endpoint + '-response';
+            const responseId = endpoint + '-response';
             const responseBox = document.getElementById(responseId);
+            const BASE_URL = getBaseURL();
             
+            if (!responseBox) {
+                alert('Response box not found for: ' + endpoint);
+                return;
+            }
+
             // Show loading state
+            responseBox.classList.remove('error');
             responseBox.classList.add('show');
-            responseBox.textContent = 'Loading...';
+            responseBox.textContent = 'Loading...\n\nRequesting: ' + BASE_URL;
+
+            let url = BASE_URL;
 
             try {
                 switch(endpoint) {
-                    case 'news':
-                        const category = document.getElementById('news-category').value;
-                        const pageSize = document.getElementById('news-pageSize').value;
-                        url += `/api/news?category=${category}&pageSize=${pageSize}`;
+                    case 'health':
+                        url += '/health';
                         break;
+                    
+                    case 'config':
+                        url += '/api/config';
+                        break;
+                    
+                    case 'api-info':
+                        url += '/api';
+                        break;
+                    
+                    case 'admin-login':
+                        url += '/api/admin/auth/login';
+                        responseBox.textContent = 'This is a POST endpoint.\n\nTo test, send a POST request with:\n{\n  "username": "your-admin-username",\n  "password": "your-admin-password"\n}';
+                        return;
                     
                     case 'dashboard-stats':
                         url += '/api/admin/dashboard/stats';
@@ -643,56 +881,56 @@
                         url += '/api/admin/dashboard/performance';
                         break;
                     
-                    case 'dashboard-upcoming':
-                        url += '/api/admin/dashboard/upcoming-tests';
-                        break;
-                    
                     case 'dashboard-activity':
-                        url += '/api/admin/dashboard/recent-activity';
+                        url += '/api/admin/dashboard/activity';
                         break;
                     
-                    case 'questions':
-                        const subject = document.getElementById('q-subject').value;
-                        url += `/api/admin/questions${subject !== 'all' ? '?subject=' + subject : ''}`;
+                    case 'questions-list':
+                        url += '/api/admin/questions';
                         break;
                     
-                    case 'question-detail':
-                        const qId = document.getElementById('question-id').value;
-                        url += `/api/admin/questions/${qId}`;
+                    case 'students-list':
+                        url += '/api/admin/students';
                         break;
                     
-                    case 'students':
-                        const search = document.getElementById('student-search').value;
-                        url += `/api/admin/students${search ? '?search=' + search : ''}`;
-                        break;
-                    
-                    case 'student-detail':
-                        const sId = document.getElementById('student-id').value;
-                        url += `/api/admin/students/${sId}`;
-                        break;
-                    
-                    case 'tests':
-                        url += '/api/admin/tests';
-                        break;
-                    
-                    case 'results':
+                    case 'results-list':
                         url += '/api/admin/results';
                         break;
                     
-                    case 'result-detail':
-                        const rId = document.getElementById('result-id').value;
-                        url += `/api/admin/results/${rId}`;
+                    case 'transactions-list':
+                        url += '/api/admin/transactions';
                         break;
+                    
+                    case 'news':
+                        url += '/api/news';
+                        break;
+                    
+                    default:
+                        throw new Error('Unknown endpoint: ' + endpoint);
                 }
 
+                console.log('Fetching:', url);
                 const response = await fetch(url);
                 const data = await response.json();
                 
                 responseBox.textContent = JSON.stringify(data, null, 2);
+                
+                if (!response.ok) {
+                    responseBox.classList.add('error');
+                }
             } catch (error) {
-                responseBox.textContent = `Error: ${error.message}\n\nMake sure your API server is running at ${BASE_URL}`;
+                responseBox.classList.add('error');
+                responseBox.textContent = `Error: ${error.message}\n\nURL: ${url}\n\nPlease check:\n1. Is your server running at ${BASE_URL}?\n2. Is CORS enabled on the server?\n3. Is the endpoint correct?\n\nOpen browser console (F12) for more details.`;
+                console.error('API Test Error:', error);
             }
         }
+
+        // Test base URL on page load
+        window.addEventListener('load', () => {
+            const baseURLInput = document.getElementById('base-url');
+            console.log('API Documentation loaded. Base URL:', baseURLInput.value);
+            console.log('Update the Base URL above to match your server address.');
+        });
     </script>
 </body>
 </html>
