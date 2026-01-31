@@ -328,10 +328,10 @@
     </div>
 
     <script>
-        // ✅ HARDCODED Railway URL - CORRECT WORKING URL (2026-01-31)
-        const RAILWAY_API_URL = 'https://vigyan-production.up.railway.app';
+        // ✅ CORRECT Railway URL - Updated Jan 31, 2026
+        const API_URL = 'https://vigyan-production.up.railway.app';
         console.log('🔐 Admin Login Page Loaded');
-        console.log('🌐 API URL (HARDCODED):', RAILWAY_API_URL);
+        console.log('🌐 API URL:', API_URL);
 
         // ✅ SECURITY FIX: Check if already logged in
         const authData = sessionStorage.getItem('adminAuth');
@@ -387,9 +387,8 @@
             spinner.style.display = 'inline-block';
 
             try {
-                // ✅ CORRECT Railway public URL (Updated 2026-01-31)
-                const API_URL = 'https://xqhrh218.up.railway.app';
-
+                console.log('🔐 Attempting login to:', `${API_URL}/api/admin/auth/login`);
+                
                 // Call backend API for authentication
                 const response = await fetch(`${API_URL}/api/admin/auth/login`, {
                     method: 'POST',
@@ -400,16 +399,21 @@
                     body: JSON.stringify({ username, password })
                 });
 
+                console.log('📡 Response status:', response.status);
+                
                 const data = await response.json();
+                console.log('📦 Response data:', data);
 
                 if (response.ok && data.success) {
                     // Successful login
                     console.log('✅ Login successful');
 
                     // Store authentication
-                    sessionStorage.setItem('adminAuth', 'true');
-                    sessionStorage.setItem('adminUsername', username);
-                    sessionStorage.setItem('loginTime', new Date().getTime());
+                    sessionStorage.setItem('adminAuth', JSON.stringify({
+                        authenticated: true,
+                        username: username,
+                        loginTime: new Date().getTime()
+                    }));
 
                     // Optional: Store in localStorage if "Remember me" is checked
                     if (rememberMe) {
@@ -421,20 +425,21 @@
                     // Show success message
                     successMessage.style.display = 'block';
 
-                    // Redirect to dashboard v3 after 1 second - ✅ FIXED
+                    // Redirect to dashboard after 1 second
                     setTimeout(() => {
-                        window.location.href = 'admin-dashboard-v3.html'; // ✅ CHANGED FROM v2 TO v3
+                        window.location.href = 'admin-dashboard-v3.html';
                     }, 1000);
 
                 } else {
                     // Login failed
+                    console.error('❌ Login failed:', data.message);
                     showError(data.message || 'Invalid username or password');
                     resetButton();
                 }
 
             } catch (error) {
                 console.error('❌ Login error:', error);
-                showError('Unable to connect to server. Please try again.');
+                showError('Unable to connect to server. Please check if backend is running.');
                 resetButton();
             }
         });
