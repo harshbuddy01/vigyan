@@ -163,6 +163,7 @@
 
         .method.get { background: #28a745; color: white; }
         .method.post { background: #007bff; color: white; }
+        .method.patch { background: #ffc107; color: #000; }
         .method.put { background: #ffc107; color: #000; }
         .method.delete { background: #dc3545; color: white; }
 
@@ -457,6 +458,58 @@
                 </div>
             </div>
 
+            <!-- Test Series Management -->
+            <div class="section">
+                <h2 class="section-title">📝 Test Series Management</h2>
+                
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint">/api/admin/tests</span>
+                        <span class="status-badge auth">Auth Required</span>
+                    </div>
+                    <div class="description">Get all test series with details</div>
+                    <div class="backend-info">📂 testSeriesRoutes.js</div>
+                    <div class="test-section">
+                        <button class="btn btn-success" onclick="testAPI('/api/admin/tests', 'tests-list', 'GET', true)">🚀 TEST NOW</button>
+                        <div class="response-box" id="tests-list-response"></div>
+                    </div>
+                </div>
+
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="method patch">PATCH</span>
+                        <span class="endpoint">/api/admin/tests/:testId/price</span>
+                        <span class="status-badge auth">Auth Required</span>
+                    </div>
+                    <div class="description">Update test series price (creates price history)</div>
+                    <div class="backend-info">📂 testSeriesRoutes.js</div>
+                    <div class="params">
+                        <strong>Body Parameters:</strong>
+                        <div class="param-item">• newPrice (number, required) - New price for the test</div>
+                        <div class="param-item">• reason (string, optional) - Reason for price change</div>
+                    </div>
+                    <div class="test-section">
+                        <button class="btn btn-success" onclick="testUpdatePrice()">🚀 TEST NOW (testId=1)</button>
+                        <div class="response-box" id="update-price-response"></div>
+                    </div>
+                </div>
+
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint">/api/admin/tests/:testId/price-history</span>
+                        <span class="status-badge auth">Auth Required</span>
+                    </div>
+                    <div class="description">Get price change history for a test</div>
+                    <div class="backend-info">📂 testSeriesRoutes.js</div>
+                    <div class="test-section">
+                        <button class="btn btn-success" onclick="testAPI('/api/admin/tests/1/price-history', 'price-history', 'GET', true)">🚀 TEST NOW (testId=1)</button>
+                        <div class="response-box" id="price-history-response"></div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Questions -->
             <div class="section">
                 <h2 class="section-title">❓ Questions Management</h2>
@@ -568,10 +621,30 @@
                 <div class="api-card">
                     <div class="api-header">
                         <span class="method post">POST</span>
+                        <span class="endpoint">/api/payment/checkout</span>
+                        <span class="status-badge public">Public</span>
+                    </div>
+                    <div class="description">Create payment order for test checkout</div>
+                    <div class="backend-info">📂 paymentRoutes.js</div>
+                    <div class="params">
+                        <strong>Body Parameters:</strong>
+                        <div class="param-item">• amount (number, required) - Amount in rupees</div>
+                        <div class="param-item">• testId (string, required) - Test ID to purchase</div>
+                        <div class="param-item">• email (string, required) - Student email</div>
+                    </div>
+                    <div class="test-section">
+                        <button class="btn btn-success" onclick="testCheckout()">🚀 TEST NOW</button>
+                        <div class="response-box" id="checkout-response"></div>
+                    </div>
+                </div>
+
+                <div class="api-card">
+                    <div class="api-header">
+                        <span class="method post">POST</span>
                         <span class="endpoint">/api/payment/create-order</span>
                         <span class="status-badge public">Public</span>
                     </div>
-                    <div class="description">Create Razorpay payment order</div>
+                    <div class="description">Create Razorpay payment order (generic)</div>
                     <div class="backend-info">📂 paymentRoutes.js</div>
                     <div class="test-section">
                         <button class="btn btn-success" onclick="testAPI('/api/payment/create-order', 'payment-create', 'POST')">🚀 TEST NOW</button>
@@ -712,6 +785,80 @@
                 }
             });
         });
+
+        // Test Payment Checkout
+        async function testCheckout() {
+            const responseBox = document.getElementById('checkout-response');
+            const url = BASE_URL + '/api/payment/checkout';
+            
+            responseBox.classList.remove('error', 'success');
+            responseBox.classList.add('show');
+            responseBox.textContent = `⏳ Testing POST ${url}\n\nPlease wait...`;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        amount: 1,
+                        testId: 'test-iat-2024',
+                        email: 'test@example.com'
+                    })
+                });
+
+                const data = await response.json();
+                const status = response.ok ? '✅ SUCCESS' : '❌ FAILED';
+                const statusClass = response.ok ? 'success' : 'error';
+                
+                responseBox.classList.add(statusClass);
+                responseBox.textContent = `${status} | Status: ${response.status} ${response.statusText}\n\n${JSON.stringify(data, null, 2)}`;
+                
+            } catch (error) {
+                responseBox.classList.add('error');
+                responseBox.textContent = `❌ ERROR\n\nEndpoint: ${url}\n\nError: ${error.message}`;
+            }
+        }
+
+        // Test Update Price
+        async function testUpdatePrice() {
+            if (!adminToken) {
+                alert('⚠️ Please login first!');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                return;
+            }
+
+            const responseBox = document.getElementById('update-price-response');
+            const url = BASE_URL + '/api/admin/tests/1/price';
+            
+            responseBox.classList.remove('error', 'success');
+            responseBox.classList.add('show');
+            responseBox.textContent = `⏳ Testing PATCH ${url}\n\nPlease wait...`;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({
+                        newPrice: 199,
+                        reason: 'Test price update from API tester'
+                    })
+                });
+
+                const data = await response.json();
+                const status = response.ok ? '✅ SUCCESS' : '❌ FAILED';
+                const statusClass = response.ok ? 'success' : 'error';
+                
+                responseBox.classList.add(statusClass);
+                responseBox.textContent = `${status} | Status: ${response.status} ${response.statusText}\n\n${JSON.stringify(data, null, 2)}`;
+                
+            } catch (error) {
+                responseBox.classList.add('error');
+                responseBox.textContent = `❌ ERROR\n\nEndpoint: ${url}\n\nError: ${error.message}`;
+            }
+        }
 
         // Test API
         async function testAPI(endpoint, responseId, method = 'GET', requiresAuth = false) {
