@@ -51,46 +51,66 @@
         .login-section {
             background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
             color: white;
-            padding: 25px;
-            margin: 20px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            padding: 30px;
+            margin: 0;
+            border-bottom: 5px solid #c92a2a;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.7); }
+            50% { box-shadow: 0 0 0 15px rgba(255, 107, 107, 0); }
         }
 
         .login-section.logged-in {
             background: linear-gradient(135deg, #51cf66, #37b24d);
+            animation: none;
+            border-bottom: 5px solid #2f9e44;
         }
 
-        .login-section h3 {
-            margin-bottom: 15px;
-            font-size: 1.5em;
+        .login-section h2 {
+            font-size: 2em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .login-section .instructions {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+
+        .login-section .instructions strong {
+            color: #fff59d;
         }
 
         .login-form {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            align-items: flex-end;
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 15px;
+            align-items: end;
         }
 
         .form-group {
-            flex: 1;
-            min-width: 200px;
+            display: flex;
+            flex-direction: column;
         }
 
         .form-group label {
-            display: block;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             font-weight: 600;
-            font-size: 0.9em;
+            font-size: 1em;
+            text-transform: uppercase;
         }
 
         .form-group input {
-            width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: none;
             border-radius: 5px;
-            font-size: 1em;
+            font-size: 1.1em;
+            font-weight: 600;
         }
 
         .content {
@@ -180,19 +200,30 @@
             background: #667eea;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 24px;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 0.9em;
-            transition: background 0.3s;
-            margin-right: 10px;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background 0.3s, transform 0.2s;
+            text-transform: uppercase;
         }
 
-        .btn:hover { background: #5568d3; }
-        .btn:disabled { background: #ccc; cursor: not-allowed; }
+        .btn:hover { 
+            background: #5568d3;
+            transform: scale(1.05);
+        }
+        
+        .btn:disabled { 
+            background: #ccc; 
+            cursor: not-allowed;
+            transform: none;
+        }
 
         .btn-success {
             background: #28a745;
+            font-size: 1.2em;
+            padding: 15px 30px;
         }
 
         .btn-success:hover {
@@ -201,6 +232,8 @@
 
         .btn-danger {
             background: #dc3545;
+            font-size: 1.2em;
+            padding: 15px 30px;
         }
 
         .btn-danger:hover {
@@ -253,13 +286,17 @@
         .status-badge.public { background: #4caf50; color: white; }
 
         .token-info {
-            margin-top: 15px;
-            padding: 10px;
+            margin-top: 20px;
+            padding: 15px;
             background: rgba(255,255,255,0.2);
-            border-radius: 5px;
+            border-radius: 8px;
             font-family: 'Courier New', monospace;
-            font-size: 0.85em;
+            font-size: 0.9em;
             word-break: break-all;
+        }
+
+        .token-info strong {
+            color: #fff59d;
         }
 
         footer {
@@ -275,7 +312,9 @@
         @media (max-width: 768px) {
             header h1 { font-size: 1.8em; }
             .section-title { font-size: 1.4em; }
-            .login-form { flex-direction: column; }
+            .login-form { 
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -290,25 +329,38 @@
             ✅ Live Server: https://vigyan-production.up.railway.app
         </div>
 
-        <!-- Admin Login Section -->
+        <!-- ⚠️ ADMIN LOGIN SECTION - MUST USE THIS FIRST ⚠️ -->
         <div class="login-section" id="login-section">
-            <h3>🔐 Admin Login (Required for Protected APIs)</h3>
+            <h2>🔐 STEP 1: ADMIN LOGIN (DO THIS FIRST!)</h2>
+            
+            <div class="instructions">
+                <strong>⚠️ IMPORTANT:</strong> Most APIs need authentication! Follow these steps:<br>
+                1️⃣ Enter your admin username<br>
+                2️⃣ Enter your admin password<br>
+                3️⃣ Click "🔓 LOGIN & GET TOKEN" button below<br>
+                4️⃣ Wait for success message (box will turn GREEN)<br>
+                5️⃣ Then scroll down and test any API!
+            </div>
+
             <div class="login-form">
                 <div class="form-group">
-                    <label>Admin Username:</label>
+                    <label>👤 Admin Username:</label>
                     <input type="text" id="admin-username" placeholder="Enter admin username" value="admin">
                 </div>
                 <div class="form-group">
-                    <label>Admin Password:</label>
+                    <label>🔑 Admin Password:</label>
                     <input type="password" id="admin-password" placeholder="Enter admin password">
                 </div>
                 <div class="form-group">
-                    <button class="btn btn-success" onclick="adminLogin()" style="margin-top: 20px;">🔓 LOGIN & GET TOKEN</button>
-                    <button class="btn btn-danger" onclick="adminLogout()" style="margin-top: 20px; display: none;" id="logout-btn">🚪 LOGOUT</button>
+                    <button class="btn btn-success" onclick="adminLogin()" id="login-btn">🔓 LOGIN & GET TOKEN</button>
+                    <button class="btn btn-danger" onclick="adminLogout()" style="display: none;" id="logout-btn">🚪 LOGOUT</button>
                 </div>
             </div>
+            
             <div class="token-info" id="token-info" style="display: none;">
-                <strong>Token:</strong> <span id="token-display"></span>
+                <strong>✅ LOGGED IN! Your Token:</strong><br>
+                <span id="token-display"></span><br><br>
+                <strong>You can now test all protected APIs below! ⬇️</strong>
             </div>
         </div>
 
@@ -599,13 +651,17 @@
 
         // Admin Login
         async function adminLogin() {
-            const username = document.getElementById('admin-username').value;
-            const password = document.getElementById('admin-password').value;
+            const username = document.getElementById('admin-username').value.trim();
+            const password = document.getElementById('admin-password').value.trim();
             
             if (!username || !password) {
-                alert('Please enter both username and password!');
+                alert('⚠️ Please enter both username and password!');
                 return;
             }
+
+            const loginBtn = document.getElementById('login-btn');
+            loginBtn.disabled = true;
+            loginBtn.textContent = '⏳ Logging in...';
 
             try {
                 const response = await fetch(BASE_URL + '/api/admin/auth/login', {
@@ -621,14 +677,19 @@
                     document.getElementById('login-section').classList.add('logged-in');
                     document.getElementById('token-display').textContent = adminToken;
                     document.getElementById('token-info').style.display = 'block';
+                    document.getElementById('login-btn').style.display = 'none';
                     document.getElementById('logout-btn').style.display = 'inline-block';
                     
-                    alert('✅ Login Successful! Token saved. You can now test protected APIs.');
+                    alert('✅ Login Successful!\n\nToken saved! You can now test all protected APIs.\n\nScroll down to test APIs! ⬇️');
                 } else {
                     alert('❌ Login Failed: ' + (data.message || 'Invalid credentials'));
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = '🔓 LOGIN & GET TOKEN';
                 }
             } catch (error) {
                 alert('❌ Login Error: ' + error.message);
+                loginBtn.disabled = false;
+                loginBtn.textContent = '🔓 LOGIN & GET TOKEN';
             }
         }
 
@@ -637,10 +698,20 @@
             adminToken = null;
             document.getElementById('login-section').classList.remove('logged-in');
             document.getElementById('token-info').style.display = 'none';
+            document.getElementById('login-btn').style.display = 'inline-block';
             document.getElementById('logout-btn').style.display = 'none';
             document.getElementById('admin-password').value = '';
             alert('🚪 Logged out successfully!');
         }
+
+        // Allow Enter key to login
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('admin-password').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    adminLogin();
+                }
+            });
+        });
 
         // Test API
         async function testAPI(endpoint, responseId, method = 'GET', requiresAuth = false) {
@@ -651,7 +722,10 @@
             if (requiresAuth && !adminToken) {
                 responseBox.classList.remove('error', 'success');
                 responseBox.classList.add('show', 'error');
-                responseBox.textContent = '❌ AUTHENTICATION REQUIRED\n\nPlease login first using the Admin Login section above!\n\nThis API requires admin authentication token.';
+                responseBox.textContent = '❌ AUTHENTICATION REQUIRED\n\n⚠️ Please SCROLL UP and login first!\n\nSteps:\n1. Scroll to top of page\n2. Enter admin username & password\n3. Click "🔓 LOGIN & GET TOKEN" button\n4. Wait for success message\n5. Come back and test this API';
+                
+                // Scroll to top to show login
+                window.scrollTo({ top: 0, behavior: 'smooth' });
                 return;
             }
             
@@ -688,6 +762,7 @@
         }
 
         console.log('🚀 API Tester loaded. Server:', BASE_URL);
+        console.log('⚠️ SCROLL TO TOP to see LOGIN SECTION!');
     </script>
 </body>
 </html>
