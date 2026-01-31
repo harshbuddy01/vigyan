@@ -5,6 +5,7 @@ import { StudentPayment } from "../models/StudentPayment.js";
 import { PurchasedTest } from "../models/PurchasedTest.js";
 import { PaymentTransaction } from "../models/PaymentTransaction.js";
 import Student from "../models/Student.js";
+import { TestSeries } from "../models/TestSeries.js"; // 🔒 NEW: Import TestSeries model
 import mongoose from "mongoose";
 import { generateAuthToken } from '../middlewares/auth.js';
 
@@ -82,7 +83,7 @@ export const getApiKey = (req, res) => {
   });
 };
 
-// 2. CHECKOUT - 🔧 ENHANCED ERROR LOGGING
+// 2. 🔒 SECURITY-ENHANCED CHECKOUT - PRICE FROM DATABASE ONLY
 export const checkout = async (req, res) => {
   console.log('🔵 ========== CHECKOUT ENDPOINT CALLED ==========');
   console.log('📦 Request body:', JSON.stringify(req.body, null, 2));
@@ -93,40 +94,22 @@ export const checkout = async (req, res) => {
 
     if (!razorpayInstance) {
       console.error('❌ CRITICAL: Razorpay instance is NULL!');
-      console.error('   Possible reasons:');
-      console.error('   1. RAZORPAY_API_KEY not set in environment variables');
-      console.error('   2. RAZORPAY_API_SECRET not set in environment variables');
-      console.error('   3. Razorpay initialization failed in config/razorpay.js');
-
       return res.status(500).json({
         success: false,
-        message: "Payment gateway not configured. Missing Razorpay credentials.",
-        debug: {
-          razorpayConfigured: false,
-          envCheck: {
-            hasApiKey: !!process.env.RAZORPAY_API_KEY,
-            hasApiSecret: !!process.env.RAZORPAY_API_SECRET
-          }
-        }
+        message: "Payment gateway not configured. Missing Razorpay credentials."
       });
     }
 
-    // CHECK 2: Validate request body
-    const { amount, testId, email } = req.body;
+    // 🔒 SECURITY: Only accept testId and email from frontend
+    // Amount will be fetched from DATABASE, not from frontend!
+    const { testId, email } = req.body;
+    
     console.log('🔍 Check 2: Request validation');
-    console.log('   Amount:', amount, typeof amount);
     console.log('   TestId:', testId, typeof testId);
     console.log('   Email:', email, typeof email);
 
-    if (!amount || isNaN(amount) || amount <= 0) {
-      console.error('❌ Invalid amount:', amount);
-      return res.status(400).json({
-        success: false,
-        message: "Valid amount is required"
-      });
-    }
-
-    if (!testId || typeof testId !== 'string') {
+    // Validate testId
+    if (!testId || typeof testId !== 'string' || testId.trim().length === 0) {
       console.error('❌ Invalid testId:', testId);
       return res.status(400).json({
         success: false,
@@ -134,6 +117,7 @@ export const checkout = async (req, res) => {
       });
     }
 
+    // Validate email
     if (!email || typeof email !== 'string' || !email.includes('@')) {
       console.error('❌ Invalid email:', email);
       return res.status(400).json({
@@ -144,15 +128,42 @@ export const checkout = async (req, res) => {
 
     console.log('✅ Request validation passed');
 
-    // CHECK 3: Create Razorpay order
+    // 🔒 SECURITY CRITICAL: Fetch price from database
+    console.log(`🔍 Fetching price for test '${testId}' from DATABASE...`);
+    
+    const testSeries = await TestSeries.findOne({ 
+      testId: testId.toLowerCase().trim(), 
+      isActive: true 
+    });
+
+    if (!testSeries) {
+      console.error(`❌ Test series '${testId}' not found in database`);
+      return res.status(404).json({
+        success: false,
+        message: `Test series '${testId}' not found or is not available`
+      });
+    }
+
+    const priceInRupees = testSeries.price;
+    const priceInPaise = priceInRupees * 100;
+
+    console.log('✅ Price fetched from database:');
+    console.log(`   Test: ${testSeries.name}`);
+    console.log(`   Price: ₹${priceInRupees}`);
+    console.log(`   Razorpay amount (paise): ${priceInPaise}`);
+    console.log('🔒 SECURITY: Frontend cannot override this price');
+
+    // CHECK 3: Create Razorpay order with DATABASE price
     console.log('🔍 Check 3: Creating Razorpay order...');
     const options = {
-      amount: Number(amount * 100),
+      amount: priceInPaise, // 🔒 Price from DATABASE only!
       currency: "INR",
       receipt: `receipt_${Date.now()}_${testId}`,
       notes: {
         email: email,
-        testId: testId
+        testId: testId,
+        testName: testSeries.name,
+        priceInRupees: priceInRupees
       }
     };
 
@@ -162,15 +173,18 @@ export const checkout = async (req, res) => {
 
     console.log('✅ Razorpay order created successfully!');
     console.log('   Order ID:', order.id);
-    console.log('   Amount:', order.amount);
+    console.log('   Amount (paise):', order.amount);
+    console.log('   Amount (rupees): ₹' + (order.amount / 100));
     console.log('   Currency:', order.currency);
 
     // CHECK 4: Prepare response
     const responseData = {
       success: true,
       orderId: order.id,
-      amount: order.amount,
+      amount: order.amount, // in paise
+      amountInRupees: priceInRupees, // for display
       currency: order.currency,
+      testName: testSeries.name,
       key: process.env.RAZORPAY_API_KEY
     };
 
@@ -203,6 +217,7 @@ export const checkout = async (req, res) => {
 };
 
 // 3. 🔧 FIXED PAYMENT VERIFICATION WITH JWT TOKEN GENERATION
+// (Rest of the file remains the same as before)
 export const paymentVerification = async (req, res) => {
   console.log("🔹 ========== PAYMENT VERIFICATION STARTED ==========");
   console.log("📦 Request Body:", JSON.stringify(req.body, null, 2));
